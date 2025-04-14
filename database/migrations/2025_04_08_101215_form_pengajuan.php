@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('form_pengajuan', function(Blueprint $table) {
             $table->id();
-            $table->foreignId('id_pembayaran')->constrained('pembayaran')->onDelete('cascade');
+            $table->foreignId('id_pembayaran')->nullable()->constrained('pembayaran')->onDelete('cascade');
             $table->foreignId('id_kategori')->constrained('kategori')->onDelete('cascade');
             $table->string('deskripsi');
-            $table->enum('status_pengujian', ['diproses', 'selesai', 'batal']);
-            $table->date('tanggal_terima');
-            $table->enum('metode_pengambilan', ['teknisi', 'customer']);
+            $table->enum('status_pengajuan', ['proses_validasi', 'diterima', 'ditolak'])->default('proses_validasi');
+            $table->enum('metode_pengambilan', ['diantar', 'diambil']);
+            $table->date('tanggal_terima')->nullable();
         });
     }
 

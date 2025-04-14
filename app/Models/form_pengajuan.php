@@ -15,7 +15,7 @@ class form_pengajuan extends Model
         'id_pembayaran',
         'id_kategori',
         'deskripsi',
-        'status_pengujian',
+        'status_pengajuan',
         'tanggal_terima',
         'metode_pengambilan'
     ];

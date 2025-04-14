@@ -20,7 +20,7 @@ class hasil_uji extends Model
 
     public function parameter()
     {
-        return $this()->belongsTo(hasil_uji::class, 'id_parameter');
+        return $this()->belongsTo(parameter_uji::class, 'id_parameter');
     }
 
     public function pengujian()
