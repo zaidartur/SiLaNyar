@@ -17,4 +17,16 @@ class parameter_uji extends Model
         'baku_mutu',
         'biaya'
     ];
+
+    public function pengujian()
+    {
+        return $this->belongsToMany(pengujian::class, 'hasil_uji', 'id_parameter', 'id_pengujian')
+                    ->withPivot('nilai', 'keterangan')
+                    ->withTimeStamps();
+    }
+
+    public function hasil_uji()
+    {
+        return $this->hasMany(hasil_uji::class);    
+    }
 }

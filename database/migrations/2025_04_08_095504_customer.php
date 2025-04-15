@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('tipe_instansi');
             $table->string('alamat_instansi');
             $table->integer('kontak_instansi');
+            $table->timestamps();
         });
     }
 

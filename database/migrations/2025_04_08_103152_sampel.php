@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sampel', function(Blueprint $table) {
-            $table->id();
-            $table->foreignId('id_customer')->constrained('customer')->onDelete('cascade');
-            $table->foreignId('id_form_pengajuan')->constrained('form_pengajuan')->onDelete('cascade');
-            $table->float('volume');
-            $table->enum('jenis_sampel', ['cair', 'padat', 'gas']);
-        });
+        // Schema::create('sampel', function(Blueprint $table) {
+        //     $table->id();
+        //     $table->foreignId('id_customer')->constrained('customer')->onDelete('cascade');
+        //     $table->foreignId('id_form_pengajuan')->constrained('form_pengajuan')->onDelete('cascade');
+        //     $table->float('volume');
+        //     $table->enum('jenis_sampel', ['cair', 'padat', 'gas']);
+        // });
     }
 
     /**

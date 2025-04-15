@@ -19,4 +19,9 @@ class pembayaran extends Model
         'status_pembayaran',
         'bukti_pembayaran'
     ];
+
+    public function form_pengajuan()
+    {
+        return $this->belongsTo(form_pengajuan::class);    
+    }
 }

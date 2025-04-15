@@ -22,11 +22,11 @@ class jadwal extends Model
 
     public function form_pengajuan()
     {
-        return $this()->belongsTo(form_pengajuan::class, 'id_form_pengajuan');    
+        return $this->belongsTo(form_pengajuan::class, 'id_form_pengajuan');    
     }
 
     public function pegawai()
     {
-        return $this()->belongsTo(pegawai::class, 'id_pegawai');
+        return $this->belongsTo(pegawai::class, 'id_pegawai');
     }
 }

@@ -21,4 +21,9 @@ class customer extends Model
         'alamat_instansi',
         'kontak_instansi'
     ];
+
+    public function form_pengajuan()
+    {
+        return $this->hasMany(form_pengajuan::class);    
+    }
 }

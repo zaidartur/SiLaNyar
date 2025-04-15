@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('id_pengujian')->constrained('pengujian')->onDelete('cascade');
             $table->float('nilai');
             $table->string('keterangan');
+            $table->timestamps();
         });
     }
 

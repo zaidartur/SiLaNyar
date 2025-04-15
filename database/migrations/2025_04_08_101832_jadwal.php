@@ -17,8 +17,9 @@ return new class extends Migration
             $table->foreignId('id_pegawai')->constrained('pegawai')->onDelete('cascade');
             $table->date('waktu_pengambilan');
             $table->string('lokasi');
-            $table->enum('status', ['diproses', 'selesai']);
+            $table->enum('status', ['diproses', 'selesai'])->default('diproses');
             $table->string('keterangan');
+            $table->timestamps();
         });
     }
 
