@@ -12,27 +12,6 @@ use App\Http\Middleware\CheckVerifiedCustomer;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::middleware('guest:customer')->group(function()
-{
-    Route::get('registrasi', [RegisteredUserController::class, 'create'])->name('registrasi');
-    Route::post('registrasi', [RegisteredUserController::class, 'store']);
-    
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
-});
-
-Route::middleware(['auth:customer', CheckVerifiedCustomer::class])->group(function() {
-    Route::get('dashboard', function () {
-        return Inertia::render('Dashboard');
-    });
-
-    Route::post('logout', [AuthenticatedSessionController::class, 'destroy']);
-});
-
-Route::get('/', function () {
-    return Inertia::render('Welcome');
-})->name('home');
-
 // Route::get('dashboard', function () {
 //     return Inertia::render('Dashboard');
 // })->middleware(['auth', 'verified'])->name('dashboard');
