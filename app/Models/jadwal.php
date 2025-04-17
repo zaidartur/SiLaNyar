@@ -15,7 +15,6 @@ class jadwal extends Model
         'id_form_pengajuan',
         'id_pegawai',
         'waktu_pengambilan',
-        'lokasi',
         'status',
         'keterangan'
     ];

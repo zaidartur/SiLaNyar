@@ -18,8 +18,8 @@ class form_pengajuan extends Model
         'deskripsi',
         'volume_sampel',
         'status_pengajuan',
-        'tanggal_terima',
-        'metode_pengambilan'
+        'metode_pengambilan',
+        'lokasi'
     ];
 
     public function customer()

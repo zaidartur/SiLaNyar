@@ -35,7 +35,6 @@ class JadwalController extends Controller
         $request->validate([
             'id_form_pengujian' => 'required|exists:form_pengujain,id',
             'waktu_pengambilan' => 'required|date',
-            'lokasi' => 'required|string',
             'status' => 'required|in:diproses,selesai',
             'keterangan' => 'required|string|max:255'
         ]);
@@ -64,7 +63,6 @@ class JadwalController extends Controller
         $request->validate([
             'id_form_pengajuan' => 'nullable',
             'waktu_pengambilan' => 'required|date',
-            'lokasi' => 'required|string',
             'status' => 'required|in:diproses,selesai',
             'keterangan' => 'required|string|max:255'
         ]);

@@ -15,9 +15,11 @@ class hasil_uji extends Model
         'id_parameter',
         'id_pengujian',
         'nilai',
-        'keterangan'
+        'keterangan',
+        'status'
     ];
 
+    
     public function parameter()
     {
         return $this->belongsTo(parameter_uji::class, 'id_parameter');

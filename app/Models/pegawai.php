@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use App\Models\permission;
 
-class pegawai extends Model
+class pegawai extends Authenticatable
 {
-    use HasFactory;
+    use HasFactory, Notifiable;
 
     protected $table = 'pegawai';
 
@@ -15,6 +18,39 @@ class pegawai extends Model
         'nama',
         'jabatan',
         'jenis_kelamin',
-        'no_telepon'
+        'no_telepon',
+        'email',
+        'password'
     ];
+
+    protected $hidden = [
+        'password'
+    ];
+
+    protected $casts = [
+        'password' => 'hashed'
+    ];
+
+    public function role()
+    {
+        return $this->belongsToMany(role::class, 'has_role')
+                    ->withPivot('status_verifikasi', 'diverifikasi_oleh', 'email_verified_at')
+                    ->withTimestamps();
+    }
+
+    public function has_role()
+    {
+        
+    }
+
+    public function permission()
+    {
+        return $this->role()
+                    ->withPivot('status_verifikasi', 'verifikasi')
+                    ->with('permission')
+                    ->get()
+                    ->flatMap->permission
+                    ->pluck('nama')
+                    ->unique();    
+    }
 }

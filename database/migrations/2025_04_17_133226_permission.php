@@ -11,15 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pegawai', function (Blueprint $table) {
+        Schema::create('permission', function(Blueprint $table)
+        {
             $table->id();
             $table->string('nama');
-            $table->string('jabatan');
-            $table->enum('jenis_kelamin', ["laki-laki", "perempuan"]);
-            $table->integer('no_telepon');
-            $table->string('email')->unique();
-            $table->string('password');
-            $table->timestamps();
+            $table->timestamps(); 
         });
     }
 
