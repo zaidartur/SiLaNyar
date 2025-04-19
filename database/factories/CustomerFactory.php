@@ -36,8 +36,6 @@ class CustomerFactory extends Factory
         ];
     }
 
-    // Database\Factories\CustomerFactory.php
-
     public function unverified()
     {
         return $this->state(function (array $attributes) {
