@@ -21,7 +21,7 @@ class AuthenticationTest extends TestCase
     {
         $user = Customer::factory()->create();
 
-        $response = $this->actingAs($user, 'customer')->post('/login', [
+        $response = $this->post('/login', [
             'email' => $user->email,
             'password' => 'password',
         ]);
@@ -29,6 +29,7 @@ class AuthenticationTest extends TestCase
         $this->assertAuthenticatedAs($user, 'customer');
         $response->assertRedirect(route('dashboard', absolute: false));
     }
+
 
     public function test_users_can_not_authenticate_with_invalid_password()
     {
@@ -46,7 +47,9 @@ class AuthenticationTest extends TestCase
     {
         $user = Customer::factory()->create();
 
-        $response = $this->actingAs($user, 'customer')->post('/logout');
+        $this->actingAs($user, 'customer');
+
+        $response = $this->post('/logout');
 
         $response->assertRedirect('/');
 
