@@ -4,11 +4,18 @@ namespace Tests\Feature\Auth;
 
 use App\Models\Customer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function guard()
+    {
+        return Auth::guard('customer');
+    }
 
     public function test_login_screen_can_be_rendered()
     {
@@ -19,7 +26,9 @@ class AuthenticationTest extends TestCase
 
     public function test_users_can_authenticate_using_the_login_screen()
     {
-        $user = Customer::factory()->create();
+        $user = Customer::factory()->create([
+            'password' => Hash::make('password'),
+        ]);
 
         $response = $this->post('/login', [
             'email' => $user->email,
@@ -45,14 +54,15 @@ class AuthenticationTest extends TestCase
 
     public function test_users_can_logout()
     {
-        $user = Customer::factory()->create();
+        $user = Customer::factory()->create([
+            'password' => Hash::make('password'),
+        ]);
 
         $this->actingAs($user, 'customer');
 
         $response = $this->post('/logout');
 
         $response->assertRedirect('/');
-
         $this->assertGuest('customer');
     }
 }
