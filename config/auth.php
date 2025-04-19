@@ -76,7 +76,7 @@ return [
         ],
         'customer' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', \App\Models\customer::class)
+            'model' => env('AUTH_MODEL', \App\Models\Customer::class)
         ],
         'users' => [
             'driver' => 'eloquent',
