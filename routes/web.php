@@ -12,16 +12,12 @@ use App\Http\Middleware\CheckVerifiedCustomer;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// Route::get('dashboard', function () {
-//     return Inertia::render('Dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
-
 //route user
 //pengajuan
 Route::get('pengajuan/daftar', [PengajuanController::class, 'register']);
 Route::post('pengajuan/store', [PengajuanController::class, 'store']);
 
-//route admin
+//route pegawai
 
 //crud parameter
 Route::get('parameter/', [ParameterController::class, 'index'])->name('parameter.index');
