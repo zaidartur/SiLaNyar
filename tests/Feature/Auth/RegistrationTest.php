@@ -5,6 +5,7 @@ namespace Tests\Feature\Auth;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\Customer;
+use App\Http\Controllers\Auth\Customer\RegisteredUserController;
 
 class RegistrationTest extends TestCase
 {
@@ -73,7 +74,6 @@ class RegistrationTest extends TestCase
         ]);
         $response->assertSessionHasErrors(['nama', 'jenis_user', 'kontak_pribadi']);
         
-        // Test email format validation
         $response = $this->post('/registrasi', [
             'nama' => 'Test User',
             'jenis_user' => 'perorangan',
@@ -85,7 +85,6 @@ class RegistrationTest extends TestCase
         ]);
         $response->assertSessionHasErrors('email');
 
-        // Test password confirmation
         $response = $this->post('/registrasi', [
             'nama' => 'Test User',
             'jenis_user' => 'perorangan',
@@ -100,10 +99,8 @@ class RegistrationTest extends TestCase
 
     public function test_email_must_be_unique()
     {
-        // Create a customer with email address
         Customer::factory()->create(['email' => 'existing@example.com']);
 
-        // Try to register with the same email
         $response = $this->post('/registrasi', [
             'nama' => 'Test User',
             'jenis_user' => 'perorangan',

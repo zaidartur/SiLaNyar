@@ -6,6 +6,7 @@ use App\Models\Customer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Controllers\Auth\Customer\AuthenticatedSessionController;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
@@ -23,7 +24,8 @@ class AuthenticationTest extends TestCase
     {
         $customer = Customer::factory()->create([
             'password' => bcrypt('password'),
-            'status_verifikasi' => 'diterima'
+            'status_verifikasi' => 'diterima',
+            'email' => 'test@example.com'
         ]);
 
         $response = $this->post('/login', [

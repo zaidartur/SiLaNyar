@@ -18,7 +18,9 @@ class DashboardTest extends TestCase
 
     public function test_authenticated_users_can_visit_the_dashboard()
     {
-        $user = Customer::factory()->create();
+        $user = Customer::factory()->create([
+            'status_verifikasi' => 'diterima'
+        ]);
         $this->actingAs($user, 'customer');
 
         $response = $this->get('/dashboard');
