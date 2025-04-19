@@ -14,4 +14,14 @@ class role extends Model
     protected $fillable = [
         'nama'
     ];
+
+    public function permission()
+    {
+        return $this->belongsToMany(permission::class, 'permission_role');   
+    }
+
+    public function pegawai()
+    {
+        return $this->belongsToMany(pegawai::class, 'has_role');
+    }
 }

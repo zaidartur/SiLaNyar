@@ -12,7 +12,18 @@ class kategori extends Model
     protected $table = 'kategori';
 
     protected $fillable = [
+        'id_parameter',
         'nama',
         'harga'
     ];
+
+    public function parameter()
+    {
+        return $this->belongsToMany(parameter_uji::class, 'id_parameter');
+    }
+
+    public function form_pengajuan()
+    {
+        return $this->belongsTo(form_pengajuan::class);
+    }
 }

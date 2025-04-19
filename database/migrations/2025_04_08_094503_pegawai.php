@@ -17,6 +17,9 @@ return new class extends Migration
             $table->string('jabatan');
             $table->enum('jenis_kelamin', ["laki-laki", "perempuan"]);
             $table->integer('no_telepon');
+            $table->string('email')->unique();
+            $table->string('password');
+            $table->timestamps();
         });
     }
 

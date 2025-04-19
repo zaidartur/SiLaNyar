@@ -15,18 +15,17 @@ class jadwal extends Model
         'id_form_pengajuan',
         'id_pegawai',
         'waktu_pengambilan',
-        'lokasi',
         'status',
         'keterangan'
     ];
 
     public function form_pengajuan()
     {
-        return $this()->belongsTo(form_pengajuan::class, 'id_form_pengajuan');    
+        return $this->belongsTo(form_pengajuan::class, 'id_form_pengajuan');    
     }
 
     public function pegawai()
     {
-        return $this()->belongsTo(pegawai::class, 'id_pegawai');
+        return $this->belongsTo(pegawai::class, 'id_pegawai');
     }
 }

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('satuan');
             $table->float('baku_mutu');
             $table->integer('biaya');
+            $table->timestamps();
         });
     }
 

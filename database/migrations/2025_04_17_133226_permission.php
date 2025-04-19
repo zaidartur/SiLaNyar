@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('detail_kategori', function(Blueprint $table) {
+        Schema::create('permission', function(Blueprint $table)
+        {
             $table->id();
-            $table->foreignId('id_parameter')->constrained('parameter_uji')->onDelete('cascade');
-            $table->foreignId('id_kategori')->constrained('kategori')->onDelete('cascade');
-            $table->string('keterangan');
+            $table->string('nama');
+            $table->timestamps(); 
         });
     }
 

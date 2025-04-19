@@ -13,8 +13,10 @@ return new class extends Migration
     {
         Schema::create('kategori', function (Blueprint $table) {
            $table->id();
+           $table->foreignid("id_parameter")->constrained("parameter_uji")->onDelete("cascade");
            $table->string('nama');
-           $table->integer('harga'); 
+           $table->integer('harga');
+           $table->timestamps();
         });
     }
 
