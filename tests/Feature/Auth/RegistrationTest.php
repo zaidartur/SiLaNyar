@@ -8,16 +8,6 @@ use App\Models\Customer;
 
 class RegistrationTest extends TestCase
 {
-    <?php
-
-namespace Tests\Feature\Auth\Customer;
-
-use App\Models\Customer;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
-
-class CustomerRegistrationTest extends TestCase
-{
     use RefreshDatabase;
 
     public function test_registration_screen_can_be_rendered()
