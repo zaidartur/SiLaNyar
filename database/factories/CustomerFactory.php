@@ -36,10 +36,14 @@ class CustomerFactory extends Factory
         ];
     }
 
-    public function unverified(): static
+    // Database\Factories\CustomerFactory.php
+
+    public function unverified()
     {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
+        return $this->state(function (array $attributes) {
+            return [
+                'email_verified_at' => null,
+            ];
+        });
     }
 }
