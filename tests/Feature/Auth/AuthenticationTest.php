@@ -26,7 +26,7 @@ class AuthenticationTest extends TestCase
             'password' => 'password',
         ]);
 
-        $this->assertAuthenticated($user, 'customer');
+        $this->assertAuthenticatedAs($user, 'customer');
         $response->assertRedirect(route('dashboard', absolute: false));
     }
 
@@ -50,7 +50,6 @@ class AuthenticationTest extends TestCase
 
         $response->assertRedirect('/');
 
-        // Cek apakah user sudah logout
         $this->assertGuest('customer');
     }
 }
