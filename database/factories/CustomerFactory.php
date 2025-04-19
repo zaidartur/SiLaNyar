@@ -28,7 +28,7 @@ class CustomerFactory extends Factory
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
             'remember_token' => Str::random(10),
-            'status_diverifikasi' => 'diterima'
+            'status_verifikasi' => 'diterima'
             // Removed is_verified field
         ];
     }
