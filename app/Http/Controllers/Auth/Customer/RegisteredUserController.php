@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Models\customer;
+use App\Models\Customer;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -33,11 +33,11 @@ class RegisteredUserController extends Controller
             'tipe_instansi' => 'nullable|in:swasta,pemerintahan',
             'alamat_instansi' => 'nullable|string|max:255',
             'kontak_instansi' => 'nullable|string|regex:/^\+[0-9]{1,3}$/',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.customer::class,
+            'email' => 'required|string|lowercase|email|max:255|unique:'.Customer::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);   
 
-        $customer = customer::create($request->all());
+        $customer = Customer::create($request->all());
 
         event(new Registered($customer));
 
