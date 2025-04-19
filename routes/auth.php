@@ -24,7 +24,7 @@ Route::middleware('guest:customer')->group(function()
 Route::middleware(['auth:customer', CheckVerifiedCustomer::class])->group(function() {
     Route::get('dashboard', function () {
         return Inertia::render('Dashboard');
-    });
+    })->name('dashboard');
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy']);
 });
