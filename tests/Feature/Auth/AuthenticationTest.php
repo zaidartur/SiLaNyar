@@ -19,7 +19,7 @@ class AuthenticationTest extends TestCase
 
     public function test_users_can_authenticate_using_the_login_screen()
     {
-        $user = Customer::factory()->unverified()->create();
+        $user = Customer::factory()->create();
 
         $response = $this->actingAs($user, 'customer')->post('/login', [
             'email' => $user->email,
@@ -44,7 +44,7 @@ class AuthenticationTest extends TestCase
 
     public function test_users_can_logout()
     {
-        $user = Customer::factory()->unverified()->create();
+        $user = Customer::factory()->create();
 
         $response = $this->actingAs($user, 'customer')->post('/logout');
 
