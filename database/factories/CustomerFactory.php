@@ -29,7 +29,7 @@ class CustomerFactory extends Factory
             'alamat_instansi' => $this->faker->optional()->address(),
             'kontak_instansi' => $this->faker->optional()->phoneNumber(),
             'email' => $this->faker->unique()->safeEmail(),
-            'password' => Hash::make('password'), // password default
+            'password' => bcrypt('password'), // password default
             'status_verifikasi' => 'diterima', // agar bisa login (jika ada pengecekan)
             'email_verified_at' => now(),
             'remember_token' => Str::random(10),
