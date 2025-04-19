@@ -10,7 +10,7 @@ use App\Models\customer;
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Customer>
  */
-class CustomerFactory extends Factory
+class customerFactory extends Factory
 {
     /**
      * Define the model's default state.
