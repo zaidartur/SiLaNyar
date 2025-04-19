@@ -33,9 +33,18 @@ class RegisteredUserController extends Controller
             'tipe_instansi' => 'nullable|in:swasta,pemerintahan',
             'alamat_instansi' => 'nullable|string|max:255',
             'kontak_instansi' => 'nullable|string|regex:/^\+[0-9]{1,3}$/',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.Customer::class,
+            'email' => 'required|string|lowercase|email|max:255|unique:' . Customer::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);   
+        ]);
+
+        if ($request->jenis_user === 'instansi') {
+            $request->validate([
+                'nama_instansi' => 'required|string|max:255',
+                'tipe_instansi' => 'required|in:swasta,pemerintahan',
+                'alamat_instansi' => 'required|string|max:255',
+                'kontak_instansi' => 'required|string|regex:/^\+[0-9]{1,3}$/',
+            ]);
+        }
 
         $customer = Customer::create($request->all());
 

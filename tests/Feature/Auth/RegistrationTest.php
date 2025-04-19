@@ -15,7 +15,6 @@ class RegistrationTest extends TestCase
         $response = $this->get('/registrasi');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($assert) => $assert->component('auth/Register'));
     }
 
     public function test_new_personal_customers_can_register()

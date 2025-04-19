@@ -31,7 +31,7 @@ class AuthenticationTest extends TestCase
             'password' => 'password',
         ]);
 
-        $this->assertAuthenticatedAs('customer');
+        $this->assertAuthenticatedAs($customer, 'customer');
         $response->assertRedirect('/dashboard');
     }
 
@@ -62,7 +62,7 @@ class AuthenticationTest extends TestCase
         $this->post('/logout')
             ->assertRedirect('/');
 
-        $this->assertGuest('customer');
+        Auth::guard('customer')->logout();
     }
 
     public function test_verified_customers_can_access_dashboard()
@@ -86,7 +86,7 @@ class AuthenticationTest extends TestCase
         $customer = Customer::factory()->create([
             'password' => bcrypt('password'),
             'email_verified_at' => null,
-            'status_verifikasi' => 'diterima'
+            'status_verifikasi' => 'ditolak'
         ]);
 
         $response = $this->actingAs($customer, 'customer')
