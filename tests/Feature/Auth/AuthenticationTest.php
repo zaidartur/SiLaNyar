@@ -22,14 +22,17 @@ class AuthenticationTest extends TestCase
 
     public function test_customers_can_authenticate_using_the_login_screen()
     {
-        $customer = Customer::factory()->create([
-            'password' => bcrypt('password'),
-            'status_verifikasi' => 'diterima',
-            'email' => 'test@example.com'
+        $customer = Customer::create([
+            'nama' => 'Test User',
+            'jenis_user' => 'perorangan',
+            'kontak_pribadi' => '+6281234567890',
+            'email' => 'test@example.com',
+            'password' => Hash::make('password'),
+            'status_verifikasi' => 'diterima'
         ]);
 
         $response = $this->post('/login', [
-            'email' => $customer->email,
+            'email' => 'test@example.com',
             'password' => 'password',
         ]);
 
@@ -84,17 +87,18 @@ class AuthenticationTest extends TestCase
 
     public function test_unverified_customers_cannot_access_dashboard()
     {
-        // Assuming the verification is based on email_verified_at
-        $customer = Customer::factory()->create([
-            'password' => bcrypt('password'),
-            'email_verified_at' => null,
+        $customer = Customer::create([
+            'nama' => 'Test User',
+            'jenis_user' => 'perorangan',
+            'kontak_pribadi' => '+6281234567890',
+            'email' => 'test@example.com',
+            'password' => Hash::make('password'),
             'status_verifikasi' => 'ditolak'
         ]);
 
-        $response = $this->actingAs($customer, 'customer')
-            ->get('/dashboard');
-
-        // This should redirect based on your CheckVerifiedCustomer middleware
+        $this->actingAs($customer, 'customer');
+        $response = $this->get('/dashboard');
+        
         $response->assertRedirect();
     }
 }

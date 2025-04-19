@@ -26,7 +26,7 @@ Route::middleware(['auth:customer', CheckVerifiedCustomer::class])->group(functi
         return Inertia::render('Dashboard');
     })->name('dashboard');
 
-    Route::post('logout', [AuthenticatedSessionController::class, 'destroy']);
+    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
 
 Route::get('/', function () {
