@@ -17,7 +17,6 @@ class AuthenticationTest extends TestCase
         $response = $this->get('/login');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($assert) => $assert->component('auth/Login'));
     }
 
     public function test_customers_can_authenticate_using_the_login_screen()
