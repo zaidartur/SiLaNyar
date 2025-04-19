@@ -5,43 +5,43 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Models\Customer;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Customer>
  */
 class CustomerFactory extends Factory
 {
-    protected $model = \App\Models\Customer::class;
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    protected $model = Customer::class;
+
     public function definition(): array
     {
+        $jenis_user = $this->faker->randomElement(['instansi', 'perorangan']);
+        
         return [
             'nama' => $this->faker->name(),
-            'jenis_user' => $this->faker->randomElement(['instansi', 'perorangan']),
+            'jenis_user' => $jenis_user,
             'alamat_pribadi' => $this->faker->address(),
-            'kontak_pribadi' => $this->faker->phoneNumber(),
-            'nama_instansi' => $this->faker->optional()->company(),
-            'tipe_instansi' => $this->faker->optional()->randomElement(['swasta', 'pemerintahan']),
-            'alamat_instansi' => $this->faker->optional()->address(),
-            'kontak_instansi' => $this->faker->optional()->phoneNumber(),
+            'kontak_pribadi' => '+' . $this->faker->numerify('###########'),
+            'nama_instansi' => $jenis_user === 'instansi' ? $this->faker->company() : null,
+            'tipe_instansi' => $jenis_user === 'instansi' ? $this->faker->randomElement(['swasta', 'pemerintahan']) : null,
+            'alamat_instansi' => $jenis_user === 'instansi' ? $this->faker->address() : null,
+            'kontak_instansi' => $jenis_user === 'instansi' ? '+' . $this->faker->numerify('###########') : null,
             'email' => $this->faker->unique()->safeEmail(),
-            'password' => bcrypt('password'), // password default
-            'status_verifikasi' => 'diterima', // agar bisa login (jika ada pengecekan)
             'email_verified_at' => now(),
+            'password' => Hash::make('password'),
             'remember_token' => Str::random(10),
+            'is_verified' => false,
         ];
     }
 
-    public function unverified()
+    /**
+     * Set the customer as verified.
+     */
+    public function verified(): static
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'email_verified_at' => null,
-            ];
-        });
+        return $this->state(fn (array $attributes) => [
+            'is_verified' => true,
+        ]);
     }
 }

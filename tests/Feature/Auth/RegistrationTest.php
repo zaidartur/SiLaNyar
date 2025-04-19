@@ -4,6 +4,7 @@ namespace Tests\Feature\Auth;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use App\Models\Customer;
 
 class RegistrationTest extends TestCase
 {
@@ -14,18 +15,112 @@ class RegistrationTest extends TestCase
         $response = $this->get('/registrasi');
 
         $response->assertStatus(200);
+        $response->assertInertia(fn ($assert) => $assert->component('customer/register'));
     }
 
-    public function test_new_users_can_register()
+    public function test_new_personal_customers_can_register()
     {
         $response = $this->post('/registrasi', [
-            'name' => 'Test User',
+            'nama' => 'Test User',
+            'jenis_user' => 'perorangan',
+            'alamat_pribadi' => 'Jl. Test No. 123',
+            'kontak_pribadi' => '+628123456789',
             'email' => 'test@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
         ]);
 
-        $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $this->assertAuthenticated('customer');
+        $response->assertRedirect();
+        $response->assertSessionHas('message', 'Akun Berhasil Terdaftar Harap Tunggu Verifikasi Data!');
+        $this->assertDatabaseHas('customers', [
+            'email' => 'test@example.com',
+            'jenis_user' => 'perorangan',
+        ]);
+    }
+
+    public function test_new_institution_customers_can_register()
+    {
+        $response = $this->post('/registrasi', [
+            'nama' => 'Test User',
+            'jenis_user' => 'instansi',
+            'alamat_pribadi' => 'Jl. Test No. 123',
+            'kontak_pribadi' => '+628123456789',
+            'nama_instansi' => 'Test Corporation',
+            'tipe_instansi' => 'swasta',
+            'alamat_instansi' => 'Jl. Corporate No. 456',
+            'kontak_instansi' => '+628987654321',
+            'email' => 'corp@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $this->assertAuthenticated('customer');
+        $response->assertRedirect();
+        $response->assertSessionHas('message', 'Akun Berhasil Terdaftar Harap Tunggu Verifikasi Data!');
+        $this->assertDatabaseHas('customers', [
+            'email' => 'corp@example.com',
+            'jenis_user' => 'instansi',
+            'nama_instansi' => 'Test Corporation',
+            'tipe_instansi' => 'swasta',
+        ]);
+    }
+
+    public function test_registration_validation_rules()
+    {
+        // Test email format validation
+        $response = $this->post('/registrasi', [
+            'nama' => 'Test User',
+            'jenis_user' => 'perorangan',
+            'alamat_pribadi' => 'Jl. Test No. 123',
+            'kontak_pribadi' => '+628123456789',
+            'email' => 'invalid-email',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+        $response->assertSessionHasErrors('email');
+
+        // Test phone format validation
+        $response = $this->post('/registrasi', [
+            'nama' => 'Test User',
+            'jenis_user' => 'perorangan',
+            'alamat_pribadi' => 'Jl. Test No. 123',
+            'kontak_pribadi' => '08123456789', // Missing "+" prefix
+            'email' => 'test@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+        $response->assertSessionHasErrors('kontak_pribadi');
+
+        // Test password confirmation
+        $response = $this->post('/registrasi', [
+            'nama' => 'Test User',
+            'jenis_user' => 'perorangan',
+            'alamat_pribadi' => 'Jl. Test No. 123',
+            'kontak_pribadi' => '+628123456789',
+            'email' => 'test@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'different-password',
+        ]);
+        $response->assertSessionHasErrors('password');
+    }
+
+    public function test_email_must_be_unique()
+    {
+        // Create a customer with email address
+        Customer::factory()->create(['email' => 'existing@example.com']);
+
+        // Try to register with the same email
+        $response = $this->post('/registrasi', [
+            'nama' => 'Test User',
+            'jenis_user' => 'perorangan',
+            'alamat_pribadi' => 'Jl. Test No. 123',
+            'kontak_pribadi' => '+628123456789',
+            'email' => 'existing@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $response->assertSessionHasErrors('email');
     }
 }

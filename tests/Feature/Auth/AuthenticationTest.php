@@ -12,57 +12,69 @@ class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected function guard()
-    {
-        return Auth::guard('customer');
-    }
-
     public function test_login_screen_can_be_rendered()
     {
         $response = $this->get('/login');
 
         $response->assertStatus(200);
+        $response->assertInertia(fn ($assert) => $assert->component('customer/login'));
     }
 
-    public function test_users_can_authenticate_using_the_login_screen()
+    public function test_customers_can_authenticate_using_the_login_screen()
     {
-        $user = Customer::factory()->create([
-            'password' => bcrypt('password'),
-        ]);
+        $customer = Customer::factory()->create();
 
         $response = $this->post('/login', [
-            'email' => $user->email,
-            'password' => 'password',
+            'email' => $customer->email,
+            'password' => 'password', // Assumes the factory uses 'password' as the default
         ]);
 
-        $this->assertAuthenticatedAs($user, 'customer');
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $this->assertAuthenticated('customer');
+        $response->assertRedirect('/dashboard');
     }
 
-
-    public function test_users_can_not_authenticate_with_invalid_password()
+    public function test_customers_can_not_authenticate_with_invalid_password()
     {
-        $user = Customer::factory()->create();
+        $customer = Customer::factory()->create();
 
         $this->post('/login', [
-            'email' => $user->email,
+            'email' => $customer->email,
             'password' => 'wrong-password',
         ]);
 
-        $this->assertGuest();
+        $this->assertGuest('customer');
     }
 
-    public function test_users_can_logout()
+    public function test_customers_can_logout()
     {
-        $user = Customer::factory()->create([
-            'password' => Hash::make('password'),
-        ]);
+        $customer = Customer::factory()->create();
 
-        $this->actingAs($user, 'customer');
+        $this->actingAs($customer, 'customer');
 
-        $response = $this->post('/logout');
+        $this->post('/logout')
+            ->assertRedirect('/');
 
-        $response->assertRedirect('/');
         $this->assertGuest('customer');
+    }
+
+    public function test_verified_customers_can_access_dashboard()
+    {
+        $customer = Customer::factory()->create(['is_verified' => true]);
+
+        $response = $this->actingAs($customer, 'customer')
+            ->get('/dashboard');
+
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($assert) => $assert->component('Dashboard'));
+    }
+
+    public function test_unverified_customers_cannot_access_dashboard()
+    {
+        $customer = Customer::factory()->create(['is_verified' => false]);
+
+        $response = $this->actingAs($customer, 'customer')
+            ->get('/dashboard');
+
+        $response->assertRedirect(); // Redirect based on CheckVerifiedCustomer middleware
     }
 }
