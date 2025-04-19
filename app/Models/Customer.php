@@ -22,6 +22,7 @@ class Customer extends Authenticatable
         'tipe_instansi',
         'alamat_instansi',
         'kontak_instansi',
+        'status_verifikasi'
     ];
 
     protected $hidden = [
