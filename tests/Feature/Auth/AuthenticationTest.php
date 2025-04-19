@@ -51,6 +51,6 @@ class AuthenticationTest extends TestCase
         $response->assertRedirect('/');
 
         // Cek apakah user sudah logout
-        $this->assertGuest('web');
+        $this->assertGuest('customer');
     }
 }

@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
  */
 class CustomerFactory extends Factory
 {
+    protected $model = \App\Models\Customer::class;
     /**
      * Define the model's default state.
      *
