@@ -44,7 +44,7 @@ class AuthenticationTest extends TestCase
 
     public function test_users_can_logout()
     {
-        $user = Customer::factory()->create();
+        $user = Customer::factory()->unverified()->create();
 
         $response = $this->actingAs($user, 'customer')->post('/logout');
 
