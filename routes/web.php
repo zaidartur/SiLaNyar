@@ -12,6 +12,22 @@ use App\Http\Middleware\CheckVerifiedCustomer;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+Route::get('/', function () {
+    return Inertia::render('Welcome');
+})->name('home');
+
+Route::get('/dashboard', function () {
+    return Inertia::render('Dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('/about-us', function () {
+    return Inertia::render('AboutUs');
+})->name('about-us');
+
+Route::get('/informasi', function () {
+    return Inertia::render('Informasi');
+})->name('informasi');
+
 //route user
 //pengajuan
 Route::get('pengajuan/daftar', [PengajuanController::class, 'register']);
