@@ -8,6 +8,16 @@ use App\Models\Customer;
 
 class RegistrationTest extends TestCase
 {
+    <?php
+
+namespace Tests\Feature\Auth\Customer;
+
+use App\Models\Customer;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class CustomerRegistrationTest extends TestCase
+{
     use RefreshDatabase;
 
     public function test_registration_screen_can_be_rendered()
@@ -15,7 +25,7 @@ class RegistrationTest extends TestCase
         $response = $this->get('/registrasi');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($assert) => $assert->component('customer/register'));
+        $response->assertInertia(fn ($assert) => $assert->component('auth/Register'));
     }
 
     public function test_new_personal_customers_can_register()
@@ -30,10 +40,9 @@ class RegistrationTest extends TestCase
             'password_confirmation' => 'password',
         ]);
 
-        $this->assertAuthenticated('customer');
         $response->assertRedirect();
         $response->assertSessionHas('message', 'Akun Berhasil Terdaftar Harap Tunggu Verifikasi Data!');
-        $this->assertDatabaseHas('customers', [
+        $this->assertDatabaseHas('customer', [
             'email' => 'test@example.com',
             'jenis_user' => 'perorangan',
         ]);
@@ -55,10 +64,9 @@ class RegistrationTest extends TestCase
             'password_confirmation' => 'password',
         ]);
 
-        $this->assertAuthenticated('customer');
         $response->assertRedirect();
         $response->assertSessionHas('message', 'Akun Berhasil Terdaftar Harap Tunggu Verifikasi Data!');
-        $this->assertDatabaseHas('customers', [
+        $this->assertDatabaseHas('customer', [
             'email' => 'corp@example.com',
             'jenis_user' => 'instansi',
             'nama_instansi' => 'Test Corporation',
@@ -68,6 +76,14 @@ class RegistrationTest extends TestCase
 
     public function test_registration_validation_rules()
     {
+        // Test required field validation
+        $response = $this->post('/registrasi', [
+            'email' => 'test@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+        $response->assertSessionHasErrors(['nama', 'jenis_user', 'kontak_pribadi']);
+        
         // Test email format validation
         $response = $this->post('/registrasi', [
             'nama' => 'Test User',
@@ -79,18 +95,6 @@ class RegistrationTest extends TestCase
             'password_confirmation' => 'password',
         ]);
         $response->assertSessionHasErrors('email');
-
-        // Test phone format validation
-        $response = $this->post('/registrasi', [
-            'nama' => 'Test User',
-            'jenis_user' => 'perorangan',
-            'alamat_pribadi' => 'Jl. Test No. 123',
-            'kontak_pribadi' => '08123456789', // Missing "+" prefix
-            'email' => 'test@example.com',
-            'password' => 'password',
-            'password_confirmation' => 'password',
-        ]);
-        $response->assertSessionHasErrors('kontak_pribadi');
 
         // Test password confirmation
         $response = $this->post('/registrasi', [

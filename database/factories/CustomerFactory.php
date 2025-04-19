@@ -2,14 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Models\Customer;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use App\Models\Customer;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Customer>
- */
 class CustomerFactory extends Factory
 {
     protected $model = Customer::class;
@@ -31,17 +28,27 @@ class CustomerFactory extends Factory
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
             'remember_token' => Str::random(10),
-            'is_verified' => false,
+            // Removed is_verified field
         ];
     }
 
     /**
-     * Set the customer as verified.
+     * Set the customer's email as verified.
      */
     public function verified(): static
     {
         return $this->state(fn (array $attributes) => [
-            'is_verified' => true,
+            'email_verified_at' => now(),
+        ]);
+    }
+
+    /**
+     * Set the customer's email as unverified.
+     */
+    public function unverified(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'email_verified_at' => null,
         ]);
     }
 }

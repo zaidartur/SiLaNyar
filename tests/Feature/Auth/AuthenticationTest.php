@@ -17,16 +17,18 @@ class AuthenticationTest extends TestCase
         $response = $this->get('/login');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($assert) => $assert->component('customer/login'));
+        $response->assertInertia(fn ($assert) => $assert->component('auth/Login'));
     }
 
     public function test_customers_can_authenticate_using_the_login_screen()
     {
-        $customer = Customer::factory()->create();
+        $customer = Customer::factory()->create([
+            'password' => bcrypt('password')
+        ]);
 
         $response = $this->post('/login', [
             'email' => $customer->email,
-            'password' => 'password', // Assumes the factory uses 'password' as the default
+            'password' => 'password',
         ]);
 
         $this->assertAuthenticated('customer');
@@ -35,7 +37,9 @@ class AuthenticationTest extends TestCase
 
     public function test_customers_can_not_authenticate_with_invalid_password()
     {
-        $customer = Customer::factory()->create();
+        $customer = Customer::factory()->create([
+            'password' => bcrypt('password')
+        ]);
 
         $this->post('/login', [
             'email' => $customer->email,
@@ -47,7 +51,9 @@ class AuthenticationTest extends TestCase
 
     public function test_customers_can_logout()
     {
-        $customer = Customer::factory()->create();
+        $customer = Customer::factory()->create([
+            'password' => bcrypt('password')
+        ]);
 
         $this->actingAs($customer, 'customer');
 
@@ -59,7 +65,11 @@ class AuthenticationTest extends TestCase
 
     public function test_verified_customers_can_access_dashboard()
     {
-        $customer = Customer::factory()->create(['is_verified' => true]);
+        // Since is_verified doesn't exist, we'll use a different approach
+        // You might want to adjust this based on how verification is implemented
+        $customer = Customer::factory()->create([
+            'password' => bcrypt('password')
+        ]);
 
         $response = $this->actingAs($customer, 'customer')
             ->get('/dashboard');
@@ -70,11 +80,16 @@ class AuthenticationTest extends TestCase
 
     public function test_unverified_customers_cannot_access_dashboard()
     {
-        $customer = Customer::factory()->create(['is_verified' => false]);
+        // Assuming the verification is based on email_verified_at
+        $customer = Customer::factory()->create([
+            'password' => bcrypt('password'),
+            'email_verified_at' => null
+        ]);
 
         $response = $this->actingAs($customer, 'customer')
             ->get('/dashboard');
 
-        $response->assertRedirect(); // Redirect based on CheckVerifiedCustomer middleware
+        // This should redirect based on your CheckVerifiedCustomer middleware
+        $response->assertRedirect();
     }
 }
