@@ -32,7 +32,7 @@ Route::get('/informasi', function () {
 
 //route superadmin
 
-Route::prefix('superadmin')->middleware(['auth:pegawai'])->group(function() 
+Route::prefix('superadmin')->middleware(['auth:pegawai'])->group(function()
 {
     //crud permission
    Route::middleware([CheckPermission::class.':kelola-permission'])->group(function()
@@ -56,7 +56,9 @@ Route::prefix('superadmin')->middleware(['auth:pegawai'])->group(function()
         Route::delete('role/{id}', [RoleController::class, 'destroy']);
    });
 });
+
 //route user
+
 //pengajuan
 Route::get('pengajuan/daftar', [PengajuanController::class, 'register']);
 Route::post('pengajuan/store', [PengajuanController::class, 'store']);
