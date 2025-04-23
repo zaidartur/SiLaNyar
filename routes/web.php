@@ -1,5 +1,4 @@
 <?php
-
 use App\Http\Controllers\Auth\Customer\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\Customer\RegisteredUserController;
 use App\Http\Controllers\HasilUjiController;
@@ -8,7 +7,10 @@ use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\ParameterController;
 use App\Http\Controllers\PengajuanController;
 use App\Http\Controllers\PengujianController;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\RoleController;
 use App\Http\Middleware\CheckVerifiedCustomer;
+use App\Http\Middleware\CheckPermission;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -28,6 +30,32 @@ Route::get('/informasi', function () {
     return Inertia::render('Informasi');
 })->name('informasi');
 
+//route superadmin
+
+Route::prefix('superadmin')->middleware(['auth:pegawai'])->group(function() 
+{
+    //crud permission
+   Route::middleware([CheckPermission::class.':kelola-permission'])->group(function()
+   {
+        Route::get('permission', [PermissionController::class, 'index'])->name('permission.index');
+        Route::get('permission/create', [PermissionController::class, 'create']);
+        Route::post('permission/store', [PermissionController::class, 'store']);
+        Route::get('permission/edit/{permission}', [PermissionController::class, 'edit']);
+        Route::put('permission/{permission}/edit', [PermissionController::class, 'update']);
+        Route::delete('permission/{id}', [PermissionController::class, 'destroy']);
+   });
+
+   //crud role
+   Route::middleware([CheckPermission::class.':kelola-role'])->group(function()
+   {
+        Route::get('role', [RoleController::class, 'index'])->name('role.index');
+        Route::get('role/create', [RoleController::class, 'create']);
+        Route::post('role/store', [RoleController::class, 'store']);
+        Route::get('role/edit/{role}', [RoleController::class, 'edit']);
+        Route::post('role/{role}/edit', [RoleController::class, 'update']);
+        Route::delete('role/{id}', [RoleController::class, 'destroy']);
+   });
+});
 //route user
 //pengajuan
 Route::get('pengajuan/daftar', [PengajuanController::class, 'register']);

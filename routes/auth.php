@@ -6,12 +6,38 @@ use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\Pegawai\AuthenticatedSessionController as PegawaiAuthenticatedSessionController;
+use App\Http\Controllers\Auth\Pegawai\RegisteredUserController as PegawaiRegisteredUserController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\VerifikasiAdminController;
 use App\Http\Middleware\CheckVerifiedCustomer;
+use App\Http\Middleware\CheckVerifiedPegawai;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+//autentikasi pegawai
+Route::prefix('pegawai')->middleware('guest:pegawai')->group(function()
+{
+    Route::get('registrasi', [PegawaiRegisteredUserController::class, 'create'])->name('pegawai.registrasi');
+    Route::post('registrasi', [PegawaiRegisteredUserController::class, 'store']);
+    
+    Route::get('login', [PegawaiAuthenticatedSessionController::class, 'create'])->name('pegawai.login');
+    Route::post('login', [PegawaiAuthenticatedSessionController::class, 'store']);
+});
+
+Route::prefix('pegawai')->middleware('auth:pegawai', CheckVerifiedPegawai::class)->group(function()
+{
+    Route::get('detail/{pegawai}', [VerifikasiAdminController::class, 'showPegawai']);
+    Route::put('detail/{id}', [VerifikasiAdminController::class, 'verifikasiPegawai']);
+
+    Route::get('detail/customer/{customer}', [VerifikasiAdminController::class, 'showCustomer']);
+    Route::put('detail/customer/{id}', [VerifikasiAdminController::class, 'verifikasiCustomer']);
+
+    Route::post('logout', [PegawaiAuthenticatedSessionController::class, 'destroy'])->name('pegawai.logout');    
+});
+
+//autentikasi customer
 Route::middleware('guest:customer')->group(function()
 {
     Route::get('registrasi', [RegisteredUserController::class, 'create'])->name('registrasi');

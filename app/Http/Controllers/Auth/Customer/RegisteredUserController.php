@@ -18,7 +18,7 @@ class RegisteredUserController extends Controller
     //lihat daftar customer
     public function create()
     {
-        return Inertia::render('customer/register');
+        return Inertia::render('customer/registrasi');
     }
 
     //proses daftar customer 
@@ -50,8 +50,6 @@ class RegisteredUserController extends Controller
 
         event(new Registered($customer));
 
-        Auth::login($customer);
-
-        return Redirect::back()->with('message', 'Akun Berhasil Terdaftar Harap Tunggu Verifikasi Data!');
+        return Redirect::back()->with('message', 'Akun Berhasil Terdaftar. Harap Tunggu Verifikasi Admin!');
     }
 }
