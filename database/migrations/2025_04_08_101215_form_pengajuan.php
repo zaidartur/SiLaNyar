@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('id_customer')->constrained('customer')->onDelete('cascade');
             $table->foreignId('id_pembayaran')->nullable()->constrained('pembayaran')->onDelete('cascade');
             $table->foreignId('id_kategori')->constrained('kategori')->onDelete('cascade');
-            $table->string('deskripsi');
+            $table->foreignId('id_jenis_cairan')->constrained('jenis_cairan')->onDelete('cascade');
             $table->float('volume_sampel');
             $table->enum('status_pengajuan', ['proses_validasi', 'diterima', 'ditolak'])->default('proses_validasi');
             $table->enum('metode_pengambilan', ['diantar', 'diambil']);

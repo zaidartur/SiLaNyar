@@ -26,7 +26,7 @@ Route::prefix('pegawai')->middleware('guest:pegawai')->group(function()
     Route::post('login', [PegawaiAuthenticatedSessionController::class, 'store']);
 });
 
-Route::prefix('pegawai')->middleware('auth:pegawai', CheckVerifiedPegawai::class)->group(function()
+Route::prefix('pegawai')->middleware('auth:pegawai', 'check.verified.pegawai')->group(function()
 {
     Route::get('detail/{pegawai}', [VerifikasiAdminController::class, 'showPegawai']);
     Route::put('detail/{id}', [VerifikasiAdminController::class, 'verifikasiPegawai']);
@@ -47,7 +47,7 @@ Route::middleware('guest:customer')->group(function()
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 });
 
-Route::middleware(['auth:customer', CheckVerifiedCustomer::class])->group(function() {
+Route::middleware(['auth:customer', 'check.verified.customer'])->group(function() {
     Route::get('dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');

@@ -15,7 +15,7 @@ class form_pengajuan extends Model
         'id_pembayaran',
         'id_customer',
         'id_kategori',
-        'deskripsi',
+        'id_jenis_cairan',
         'volume_sampel',
         'status_pengajuan',
         'metode_pengambilan',
@@ -35,5 +35,15 @@ class form_pengajuan extends Model
     public function kategori()
     {
         return $this->belongsTo(kategori::class, 'id_kategori');    
+    }
+
+    public function parameter()
+    {
+        return $this->belongsToMany(parameter_uji::class, 'parameter_pengujian', 'id_parameter', 'id_pengujian');    
+    }
+
+    public function jenis_cairan()
+    {
+        return $this->belongsTo(jenis_cairan::class, 'id_jenis_cairan');    
     }
 }
