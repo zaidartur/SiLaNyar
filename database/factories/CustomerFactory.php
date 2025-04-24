@@ -13,41 +13,48 @@ class CustomerFactory extends Factory
 
     public function definition(): array
     {
-        $jenis_user = $this->faker->randomElement(['instansi', 'perorangan']);
+        $jenisUser = $this->faker->randomElement(['perorangan', 'instansi']);
         
-        return [
-            'nama' => $this->faker->name(),
-            'jenis_user' => $jenis_user,
+        $data = [
+            'nama' => 'Wyasana Aji Kusuma Wardana',
+            'jenis_user' => $jenisUser,
             'alamat_pribadi' => $this->faker->address(),
-            'kontak_pribadi' => '+' . $this->faker->numerify('###########'),
-            'nama_instansi' => $jenis_user === 'instansi' ? $this->faker->company() : null,
-            'tipe_instansi' => $jenis_user === 'instansi' ? $this->faker->randomElement(['swasta', 'pemerintahan']) : null,
-            'alamat_instansi' => $jenis_user === 'instansi' ? $this->faker->address() : null,
-            'kontak_instansi' => $jenis_user === 'instansi' ? '+' . $this->faker->numerify('###########') : null,
+            'kontak_pribadi' => '+' . $this->faker->numberBetween(1, 999) . $this->faker->numerify('##########'),
             'email' => $this->faker->unique()->safeEmail(),
             'email_verified_at' => now(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+            'password' => Hash::make('password'),
             'remember_token' => Str::random(10),
+            'status_verifikasi' => 'diproses',
         ];
+        
+        if ($jenisUser === 'instansi') {
+            $data['nama_instansi'] = $this->faker->company();
+            $data['tipe_instansi'] = $this->faker->randomElement(['swasta', 'pemerintahan']);
+            $data['alamat_instansi'] = $this->faker->address();
+            $data['kontak_instansi'] = '+' . $this->faker->numberBetween(1, 999) . $this->faker->numerify('##########');
+        }
+        
+        return $data;
     }
 
-    /**
-     * Set the customer's email as verified.
-     */
-    public function verified(): static
+    public function accepted(): self
     {
         return $this->state(fn (array $attributes) => [
-            'email_verified_at' => now(),
+            'status_verifikasi' => 'diterima',
         ]);
     }
 
-    /**
-     * Set the customer's email as unverified.
-     */
-    public function unverified(): static
+    public function rejected(): self
     {
         return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
+            'status_verifikasi' => 'ditolak',
+        ]);
+    }
+
+    public function processing(): self
+    {
+        return $this->state(fn (array $attributes) => [
+            'status_verifikasi' => 'diproses',
         ]);
     }
 }

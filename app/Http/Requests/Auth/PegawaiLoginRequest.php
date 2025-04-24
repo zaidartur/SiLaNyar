@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
-class LoginRequest extends FormRequest
+class PegawaiLoginRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -42,7 +42,7 @@ class LoginRequest extends FormRequest
         $this->ensureIsNotRateLimited();
 
         // Coba login dengan guard 'customer'
-        if (! Auth::guard('customer')->attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        if (! Auth::guard('pegawai')->attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -51,7 +51,7 @@ class LoginRequest extends FormRequest
         }
 
         // Ambil user yang sedang login
-        $user = Auth::guard('customer')->user();
+        $user = Auth::guard('pegawai')->user();
 
         // Cek status verifikasi
         if ($user->status_verifikasi !== 'diterima') {
