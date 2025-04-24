@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('parameter_uji', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama_parameter');
-            $table->string('satuan');
-            $table->float('baku_mutu');
-            $table->integer('harga');
-            $table->timestamps();
+        Schema::create('jenis_cairan', function(Blueprint $table)
+        {
+           $table->id();
+           $table->string('nama');
+           $table->float('batas_minimum');
+           $table->float('batas_maksimum'); 
         });
     }
 

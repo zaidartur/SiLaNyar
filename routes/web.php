@@ -35,7 +35,7 @@ Route::get('/informasi', function () {
 Route::prefix('superadmin')->middleware(['auth:pegawai'])->group(function()
 {
     //crud permission
-   Route::middleware([CheckPermission::class.':kelola-permission'])->group(function()
+   Route::middleware(['check.permission:kelola-permission'])->group(function()
    {
         Route::get('permission', [PermissionController::class, 'index'])->name('permission.index');
         Route::get('permission/create', [PermissionController::class, 'create']);
@@ -46,7 +46,7 @@ Route::prefix('superadmin')->middleware(['auth:pegawai'])->group(function()
    });
 
    //crud role
-   Route::middleware([CheckPermission::class.':kelola-role'])->group(function()
+   Route::middleware(['check.permission:kelola-role'])->group(function()
    {
         Route::get('role', [RoleController::class, 'index'])->name('role.index');
         Route::get('role/create', [RoleController::class, 'create']);

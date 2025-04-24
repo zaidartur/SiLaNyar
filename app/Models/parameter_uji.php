@@ -29,4 +29,14 @@ class parameter_uji extends Model
     {
         return $this->hasMany(hasil_uji::class);    
     }
+
+    public function form_pengajuan()
+    {
+        return $this->belongsToMany(form_pengajuan::class, 'parameter_pengajuan', 'id_parameter', 'id_pengajuan');    
+    }
+
+    public function kategori()
+    {
+        return $this->belongsToMany(kategori::class, 'parameter_kategori', 'id_parameter', 'id_kategori');    
+    }
 }
