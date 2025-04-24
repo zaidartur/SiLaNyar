@@ -72,15 +72,15 @@ return [
     'providers' => [
         'pegawai' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', \App\Models\pegawai::class)
+            'model' => \App\Models\pegawai::class
         ],
         'customer' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', \App\Models\Customer::class)
+            'model' => \App\Models\Customer::class
         ],
         'users' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\User::class),
+            'model' => App\Models\User::class,
         ],
 
         // 'users' => [

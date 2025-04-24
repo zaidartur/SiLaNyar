@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\Customer\AuthenticatedSessionController as CustomerAuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
@@ -8,11 +8,12 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\Pegawai\AuthenticatedSessionController as PegawaiAuthenticatedSessionController;
 use App\Http\Controllers\Auth\Pegawai\RegisteredUserController as PegawaiRegisteredUserController;
-use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\Customer\RegisteredUserController as CustomerRegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\VerifikasiAdminController;
 use App\Http\Middleware\CheckVerifiedCustomer;
 use App\Http\Middleware\CheckVerifiedPegawai;
+use App\Models\Customer;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -40,11 +41,11 @@ Route::prefix('pegawai')->middleware('auth:pegawai', 'check.verified.pegawai')->
 //autentikasi customer
 Route::middleware('guest:customer')->group(function()
 {
-    Route::get('registrasi', [RegisteredUserController::class, 'create'])->name('registrasi');
-    Route::post('registrasi', [RegisteredUserController::class, 'store']);
+    Route::get('registrasi', [CustomerRegisteredUserController::class, 'create'])->name('registrasi');
+    Route::post('registrasi', [CustomerRegisteredUserController::class, 'store']);
     
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
+    Route::get('login', [CustomerAuthenticatedSessionController::class, 'create'])->name('login');
+    Route::post('login', [CustomerAuthenticatedSessionController::class, 'store']);
 });
 
 Route::middleware(['auth:customer', 'check.verified.customer'])->group(function() {
@@ -52,7 +53,7 @@ Route::middleware(['auth:customer', 'check.verified.customer'])->group(function(
         return Inertia::render('Dashboard');
     })->name('dashboard');
 
-    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+    Route::post('logout', [CustomerAuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
 
 Route::get('/', function () {
