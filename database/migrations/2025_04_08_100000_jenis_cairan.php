@@ -17,6 +17,7 @@ return new class extends Migration
            $table->string('nama');
            $table->float('batas_minimum');
            $table->float('batas_maksimum'); 
+           // Removed timestamps()
         });
     }
 
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('jenis_cairan'); // Also add proper drop table
     }
 };

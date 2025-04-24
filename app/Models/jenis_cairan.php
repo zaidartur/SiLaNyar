@@ -10,6 +10,7 @@ class jenis_cairan extends Model
     use HasFactory;
 
     protected $table = 'jenis_cairan';
+    public $timestamps = false;
     
     protected $fillable = [
         'nama',
