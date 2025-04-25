@@ -1,6 +1,8 @@
 <?php
 use App\Http\Controllers\Auth\Customer\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\Customer\RegisteredUserController;
+use App\Http\Controllers\Customer\HasilUjiController as CustomerHasilUjiController;
+use App\Http\Controllers\Customer\PengajuanController as CustomerPengajuanController;
 use App\Http\Controllers\HasilUjiController;
 use App\Http\Controllers\JadwalController;
 use App\Http\Controllers\KategoriController;
@@ -57,9 +59,21 @@ Route::prefix('superadmin')->middleware(['auth:pegawai'])->group(function()
    });
 });
 //route user
-//pengajuan
-Route::get('pengajuan/daftar', [PengajuanController::class, 'register']);
-Route::post('pengajuan/store', [PengajuanController::class, 'store']);
+
+Route::prefix('customer')->middleware(['auth:customer', 'check.verified.customer'])->group(function()
+{
+    //fitur pengajuan
+    Route::get('pengajuan', [CustomerPengajuanController::class, 'index'])->name('pengajuan.index');
+    Route::get('pengajuan/daftar', [CustomerPengajuanController::class, 'daftar']);
+    Route::post('pengajuan/store', [CustomerPengajuanController::class, 'store']);
+    Route::get('pengajuan/{id}', [CustomerPengajuanController::class, 'show']);
+    Route::get('pengajuan/pembayaran/{id}', [CustomerPengajuanController::class, 'showRincian']);
+
+    //fitur hasil uji
+    Route::get('hasil_uji', [CustomerHasilUjiController::class, 'index'])->name('hasil_uji.index');
+    Route::get('hasil_uji/{hasil_uji}', [CustomerHasilUjiController::class, 'show']);
+    Route::get('hasil_uji/{hasil_uji}/PDF', [CustomerHasilUjiController::class, 'convert']);
+});
 
 //route pegawai
 
@@ -147,10 +161,6 @@ Route::prefix('test/jadwal')->group(function () {
         return view('test.jadwal.edit', compact('jadwal', 'form_pengajuan'));
     });
 });
-
-//pengajuan
-Route::get('pengajuan/',[PengajuanController::class, 'index']);
-Route::post('pengajuan/{id}/verifikasi',[PengajuanController::class, 'verification']);
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
