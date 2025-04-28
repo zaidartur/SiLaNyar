@@ -9,6 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Carbon\Carbon;
+use Inertia\Testing\AssertableInertia as Assert;
 
 class ScheduleTest extends TestCase
 {
@@ -253,5 +254,31 @@ class ScheduleTest extends TestCase
         $response = $this->put("/jadwal/edit/{$jadwal->id}", $updatedData);
         $response->assertSessionHasErrors();
         $this->assertDatabaseHas('jadwal', ['id' => $jadwal->id, 'status' => 'selesai']);
+    }
+
+    public function test_can_show_schedule_details(): void
+    {
+        $jadwal = jadwal::factory()->create([
+            'id_form_pengajuan' => $this->formPengajuan->id,
+            'id_pegawai' => $this->pegawai->id,
+            'waktu_pengambilan' => now()->addDays(2)->toDateString(),
+            'status' => 'diproses',
+            'keterangan' => 'Test keterangan'
+        ]);
+
+        $response = $this->get("/jadwal/{$jadwal->id}");
+
+        $response->assertStatus(200);
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('jadwal/show')
+            ->has('jadwal', fn ($assert) => $assert
+                ->where('id', $jadwal->id)
+                ->where('waktu_pengambilan', $jadwal->waktu_pengambilan)
+                ->where('status', $jadwal->status)
+                ->where('keterangan', $jadwal->keterangan)
+                ->has('form_pengajuan')
+                ->has('pegawai')
+            )
+        );
     }
 }

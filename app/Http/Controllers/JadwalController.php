@@ -91,4 +91,13 @@ class JadwalController extends Controller
             return Redirect::route('test.jadwal.index')->with('message', 'Jadwal Berhasil Dihapus!');
         }
     }
+
+    public function show(jadwal $jadwal)
+    {
+        $jadwal->load(['form_pengajuan', 'pegawai']);
+        
+        return Inertia::render('jadwal/show', [
+            'jadwal' => $jadwal
+        ]);
+    }
 }
