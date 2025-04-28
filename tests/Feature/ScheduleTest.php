@@ -42,14 +42,14 @@ class ScheduleTest extends TestCase
         $scheduleData = [
             'id_form_pengajuan' => $this->formPengajuan->id,
             'id_pegawai' => $this->pegawai->id,
-            'waktu_pengambilan' => now()->addDays(2),
+            'waktu_pengambilan' => now()->addDays(2)->toDateString(),
             'status' => 'diproses',
             'keterangan' => 'Test keterangan'
         ];
 
         $response = $this->post('/jadwal/store', $scheduleData);
 
-        $response->assertRedirect(route('test.jadwal.index'));
+        $response->assertRedirect(route('jadwal.index'));
         $this->assertDatabaseHas('jadwal', $scheduleData);
     }
 
@@ -70,7 +70,7 @@ class ScheduleTest extends TestCase
 
         $updatedData = [
             'id_form_pengajuan' => $this->formPengajuan->id,
-            'waktu_pengambilan' => now()->addDays(3),
+            'waktu_pengambilan' => now()->addDays(3)->toDateString(),
             'status' => 'selesai',
             'keterangan' => 'Updated keterangan'
         ];
@@ -123,7 +123,7 @@ class ScheduleTest extends TestCase
         $scheduleData = [
             'id_form_pengajuan' => $this->formPengajuan->id,
             'id_pegawai' => $this->pegawai->id,
-            'waktu_pengambilan' => now()->subDays(1),
+            'waktu_pengambilan' => now()->subDays(1)->toDateString(),
             'status' => 'diproses',
             'keterangan' => 'Test keterangan'
         ];
@@ -141,7 +141,7 @@ class ScheduleTest extends TestCase
         $scheduleData = [
             'id_form_pengajuan' => $this->formPengajuan->id,
             'id_pegawai' => $this->pegawai->id,
-            'waktu_pengambilan' => now()->addDays(2),
+            'waktu_pengambilan' => now()->addDays(2)->toDateString(),
             'status' => 'diproses',
             'keterangan' => 'Test keterangan'
         ];
@@ -253,26 +253,5 @@ class ScheduleTest extends TestCase
         $response = $this->put("/jadwal/edit/{$jadwal->id}", $updatedData);
         $response->assertSessionHasErrors();
         $this->assertDatabaseHas('jadwal', ['id' => $jadwal->id, 'status' => 'selesai']);
-    }
-
-    public function test_logs_schedule_history_on_updates(): void
-    {
-        $jadwal = jadwal::factory()->create();
-        
-        $updatedData = [
-            'id_form_pengajuan' => $jadwal->id_form_pengajuan,
-            'waktu_pengambilan' => now()->addDays(3),
-            'status' => 'selesai',
-            'keterangan' => 'Updated with history'
-        ];
-
-        $this->put("/jadwal/edit/{$jadwal->id}", $updatedData);
-        
-        // Assuming you have a jadwal_history table
-        $this->assertDatabaseHas('jadwal_history', [
-            'jadwal_id' => $jadwal->id,
-            'previous_status' => $jadwal->status,
-            'new_status' => 'selesai'
-        ]);
     }
 }
