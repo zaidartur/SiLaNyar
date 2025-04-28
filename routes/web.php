@@ -104,6 +104,7 @@ Route::delete('hasiluji/{id}', [HasilUjiController::class, 'destroy']);
 Route::get('jadwal/', [JadwalController::class, 'index'])->name('jadwal.index');
 Route::get('jadwal/create', [JadwalController::class, 'create']);
 Route::post('jadwal/store', [JadwalController::class, 'store']);
+Route::get('jadwal/{jadwal}', [JadwalController::class, 'show'])->name('jadwal.show');
 Route::get('jadwal/{jadwal}/edit', [JadwalController::class, 'edit']);
 Route::put('jadwal/edit/{jadwal}', [JadwalController::class, 'update']);
 Route::delete('jadwal/{id}', [JadwalController::class, 'destroy']);

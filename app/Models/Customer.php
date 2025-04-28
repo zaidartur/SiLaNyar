@@ -39,6 +39,6 @@ class Customer extends Authenticatable
 
     public function form_pengajuan()
     {
-        return $this->hasMany(form_pengajuan::class);    
+        return $this->hasMany(form_pengajuan::class);
     }
 }

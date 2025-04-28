@@ -35,21 +35,27 @@ class KategoriController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'id_parameter' => 'required|exists:parameter_uji,id',
-            'nama' => 'required|string',
-            'harga' => 'required|numeric|min:0'
+            'nama' => 'required|string|unique:kategori,nama',
+            'harga' => 'required|numeric|min:0',
+            'parameter_ids' => 'required|array',
+            'parameter_ids.*' => 'exists:parameter_uji,id'
         ]);
 
-        $kategori = kategori::create($request->all());
+        $kategori = kategori::create($request->only([
+            'nama',
+            'harga'
+        ]));
+
+        // Attach parameters
+        if ($request->parameter_ids) {
+            $kategori->parameter()->attach($request->parameter_ids);
+        }
 
         if(request()->header('referer') && str_contains(request()->header('referer'), '/test/')) {
             return Redirect::route('test.kategori.index')->with('message', 'Kategori Berhasil Ditambahkan!');
         }
         
-        if($kategori)
-        {
-            return Redirect::route('kategori.index')->with('message', 'Kategori Berhasil Ditambahkan!');
-        }
+        return Redirect::route('kategori.index')->with('message', 'Kategori Berhasil Ditambahkan!');
     }
 
     //form edit kategori
@@ -67,21 +73,24 @@ class KategoriController extends Controller
     public function update(kategori $kategori, Request $request)
     {
         $request->validate([
-            'id_parameter' => 'required|exists:parameter_uji,id',
             'nama' => 'required|string',
-            'harga' => 'required|numeric|min:0'
+            'harga' => 'required|numeric|min:0',
+            'parameter_ids' => 'required|array'
         ]);
 
-        $kategori = kategori::update($request->all());
+        $kategori->update($request->only([
+            'nama',
+            'harga'
+        ]));
+
+        // Update parameter relationships
+        $kategori->parameter()->sync($request->parameter_ids);
 
         if(request()->header('referer') && str_contains(request()->header('referer'), '/test/')) {
-            return Redirect::route('test.kategori.index')->with('message', 'Kategori Berhasil Ditambahkan!');
+            return Redirect::route('test.kategori.index')->with('message', 'Kategori Berhasil Diupdate!');
         }
 
-        if($kategori)
-        {
-            return Redirect::route('kategori.index')->with('message', 'Kategori Berhasil Diupdate!');
-        }
+        return Redirect::route('kategori.index')->with('message', 'Kategori Berhasil Diupdate!');
     }
 
     //lihat detail kategori
