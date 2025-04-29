@@ -2,6 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -10,10 +11,65 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+// Add data for the new content
+const bulletIcon = "https://cdn.builder.io/api/v1/image/assets/TEMP/fff689dc8350fb828f397d0c5ecf83aeccfb0cc6?placeholderIfAbsent=true&apiKey=6e80c266b96f4327b2d8569c33619dcf";
+const rejectedBulletIcon = "https://cdn.builder.io/api/v1/image/assets/TEMP/dbead78d1e3d5e23a94657a6b75448b0533e7b59?placeholderIfAbsent=true&apiKey=6e80c266b96f4327b2d8569c33619dcf";
+
+const syaratPenerimaan = ref([
+    "Volume / jumlah sample minimal 2,5 liter",
+    "Volume / jumlah sample lemak 1 liter dengan berbotol kaca gelap dan bermulut lebar",
+    "Volume sample vecal coli dan total coli minimal 100 ml dengan botol kaca gelap steril",
+    "Kondisi wadah / kemasan sampel harus bersih dan tidak terkontaminasi",
+    "Waktu pengambilan sampel serta lama penyimpanan harus jelas",
+    "Memberikan informasi jika sampel diawetkan meliputi waktu pengawetan dan bahan pengawet yang digunakan"
+]);
+
+const sampleDitolak = ref([
+    "Volume atau jumlah sampel kurang dari persyaratan",
+    "Sampel sudah terlalu lama disolasi",
+    "Sampel mengalami kerusakan di perjalanan saat pengiriman sampel",
+    "Kemasan sampel sudah rusak atau tidak sesuai sehingga mempengaruhi isi sampel"
+]);
+
 defineProps({
     src: String,
     alt: String,
 });
+
+const workflowSteps = ref([
+    {
+        number: 1,
+        title: 'Registrasi Sampel',
+        description: 'Pendaftaran sampel dengan data lengkap lokasi, waktu pengambilan, dan parameter uji.'
+    },
+    {
+        number: 2,
+        title: 'Verifikasi Sample',
+        description: 'Pemeriksaan kesesuaian sampel dengan kriteria pengujian.'
+    },
+    {
+        number: 3,
+        title: 'Distribusi Sample',
+        description: 'Pembagian sampel ke bagian laboratorium yang sesuai.'
+    },
+    {
+        number: 4,
+        title: 'Menganalisis Sample',
+        description: 'Pengujian sampel menggunakan metode dan peralatan yang tepat.'
+    },
+    {
+        number: 5,
+        title: 'Pelaporan',
+        description: 'Penyusunan hasil analisis dalam bentuk laporan.'
+    }
+]);
+
+// Add to script setup section
+const activeTab = ref('Berita Terkini');
+
+const changeTab = (tabName: string) => {
+    activeTab.value = tabName;
+};
 </script>
 
 <template>
@@ -23,7 +79,7 @@ defineProps({
     <AppLayout :breadcrumbs="breadcrumbs">
         <!-- Remove padding and make container full width -->
         <div class="flex min-h-screen w-full flex-col">
-            <!-- Hero Section - Full Width & Height -->
+            <!-- Hero Section -->
             <section class="relative h-screen w-full bg-cover bg-center"
                 style="background-image: url('/storage/assetslandingpage/hero.png')">
                 <div class="absolute inset-0 bg-black/40 flex items-center justify-center text-white">
@@ -46,95 +102,340 @@ defineProps({
             </section>
 
             <!-- Main Content -->
-            <section
-                class="flex flex-col items-start p-5 mx-auto my-0 bg-white max-w-[1200px] max-md:max-w-[991px] max-sm:max-w-screen-sm">
-                <!-- Header -->
-                <header class="flex flex-col items-center mb-5 w-full max-sm:items-start">
-                    <h1 class="text-4xl font-bold text-green-700 max-sm:text-3xl">
-                        Sistem Laboratorium
-                    </h1>
-                    <p class="text-xl font-medium text-black max-sm:text-base">
-                        SiLanYar menyediakan manajemen laboratorium lingkungan yang terintegrasi
-                        dan efisien
-                    </p>
-                </header>
+            <section id="informasi" class="flex flex-col w-full bg-white dark:bg-black p-12">
+                <h1 class="self-center text-4xl font-bold text-green-700 dark:text-green-500 max-md:max-w-full mb-12">
+                    Jadwal Pelayanan dan Syarat Penerimaan Sample
+                </h1>
 
-                <!-- Content -->
-                <div class="flex flex-row items-start w-full max-md:flex-col">
-                    <!-- Left Section -->
-                    <article class="flex-1 pr-5 left-section">
-                        <h2 class="mb-5 text-4xl font-bold text-green-700 max-sm:text-3xl">
-                            Manajemen Lab yang Komprehensif
+                <!-- Container pakai grid -->
+                <div class="grid grid-cols-2 gap-12 mt-8 px-8 max-md:grid-cols-1 w-full">
+                    <!-- Syarat Penerimaan Sample -->
+                    <div class="space-y-8">
+                        <h2 class="text-4xl font-bold text-green-700 dark:text-green-500 mb-6">
+                            Syarat Penerimaan Sample
                         </h2>
-                        <p class="mb-5 text-xl text-black max-sm:text-base">
-                            SIMLEB (Sistem Informasi Manajemen Laboratorium Lingkungan Hidup)
-                            adalah platform terintegrasi yang dirancang khusus untuk mengelola
-                            seluruh proses laboratorium lingkungan Kabupaten Karanganyar secara
-                            efisien dan akurat.
-                        </p>
-                        <p class="mb-5 text-xl text-black max-sm:text-base">
-                            Sistem ini menghubungkan semua tahapan analisis laboratorium dari
-                            pengambilan sampel hingga pelaporan hasil, memungkinkan pelacakan dan
-                            dokumentasi lengkap untuk memenuhi standar akreditasi laboratorium
-                            nasional.
-                        </p>
+                        <h3 class="mt-6 text-xl text-black dark:text-white">
+                            Syarat Kelengkapan dan Kelayakan Sample :
+                        </h3>
+                        <div class="mt-8">
+                            <ul class="space-y-6">
+                                <li v-for="(text, index) in syaratPenerimaan" :key="index"
+                                    class="flex items-start gap-3">
+                                    <div
+                                        class="flex-shrink-0 h-6 w-6 rounded-full bg-green-600 flex items-center justify-center mt-1">
+                                        <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                    </div>
+                                    <span class="text-xl font-medium text-black dark:text-gray-200">
+                                        {{ text }}
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
 
-                        <!-- Feature List -->
-                        <div class="flex flex-col gap-5">
-                            <div class="flex items-start gap-4">
-                                <img src="/storage/assetslandingpage/ManajemenSample.png" alt=""
-                                    class="w-12 h-12 object-contain" />
-                                <div>
-                                    <h3 class="text-xl font-semibold text-green-700 mb-2">Manajemen Sampel</h3>
-                                    <p class="text-gray-600">Sistem penomoran, pelacakan, dan penyimpanan sampel secara
-                                        digital dengan barcode terintegrasi.</p>
-                                </div>
+                        <!-- Sample Ditolak -->
+                        <div class="mt-16 mb-8">
+                            <h2 class="text-4xl mb-8 font-bold text-green-700 dark:text-green-500">
+                                Sample dapat ditolak apabila
+                            </h2>
+                            <div class="mt-6">
+                                <ul class="space-y-6">
+                                    <li v-for="(text, index) in sampleDitolak" :key="index"
+                                        class="flex items-start gap-3">
+                                        <div
+                                            class="flex-shrink-0 h-6 w-6 rounded-full bg-red-500 flex items-center justify-center mt-1">
+                                            <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        </div>
+                                        <span class="text-xl font-medium text-black dark:text-gray-200">
+                                            {{ text }}
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Jadwal Sample -->
+                    <div class="flex flex-col space-y-8">
+                        <!-- BOD Sample Table -->
+                        <div class="mb-12">
+                            <h2 class="text-4xl font-extrabold text-center text-green-700 dark:text-green-500 mb-5">
+                                Sample dengan parameter BOD
+                            </h2>
+
+                            <div class="border border-green-700 dark:border-green-500 rounded-lg overflow-hidden">
+                                <table class="w-full border-collapse">
+                                    <thead class="bg-green-700 dark:bg-green-500 text-white">
+                                        <tr>
+                                            <th
+                                                class="px-6 py-3 text-3xl font-bold text-center border-r border-white dark:border-green-500">
+                                                Hari</th>
+                                            <th class="px-6 py-3 text-3xl font-bold text-center">Waktu</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody
+                                        class="bg-white dark:bg-gray-800 divide-y divide-green-700 dark:divide-green-600">
+                                        <tr>
+                                            <td
+                                                class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white border-r border-green-700 dark:border-green-500">
+                                                Rabu-Kamis</td>
+                                            <td
+                                                class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white">
+                                                08.00 - 11.00</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
 
-                            <div class="flex items-start gap-4">
-                                <img src="/storage/assetslandingpage/PengujianStandar.png" alt=""
-                                    class="w-12 h-12 object-contain" />
-                                <div>
-                                    <h3 class="text-xl font-semibold text-green-700 mb-2">Pengujian Standar</h3>
-                                    <p class="text-gray-600">Database metode pengujian standar berdasarkan SNI dan ISO
-                                        untuk parameter lingkungan.</p>
-                                </div>
-                            </div>
+                            <!-- Non-BOD Sample Table -->
+                            <div class="mt-8">
+                                <h2
+                                    class="text-4xl font-extrabold text-center text-green-700 dark:text-green-500 mt-8 mb-5">
+                                    Sample Tanpa parameter BOD
+                                </h2>
 
-                            <div class="flex items-start gap-4">
-                                <img src="/storage/assetslandingpage/QualityControl.png" alt=""
-                                    class="w-12 h-12 object-contain" />
-                                <div>
-                                    <h3 class="text-xl font-semibold text-green-700 mb-2">Quality Control</h3>
-                                    <p class="text-gray-600">Modul QC terintegrasi untuk memantau kontrol kualitas
-                                        laboratorium dan validasi hasil.</p>
-                                </div>
-                            </div>
-
-                            <div class="flex items-start gap-4">
-                                <img src="/storage/assetslandingpage/AnalisisData.png" alt=""
-                                    class="w-12 h-12 object-contain" />
-                                <div>
-                                    <h3 class="text-xl font-semibold text-green-700 mb-2">Analisis Data</h3>
-                                    <p class="text-gray-600">Tools analisis data canggih untuk interpretasi hasil dan
-                                        visualisasi tren parameter lingkungan.</p>
+                                <div class="border border-green-700 dark:border-green-500 rounded-lg overflow-hidden">
+                                    <table class="w-full border-collapse">
+                                        <thead class="bg-green-700 dark:bg-green-500 text-white">
+                                            <tr>
+                                                <th
+                                                    class="px-6 py-3 text-3xl font-bold text-center border-r border-white dark:border-green-500">
+                                                    Hari
+                                                </th>
+                                                <th class="px-6 py-3 text-3xl font-bold text-center">
+                                                    Waktu
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody
+                                            class="bg-white dark:bg-gray-800 divide-y divide-green-700 dark:divide-green-500">
+                                            <tr>
+                                                <td
+                                                    class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white border-r border-green-700 dark:border-green-500">
+                                                    Rabu-Kamis
+                                                </td>
+                                                <td
+                                                    class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white">
+                                                    08.00 - 11.00
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td
+                                                    class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white border-r border-green-700 dark:border-green-500">
+                                                    Jumat
+                                                </td>
+                                                <td
+                                                    class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white">
+                                                    08.00 - 10.00
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
-                    </article>
+                    </div>
+                </div>
 
-                    <!-- Right Section -->
-                    <aside class="shrink-0 right-section max-md:mt-5">
-                        <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/f27eb6aae04e74c10e0e725027caf7edafe2587b?placeholderIfAbsent=true"
-                            alt="Lab Image" class="rounded-3xl h-[400px] w-[500px] max-sm:w-full max-sm:h-auto" />
-                    </aside>
+                <!-- Footer Note -->
+                <footer
+                    class="mt-24 px-8 text-2xl font-normal text-green-700 dark:text-green-500 max-md:mt-10 max-md:max-w-full">
+                    <p class="italic text-center">
+                        Note: Apabila ada hal-hal yang meragukan, petugas penerima sampel dapat menolak<br />
+                        setelah berkonsultasi dengan pengendali teknis
+                    </p>
+                </footer>
+            </section>
+
+            <!-- Section Alur Pelayanan -->
+            <section>
+                <div
+                    class="flex flex-col justify-center items-center bg-green-200 p-6 rounded-md border border-blue-300">
+                    <h1 class="text-3xl font-semibold text-green-700 text-center mb-8">
+                        Diagram Alur Pelayanan Laboratorium Penguji Dinas Lingkungan Hidup<br>
+                        Kabupaten karanganyar
+                    </h1>
+
+                    <div class="w-full max-w-4xl mx-auto mb-8">
+                        <img src="/storage/assetslandingpage/alurdiagram.png" alt="Diagram Alur Pelayanan Laboratorium"
+                            class="w-full h-auto object-contain rounded-lg shadow-lg" />
+                    </div>
+
+                    <div class="mt-6 text-green-700 text-sm italic">
+                        <p>Note: Pendaftaran Dilakukan 1 Hari Sebelum Penyerahan Sample</p>
+                    </div>
                 </div>
             </section>
 
-            <!-- Additional Sections -->
-            <section class="w-full bg-white py-16">
-                <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <!-- Add your content here -->
+            <!-- Section Alur Kerja -->
+            <section class="bg-green-50 dark:bg-black p-4 md:p-8 rounded-0">
+                <h1 class="text-2xl md:text-4xl text-green-700 dark:text-green-500 font-bold text-center mb-4 md:mb-6">
+                    Alur Kerja Laboratorium
+                </h1>
+                <p class="text-center text-base md:text-lg mb-8 md:mb-16 text-gray-600 dark:text-gray-300">
+                    SiLanyar mengotomatisasi dan mengintegrasikan seluruh alur kerja laboratorium lingkungan
+                </p>
+
+                <!-- Workflow diagram -->
+                <div class="mb-8 md:mb-12">
+                    <!-- Desktop workflow -->
+                    <div class="hidden md:block relative">
+                        <!-- Connecting line -->
+                        <div class="absolute h-0.5 bg-green-700 dark:bg-green-500 w-[80%] left-[10%] top-8 z-0"></div>
+
+                        <!-- Steps with circles -->
+                        <div class="flex justify-between relative z-10">
+                            <div v-for="step in workflowSteps" :key="step.number" class="flex flex-col items-center">
+                                <div
+                                    class="bg-green-700 dark:bg-green-600 text-white rounded-full w-12 h-12 lg:w-16 lg:h-16 flex items-center justify-center text-xl lg:text-2xl font-bold mb-4">
+                                    {{ step.number }}
+                                </div>
+                                <h3
+                                    class="text-green-700 dark:text-green-500 font-bold text-sm lg:text-lg mb-2 text-center">
+                                    {{ step.title }}
+                                </h3>
+                                <p class="text-xs lg:text-sm text-center max-w-xs text-gray-600 dark:text-gray-300">
+                                    {{ step.description }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mobile workflow -->
+                    <div class="md:hidden space-y-0"> <!-- Changed space-y-6 to space-y-0 -->
+                        <div v-for="(step, index) in workflowSteps" :key="step.number" class="flex relative">
+                            <!-- Added relative positioning -->
+                            <div class="flex flex-col items-center mr-4">
+                                <!-- Circle with number -->
+                                <div
+                                    class="bg-green-700 dark:bg-green-600 text-white rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold z-10">
+                                    <!-- Added z-10 -->
+                                    {{ step.number }}
+                                </div>
+                                <!-- Vertical line -->
+                                <div v-if="index !== workflowSteps.length - 1"
+                                    class="w-0.5 bg-green-700 dark:bg-green-500 h-24 mt-0">
+                                    <!-- Changed h-12 to h-24 and mt-2 to mt-0 -->
+                                </div>
+                            </div>
+                            <!-- Content -->
+                            <div class="pb-8"> <!-- Added padding bottom -->
+                                <h3 class="text-green-700 dark:text-green-500 font-bold text-lg mb-1">
+                                    {{ step.title }}
+                                </h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-300">
+                                    {{ step.description }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- About Us -->
+            <section id="about-us" class="bg-green-200 py-16">
+                <div class="max-w-4xl mx-auto p-4">
+                    <!-- Header -->
+                    <h1 class="text-4xl text-center font-bold text-green-700 mb-2">About Us</h1>
+                    <p class="text-center text-gray-800 mb-6">
+                        Temukan berbagai informasi terkait lingkungan dan kebersihan di Kabupaten Karanganyar
+                    </p>
+
+                    <!-- Navigation Tabs -->
+                    <div class="flex mb-4 border-b border-gray-300">
+                        <button @click="changeTab('Berita Terkini')" :class="[
+                            'py-2 px-6 text-center font-medium',
+                            activeTab === 'Berita Terkini'
+                                ? 'bg-green-600 text-white'
+                                : 'text-gray-700 hover:text-green-600'
+                        ]">
+                            Berita Terkini
+                        </button>
+                        <button @click="changeTab('Regulasi')" :class="[
+                            'py-2 px-6 text-center font-medium',
+                            activeTab === 'Regulasi'
+                                ? 'bg-green-600 text-white'
+                                : 'text-gray-700 hover:text-green-600'
+                        ]">
+                            Regulasi
+                        </button>
+                        <button @click="changeTab('Agenda')" :class="[
+                            'py-2 px-6 text-center font-medium',
+                            activeTab === 'Agenda'
+                                ? 'bg-green-600 text-white'
+                                : 'text-gray-700 hover:text-green-600'
+                        ]">
+                            Agenda
+                        </button>
+                        <button @click="changeTab('Statistik')" :class="[
+                            'py-2 px-6 text-center font-medium',
+                            activeTab === 'Statistik'
+                                ? 'bg-green-600 text-white'
+                                : 'text-gray-700 hover:text-green-600'
+                        ]">
+                            Statistik
+                        </button>
+                    </div>
+
+                    <!-- Content Box -->
+                    <div class="bg-gray-200 rounded-lg p-4">
+                        <!-- Program 1 -->
+                        <div class="mb-6">
+                            <div class="flex items-center mb-2">
+                                <div class="w-6 h-6 bg-red-200 rounded-full flex items-center justify-center mr-2">
+                                    <span class="text-red-500 text-lg">🌱</span>
+                                </div>
+                                <h2 class="text-lg font-medium text-green-700">Program Pengelolaan Sampah Terpadu
+                                    Kabupaten Karanganyar</h2>
+                            </div>
+                            <p class="text-sm text-gray-800 ml-8">
+                                Pemerintah Kabupaten Karanganyar meluncurkan program pengelolaan sampah terpadu yang
+                                melibatkan partisipasi masyarakat dalam
+                                pemilahan sampah dan bank sampah di tingkat desa.
+                            </p>
+                            <div class="border-b border-gray-300 my-4"></div>
+                        </div>
+
+                        <!-- Program 2 -->
+                        <div class="mb-6">
+                            <div class="flex items-center mb-2">
+                                <div class="w-6 h-6 bg-red-200 rounded-full flex items-center justify-center mr-2">
+                                    <span class="text-red-500 text-lg">🌳</span>
+                                </div>
+                                <h2 class="text-lg font-medium text-green-700">Penanaman 5.000 Pohon di Sepanjang
+                                    Bantaran Sungai</h2>
+                            </div>
+                            <p class="text-sm text-gray-800 ml-8">
+                                Dinas Lingkungan Hidup bersama komunitas lingkungan melakukan penanaman 5.000 pohon di
+                                sepanjang bantaran sungai untuk
+                                mencegah erosi dan menjaga kualitas air.
+                            </p>
+                            <div class="border-b border-gray-300 my-4"></div>
+                        </div>
+
+                        <!-- Program 3 -->
+                        <div class="mb-2">
+                            <div class="flex items-center mb-2">
+                                <div class="w-6 h-6 bg-red-200 rounded-full flex items-center justify-center mr-2">
+                                    <span class="text-red-500 text-lg">🌡️</span>
+                                </div>
+                                <h2 class="text-lg font-medium text-green-700">Monitoring Kualitas Udara dengan Smart
+                                    Sensor</h2>
+                            </div>
+                            <p class="text-sm text-gray-800 ml-8">
+                                Pemasangan sensor kualitas udara di beberapa titik strategis Kabupaten Karanganyar untuk
+                                pemantauan real-time kualitas udara yang
+                                terintegrasi dengan SiLanVar
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </section>
         </div>
