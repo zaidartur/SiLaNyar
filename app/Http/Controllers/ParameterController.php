@@ -32,7 +32,7 @@ class ParameterController extends Controller
             'nama_parameter'=>'required|string',
             'satuan'=>'required|string',
             'baku_mutu'=>'required',
-            'biaya'=>'required|numeric|min:0',
+            'harga'=>'required|numeric|min:0',
         ]);
 
         $parameter = parameter_uji::create($request->all());
@@ -58,10 +58,11 @@ class ParameterController extends Controller
             'nama_parameter'=>'required|string',
             'satuan'=>'required|string',
             'baku_mutu'=>'required',
-            'biaya'=>'required|numeric|min:0',
+            'harga'=>'required|numeric|min:0',
         ]);
 
-        $parameter = parameter_uji::update($request->all());
+        // Perbaikan: Gunakan instance $parameter yang sudah di-inject
+        $parameter->update($request->all());
 
         if($parameter)
         {

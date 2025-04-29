@@ -15,7 +15,7 @@ class parameter_uji extends Model
         'nama_parameter',
         'satuan',
         'baku_mutu',
-        'biaya'
+        'harga'
     ];
 
     public function pengujian()
