@@ -13,20 +13,37 @@ class form_pengajuan extends Model
 
     protected $fillable = [
         'id_pembayaran',
+        'id_customer',
         'id_kategori',
-        'deskripsi',
+        'id_jenis_cairan',
+        'volume_sampel',
         'status_pengajuan',
-        'tanggal_terima',
-        'metode_pengambilan'
+        'metode_pengambilan',
+        'lokasi'
     ];
+
+    public function customer()
+    {
+        return $this->belongsTo(customer::class, 'id_customer');  
+    }
 
     public function pembayaran() 
     {
-        return $this()->belongsTo(pembayaran::class, 'id_pembayaran');    
+        return $this->belongsTo(pembayaran::class, 'id_pembayaran');    
     }
 
     public function kategori()
     {
-        return $this()->belongsTo(kategori::class, 'id_kategori');    
+        return $this->belongsTo(kategori::class, 'id_kategori');    
+    }
+
+    public function parameter()
+    {
+        return $this->belongsToMany(parameter_uji::class, 'parameter_pengujian', 'id_parameter', 'id_pengujian');    
+    }
+
+    public function jenis_cairan()
+    {
+        return $this->belongsTo(jenis_cairan::class, 'id_jenis_cairan');    
     }
 }

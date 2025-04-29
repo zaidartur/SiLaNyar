@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('role', function(Blueprint $table) {
-            $table->id();
-            $table->string('nama');
+        Schema::create('parameter_pengajuan', function(Blueprint $table)
+        {
+           $table->id();
+           $table->foreignId('id_parameter')->constrained('parameter_uji')->onDelete('cascade');
+           $table->foreignId('id_pengajuan')->constrained('form_pengajuan')->onDelete('cascade'); 
         });
     }
 

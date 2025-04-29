@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\pegawai;
+
 return [
 
     /*
@@ -36,6 +38,14 @@ return [
     */
 
     'guards' => [
+        'pegawai' => [
+            'driver' => 'session',
+            'provider' => 'pegawai',
+        ],
+        'customer' => [
+            'driver' => 'session',
+            'provider' => 'customer'
+        ],
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
@@ -60,9 +70,17 @@ return [
     */
 
     'providers' => [
+        'pegawai' => [
+            'driver' => 'eloquent',
+            'model' => \App\Models\pegawai::class
+        ],
+        'customer' => [
+            'driver' => 'eloquent',
+            'model' => \App\Models\Customer::class
+        ],
         'users' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\User::class),
+            'model' => App\Models\User::class,
         ],
 
         // 'users' => [

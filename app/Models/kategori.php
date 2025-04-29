@@ -15,4 +15,14 @@ class kategori extends Model
         'nama',
         'harga'
     ];
+
+    public function parameter()
+    {
+        return $this->belongsToMany(parameter_uji::class, 'parameter_kategori', 'id_kategori', 'id_parameter');
+    }
+
+    public function form_pengajuan()
+    {
+        return $this->belongsTo(form_pengajuan::class);
+    }
 }

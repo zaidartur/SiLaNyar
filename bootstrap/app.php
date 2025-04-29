@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Middleware\CheckPermission;
+use App\Http\Middleware\CheckVerifiedCustomer;
+use App\Http\Middleware\CheckVerifiedPegawai;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
@@ -21,6 +24,13 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
+
+        $middleware->alias([
+            'check.permission' => CheckPermission::class,
+            'check.verified.pegawai' => CheckVerifiedPegawai::class,
+            'check.verified.customer' => CheckVerifiedCustomer::class,
+        ]);
+        
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

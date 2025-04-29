@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\kategori;
+use App\Models\parameter_uji;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -10,42 +11,61 @@ use Inertia\Inertia;
 class KategoriController extends Controller
 {
 
-    //lihat kategori
+    //lihat daftar kategori
     public function index()
     {
-        $kategori = kategori::latest()->get();
+        $kategori = kategori::with('parameter')->get();
         
         return Inertia::render('kategori/index', [
-            'kategori' => $kategori
+            'kategori' => $kategori,
         ]);
     }
 
-    //tambah kategori
+    //form tambah kategori
     public function create()
     {
-        return Inertia::render('kategori/create');    
+        $parameter = parameter_uji::all();
+
+        return Inertia::render('kategori/create', [
+            'parameter' => $parameter
+        ]);    
     }
 
     //proses tambah kategori
     public function store(Request $request)
     {
         $request->validate([
-            'nama' => 'required'
+            'nama' => 'required|string|unique:kategori,nama',
+            'harga' => 'required|numeric|min:0',
+            'parameter_ids' => 'required|array',
+            'parameter_ids.*' => 'exists:parameter_uji,id'
         ]);
 
-        $kategori = kategori::create($request->all());
+        $kategori = kategori::create($request->only([
+            'nama',
+            'harga'
+        ]));
 
-        if($kategori)
-        {
-            return Redirect::route('kategori.index')->with('message', 'Kategori Berhasil Ditambahkan!');
+        // Attach parameters
+        if ($request->parameter_ids) {
+            $kategori->parameter()->attach($request->parameter_ids);
         }
+
+        if(request()->header('referer') && str_contains(request()->header('referer'), '/test/')) {
+            return Redirect::route('test.kategori.index')->with('message', 'Kategori Berhasil Ditambahkan!');
+        }
+        
+        return Redirect::route('kategori.index')->with('message', 'Kategori Berhasil Ditambahkan!');
     }
 
-    //edit kategori
+    //form edit kategori
     public function edit(kategori $kategori)
     {
+        $parameter = parameter_uji::all();
+        
         return Inertia::render('kategori/edit', [
-            'kategori' => $kategori
+            'kategori' => $kategori,
+            'parameter' => $parameter,
         ]);
     }
 
@@ -53,15 +73,34 @@ class KategoriController extends Controller
     public function update(kategori $kategori, Request $request)
     {
         $request->validate([
-            'nama' => 'required'
+            'nama' => 'required|string',
+            'harga' => 'required|numeric|min:0',
+            'parameter_ids' => 'required|array'
         ]);
 
-        $kategori = kategori::update($request->all());
+        $kategori->update($request->only([
+            'nama',
+            'harga'
+        ]));
 
-        if($kategori)
-        {
-            return Redirect::route('kategori.index')->with('message', 'Kategori Berhasil Diupdate!');
+        // Update parameter relationships
+        $kategori->parameter()->sync($request->parameter_ids);
+
+        if(request()->header('referer') && str_contains(request()->header('referer'), '/test/')) {
+            return Redirect::route('test.kategori.index')->with('message', 'Kategori Berhasil Diupdate!');
         }
+
+        return Redirect::route('kategori.index')->with('message', 'Kategori Berhasil Diupdate!');
+    }
+
+    //lihat detail kategori
+    public function show(kategori $kategori)
+    {
+        $kategori->load('parameter');
+        
+        return Inertia::render('kategori/show', [
+            'kategori' => $kategori
+        ]);
     }
 
     //proses delete kategori
@@ -71,6 +110,10 @@ class KategoriController extends Controller
 
         $kategori->delete();
 
+        if(request()->header('referer') && str_contains(request()->header('referer'), '/test/')) {
+            return Redirect::route('test.kategori.index')->with('message', 'Kategori Berhasil Ditambahkan!');
+        }
+        
         if($kategori)
         {
             return Redirect::route('kategori.index')->with('message', 'Kategori Berhasil Didelete!');

@@ -16,8 +16,9 @@ return new class extends Migration
             $table->integer('total_biaya');
             $table->date('tanggal_pembayaran');
             $table->string('metode_pembayaran');
-            $table->enum('status_pembayaran', ["selesai", "belum_dibayar"]);
+            $table->enum('status_pembayaran', ["selesai", "belum_dibayar"])->default('belum_dibayar');
             $table->string('bukti_pembayaran');
+            $table->timestamps();
         });
     }
 

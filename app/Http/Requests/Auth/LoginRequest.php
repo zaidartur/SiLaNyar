@@ -41,7 +41,8 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        // Coba login dengan guard 'customer'
+        if (! Auth::guard('customer')->attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -49,8 +50,22 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Ambil user yang sedang login
+        $user = Auth::guard('customer')->user();
+
+        // Cek status verifikasi
+        if ($user->status_verifikasi !== 'diterima') {
+            // Logout user jika belum diverifikasi
+            Auth::guard('customer')->logout();
+
+            throw ValidationException::withMessages([
+                'email' => 'Akun Anda belum diverifikasi.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
+
 
     /**
      * Ensure the login request is not rate limited.
@@ -80,6 +95,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('email')) . '|' . $this->ip());
     }
 }

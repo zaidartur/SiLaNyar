@@ -16,7 +16,12 @@ return new class extends Migration
             $table->string('nama');
             $table->string('jabatan');
             $table->enum('jenis_kelamin', ["laki-laki", "perempuan"]);
-            $table->integer('no_telepon');
+            $table->enum('status_verifikasi', ['diproses', 'diterima', 'ditolak'])->default('diproses');
+            $table->string('no_telepon');
+            $table->string('email')->unique();
+            $table->string('password');
+            $table->timestamp('email_verified_at')->nullable();
+            $table->timestamps();
         });
     }
 

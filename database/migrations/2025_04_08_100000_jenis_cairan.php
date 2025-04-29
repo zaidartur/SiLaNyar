@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('detail_kategori', function(Blueprint $table) {
-            $table->id();
-            $table->foreignId('id_parameter')->constrained('parameter_uji')->onDelete('cascade');
-            $table->foreignId('id_kategori')->constrained('kategori')->onDelete('cascade');
-            $table->string('keterangan');
+        Schema::create('jenis_cairan', function(Blueprint $table)
+        {
+           $table->id();
+           $table->string('nama');
+           $table->float('batas_minimum');
+           $table->float('batas_maksimum'); 
+           // Removed timestamps()
         });
     }
 
@@ -24,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('jenis_cairan'); // Also add proper drop table
     }
 };
