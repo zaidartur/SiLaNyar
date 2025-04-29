@@ -1,25 +1,19 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Pegawai;
 
-use App\Models\Customer;
-use App\Models\pegawai;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
+use App\Models\Customer;
+use App\Models\pegawai;
 
-class VerifikasiAdminController extends Controller
+class VerifikasiController extends Controller
 {
-    //lihat detail customer
-    public function showCustomer(Customer $customer)
-    {
-        return Inertia::render('customer/show', [
-            'customer' => $customer
-        ]);
-    }
 
     //proses verifikasi customer
-    public function verifikasiCustomer (Request $request, $id)
+    public function verifikasiCustomer(Request $request, $id)
     {
         $customer = Customer::findOrFail($id);
 
@@ -32,16 +26,6 @@ class VerifikasiAdminController extends Controller
         ]);
 
         return Redirect::back()->with('message', 'Status Berhasil Diperbarui!');
-    }
-
-    //lihat detail pegawai
-    public function showPegawai(pegawai $pegawai)
-    {
-        $pegawai->load('roles');
-        
-        return Inertia::render('pegawai/show', [
-            'pegawai' => $pegawai
-        ]);
     }
 
     //proses verifikasi pegawai

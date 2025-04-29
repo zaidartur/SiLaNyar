@@ -29,26 +29,35 @@ class DashboardController extends Controller
         }
 
         if ($pegawaiLogin->hasRole('teknisi')) {
+            $jadwalPengujian = pengujian::where('id_pegawai', $pegawaiLogin)->count();
+            $jadwalPengambilan = jadwal::where('id_pegawai', $pegawaiLogin)->count();
+
             $pengajuan = form_pengajuan::all();
             $pengambilan = jadwal::all();
 
             return Inertia::render('dashboard/teknisi', [
+                'statistik' => [
+                    'jadwalPengujian' => $jadwalPengujian,
+                    'jadwalPengambilan' => $jadwalPengambilan,
+                ],
                 'pengajuan' => $pengajuan,
                 'pengambilan' => $pengambilan
             ]);
         }
 
         if ($pegawaiLogin->hasRole('admin')) {
-            $pengajuan = form_pengajuan::all();
-            $jadwal = jadwal::all();
-            $pengujian = pengujian::all();
-            $hasil_uji = hasil_uji::all();
+            $pengajuan = form_pengajuan::count();
+            $jadwal = jadwal::count();
+            $pengujian = pengujian::count();
+            $hasil_uji = hasil_uji::count();
 
             return Inertia::render('dashboard/admin', [
-                'pengajuan' => $pengajuan,
-                'jadwal' => $jadwal,
-                'pengujian' => $pengujian,
-                'hasil_uji' => $hasil_uji
+                'statistik' => [
+                    'pengajuan' => $pengajuan,
+                    'jadwal' => $jadwal,
+                    'pengujian' => $pengujian,
+                    'hasil_uji' => $hasil_uji,
+                ],
             ]);
         }
 

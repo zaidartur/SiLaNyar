@@ -36,7 +36,7 @@ class PengajuanController extends Controller
         $kategori = kategori::all();
         $parameter = parameter_uji::all();
 
-        return Inertia::render('customer/pengajuan/daftar', [
+        return Inertia::render('customer/pengajuan/tambah', [
             'kategori' => $kategori,
             'jenis_cairan' => $jenis_cairan,
             'parameter' => $parameter
@@ -76,7 +76,7 @@ class PengajuanController extends Controller
 
         if($pengajuan) 
         {
-        return Redirect::route('pengajuan.rincianHarga')->with('message', 'Pengajuan Berhasil Ditambahkan, Harap Tunggu Verifikasi Administrasi Dalam Waktu 1x2 Minggu');
+        return Redirect::route('customer.pengajuan.rincianHarga')->with('message', 'Pengajuan Berhasil Ditambahkan, Harap Tunggu Verifikasi Administrasi Dalam Waktu 1x2 Minggu');
         }
     }
 
@@ -89,7 +89,7 @@ class PengajuanController extends Controller
         $totalKategori = $pengajuan->kategori->harga ?? 0;
         $totalHarga = $totalParameter + $totalParameter;
 
-        return Inertia::render('pengajuan.rincianHarga', [
+        return Inertia::render('customer/pengajuan/rincianHarga', [
             'pengajuan' => $pengajuan,
             'kategori' => $pengajuan->kategori,
             'parameter' => $pengajuan->parameter,
@@ -109,7 +109,7 @@ class PengajuanController extends Controller
                         ->where('id_customer', $customer->id)
                         ->firstOrFail();
         
-        return Inertia::render('customer/pengajuan',[
+        return Inertia::render('customer/pengajuan/detail',[
             'pengajuan' => $pengajuan
         ]);
     }

@@ -10,9 +10,10 @@ use App\Http\Controllers\Auth\Pegawai\AuthenticatedSessionController as PegawaiA
 use App\Http\Controllers\Auth\Pegawai\RegisteredUserController as PegawaiRegisteredUserController;
 use App\Http\Controllers\Auth\Customer\RegisteredUserController as CustomerRegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
+use App\Http\Controllers\Pegawai\DashboardController;
 use App\Http\Controllers\Settings\CustomerProfileController;
 use App\Http\Controllers\Settings\PegawaiProfileController;
-use App\Http\Controllers\VerifikasiAdminController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -28,11 +29,7 @@ Route::prefix('pegawai')->middleware('guest:pegawai')->group(function()
 
 Route::prefix('pegawai')->middleware('auth:pegawai', 'check.verified.pegawai')->group(function()
 {
-    Route::get('detail/{pegawai}', [VerifikasiAdminController::class, 'showPegawai']);
-    Route::put('detail/{id}', [VerifikasiAdminController::class, 'verifikasiPegawai']);
-
-    Route::get('detail/customer/{customer}', [VerifikasiAdminController::class, 'showCustomer']);
-    Route::put('detail/customer/{id}', [VerifikasiAdminController::class, 'verifikasiCustomer']);
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('pegawai.dashboard');
 
     Route::get('profile/show', [PegawaiProfileController::class, 'show'])->name('pegawai.profile');
     Route::get('profile/edit', [PegawaiProfileController::class, 'edit']);
@@ -54,9 +51,7 @@ Route::middleware('guest:customer')->group(function()
 });
 
 Route::prefix('customer')->middleware(['auth:customer', 'check.verified.customer'])->group(function() {
-    Route::get('dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
+    Route::get('dashboard', [CustomerDashboardController::class, 'index'])->name('customer.dashboard');
 
     Route::get('profile/show', [CustomerProfileController::class, 'show'])->name('customer.profile');
     Route::get('profile/edit', [CustomerProfileController::class, 'edit']);
