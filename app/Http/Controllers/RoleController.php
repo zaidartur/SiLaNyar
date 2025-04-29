@@ -12,7 +12,7 @@ class RoleController extends Controller
 {
     public function index()
     {
-        $role = roles::with('permission');
+        $role = roles::with('permissions')->get(); // Ubah dari permission ke permissions
 
         return Inertia::render('role', [
             'role' => $role
@@ -30,21 +30,41 @@ class RoleController extends Controller
 
     public function store(Request $request)
     {
+        // Validasi dulu sebelum try-catch
         $request->validate([
-            'name' => 'required|string|max:255',
-            'permissions' => 'array',
-            'permissions.*' => 'exists:permission,id'
+            'name' => 'required|string|max:255',  // Pisahkan unique validation
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'exists:permissions,id'
+        ], [
+            'name.required' => 'The name field is required.',
+            'name.string' => 'The name must be a string.',
+            'name.max' => 'The name may not be greater than 255 characters.'
         ]);
 
-        $role = roles::create([
-            'name' => $request->nama
-        ]);
+        try {
+            // Cek unique setelah validasi dasar
+            if (roles::where('name', $request->name)->where('guard_name', 'pegawai')->exists()) {
+                return back()->withErrors([
+                    'name' => 'The name has already been taken.'
+                ])->withInput();
+            }
 
-        $role->permission()->sync($request->permission);
+            $role = roles::create([
+                'name' => $request->name,
+                'guard_name' => 'pegawai'
+            ]);
 
-        if($role)
-        {
-            return Redirect::route('role.index')->with('message', 'Role Berhasil Ditambahkan!');
+            if ($request->has('permissions')) {
+                $role->syncPermissions($request->permissions);
+            }
+
+            return redirect('/superadmin/role')
+                ->with('message', 'Role Berhasil Ditambahkan!');
+
+        } catch (\Exception $e) {
+            return back()->withErrors([
+                'name' => 'An error occurred while creating the role.'
+            ])->withInput();
         }
     }
 
@@ -53,7 +73,7 @@ class RoleController extends Controller
         $permission = permissions::all();
 
         return Inertia::render('role.edit', [
-            'roles' => $role->load('permission'),
+            'roles' => $role->load('permissions'), // Ubah dari 'permission' ke 'permissions'
             'permissions' => $permission
         ]);
     }
@@ -63,19 +83,19 @@ class RoleController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'permissions' => 'array',
-            'permissions.*' => 'exists:permission,id'
+            'permissions.*' => 'exists:permissions,id' // Ubah dari permission ke permissions
         ]);
 
         $role->update([
-            'name' => $request->nama
+            'name' => $request->name, // Ubah dari nama ke name untuk konsistensi
+            'guard_name' => 'pegawai'
         ]);
 
-        $role->permission()->sync($request->permission);
-
-        if ($role)
-        {
-            return Redirect::route('role.index')->with('message', 'Role Berhasil Diupdate!');
+        if (isset($request->permissions)) {
+            $role->syncPermissions($request->permissions); // Gunakan syncPermissions dari Spatie
         }
+
+        return redirect('/superadmin/role')->with('message', 'Role Berhasil Diupdate!');
     }
 
     public function destroy($id)

@@ -39,22 +39,23 @@ class PengujianController extends Controller
     //proses tambah jadwal pengujian
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'id_form_pengajuan' => 'required|exists:form_pengajuan,id',
             'id_pegawai' => 'required|exists:pegawai,id',
-            'kategori' => 'required|exists:kategori,id',
+            'id_kategori' => 'required|exists:kategori,id',
             'tanggal_uji' => 'required|date',
             'jam_mulai' => 'required|date_format:H:i',
             'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
-            'status' => 'required|in:diproses,selesai'
+            'status' => 'required|in:diproses,selesai',
         ]);
 
-        $pengujian = pengujian::create($request->all());
+        $pengujian = pengujian::create($validated);
 
-        if ($pengujian)
-        {
-            return Redirect::route('pengujian.index')->with('message', 'Jadwal Pengujian Berhasil Dibuat!');
+        if($pengujian) {
+            return redirect('/pengujian')->with('message', 'Pengujian Berhasil Dibuat!');
         }
+
+        return back()->withErrors(['message' => 'Gagal membuat pengujian']);
     }
 
     //form edit jadwal pengujian
@@ -75,7 +76,7 @@ class PengujianController extends Controller
     //proses update daftar pengujian
     public function update(pengujian $pengujian, Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'id_form_pengajuan' => 'required|exists:form_pengajuan,id',
             'id_pegawai' => 'required|exists:pegawai,id',
             'id_kategori' => 'required|exists:kategori,id',
@@ -85,12 +86,9 @@ class PengujianController extends Controller
             'status' => 'required|in:diproses,selesai'
         ]);
         
-        $pengujian = pengujian::update($request->all());
+        $pengujian->update($validated);
 
-        if($pengujian)
-        {
-            return Redirect::route('pengujian.index')->with('message', 'Pengujian Berhasil Diupdate');
-        }
+        return redirect('/pengujian')->with('message', 'Pengujian Berhasil Diupdate');
     }
 
     //lihat detail daftar pengujian

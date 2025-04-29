@@ -32,4 +32,6 @@ class pegawai extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed'
     ];
+
+    protected $guard_name = 'pegawai';
 }

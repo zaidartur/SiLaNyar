@@ -17,8 +17,8 @@ return new class extends Migration
             $table->foreignId('id_pegawai')->constrained('pegawai')->onDelete('cascade');
             $table->foreignId('id_kategori')->constrained('kategori')->onDelete('cascade');
             $table->date('tanggal_uji');
-            $table->date('jam_mulai');
-            $table->date('jam_selesai');
+            $table->time('jam_mulai');  // Ubah ke time untuk menyimpan format H:i
+            $table->time('jam_selesai'); // Ubah ke time untuk menyimpan format H:i
             $table->enum('status', ['diproses', 'selesai'])->default('diproses');
             $table->timestamps();
         });
