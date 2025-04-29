@@ -24,17 +24,9 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/about-us', function () {
-    return Inertia::render('AboutUs');
-})->name('about-us');
-
-Route::get('/informasi', function () {
-    return Inertia::render('Informasi');
-})->name('informasi');
-
 //route superadmin
 
-Route::prefix('superadmin')->middleware(['auth:pegawai'])->group(function() 
+Route::prefix('superadmin')->middleware(['auth:pegawai'])->group(function()
 {
     //crud permission
    Route::middleware(['check.permission:kelola-permission'])->group(function()
@@ -58,6 +50,7 @@ Route::prefix('superadmin')->middleware(['auth:pegawai'])->group(function()
         Route::delete('role/{id}', [RoleController::class, 'destroy']);
    });
 });
+
 //route user
 
 Route::prefix('customer')->middleware(['auth:customer', 'check.verified.customer'])->group(function()
@@ -77,6 +70,14 @@ Route::prefix('customer')->middleware(['auth:customer', 'check.verified.customer
 
 //route pegawai
 
+//route admin
+Route::get('/admin', function () {
+    return Inertia::render('admin/Dashboard');
+})->name('dashboard.admin');
+
+//crud kategori
+Route::get('kategori/', [KategoriController::class, 'index']);
+
 //crud parameter
 Route::get('parameter/', [ParameterController::class, 'index'])->name('parameter.index');
 Route::get('parameter/create', [ParameterController::class, 'create']);
@@ -91,6 +92,8 @@ Route::get('kategori/create', [KategoriController::class, 'create']);
 Route::post('kategori/store', [KategoriController::class, 'store']);
 Route::get('kategori/{kategori}/edit', [KategoriController::class, 'edit']);
 Route::put('kategori/edit/{kategori}', [KategoriController::class, 'update']);
+Route::post('kategori/{id}', [KategoriController::class, 'destroy']);
+
 Route::get('kategori/{kategori}', [KategoriController::class, 'show']);
 Route::delete('kategori/{id}',[KategoriController::class, 'destroy']);
 
@@ -116,6 +119,7 @@ Route::delete('hasiluji/{id}', [HasilUjiController::class, 'destroy']);
 Route::get('jadwal/', [JadwalController::class, 'index'])->name('jadwal.index');
 Route::get('jadwal/create', [JadwalController::class, 'create']);
 Route::post('jadwal/store', [JadwalController::class, 'store']);
+Route::get('jadwal/{jadwal}', [JadwalController::class, 'show'])->name('jadwal.show');
 Route::get('jadwal/{jadwal}/edit', [JadwalController::class, 'edit']);
 Route::put('jadwal/edit/{jadwal}', [JadwalController::class, 'update']);
 Route::delete('jadwal/{id}', [JadwalController::class, 'destroy']);
@@ -162,5 +166,9 @@ Route::prefix('test/jadwal')->group(function () {
     });
 });
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+//pengajuan
+Route::get('pengajuan/', [PengajuanController::class, 'index']);
+Route::post('pengajuan/{id}/verifikasi', [PengajuanController::class, 'verification']);
+
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';

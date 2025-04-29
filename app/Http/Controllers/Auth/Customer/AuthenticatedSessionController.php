@@ -15,7 +15,7 @@ class AuthenticatedSessionController extends Controller
     //lihat login customer
     public function create()
     {
-        return Inertia::render('customer/login');    
+        return Inertia::render('customer/login');
     }
 
     //proses login customer

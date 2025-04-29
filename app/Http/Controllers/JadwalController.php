@@ -33,8 +33,12 @@ class JadwalController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'id_form_pengujian' => 'required|exists:form_pengujain,id',
-            'waktu_pengambilan' => 'required|date',
+            'id_form_pengajuan' => [
+                'required',
+                'exists:form_pengajuan,id',
+                'unique:jadwal,id_form_pengajuan'
+            ],
+            'waktu_pengambilan' => 'required|date|after_or_equal:today',
             'status' => 'required|in:diproses,selesai',
             'keterangan' => 'required|string|max:255'
         ]);
@@ -42,7 +46,7 @@ class JadwalController extends Controller
         $jadwal = jadwal::create($request->all());
 
         if($jadwal) {
-            return Redirect::route('test.jadwal.index')->with('message', 'Jadwal Berhasil Dibuat!');
+            return redirect()->route('jadwal.index')->with('message', 'Jadwal Berhasil Dibuat!');
         }
     }
 
@@ -67,9 +71,9 @@ class JadwalController extends Controller
             'keterangan' => 'required|string|max:255'
         ]);
 
-        $jadwal = jadwal::update($request->all());
+        $updated = $jadwal->update($request->all());
 
-        if($jadwal)
+        if($updated)
         {
             return Redirect::route('test.jadwal.index')->with('message', 'Jadwal Berhasil Diupdate!');
         }
@@ -86,5 +90,14 @@ class JadwalController extends Controller
         {
             return Redirect::route('test.jadwal.index')->with('message', 'Jadwal Berhasil Dihapus!');
         }
+    }
+
+    public function show(jadwal $jadwal)
+    {
+        $jadwal->load(['form_pengajuan', 'pegawai']);
+        
+        return Inertia::render('jadwal/show', [
+            'jadwal' => $jadwal
+        ]);
     }
 }

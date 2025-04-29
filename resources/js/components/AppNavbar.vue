@@ -9,8 +9,8 @@ const isCurrentRoute = computed(() => (url: string) => page.url === url);
 
 const navItems = [
     { name: 'Home', href: '/dashboard', icon: Home },
-    { name: 'About Us', href: '/about-us', icon: Info },
-    { name: 'Informasi', href: '/informasi', icon: FileText },
+    { name: 'Informasi', href: '#informasi', icon: FileText },
+    { name: 'About Us', href: '#about-us', icon: Info },
 ];
 
 const mobileMenuOpen = ref(false);
