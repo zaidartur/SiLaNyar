@@ -14,15 +14,37 @@ class AdminPengajuanController extends Controller
         //lihat daftar pengajuan dari Admin
         public function index()
         {
-            $pengajuan = form_pengajuan::with(['kategori', 'parameter', 'customer', 'jenis_cairan'])->get();
+            $pengajuan = form_pengajuan::with(['kategori', 'parameter', 'customer', 'jenis_cairan'])
+                        ->orderByDesc('updated_at')
+                        ->get();
     
-            return Inertia::render('admin/pengajuan/index', [
+            return Inertia::render('pegawai/pengajuan/index', [
                 'pengajuan' => $pengajuan
             ]);
         }
     
+        //lihat detail pengajuan dari Admin
+        public function show($id)
+        {
+            $pengajuan = form_pengajuan::with(['kategori', 'parameter', 'customer', 'jenis_cairan'])
+                        ->where('id', $id)
+                        ->firstOrFail();
+
+            return Inertia::render('pegawai/pengajuan/detail', [
+                'pengajuan' => $pengajuan
+            ]);
+        }
+
+        //edit pengajuan dari admin
+        public function edit(form_pengajuan $pengajuan)
+        {
+            return Inertia::render('pegawai/pengajuan/edit', [
+                'pengajuan' => $pengajuan
+            ]);
+        }
+        
         //proses verifikasi pengajuan oleh admin
-        public function verifikasi($id, Request $request)
+        public function update($id, Request $request)
         {
             $request->validate([
                 'status_pengajuan' => 'required|in:diterima,ditolak'
@@ -45,6 +67,6 @@ class AdminPengajuanController extends Controller
     
             $pengajuan->save();
     
-            return Redirect::route('pengajuan.index')->with('message', 'Pengajuan Telah Diterima!');
+            return Redirect::route('pegawai.pengajuan.index')->with('message', 'Pengajuan Telah Diterima!');
         }
 }

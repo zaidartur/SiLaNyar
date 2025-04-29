@@ -15,7 +15,7 @@ class JadwalController extends Controller
     {
         $jadwal = jadwal::with('form_pengajuan')->get();
 
-        return Inertia::render('jadwal/index', [
+        return Inertia::render('pegawai/jadwal/index', [
             'jadwal' => $jadwal,
         ]);    
     }
@@ -24,7 +24,7 @@ class JadwalController extends Controller
     public function create()
     {
         $form_pengajuan = form_pengajuan::get();
-        return Inertia::render('jadwal/create', [
+        return Inertia::render('pegawai/jadwal/tambah', [
             'form_pengajuan' => $form_pengajuan
         ]);
     }
@@ -46,7 +46,11 @@ class JadwalController extends Controller
         $jadwal = jadwal::create($request->all());
 
         if($jadwal) {
+<<<<<<< HEAD
             return redirect()->route('jadwal.index')->with('message', 'Jadwal Berhasil Dibuat!');
+=======
+            return Redirect::route('pegawai.jadwal.index')->with('message', 'Jadwal Berhasil Dibuat!');
+>>>>>>> 602f626 (Update dan Revisi Inertia::render, Name)
         }
     }
 
@@ -55,7 +59,7 @@ class JadwalController extends Controller
     {
         $form_pengajuan = form_pengajuan::latest()->get();
 
-        return Inertia::render('jadwal/edit', [
+        return Inertia::render('pegawai/jadwal/edit', [
             'jadwal' => $jadwal,
             'form_pengajuan' => $form_pengajuan,
         ]);
@@ -75,8 +79,17 @@ class JadwalController extends Controller
 
         if($updated)
         {
-            return Redirect::route('test.jadwal.index')->with('message', 'Jadwal Berhasil Diupdate!');
+            return Redirect::route('pegawai.jadwal.index')->with('message', 'Jadwal Berhasil Diupdate!');
         }
+    }
+
+    public function show(jadwal $jadwal)
+    {
+        $jadwal::with(['form_pengajuan', 'pegawai'])->get();
+
+        return Inertia::render('pegawai/jadwal/detail', [
+            'jadwal' => $jadwal
+        ]);
     }
 
     //proses hapus jadwal
@@ -88,7 +101,7 @@ class JadwalController extends Controller
 
         if($jadwal)
         {
-            return Redirect::route('test.jadwal.index')->with('message', 'Jadwal Berhasil Dihapus!');
+            return Redirect::route('pegawai.jadwal.index')->with('message', 'Jadwal Berhasil Dihapus!');
         }
     }
 
