@@ -50,12 +50,9 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        // Ambil user yang sedang login
         $user = Auth::guard('customer')->user();
 
-        // Cek status verifikasi
         if ($user->status_verifikasi !== 'diterima') {
-            // Logout user jika belum diverifikasi
             Auth::guard('customer')->logout();
 
             throw ValidationException::withMessages([

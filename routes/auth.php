@@ -10,10 +10,9 @@ use App\Http\Controllers\Auth\Pegawai\AuthenticatedSessionController as PegawaiA
 use App\Http\Controllers\Auth\Pegawai\RegisteredUserController as PegawaiRegisteredUserController;
 use App\Http\Controllers\Auth\Customer\RegisteredUserController as CustomerRegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\Settings\CustomerProfileController;
+use App\Http\Controllers\Settings\PegawaiProfileController;
 use App\Http\Controllers\VerifikasiAdminController;
-use App\Http\Middleware\CheckVerifiedCustomer;
-use App\Http\Middleware\CheckVerifiedPegawai;
-use App\Models\Customer;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -35,6 +34,12 @@ Route::prefix('pegawai')->middleware('auth:pegawai', 'check.verified.pegawai')->
     Route::get('detail/customer/{customer}', [VerifikasiAdminController::class, 'showCustomer']);
     Route::put('detail/customer/{id}', [VerifikasiAdminController::class, 'verifikasiCustomer']);
 
+    Route::get('profile/show', [PegawaiProfileController::class, 'show'])->name('pegawai.profile');
+    Route::get('profile/edit', [PegawaiProfileController::class, 'edit']);
+    Route::put('profile/update', [PegawaiProfileController::class, 'update']);
+
+    Route::delete('profile/destroy', [PegawaiProfileController::class, 'destroy']);
+
     Route::post('logout', [PegawaiAuthenticatedSessionController::class, 'destroy'])->name('pegawai.logout');    
 });
 
@@ -48,10 +53,16 @@ Route::middleware('guest:customer')->group(function()
     Route::post('login', [CustomerAuthenticatedSessionController::class, 'store']);
 });
 
-Route::middleware(['auth:customer', 'check.verified.customer'])->group(function() {
+Route::prefix('customer')->middleware(['auth:customer', 'check.verified.customer'])->group(function() {
     Route::get('dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
+
+    Route::get('profile/show', [CustomerProfileController::class, 'show'])->name('customer.profile');
+    Route::get('profile/edit', [CustomerProfileController::class, 'edit']);
+    Route::put('profile/update', [CustomerProfileController::class, 'update']);
+    
+    Route::delete('profile/destroy', [CustomerProfileController::class, 'destroy']);
 
     Route::post('logout', [CustomerAuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
