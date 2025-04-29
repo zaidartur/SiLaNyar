@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Spatie\Permission\Models\Role as SpatieRole;
 
 class roles extends SpatieRole
@@ -13,6 +12,15 @@ class roles extends SpatieRole
     protected $table = 'roles';
 
     protected $fillable = [
-        'name'
+        'name',
+        'guard_name'  // Tambahkan guard_name ke fillable
     ];
+
+    // Set default guard name
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        
+        $this->guard_name = $this->guard_name ?? 'pegawai';
+    }
 }
