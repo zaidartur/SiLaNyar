@@ -33,17 +33,17 @@ class pengujian extends Model
 
     public function kategori()
     {
-        return $this->belongsTo(kategori::class, 'id_kategori');    
+        return $this->belongsTo(kategori::class, 'id_kategori');
     }
 
     public function parameter_uji()
     {
         return $this->belongsToMany(parameter_uji::class, 'hasil_uji', 'id_pengujian', 'id_parameter')
                     ->withPivot('nilai', 'keterangan')
-                    ->withTimestamps();    
+                    ->withTimestamps();
     }
     public function hasil_uji()
     {
-        return $this->hasMany(hasil_uji::class);    
+        return $this->hasMany(hasil_uji::class);
     }
 }
