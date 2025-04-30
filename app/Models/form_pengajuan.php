@@ -12,7 +12,6 @@ class form_pengajuan extends Model
     protected $table = 'form_pengajuan';
 
     protected $fillable = [
-        'id_pembayaran',
         'id_customer',
         'id_kategori',
         'id_jenis_cairan',
@@ -29,7 +28,7 @@ class form_pengajuan extends Model
 
     public function pembayaran() 
     {
-        return $this->belongsTo(pembayaran::class, 'id_pembayaran');    
+        return $this->hasOne(pembayaran::class);    
     }
 
     public function kategori()

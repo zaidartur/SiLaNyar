@@ -12,12 +12,14 @@ class pembayaran extends Model
     protected $table = 'pembayaran';
 
     protected $fillable = [
-        'id_pembayaran',
+        'id_order',
+        'id_form_pengajuan',
         'total_biaya',
         'tanggal_pembayaran',
         'metode_pembayaran',
         'status_pembayaran',
-        'bukti_pembayaran'
+        'bukti_pembayaran',
+        'id_transaksi'
     ];
 
     public function form_pengajuan()
