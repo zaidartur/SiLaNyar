@@ -21,8 +21,8 @@ class PengajuanController extends Controller
         $customer = Auth::guard('customer')->user();
 
         $pengajuan = form_pengajuan::with(['kategori', 'parameter', 'jenis_cairan'])
-                        ->where('id_customer', $customer->id)
-                        ->get();
+            ->where('id_customer', $customer->id)
+            ->get();
 
         return Inertia::render('customer/pengajuan/index', [
             'pengajuan' => $pengajuan
@@ -58,8 +58,7 @@ class PengajuanController extends Controller
 
         $jenis_cairan = jenis_cairan::findOrFail($request->id_jenis_cairan);
 
-        if($request->volume_sampel < $jenis_cairan->batas_minimum || $request->volume_sampel > $jenis_cairan->batas_maksimum)
-        {
+        if ($request->volume_sampel < $jenis_cairan->batas_minimum || $request->volume_sampel > $jenis_cairan->batas_maksimum) {
             return Redirect::back()->withErrors([
                 'volume_sampel' => "Volume Sampel Harus Diantara {$jenis_cairan->batas_minimum} atau {$jenis_cairan->batas_maksimum} Untuk Jenis Cairan {$jenis_cairan->nama}"
             ])->withInput();
@@ -74,42 +73,22 @@ class PengajuanController extends Controller
             'lokasi' => $request->lokasi,
         ]);
 
-        if($pengajuan) 
-        {
-        return Redirect::route('customer.pengajuan.rincianHarga')->with('message', 'Pengajuan Berhasil Ditambahkan, Harap Tunggu Verifikasi Administrasi Dalam Waktu 1x2 Minggu');
+        if ($pengajuan) {
+            return Redirect::route('customer.pengajuan.index')->with('message', 'Pengajuan Berhasil Ditambahkan, Harap Tunggu Verifikasi Administrasi Dalam Waktu 1x2 Minggu');
         }
     }
 
-    //lihat rincian harga pengajuan customer
-    public function showRincian($id)
-    {
-        $pengajuan = form_pengajuan::with(['kategori', 'parameter'])->findOrFail($id);
-
-        $totalParameter = $pengajuan->parameter->sum("harga");
-        $totalKategori = $pengajuan->kategori->harga ?? 0;
-        $totalHarga = $totalParameter + $totalParameter;
-
-        return Inertia::render('customer/pengajuan/rincianHarga', [
-            'pengajuan' => $pengajuan,
-            'kategori' => $pengajuan->kategori,
-            'parameter' => $pengajuan->parameter,
-            'totalKategori' => $totalKategori,
-            'totalParameter' => $totalParameter,
-            'totalHarga' => $totalHarga,
-        ]);
-    }
-
-    //lihat pendaftaran yang didaftarkan dari user
+    //lihat detail pengajuan dari user
     public function show($id)
     {
         $customer = Auth::guard('customer')->user();
 
         $pengajuan = form_pengajuan::with(['kategori', 'parameter', 'jenis_cairan'])
-                        ->where('id', $id)
-                        ->where('id_customer', $customer->id)
-                        ->firstOrFail();
-        
-        return Inertia::render('customer/pengajuan/detail',[
+            ->where('id', $id)
+            ->where('id_customer', $customer->id)
+            ->firstOrFail();
+
+        return Inertia::render('customer/pengajuan/detail', [
             'pengajuan' => $pengajuan
         ]);
     }

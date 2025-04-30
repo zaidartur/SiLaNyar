@@ -46,11 +46,7 @@ class JadwalController extends Controller
         $jadwal = jadwal::create($request->all());
 
         if($jadwal) {
-<<<<<<< HEAD
-            return redirect()->route('jadwal.index')->with('message', 'Jadwal Berhasil Dibuat!');
-=======
             return Redirect::route('pegawai.jadwal.index')->with('message', 'Jadwal Berhasil Dibuat!');
->>>>>>> 602f626 (Update dan Revisi Inertia::render, Name)
         }
     }
 
@@ -81,15 +77,6 @@ class JadwalController extends Controller
         {
             return Redirect::route('pegawai.jadwal.index')->with('message', 'Jadwal Berhasil Diupdate!');
         }
-    }
-
-    public function show(jadwal $jadwal)
-    {
-        $jadwal::with(['form_pengajuan', 'pegawai'])->get();
-
-        return Inertia::render('pegawai/jadwal/detail', [
-            'jadwal' => $jadwal
-        ]);
     }
 
     //proses hapus jadwal

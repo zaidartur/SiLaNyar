@@ -70,14 +70,6 @@ class ParameterController extends Controller
         }
     }
 
-    //lihat detail parameter
-    public function show(parameter_uji $parameter)
-    {
-        return Inertia::render('pegawai/parameter/detail', [
-            'parameter' => $parameter
-        ]);
-    }
-
     //proses hapus parameter
     public function destroy($id)
     {

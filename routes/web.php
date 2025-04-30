@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Customer\HasilUjiController as CustomerHasilUjiController;
 use App\Http\Controllers\Customer\JadwalController as CustomerJadwalController;
+use App\Http\Controllers\Customer\PembayaranController;
 use App\Http\Controllers\Customer\PengajuanController as CustomerPengajuanController;
 use App\Http\Controllers\HasilUjiController;
 use App\Http\Controllers\JadwalController;
@@ -28,6 +29,7 @@ Route::get('/dashboard', function () {
 
 //route superadmin
 Route::prefix('superadmin')->middleware(['auth:pegawai'])->group(function () {
+
     //fitur permission
     Route::middleware(['check.permission:kelola-permission'])->group(function () {
         Route::get('permission', [PermissionController::class, 'index'])->name('superadmin.permission.index');
@@ -56,6 +58,7 @@ Route::prefix('superadmin')->middleware(['auth:pegawai'])->group(function () {
 
 //route user
 Route::prefix('customer')->middleware(['auth:customer', 'check.verified.customer'])->group(function () {
+
     //fitur jadwal
     Route::get('pengujian', [CustomerJadwalController::class, 'index'])->name('customer.jadwal.index');
     Route::get('pengujian/{id}', [CustomerJadwalController::class, 'show']);
@@ -65,7 +68,12 @@ Route::prefix('customer')->middleware(['auth:customer', 'check.verified.customer
     Route::get('pengajuan/daftar', [CustomerPengajuanController::class, 'daftar']);
     Route::post('pengajuan/store', [CustomerPengajuanController::class, 'store']);
     Route::get('pengajuan/{id}', [CustomerPengajuanController::class, 'show']);
-    Route::get('pengajuan/pembayaran/{id}', [CustomerPengajuanController::class, 'showRincian']);
+
+    //fitur pembayaran
+    Route::get('pembayaran/rincian/{id}', [PembayaranController::class, 'showRincian'])->name('customer.pembayaran.rincian');
+    Route::post('pembayaran/bayar', [PembayaranController::class, 'bayar']);
+    Route::post('pembayaran/fake/{id}', [PembayaranController::class, 'bayarFake']);
+    Route::get('pembayaran/status/{id}', [PembayaranController::class, 'status'])->name('customer.pembayaran.status');
 
     //fitur hasil uji
     Route::get('hasil_uji', [CustomerHasilUjiController::class, 'index'])->name('customer.hasil_uji.index');
@@ -75,6 +83,7 @@ Route::prefix('customer')->middleware(['auth:customer', 'check.verified.customer
 
 //route pegawai
 Route::prefix('pegawai')->middleware(['auth:customer', 'check.verified.pegawai'])->group(function () {
+
     //fitur pengajuan
     Route::get('pengajuan', [AdminPengajuanController::class, 'index'])->middleware('check.permission:lihat-pengajuan')->name('pegawai.pengajuan.index');
     Route::get('pengajuan/{id}', [AdminPengajuanController::class, 'show'])->middleware('check.permission:detail-pengajuan');
@@ -113,7 +122,6 @@ Route::prefix('pegawai')->middleware(['auth:customer', 'check.verified.pegawai']
     Route::post('kategori/store', [KategoriController::class, 'store']);
     Route::get('kategori/{kategori}/edit', [KategoriController::class, 'edit'])->middleware('check.permission:edit-kategori');
     Route::put('kategori/edit/{kategori}', [KategoriController::class, 'update']);
-    Route::get('kategori/{kategori}', [KategoriController::class, 'show'])->middleware('check.permission:detail-kategori');
     Route::delete('kategori/{id}', [KategoriController::class, 'destroy'])->middleware('check.permission:delete-kategori');
 
     //fitur parameter
@@ -122,7 +130,6 @@ Route::prefix('pegawai')->middleware(['auth:customer', 'check.verified.pegawai']
     Route::post('parameter/store', [ParameterController::class, 'store']);
     Route::get('parameter/edit/{parameter}', [ParameterController::class, 'edit'])->middleware('check.permission:edit-parameter');
     Route::put('parameter/{parameter}/edit', [ParameterController::class, 'update']);
-    Route::get('parameter/{parameter}', [ParameterController::class, 'show'])->middleware('check.permission:detail-parameter');
     Route::delete('parameter/{id}', [ParameterController::class, 'destroy'])->middleware('check.permission:delete-parameter');
 
     //fitur hasil uji
@@ -141,6 +148,8 @@ Route::prefix('pegawai')->middleware(['auth:customer', 'check.verified.pegawai']
     //fitur verifikasi customer
     Route::post('pelanggan/verifikasi/{id}', [VerifikasiController::class, 'verifikasiCustomer'])->middleware('check.permission:verifikasi-customer');
 });
+
+Route::post('midtrans/callback', [PembayaranController::class, 'callback'])->name('midtrans.callback');
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
