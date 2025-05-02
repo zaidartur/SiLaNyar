@@ -3,16 +3,18 @@
 namespace Tests;
 
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Facades\Artisan;
 
 abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication;
 
-    protected function setUp(): void
+    public function setUp(): void
     {
         parent::setUp();
         
-        // Bypass Vite manifest requirement for testing
-        $this->withoutVite();
+        if (!app()->environment('production')) {
+            Artisan::call('key:generate', ['--force' => true]);
+        }
     }
 }
