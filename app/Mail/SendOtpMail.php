@@ -14,19 +14,24 @@ class SendOtpMail extends Mailable
     use Queueable, SerializesModels;
 
     public $otp;
+    public $nama;
     /**
      * Create a new message instance.
      */
-    public function __construct($otp)
+    public function __construct($otp, $nama)
     {
         $this->otp = $otp;
+        $this->nama = $nama;
     }
 
     public function build()
     {
         return $this->subject('DLH Kabupaten Karanganyar Reset Password')
-                    ->view('email.otp')
-                    ->with(['otp' => $this->otp]);
+            ->view('email.otp')
+            ->with([
+                'otp' => $this->otp,
+                'nama' => $this->nama,
+            ]);
     }
 
     /**

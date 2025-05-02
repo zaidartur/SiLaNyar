@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\form_pengajuan;
 use App\Models\pengujian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -10,19 +11,31 @@ use Inertia\Inertia;
 
 class JadwalController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $searchByStatus = $request->input('status');
+
         $customer = Auth::guard('customer')->user();
         
-        $pengujian = pengujian::whereHas('form_pengajuan', function($query) use ($customer)
+        $pengujian = pengujian::whereHas('form_pengajuan', function($query) use ($customer, $searchByStatus)
         {
-            $query->where('id_customer', $customer->id);    
+            $query->where('id_customer', $customer->id);  
+            
+            if($searchByStatus)
+            {
+                $query->where('status', 'like', '%'.$searchByStatus.'%');
+            }
+            
         })
         ->orderBy('tanggal_uji')
+        ->with('form_pengajuan')
         ->get();
 
         return Inertia::render('customer/jadwal/index', [
-            'pengujian' => $pengujian
+            'pengujian' => $pengujian,
+            'filter' => [
+                'status' => $searchByStatus
+            ],
         ]);
     }
 
