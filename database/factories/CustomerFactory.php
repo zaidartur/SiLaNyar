@@ -2,59 +2,74 @@
 
 namespace Database\Factories;
 
-use App\Models\Customer;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Customer>
+ */
 class CustomerFactory extends Factory
 {
-    protected $model = Customer::class;
-
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
     public function definition(): array
     {
-        $jenisUser = $this->faker->randomElement(['perorangan', 'instansi']);
+        $jenisUser = fake()->randomElement(['instansi', 'perorangan']);
         
-        $data = [
-            'nama' => 'Wyasana Aji Kusuma Wardana',
+        return [
+            'nama' => fake()->name(),
             'jenis_user' => $jenisUser,
-            'alamat_pribadi' => $this->faker->address(),
-            'kontak_pribadi' => '+' . $this->faker->numberBetween(1, 999) . $this->faker->numerify('##########'),
-            'email' => $this->faker->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => Hash::make('password'),
+            'alamat_pribadi' => $jenisUser === 'perorangan' ? fake()->address() : null,
+            'kontak_pribadi' => fake()->phoneNumber(),
+            'nama_instansi' => $jenisUser === 'instansi' ? fake()->company() : null,
+            'tipe_instansi' => $jenisUser === 'instansi' ? fake()->randomElement(['swasta', 'pemerintahan']) : null,
+            'alamat_instansi' => $jenisUser === 'instansi' ? fake()->address() : null,
+            'kontak_instansi' => $jenisUser === 'instansi' ? fake()->phoneNumber() : null,
+            'email' => fake()->unique()->safeEmail(),
+            'password' => Hash::make('password'), // default password
+            'status_verifikasi' => fake()->randomElement(['diproses', 'diterima', 'ditolak']),
+            'email_verified_at' => fake()->optional()->dateTime(),
             'remember_token' => Str::random(10),
-            'status_verifikasi' => 'diproses',
         ];
-        
-        if ($jenisUser === 'instansi') {
-            $data['nama_instansi'] = $this->faker->company();
-            $data['tipe_instansi'] = $this->faker->randomElement(['swasta', 'pemerintahan']);
-            $data['alamat_instansi'] = $this->faker->address();
-            $data['kontak_instansi'] = '+' . $this->faker->numberBetween(1, 999) . $this->faker->numerify('##########');
-        }
-        
-        return $data;
     }
 
-    public function accepted(): self
+    /**
+     * Configure the factory for an instansi customer.
+     */
+    public function instansi(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'jenis_user' => 'instansi',
+            'nama_instansi' => fake()->company(),
+            'tipe_instansi' => fake()->randomElement(['swasta', 'pemerintahan']),
+            'alamat_instansi' => fake()->address(),
+            'kontak_instansi' => fake()->phoneNumber(),
+        ]);
+    }
+
+    /**
+     * Configure the factory for a perorangan customer.
+     */
+    public function perorangan(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'jenis_user' => 'perorangan',
+            'alamat_pribadi' => fake()->address(),
+        ]);
+    }
+
+    /**
+     * Configure the factory for a verified customer.
+     */
+    public function verified(): static
     {
         return $this->state(fn (array $attributes) => [
             'status_verifikasi' => 'diterima',
-        ]);
-    }
-
-    public function rejected(): self
-    {
-        return $this->state(fn (array $attributes) => [
-            'status_verifikasi' => 'ditolak',
-        ]);
-    }
-
-    public function processing(): self
-    {
-        return $this->state(fn (array $attributes) => [
-            'status_verifikasi' => 'diproses',
+            'email_verified_at' => now(),
         ]);
     }
 }

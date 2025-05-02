@@ -2,31 +2,76 @@
 
 namespace Database\Factories;
 
-use App\Models\pengujian;
 use App\Models\form_pengajuan;
 use App\Models\pegawai;
 use App\Models\kategori;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class pengujianFactory extends Factory
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\pengujian>
+ */
+class PengujianFactory extends Factory
 {
-    protected $model = pengujian::class;
-
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
     public function definition(): array
     {
-        $jamMulai = now();
-        $jamSelesai = $jamMulai->copy()->addHour();
-        
+        $jamMulai = fake()->time('H:i');
         return [
             'id_form_pengajuan' => form_pengajuan::factory(),
             'id_pegawai' => pegawai::factory(),
             'id_kategori' => kategori::factory(),
-            'tanggal_uji' => $this->faker->date(),
-            'jam_mulai' => $this->faker->time('H:i'),  // Menggunakan time() dengan format H:i
-            'jam_selesai' => $this->faker->time('H:i'), // Menggunakan time() dengan format H:i
-            'status' => $this->faker->randomElement(['diproses', 'selesai']),
-            'created_at' => now(),
-            'updated_at' => now()
+            'tanggal_uji' => fake()->dateTimeBetween('now', '+1 month')->format('Y-m-d'),
+            'jam_mulai' => $jamMulai,
+            'jam_selesai' => fake()->dateTimeInInterval($jamMulai, '+4 hours')->format('H:i'),
+            'status' => fake()->randomElement(['diproses', 'selesai']),
         ];
+    }
+
+    /**
+     * Configure the factory for a completed test.
+     */
+    public function selesai(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'selesai',
+            'tanggal_uji' => fake()->dateTimeBetween('-1 month', 'now')->format('Y-m-d'),
+        ]);
+    }
+
+    /**
+     * Configure the factory for an ongoing test.
+     */
+    public function diproses(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'diproses',
+            'tanggal_uji' => fake()->dateTimeBetween('now', '+1 month')->format('Y-m-d'),
+        ]);
+    }
+
+    /**
+     * Configure the factory for today's test.
+     */
+    public function hariIni(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'tanggal_uji' => now()->format('Y-m-d'),
+        ]);
+    }
+
+    /**
+     * Configure the factory with specific testing duration.
+     */
+    public function durasi(int $jamDurasi = 2): static
+    {
+        $jamMulai = fake()->time('H:i');
+        return $this->state(fn (array $attributes) => [
+            'jam_mulai' => $jamMulai,
+            'jam_selesai' => fake()->dateTimeInInterval($jamMulai, "+{$jamDurasi} hours")->format('H:i'),
+        ]);
     }
 }
