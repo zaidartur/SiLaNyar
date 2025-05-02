@@ -11,12 +11,27 @@ use Inertia\Inertia;
 class JadwalController extends Controller
 {
     //lihat daftar jadwal
-    public function index()
+    public function index(Request $request)
     {
-        $jadwal = jadwal::with('form_pengajuan')->get();
+        $filterByStatus = $request->input('status');
+        $filterByTanggal = $request->input('waktu_pengambilan');
 
+        $jadwal = jadwal::with('form_pengajuan')
+                    ->when($filterByTanggal, function ($query) use ($filterByTanggal)
+                    {
+                        $query->whereDate('waktu_pengambilan', $filterByTanggal);    
+                    })
+                    ->when($filterByStatus, function ($query) use ($filterByStatus) 
+                    {
+                        $query->where('status', 'like', '%'.$filterByStatus.'%');    
+                    })
+                    ->get();
         return Inertia::render('pegawai/jadwal/index', [
             'jadwal' => $jadwal,
+            'filter' => [
+                'status' => $filterByStatus,
+                'tanggal' => $filterByTanggal,
+            ],
         ]);    
     }
 
@@ -64,6 +79,22 @@ class JadwalController extends Controller
     //proses update jadwal
     public function update(jadwal $jadwal, Request $request)
     {
+        if($jadwal->status === 'selesai')
+        {
+            return Redirect::back()->withErrors([
+                'status' => 'Jadwal Yang Sudah Selesai Tidak Dapat Diubah!'
+            ]);
+        }
+
+        $batasEditTanggal = $jadwal->waktu_pengambilan->copy()->subDay();
+
+        if(now()->greaterThan($batasEditTanggal))
+        {
+            return Redirect::back()->withErrors([
+                'waktu_pengambilan' => 'Jadwal Tidak Dapat Diganti Karena Sudah Melewati Batas Reschedule!'
+            ]);
+        }
+        
         $request->validate([
             'id_form_pengajuan' => 'nullable',
             'waktu_pengambilan' => 'required|date',

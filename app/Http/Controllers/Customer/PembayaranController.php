@@ -14,6 +14,8 @@ use Midtrans\Config;
 use Midtrans\Snap;
 use App\Mail\PembayaranMasuk;
 use Midtrans\Notification;
+use App\Mail\KonfirmasiPembayaran;
+use Illuminate\Support\Facades\Log;
 
 class PembayaranController extends Controller
 {
@@ -31,7 +33,7 @@ class PembayaranController extends Controller
 
         $totalParameter = $pengajuan->parameter->sum("harga");
         $totalKategori = $pengajuan->kategori->harga ?? 0;
-        $totalHarga = $totalParameter + $totalParameter;
+        $totalHarga = $totalKategori + $totalParameter;
 
         return Inertia::render('customer/pembayaran/rincian', [
             'pengajuan' => $pengajuan,
@@ -77,7 +79,7 @@ class PembayaranController extends Controller
         $pembayaran->save();
 
         if ($StatusMidtrans['status'] === 'selesai') {
-            Mail::to(Auth::guard('customer')->email)->send(new PembayaranMasuk($pembayaran));
+            Mail::to(Auth::guard('customer')->user()->email)->send(new PembayaranMasuk($pembayaran));
         }
 
         return Inertia::render('customer/pembayaran/status', [
@@ -104,8 +106,8 @@ class PembayaranController extends Controller
         $id_order = 'ORDER-' . time();
         $parameter = [
             'transaction_details' => [
-                'id_order' => $id_order,
-                'total_biaya' => $totalHarga,
+                'order_id' => $id_order,
+                'gross_amount' => $totalHarga,
             ],
             'customer_details' => [
                 'nama' => $customer->nama,
@@ -113,13 +115,20 @@ class PembayaranController extends Controller
             ],
         ];
 
-        $snapToken = Snap::getSnapToken($parameter);
+        try {
+            $snapToken = Snap::getSnapToken($parameter);
+            return response()->json([
+                'snap_token' => $snapToken,
+                'order_id' => $id_order,
+                'gross_amount' => $totalHarga
+            ]);
+        } catch (\Exception $err) {
+            Log::error('Tidak Bisa Mendapatkan Token', ['error' => $err->getMessage(), 'order_id' => $parameter['transaction_details'['order_id']]]);
 
-        return response()->json([
-            'snap_token' => $snapToken,
-            'id_order' => $id_order,
-            'total_biaya' => $totalHarga
-        ]);
+            return Redirect::back()->withErrors([
+                'Terjadi Kesalahan Saat Membuat Transaksi:'.$err->getMessage()
+            ]);
+        }
     }
 
     public function callback(Request $request)
@@ -129,11 +138,11 @@ class PembayaranController extends Controller
         $status_code = $notif->status_code;
         $status_pembayaran = $notif->transaction_status;
 
-        $pembayaran = pembayaran::where('id_order', $id_order)->first();
+        $pembayaran = Pembayaran::with('form_pengajuan.customer')->where('id_order', $id_order)->first();
 
         if (!$pembayaran) {
             return response()->json(['message' => 'Order tidak ditemukan'], 404);
-        }        
+        }
 
         if ($status_pembayaran == 'capture' || $status_pembayaran == 'settlement') {
             $pembayaran->status_pembayaran = 'selesai';
@@ -142,6 +151,8 @@ class PembayaranController extends Controller
         } elseif ($status_pembayaran == 'deny' || $status_pembayaran == 'expire') {
             $pembayaran->status_pembayaran = 'gagal';
         }
+
+        Mail::to($pembayaran->form_pengajuan->customer->email)->send(new KonfirmasiPembayaran($pembayaran));
 
         $pembayaran->save();
 
@@ -170,9 +181,9 @@ class PembayaranController extends Controller
 
         $customer_details =
             [
-                'nama' => Auth::guard('customer')->nama,
-                'email' => Auth::guard('customer')->email,
-                'kontak' => Auth::guard('customer')->kontak_pribadi,
+                'nama' => Auth::guard('customer')->user()->nama,
+                'email' => Auth::guard('customer')->user()->email,
+                'kontak' => Auth::guard('customer')->user()->kontak_pribadi,
             ];
 
         $transaction_details =

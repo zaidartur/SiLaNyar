@@ -9,7 +9,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class PembayaranMasuk extends Mailable
+class KonfirmasiPembayaran extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -24,12 +24,13 @@ class PembayaranMasuk extends Mailable
 
     public function build()
     {
-        return $this->subject('DLH Kabupaten Karanganyar Konfirmasi Pembayaran Masuk')
-                    ->view('email.pembayaranmasuk')
+        return $this->view('email.konfirmasipembayaran')
                     ->with([
-                        'order_id' => $this->pembayaran->id_order,
-                        'gross_amount' => $this->pembayaran->total_biaya,
-                    ]);    
+                        'pembayaran' => $this->pembayaran,
+                        'id_order' => $this->pembayaran->id_order,
+                        'total_biaya' => $this->pembayaran->total_biaya,
+                        'tanggal_pembayaran' => $this->pembayaran->updated_at->format('d-m-Y H:i')
+                    ]);
     }
 
     /**
@@ -38,7 +39,7 @@ class PembayaranMasuk extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Pembayaran Masuk',
+            subject: 'Konfirmasi Pembayaran',
         );
     }
 

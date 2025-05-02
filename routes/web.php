@@ -18,6 +18,14 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Mail\SendOtpMail;
+
+Route::get('/test-otp', function () {
+    $otp = rand(100000, 999999);
+    $nama = 'Aji';
+    
+    return view('email.otp', ['otp' => $otp, 'nama' => $nama]);
+});
 
 Route::get('/', function () {
     return Inertia::render('Welcome');

@@ -77,6 +77,13 @@ class PengujianController extends Controller
     //proses update daftar pengujian
     public function update(pengujian $pengujian, Request $request)
     {
+        if($pengujian->status === 'selesai')
+        {
+            return Redirect::back()->withErrors([
+                'status' => 'Jadwal Yang Sudah Selesai Tidak Dapat Diubah!'
+            ]);
+        }
+
         $validated = $request->validate([
             'id_form_pengajuan' => 'required|exists:form_pengajuan,id',
             'id_pegawai' => 'required|exists:pegawai,id',
