@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class parameter_uji extends Model
+class ParameterUji extends Model
 {
     use HasFactory;
 
@@ -27,16 +27,16 @@ class parameter_uji extends Model
 
     public function hasil_uji()
     {
-        return $this->hasMany(hasil_uji::class);    
+        return $this->hasMany(HasilUji::class);    
     }
 
     public function form_pengajuan()
     {
-        return $this->belongsToMany(form_pengajuan::class, 'parameter_pengajuan', 'id_parameter', 'id_pengajuan');    
+        return $this->belongsToMany(FormPengajuan::class, 'parameter_pengajuan', 'id_parameter', 'id_pengajuan');    
     }
 
     public function kategori()
     {
-        return $this->belongsToMany(kategori::class, 'parameter_kategori', 'id_parameter', 'id_kategori');    
+        return $this->belongsToMany(Kategori::class, 'parameter_kategori', 'id_parameter', 'id_kategori');    
     }
 }

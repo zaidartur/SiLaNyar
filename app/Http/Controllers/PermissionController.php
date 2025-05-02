@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\permissions;
+use App\Models\Permissions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -11,7 +11,7 @@ class PermissionController extends Controller
 {
     public function index()
     {
-        $permission = permissions::all();
+        $permission = Permissions::all();
 
         return Inertia::render('superadmin/permission/index', [
             'permission' => $permission
@@ -29,7 +29,7 @@ class PermissionController extends Controller
             'name' => 'required|string|max:255'
         ]);
 
-        $permission = permissions::create($request->all());
+        $permission = Permissions::create($request->all());
 
         if ($permission) 
         {
@@ -37,14 +37,14 @@ class PermissionController extends Controller
         }
     }
 
-    public function edit(permissions $permission)
+    public function edit(Permissions $permission)
     {
         return Inertia::render('superadmin/permission/edit', [
             'permission' => $permission
         ]);
     }
 
-    public function update(Request $request, permissions $permission)
+    public function update(Request $request, Permissions $permission)
     {
         $request->validate([
             'name' => 'required|string|max:255'
@@ -60,7 +60,7 @@ class PermissionController extends Controller
 
     public function destroy($id)
     {
-        $permission = permissions::findOrFail($id);
+        $permission = Permissions::findOrFail($id);
         
         $permission->delete();
 
