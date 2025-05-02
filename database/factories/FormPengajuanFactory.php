@@ -8,7 +8,7 @@ use App\Models\JenisCairan;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\form_pengajuan>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\FormPengajuan>
  */
 class FormPengajuanFactory extends Factory
 {

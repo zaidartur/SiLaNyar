@@ -3,11 +3,11 @@
 namespace Database\Factories;
 
 use App\Models\ParameterUji;
-use App\Models\pengujian;
+use App\Models\Pengujian;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\hasil_uji>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\HasilUji>
  */
 class HasilUjiFactory extends Factory
 {
@@ -18,32 +18,13 @@ class HasilUjiFactory extends Factory
      */
     public function definition(): array
     {
+        $parameter = ParameterUji::inRandomOrder()->first() ?? ParameterUji::factory()->create();
+        
         return [
-            'id_parameter' => ParameterUji::factory(),
-            'id_pengujian' => pengujian::factory(),
-            'nilai' => fake()->randomFloat(2, 0, 100),
-            'keterangan' => fake()->sentence(),
-            'status' => fake()->optional()->randomElement(['acc', 'revisi']),
+            'id_pengujian' => Pengujian::factory(),
+            'id_parameter' => $parameter->id,
+            'nilai' => fake()->randomFloat(2, 0, $parameter->baku_mutu * 1.5), // Generate value relative to baku_mutu
+            'keterangan' => fake()->randomElement(['Memenuhi baku mutu', 'Melebihi baku mutu', 'Di bawah baku mutu']),
         ];
-    }
-
-    /**
-     * Configure the factory for an accepted hasil uji.
-     */
-    public function accepted(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'status' => 'acc',
-        ]);
-    }
-
-    /**
-     * Configure the factory for a revised hasil uji.
-     */
-    public function revised(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'status' => 'revisi',
-        ]);
     }
 }

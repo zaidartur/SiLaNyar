@@ -5,7 +5,7 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\permissions>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Permissions>
  */
 class PermissionFactory extends Factory
 {
@@ -16,39 +16,23 @@ class PermissionFactory extends Factory
      */
     public function definition(): array
     {
+        $actions = ['lihat', 'tambah', 'edit', 'delete', 'detail', 'verifikasi'];
+        $resources = [
+            'pegawai', 'pengajuan', 'pengujian', 'pengambilan', 
+            'jenis_sampel', 'kategori', 'parameter', 'hasil_uji', 
+            'pelanggan', 'customer'
+        ];
+
+        // Special permissions that don't follow the action-resource pattern
+        $specialPermissions = [
+            'kelola-permission',
+            'kelola-role'
+        ];
+
         return [
-            'name' => fake()->unique()->words(3, true),
+            'name' => fake()->randomElement($specialPermissions) ?: 
+                     fake()->randomElement($actions) . '-' . fake()->randomElement($resources),
             'guard_name' => 'pegawai',
         ];
-    }
-
-    /**
-     * Configure the factory for CRUD permissions.
-     */
-    public function crud(string $resource): static
-    {
-        return $this->state(function () use ($resource) {
-            $action = fake()->randomElement(['create', 'read', 'update', 'delete']);
-            return [
-                'name' => "{$action} {$resource}",
-            ];
-        });
-    }
-
-    /**
-     * Configure the factory for management permissions.
-     */
-    public function management(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'name' => fake()->randomElement([
-                'manage users',
-                'manage roles',
-                'manage permissions',
-                'manage settings',
-                'view reports',
-                'export data',
-            ]),
-        ]);
     }
 }

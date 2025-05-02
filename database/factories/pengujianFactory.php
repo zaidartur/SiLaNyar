@@ -5,10 +5,11 @@ namespace Database\Factories;
 use App\Models\FormPengajuan;
 use App\Models\Pegawai;
 use App\Models\Kategori;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\pengujian>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Pengujian>
  */
 class PengujianFactory extends Factory
 {
@@ -19,59 +20,47 @@ class PengujianFactory extends Factory
      */
     public function definition(): array
     {
-        $jamMulai = fake()->time('H:i');
+        // Get or create verified pegawai
+        $pegawai = Pegawai::where('status_verifikasi', 'diterima')
+            ->inRandomOrder()
+            ->first() ?? Pegawai::factory()->create([
+                'status_verifikasi' => 'diterima'
+            ]);
+
+        // Get or create accepted form pengajuan
+        $formPengajuan = FormPengajuan::where('status_pengajuan', 'diterima')
+            ->inRandomOrder()
+            ->first() ?? FormPengajuan::factory()->create([
+                'status_pengajuan' => 'diterima'
+            ]);
+
+        // Use the kategori from form pengajuan
+        $kategori = $formPengajuan->kategori;
+
+        // Generate lab working hours (8 AM - 5 PM)
+        $jamMulai = fake()->dateTimeBetween('08:00', '14:00')->format('H:i');
+        $jamSelesai = Carbon::createFromFormat('H:i', $jamMulai)
+            ->addHours(fake()->numberBetween(2, 4))
+            ->format('H:i');
+
         return [
-            'id_form_pengajuan' => FormPengajuan::factory(),
-            'id_pegawai' => Pegawai::factory(),
-            'id_kategori' => Kategori::factory(),
-            'tanggal_uji' => fake()->dateTimeBetween('now', '+1 month')->format('Y-m-d'),
+            'id_form_pengajuan' => $formPengajuan->id,
+            'id_pegawai' => $pegawai->id,
+            'id_kategori' => $kategori->id,
+            'tanggal_uji' => fake()->dateTimeBetween('now', '+2 weeks')->format('Y-m-d'),
             'jam_mulai' => $jamMulai,
-            'jam_selesai' => fake()->dateTimeInInterval($jamMulai, '+4 hours')->format('H:i'),
-            'status' => fake()->randomElement(['diproses', 'selesai']),
+            'jam_selesai' => $jamSelesai,
+            'status' => 'diproses'
         ];
     }
 
-    /**
-     * Configure the factory for a completed test.
-     */
     public function selesai(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'status' => 'selesai',
-            'tanggal_uji' => fake()->dateTimeBetween('-1 month', 'now')->format('Y-m-d'),
-        ]);
-    }
-
-    /**
-     * Configure the factory for an ongoing test.
-     */
-    public function diproses(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'status' => 'diproses',
-            'tanggal_uji' => fake()->dateTimeBetween('now', '+1 month')->format('Y-m-d'),
-        ]);
-    }
-
-    /**
-     * Configure the factory for today's test.
-     */
-    public function hariIni(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'tanggal_uji' => now()->format('Y-m-d'),
-        ]);
-    }
-
-    /**
-     * Configure the factory with specific testing duration.
-     */
-    public function durasi(int $jamDurasi = 2): static
-    {
-        $jamMulai = fake()->time('H:i');
-        return $this->state(fn (array $attributes) => [
-            'jam_mulai' => $jamMulai,
-            'jam_selesai' => fake()->dateTimeInInterval($jamMulai, "+{$jamDurasi} hours")->format('H:i'),
-        ]);
+        return $this->state(function (array $attributes) {
+            return [
+                'status' => 'selesai',
+                'tanggal_uji' => fake()->dateTimeBetween('-1 week', 'now')->format('Y-m-d')
+            ];
+        });
     }
 }

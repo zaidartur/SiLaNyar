@@ -19,57 +19,40 @@ class CustomerFactory extends Factory
     public function definition(): array
     {
         $jenisUser = fake()->randomElement(['instansi', 'perorangan']);
+        $isInstansi = $jenisUser === 'instansi';
         
         return [
-            'nama' => fake()->name(),
+            'nama' => $isInstansi ? fake()->company() : fake()->name(),
             'jenis_user' => $jenisUser,
-            'alamat_pribadi' => $jenisUser === 'perorangan' ? fake()->address() : null,
-            'kontak_pribadi' => fake()->phoneNumber(),
-            'nama_instansi' => $jenisUser === 'instansi' ? fake()->company() : null,
-            'tipe_instansi' => $jenisUser === 'instansi' ? fake()->randomElement(['swasta', 'pemerintahan']) : null,
-            'alamat_instansi' => $jenisUser === 'instansi' ? fake()->address() : null,
-            'kontak_instansi' => $jenisUser === 'instansi' ? fake()->phoneNumber() : null,
+            'alamat_pribadi' => $isInstansi ? null : fake()->address(),
+            'kontak_pribadi' => '+62' . fake()->numerify('8##########'),
+            'nama_instansi' => $isInstansi ? fake()->randomElement([
+                'PT. Air Mineral Indonesia',
+                'PDAM Kota',
+                'Dinas Lingkungan Hidup',
+                'RS Umum Daerah',
+                'PT. Industri Kimia',
+                'Lab Kesehatan',
+                'PT. Pengolahan Air'
+            ]) : null,
+            'tipe_instansi' => $isInstansi ? fake()->randomElement(['swasta', 'pemerintahan']) : null,
+            'alamat_instansi' => $isInstansi ? fake()->address() : null,
+            'kontak_instansi' => $isInstansi ? '(021) ' . fake()->numerify('#######') : null,
             'email' => fake()->unique()->safeEmail(),
-            'password' => Hash::make('password'), // default password
-            'status_verifikasi' => fake()->randomElement(['diproses', 'diterima', 'ditolak']),
-            'email_verified_at' => fake()->optional()->dateTime(),
+            'password' => Hash::make('password123'),
+            'status_verifikasi' => 'diproses',
+            'email_verified_at' => now(),
             'remember_token' => Str::random(10),
         ];
     }
 
-    /**
-     * Configure the factory for an instansi customer.
-     */
-    public function instansi(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'jenis_user' => 'instansi',
-            'nama_instansi' => fake()->company(),
-            'tipe_instansi' => fake()->randomElement(['swasta', 'pemerintahan']),
-            'alamat_instansi' => fake()->address(),
-            'kontak_instansi' => fake()->phoneNumber(),
-        ]);
-    }
-
-    /**
-     * Configure the factory for a perorangan customer.
-     */
-    public function perorangan(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'jenis_user' => 'perorangan',
-            'alamat_pribadi' => fake()->address(),
-        ]);
-    }
-
-    /**
-     * Configure the factory for a verified customer.
-     */
     public function verified(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'status_verifikasi' => 'diterima',
-            'email_verified_at' => now(),
-        ]);
+        return $this->state(function (array $attributes) {
+            return [
+                'status_verifikasi' => 'diterima',
+                'email_verified_at' => now(),
+            ];
+        });
     }
 }

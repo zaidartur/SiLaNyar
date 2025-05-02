@@ -6,7 +6,7 @@ use App\Models\FormPengajuan;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\pembayaran>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Pembayaran>
  */
 class PembayaranFactory extends Factory
 {
@@ -17,63 +17,39 @@ class PembayaranFactory extends Factory
      */
     public function definition(): array
     {
+        $status = fake()->randomElement(['pending', 'dibayar', 'expired', 'gagal']);
+        $isPaid = $status === 'dibayar';
+        
         return [
-            'id_order' => 'ORDER-' . fake()->unique()->numberBetween(100000, 999999),
-            'id_form_pengajuan' => FormPengajuan::factory(),
-            'total_biaya' => fake()->numberBetween(50000, 1000000),
-            'tanggal_pembayaran' => fake()->optional()->date(),
-            'metode_pembayaran' => fake()->randomElement(['bank_transfer', 'credit_card', 'gopay', 'qris']),
-            'status_pembayaran' => fake()->randomElement(['belum_dibayar', 'menunggu_konfirmasi', 'selesai', 'gagal']),
-            'bukti_pembayaran' => fake()->optional()->imageUrl(),
-            'id_transaksi' => fake()->optional()->uuid(),
+            'id_order' => 'LAB-' . date('Ymd') . '-' . fake()->unique()->numerify('####'),
+            'id_form_pengajuan' => FormPengajuan::factory()->create([
+                'status_pengajuan' => 'diterima'
+            ]),
+            'total_biaya' => fake()->randomElement([
+                150000,  // Basic package
+                300000,  // Standard package
+                500000,  // Complete package
+                750000,  // Professional package
+                1000000  // Comprehensive package
+            ]),
+            'tanggal_pembayaran' => $isPaid ? now() : null,
+            'metode_pembayaran' => $isPaid ? fake()->randomElement(['QRIS', 'Bank Transfer', 'Virtual Account']) : null,
+            'status_pembayaran' => $status,
+            'bukti_pembayaran' => $isPaid ? 'bukti_pembayaran/payment-'.fake()->uuid().'.jpg' : null,
+            'id_transaksi' => $isPaid ? 'TRX-'.fake()->uuid() : null,
         ];
     }
 
-    /**
-     * Configure the factory for a completed payment.
-     */
-    public function selesai(): static
+    public function dibayar(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'status_pembayaran' => 'selesai',
-            'tanggal_pembayaran' => fake()->dateTimeBetween('-1 month', 'now'),
-            'bukti_pembayaran' => fake()->imageUrl(),
-            'id_transaksi' => fake()->uuid(),
-        ]);
-    }
-
-    /**
-     * Configure the factory for a pending payment.
-     */
-    public function menungguKonfirmasi(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'status_pembayaran' => 'menunggu_konfirmasi',
-            'tanggal_pembayaran' => now(),
-        ]);
-    }
-
-    /**
-     * Configure the factory for an unpaid payment.
-     */
-    public function belumDibayar(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'status_pembayaran' => 'belum_dibayar',
-            'tanggal_pembayaran' => null,
-            'bukti_pembayaran' => null,
-            'id_transaksi' => null,
-        ]);
-    }
-
-    /**
-     * Configure the factory for a failed payment.
-     */
-    public function gagal(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'status_pembayaran' => 'gagal',
-            'tanggal_pembayaran' => fake()->dateTimeBetween('-1 month', 'now'),
-        ]);
+        return $this->state(function (array $attributes) {
+            return [
+                'status_pembayaran' => 'dibayar',
+                'tanggal_pembayaran' => now(),
+                'metode_pembayaran' => fake()->randomElement(['QRIS', 'Bank Transfer', 'Virtual Account']),
+                'bukti_pembayaran' => 'bukti_pembayaran/payment-'.fake()->uuid().'.jpg',
+                'id_transaksi' => 'TRX-'.fake()->uuid(),
+            ];
+        });
     }
 }

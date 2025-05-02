@@ -5,7 +5,7 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\kategori>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Kategori>
  */
 class KategoriFactory extends Factory
 {
@@ -17,28 +17,21 @@ class KategoriFactory extends Factory
     public function definition(): array
     {
         return [
-            'nama' => fake()->unique()->words(2, true),
-            'harga' => fake()->numberBetween(50000, 1000000),
+            'nama' => fake()->randomElement([
+                'Kualitas Air Minum',
+                'Air Permukaan',
+                'Air Limbah Domestik',
+                'Air Limbah Industri',
+                'Air Tanah',
+                'Air PDAM'
+            ]),
+            'harga' => fake()->randomElement([
+                150000,  // Basic testing package
+                300000,  // Standard testing package
+                500000,  // Complete testing package
+                750000,  // Professional testing package
+                1000000  // Comprehensive testing package
+            ])
         ];
-    }
-
-    /**
-     * Configure the factory for a high-price category.
-     */
-    public function highPrice(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'harga' => fake()->numberBetween(500000, 1000000),
-        ]);
-    }
-
-    /**
-     * Configure the factory for a low-price category.
-     */
-    public function lowPrice(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'harga' => fake()->numberBetween(50000, 499999),
-        ]);
     }
 }

@@ -26,19 +26,9 @@ class FormPengajuan extends Model
         return $this->belongsTo(Customer::class, 'id_customer');  
     }
 
-    public function pembayaran() 
-    {
-        return $this->hasOne(Pembayaran::class);    
-    }
-
     public function kategori()
     {
         return $this->belongsTo(Kategori::class, 'id_kategori');    
-    }
-
-    public function parameter()
-    {
-        return $this->belongsToMany(ParameterUji::class, 'parameter_pengujian', 'id_parameter', 'id_pengujian');    
     }
 
     public function jenis_cairan()
