@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\QueryException;
 
 class Pembayaran extends Model
 {
@@ -22,8 +23,24 @@ class Pembayaran extends Model
         'id_transaksi'
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($pembayaran) {
+            if ($pembayaran->total_biaya < 0) {
+                throw new QueryException(
+                    'mysql', // connection
+                    'Total biaya tidak boleh negatif', // sql
+                    ['total_biaya' => $pembayaran->total_biaya], // bindings
+                    new \Exception('Total biaya harus positif') // previous exception
+                );
+            }
+        });
+    }
+
     public function form_pengajuan()
     {
-        return $this->belongsTo(FormPengajuan::class);    
+        return $this->belongsTo(FormPengajuan::class, 'id_form_pengajuan', 'id');    
     }
 }

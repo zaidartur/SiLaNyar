@@ -35,10 +35,10 @@ class PegawaiProfileController extends Controller
         
         $request->validate([
             'nama' => 'required|string|max:255',
-            'jabatan' => 'required|string',
+            'jabatan' => 'required|in:Admin Lab,Kepala Lab,Analis Kimia,Analis Mikrobiologi,Analis Air,Manajer Teknis,Staff Lab',
             'jenis_kelamin' => 'required|in:laki-laki,perempuan',
             'no_telepon' => 'required|string|regex:/^\+[0-9]+$/',
-            'email' => 'required|string|lowercase|max:255|email|unique:'.Pegawai::class
+            'email' => 'required|string|lowercase|max:255|email|unique:pegawai,email,'.$pegawai->id
         ]);
 
         $pegawai->update($request->only([
@@ -49,7 +49,7 @@ class PegawaiProfileController extends Controller
             'email'
         ]));
 
-        return Redirect::route('pegawai.profile')->with('message', 'Profile Berhasil Diubah1');
+        return Redirect::route('pegawai.profile')->with('message', 'Profile Berhasil Diubah!');
     }
 
     public function destroy(Request $request)

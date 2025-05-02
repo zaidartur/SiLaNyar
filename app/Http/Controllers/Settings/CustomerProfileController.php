@@ -14,9 +14,8 @@ class CustomerProfileController extends Controller
 {   
     public function show()
     {
-        $customer = Auth::guard('customer')->user();
         return Inertia::render('customer/profile/show', [
-            'customer' => $customer
+            'customer' => Auth::guard('customer')->user()
         ]);
     }
 
@@ -32,20 +31,17 @@ class CustomerProfileController extends Controller
     {
         $customer = $request->user('customer');
         
-        $request->validate([
+        $rules = [
             'nama' => 'required|string|max:255',
             'jenis_user' => 'required|in:instansi,perorangan',
             'alamat_pribadi' => 'nullable|string|max:255',
             'kontak_pribadi' => 'required|string|regex:/^\+[0-9]+$/',
-            'nama_instansi' => 'nullable|string|max:255',
-            'tipe_instansi' => 'nullable|in:swasta,pemerintahan',
-            'alamat_instansi' => 'nullable|string|max:255',
-            'kontak_instansi' => 'nullable|string|regex:/^\+[0-9]+$/',
-            'email' => 'required|email|string|lowercase|unique:'.Customer::class
-        ]);
+            'email' => 'required|email|string|lowercase|unique:customer,email,'.$customer->id,
+        ];
 
-        if ($request->jenis_user === 'instansi') {
-            $request->validate([
+        // Tambah validasi untuk data instansi jika jenis_user adalah instansi
+        if ($request->input('jenis_user') === 'instansi') {
+            $rules = array_merge($rules, [
                 'nama_instansi' => 'required|string|max:255',
                 'tipe_instansi' => 'required|in:swasta,pemerintahan',
                 'alamat_instansi' => 'required|string|max:255',
@@ -53,18 +49,12 @@ class CustomerProfileController extends Controller
             ]);
         }
 
-        $customer->update($request->only([
-            'nama',
-            'jenis_user',
-            'alamat_pribadi',
-            'kontak_pribadi',
-            'nama_instansi',
-            'tipe_instansi',
-            'alamat_instansi',
-            'kontak_instansi',
-        ]));
+        $validated = $request->validate($rules);
+        
+        $customer->update($validated);
 
-        return Redirect::route('customer.profile')->with('message', 'Profil Berhasil Diubah!');
+        return redirect()->route('customer.profile')
+            ->with('message', 'Profil Berhasil Diubah!');
     }
 
     public function updatePassword(Request $request)

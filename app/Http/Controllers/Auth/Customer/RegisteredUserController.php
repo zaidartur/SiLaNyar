@@ -21,7 +21,7 @@ class RegisteredUserController extends Controller
         return Inertia::render('customer/registrasi');
     }
 
-    //proses daftar customer 
+    //proses daftar customer
     public function store(Request $request)
     {
         $request->validate([

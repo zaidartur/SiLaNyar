@@ -46,36 +46,41 @@ class PengajuanController extends Controller
     //proses daftar pengajuan uji lab customer
     public function store(Request $request)
     {
-        $request->validate([
+        $jenisCairan = JenisCairan::findOrFail($request->id_jenis_cairan);
+
+        $validated = $request->validate([
             'id_kategori' => 'required|exists:kategori,id',
             'id_jenis_cairan' => 'required|exists:jenis_cairan,id',
-            'volume_sampel' => 'required|float',
+            'volume_sampel' => [
+                'required',
+                'numeric',
+                'min:' . $jenisCairan->batas_minimum,
+                'max:' . $jenisCairan->batas_maksimum
+            ],
             'metode_pengambilan' => 'required|in:diantar,diambil',
-            'lokasi' => 'nullable|string|max:255',
+            'lokasi' => 'required_if:metode_pengambilan,diambil|nullable|string|max:255',
             'parameter' => 'required|array',
             'parameter.*' => 'exists:parameter_uji,id'
+        ], [
+            'volume_sampel.min' => "Volume Sampel Harus Diantara {$jenisCairan->batas_minimum} atau {$jenisCairan->batas_maksimum} Untuk Jenis Cairan",
+            'volume_sampel.max' => "Volume Sampel Harus Diantara {$jenisCairan->batas_minimum} atau {$jenisCairan->batas_maksimum} Untuk Jenis Cairan"
         ]);
-
-        $jenis_cairan = JenisCairan::findOrFail($request->id_jenis_cairan);
-
-        if ($request->volume_sampel < $jenis_cairan->batas_minimum || $request->volume_sampel > $jenis_cairan->batas_maksimum) {
-            return Redirect::back()->withErrors([
-                'volume_sampel' => "Volume Sampel Harus Diantara {$jenis_cairan->batas_minimum} atau {$jenis_cairan->batas_maksimum} Untuk Jenis Cairan {$jenis_cairan->nama}"
-            ])->withInput();
-        }
 
         $pengajuan = FormPengajuan::create([
             'id_customer' => Auth::guard('customer')->id(),
-            'id_kategori' => $request->id_kategori,
-            'id_jenis_cairan' => $request->id_jenis_cairan,
-            'volume_sampel' => $request->volume_sampel,
-            'metode_pengambilan' => $request->metode_pengambilan,
-            'lokasi' => $request->lokasi,
+            'id_kategori' => $validated['id_kategori'],
+            'id_jenis_cairan' => $validated['id_jenis_cairan'],
+            'volume_sampel' => $validated['volume_sampel'],
+            'metode_pengambilan' => $validated['metode_pengambilan'],
+            'lokasi' => $validated['lokasi'],
         ]);
 
         if ($pengajuan) {
-            return Redirect::route('customer.pengajuan.index')->with('message', 'Pengajuan Berhasil Ditambahkan, Harap Tunggu Verifikasi Administrasi Dalam Waktu 1x2 Minggu');
+            return redirect()->route('customer.pengajuan.index')
+                ->with('message', 'Pengajuan Berhasil Ditambahkan');
         }
+
+        return redirect()->back()->withErrors(['error' => 'Gagal membuat pengajuan']);
     }
 
     //lihat detail pengajuan dari user

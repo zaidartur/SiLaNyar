@@ -73,9 +73,9 @@ Route::prefix('customer')->middleware(['auth:customer', 'check.verified.customer
 
     //fitur pengajuan
     Route::get('pengajuan', [CustomerPengajuanController::class, 'index'])->name('customer.pengajuan.index');
-    Route::get('pengajuan/daftar', [CustomerPengajuanController::class, 'daftar']);
-    Route::post('pengajuan/store', [CustomerPengajuanController::class, 'store']);
-    Route::get('pengajuan/{id}', [CustomerPengajuanController::class, 'show']);
+    Route::get('pengajuan/daftar', [CustomerPengajuanController::class, 'daftar'])->name('customer.pengajuan.daftar');
+    Route::post('pengajuan/store', [CustomerPengajuanController::class, 'store'])->name('customer.pengajuan.store');
+    Route::get('pengajuan/{id}', [CustomerPengajuanController::class, 'show'])->name('customer.pengajuan.show');
 
     //fitur pembayaran
     Route::get('pembayaran/rincian/{id}', [PembayaranController::class, 'showRincian'])->name('customer.pembayaran.rincian');
@@ -90,13 +90,13 @@ Route::prefix('customer')->middleware(['auth:customer', 'check.verified.customer
 });
 
 //route pegawai
-Route::prefix('pegawai')->middleware(['auth:customer', 'check.verified.pegawai'])->group(function () {
+Route::prefix('pegawai')->middleware(['auth:pegawai', 'check.verified.pegawai'])->group(function () {  // Ubah guard dari customer ke pegawai
 
     //fitur pengajuan
     Route::get('pengajuan', [AdminPengajuanController::class, 'index'])->middleware('check.permission:lihat-pengajuan')->name('pegawai.pengajuan.index');
-    Route::get('pengajuan/{id}', [AdminPengajuanController::class, 'show'])->middleware('check.permission:detail-pengajuan');
-    Route::get('pengajuan/edit/{pengajuan}', [AdminPengajuanController::class, 'edit'])->middleware('check.permission:edit-pengajuan');
-    Route::put('pengajuan/{id}/edit', [AdminPengajuanController::class, 'update']);
+    Route::get('pengajuan/{id}', [AdminPengajuanController::class, 'show'])->middleware('check.permission:detail-pengajuan')->name('pegawai.pengajuan.show');
+    Route::get('pengajuan/edit/{pengajuan}', [AdminPengajuanController::class, 'edit'])->middleware('check.permission:edit-pengajuan')->name('pegawai.pengajuan.edit');
+    Route::put('pengajuan/{id}/edit', [AdminPengajuanController::class, 'update'])->name('pegawai.pengajuan.update');
 
     //fitur pengujian
     Route::get('pengujian/', [PengujianController::class, 'index'])->middleware('check.permission:lihat-pengujian')->name('pegawai.pengujian.index');

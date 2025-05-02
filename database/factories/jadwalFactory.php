@@ -29,7 +29,7 @@ class JadwalFactory extends Factory
             'id_pegawai' => $pegawai->id,
             'waktu_pengambilan' => fake()->dateTimeBetween('now', '+1 week')->format('Y-m-d'),
             'status' => fake()->randomElement(['diproses', 'selesai']),
-            'keterangan' => fake()->optional()->sentence()
+            'keterangan' => fake()->sentence() // Ubah dari optional() menjadi wajib
         ];
     }
 }

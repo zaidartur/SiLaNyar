@@ -21,6 +21,10 @@ class FormPengajuan extends Model
         'lokasi'
     ];
 
+    protected $dates = [
+        'tanggal_terima'
+    ];
+
     public function customer()
     {
         return $this->belongsTo(Customer::class, 'id_customer');  
@@ -34,5 +38,10 @@ class FormPengajuan extends Model
     public function jenis_cairan()
     {
         return $this->belongsTo(JenisCairan::class, 'id_jenis_cairan');    
+    }
+
+    public function parameter()
+    {
+        return $this->belongsToMany(ParameterUji::class, 'parameter_pengajuan', 'id_pengajuan', 'id_parameter');
     }
 }
