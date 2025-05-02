@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\form_pengajuan;
+use App\Models\FormPengajuan;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,7 +19,7 @@ class PembayaranFactory extends Factory
     {
         return [
             'id_order' => 'ORDER-' . fake()->unique()->numberBetween(100000, 999999),
-            'id_form_pengajuan' => form_pengajuan::factory(),
+            'id_form_pengajuan' => FormPengajuan::factory(),
             'total_biaya' => fake()->numberBetween(50000, 1000000),
             'tanggal_pembayaran' => fake()->optional()->date(),
             'metode_pembayaran' => fake()->randomElement(['bank_transfer', 'credit_card', 'gopay', 'qris']),

@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\permissions;
+use App\Models\Permissions;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -58,12 +58,12 @@ class PermissionSeeder extends Seeder
 
         foreach ($permission as $per)
         {
-            permissions::firstOrCreate(['name' => $per], ['guard_name' => 'pegawai']);
+            Permissions::firstOrCreate(['name' => $per], ['guard_name' => 'pegawai']);
         }
 
         foreach ($allFitur as $all)
         {
-            permissions::create(['name' => $all], ['guard_name' => 'pegawai']);
+            Permissions::create(['name' => $all], ['guard_name' => 'pegawai']);
         }
     }
 }

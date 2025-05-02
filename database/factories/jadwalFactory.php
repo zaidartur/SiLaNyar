@@ -3,57 +3,58 @@
 namespace Database\Factories;
 
 use App\Models\FormPengajuan;
-use App\Models\pegawai;
+use App\Models\Pegawai;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\jadwal>
- */
 class JadwalFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
+        $pegawai = Pegawai::factory()->create([
+            'status_verifikasi' => 'diterima'
+        ]);
+
         return [
             'id_form_pengajuan' => FormPengajuan::factory(),
-            'id_pegawai' => pegawai::factory(),
-            'waktu_pengambilan' => fake()->dateTimeBetween('now', '+1 month')->format('Y-m-d'),
-            'status' => fake()->randomElement(['diproses', 'selesai']),
-            'keterangan' => fake()->sentence(),
+            'id_pegawai' => $pegawai->id,
+            'waktu_pengambilan' => $this->faker->dateTimeBetween('now', '+1 month')->format('Y-m-d'),
+            'status' => $this->faker->randomElement(['diproses', 'selesai']),
+            'keterangan' => $this->faker->sentence()
         ];
     }
 
-    /**
-     * Configure the factory for a completed schedule.
-     */
     public function selesai(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => 'selesai',
+            'status' => 'selesai'
         ]);
     }
 
-    /**
-     * Configure the factory for a processing schedule.
-     */
     public function diproses(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => 'diproses',
+            'status' => 'diproses'
         ]);
     }
 
-    /**
-     * Configure the factory with a specific date.
-     */
+    public function withFormPengajuan(FormPengajuan $formPengajuan): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'id_form_pengajuan' => $formPengajuan->id
+        ]);
+    }
+
+    public function withPegawai(Pegawai $pegawai): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'id_pegawai' => $pegawai->id
+        ]);
+    }
+
     public function forDate(string $date): static
     {
         return $this->state(fn (array $attributes) => [
-            'waktu_pengambilan' => $date,
+            'waktu_pengambilan' => $date
         ]);
     }
 }

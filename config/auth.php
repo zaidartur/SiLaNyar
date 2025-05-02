@@ -72,11 +72,11 @@ return [
     'providers' => [
         'pegawai' => [
             'driver' => 'eloquent',
-            'model' => \App\Models\pegawai::class
+            'model' => App\Models\Pegawai::class,
         ],
         'customer' => [
             'driver' => 'eloquent',
-            'model' => \App\Models\Customer::class
+            'model' => App\Models\Customer::class
         ],
         'users' => [
             'driver' => 'eloquent',

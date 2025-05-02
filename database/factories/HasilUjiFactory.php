@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\parameter_uji;
+use App\Models\ParameterUji;
 use App\Models\pengujian;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -19,7 +19,7 @@ class HasilUjiFactory extends Factory
     public function definition(): array
     {
         return [
-            'id_parameter' => parameter_uji::factory(),
+            'id_parameter' => ParameterUji::factory(),
             'id_pengujian' => pengujian::factory(),
             'nilai' => fake()->randomFloat(2, 0, 100),
             'keterangan' => fake()->sentence(),

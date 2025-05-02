@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Models\form_pengajuan;
-use App\Models\pegawai;
-use App\Models\kategori;
+use App\Models\FormPengajuan;
+use App\Models\Pegawai;
+use App\Models\Kategori;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -21,9 +21,9 @@ class PengujianFactory extends Factory
     {
         $jamMulai = fake()->time('H:i');
         return [
-            'id_form_pengajuan' => form_pengajuan::factory(),
-            'id_pegawai' => pegawai::factory(),
-            'id_kategori' => kategori::factory(),
+            'id_form_pengajuan' => FormPengajuan::factory(),
+            'id_pegawai' => Pegawai::factory(),
+            'id_kategori' => Kategori::factory(),
             'tanggal_uji' => fake()->dateTimeBetween('now', '+1 month')->format('Y-m-d'),
             'jam_mulai' => $jamMulai,
             'jam_selesai' => fake()->dateTimeInInterval($jamMulai, '+4 hours')->format('H:i'),
