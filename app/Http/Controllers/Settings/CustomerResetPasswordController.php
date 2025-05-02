@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use App\Mail\SendOtpMail;
+use Illuminate\Container\Attributes\Auth;
 
 class CustomerResetPasswordController extends Controller
 {
@@ -26,6 +27,11 @@ class CustomerResetPasswordController extends Controller
             'via' => 'required|in:email,notelp'
         ]);
 
+        $customer = Customer::where('email', $request->identitas)
+                            ->orWhere('kontak_pribadi', $request->identitas)
+                            ->orWhere('kontak_instansi', $request->identitas)
+                            ->first();
+
         $otp = rand(100000, 999999);
 
         PasswordOtp::create([
@@ -37,7 +43,7 @@ class CustomerResetPasswordController extends Controller
 
         if($request->via == 'email')
         {
-            Mail::to($request->identitas)->send(new SendOtpMail($otp));
+            Mail::to($request->identitas)->send(new SendOtpMail($otp, $customer->nama));
         } else {
             $message = urlencode("*DLH Kabupaten Karanganyar*\n*$otp* adalah kode lupa password Anda. Demi keamanan, jangan bagikan kode ini kesiapapun.\n`Kode ini kedaluarsa dalam 5 menit`");
             $phone = $request->identitas;

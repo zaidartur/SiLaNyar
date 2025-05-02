@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class kategori extends Model
+class Kategori extends Model
 {
     use HasFactory;
 
@@ -18,11 +18,11 @@ class kategori extends Model
 
     public function parameter()
     {
-        return $this->belongsToMany(parameter_uji::class, 'parameter_kategori', 'id_kategori', 'id_parameter');
+        return $this->belongsToMany(ParameterUji::class, 'parameter_kategori', 'id_kategori', 'id_parameter');
     }
 
     public function form_pengajuan()
     {
-        return $this->belongsTo(form_pengajuan::class);
+        return $this->belongsTo(FormPengajuan::class);
     }
 }

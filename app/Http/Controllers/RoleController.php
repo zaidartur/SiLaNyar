@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\permissions;
-use App\Models\roles;
+use App\Models\Permissions;
+use App\Models\Roles;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -12,7 +12,7 @@ class RoleController extends Controller
 {
     public function index()
     {
-        $role = roles::with('permissions')->get(); // Ubah dari permission ke permissions
+        $role = Roles::with('permissions')->get(); // Ubah dari permission ke permissions
 
         return Inertia::render('superadmin/role/index', [
             'role' => $role
@@ -21,7 +21,7 @@ class RoleController extends Controller
 
     public function create()
     {
-        $permission = permissions::all();
+        $permission = Permissions::all();
         
         return Inertia::render('superadmin/role/tambah', [
             'permission' => $permission
@@ -43,13 +43,13 @@ class RoleController extends Controller
 
         try {
             // Cek unique setelah validasi dasar
-            if (roles::where('name', $request->name)->where('guard_name', 'pegawai')->exists()) {
+            if (Roles::where('name', $request->name)->where('guard_name', 'pegawai')->exists()) {
                 return back()->withErrors([
                     'name' => 'The name has already been taken.'
                 ])->withInput();
             }
 
-            $role = roles::create([
+            $role = Roles::create([
                 'name' => $request->name,
                 'guard_name' => 'pegawai'
             ]);
@@ -68,9 +68,9 @@ class RoleController extends Controller
         }
     }
 
-    public function edit(roles $role)
+    public function edit(Roles $role)
     {
-        $permission = permissions::all();
+        $permission = Permissions::all();
 
         return Inertia::render('role.edit', [
             'roles' => $role->load('permissions'), // Ubah dari 'permission' ke 'permissions'
@@ -78,7 +78,7 @@ class RoleController extends Controller
         ]);
     }
 
-    public function update(Request $request, roles $role)
+    public function update(Request $request, Roles $role)
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -100,7 +100,7 @@ class RoleController extends Controller
 
     public function destroy($id)
     {
-        $role = roles::findOrFail($id);
+        $role = Roles::findOrFail($id);
         
         $role->delete();
 

@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class pembayaran extends Model
+class Pembayaran extends Model
 {
     use HasFactory;
 
@@ -24,6 +24,6 @@ class pembayaran extends Model
 
     public function form_pengajuan()
     {
-        return $this->belongsTo(form_pengajuan::class);    
+        return $this->belongsTo(FormPengajuan::class);    
     }
 }
