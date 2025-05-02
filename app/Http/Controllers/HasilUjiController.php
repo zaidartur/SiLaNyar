@@ -14,9 +14,9 @@ class HasilUjiController extends Controller
     //lihat list hasil uji
     public function index()
     {
-        $hasil_uji = hasil_uji::with('parameter', 'pengujian');
+        $hasil_uji = hasil_uji::with('parameter', 'pengujian', 'kategori');
 
-        return Inertia::render('hasil_uji/index', [
+        return Inertia::render('pegawai/hasil_uji/index', [
             'hasil_uji' => $hasil_uji
         ]);
     }
@@ -28,7 +28,7 @@ class HasilUjiController extends Controller
         $parameter = parameter_uji::all();
         $pengujian = pengujian::all();
         
-        return Inertia::render('hasil_uji/create', [
+        return Inertia::render('pegawai/hasil_uji/tambah', [
             'parameter' => $parameter,
             'pengujian' => $pengujian,
         ]);
@@ -48,7 +48,7 @@ class HasilUjiController extends Controller
 
         if($hasil_uji)
         {
-            return Redirect::route('hasil_uji.index')->with('message', 'Hasil Uji Berhasil Dibuat!');
+            return Redirect::route('pegawai.hasil_uji.index')->with('message', 'Hasil Uji Berhasil Dibuat!');
         }
     }
 
@@ -58,7 +58,7 @@ class HasilUjiController extends Controller
         $parameter = parameter_uji::all();
         $pengujian = pengujian::all();
         
-        return Inertia::render('hasil_uji/edit', [
+        return Inertia::render('pegawai/hasil_uji/edit', [
             'hasil_uji' => $hasil_uji,
             'parameter' => $parameter,
             'pengujian' => $pengujian
@@ -79,7 +79,7 @@ class HasilUjiController extends Controller
 
         if ($hasil_uji)
         {
-            return Redirect::route('hasil_uji.index')->with('message', 'Hasil Uji Berhasil Diupdate!');
+            return Redirect::route('pegawai.hasil_uji.index')->with('message', 'Hasil Uji Berhasil Diupdate!');
         }
     }
 
@@ -88,7 +88,7 @@ class HasilUjiController extends Controller
     {
         $hasil_uji->load('parameter', 'pengujian');
 
-        return Inertia::render('hasil_uji/show', [
+        return Inertia::render('pegawai/hasil_uji/detail', [
             'hasil_uji' => $hasil_uji
         ]);
     }
@@ -102,7 +102,7 @@ class HasilUjiController extends Controller
 
         if($hasil_uji)
         {
-            return Redirect::route('hasil_uji.index')->with('message','Hasil Uji Berhasil Dihapus!');
+            return Redirect::route('pegawai.hasil_uji.index')->with('message','Hasil Uji Berhasil Dihapus!');
         }
     }
 }

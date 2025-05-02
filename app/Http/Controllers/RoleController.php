@@ -14,7 +14,7 @@ class RoleController extends Controller
     {
         $role = roles::with('permissions')->get(); // Ubah dari permission ke permissions
 
-        return Inertia::render('role', [
+        return Inertia::render('superadmin/role/index', [
             'role' => $role
         ]);
     }
@@ -23,7 +23,7 @@ class RoleController extends Controller
     {
         $permission = permissions::all();
         
-        return Inertia::render('role.create', [
+        return Inertia::render('superadmin/role/tambah', [
             'permission' => $permission
         ]);
     }
@@ -95,7 +95,7 @@ class RoleController extends Controller
             $role->syncPermissions($request->permissions); // Gunakan syncPermissions dari Spatie
         }
 
-        return redirect('/superadmin/role')->with('message', 'Role Berhasil Diupdate!');
+        return Redirect::route('superadmin.role.index')->with('message', 'Role Berhasil Diupdate!');
     }
 
     public function destroy($id)
@@ -106,7 +106,7 @@ class RoleController extends Controller
 
         if($role)
         {
-            return Redirect::route('role.index')->with('message', 'Role Berhasil Dihapus!');
+            return Redirect::route('superadmin.role.index')->with('message', 'Role Berhasil Dihapus!');
         }
     }
 }

@@ -16,7 +16,7 @@ class KategoriController extends Controller
     {
         $kategori = kategori::with('parameter')->get();
         
-        return Inertia::render('kategori/index', [
+        return Inertia::render('pegawai/kategori/index', [
             'kategori' => $kategori,
         ]);
     }
@@ -26,7 +26,7 @@ class KategoriController extends Controller
     {
         $parameter = parameter_uji::all();
 
-        return Inertia::render('kategori/create', [
+        return Inertia::render('pegawai/kategori/tambah', [
             'parameter' => $parameter
         ]);    
     }
@@ -46,16 +46,11 @@ class KategoriController extends Controller
             'harga'
         ]));
 
-        // Attach parameters
         if ($request->parameter_ids) {
             $kategori->parameter()->attach($request->parameter_ids);
         }
-
-        if(request()->header('referer') && str_contains(request()->header('referer'), '/test/')) {
-            return Redirect::route('test.kategori.index')->with('message', 'Kategori Berhasil Ditambahkan!');
-        }
         
-        return Redirect::route('kategori.index')->with('message', 'Kategori Berhasil Ditambahkan!');
+        return Redirect::route('pegawai.kategori.index')->with('message', 'Kategori Berhasil Ditambahkan!');
     }
 
     //form edit kategori
@@ -63,7 +58,7 @@ class KategoriController extends Controller
     {
         $parameter = parameter_uji::all();
         
-        return Inertia::render('kategori/edit', [
+        return Inertia::render('pegawai/kategori/edit', [
             'kategori' => $kategori,
             'parameter' => $parameter,
         ]);
@@ -83,24 +78,9 @@ class KategoriController extends Controller
             'harga'
         ]));
 
-        // Update parameter relationships
         $kategori->parameter()->sync($request->parameter_ids);
 
-        if(request()->header('referer') && str_contains(request()->header('referer'), '/test/')) {
-            return Redirect::route('test.kategori.index')->with('message', 'Kategori Berhasil Diupdate!');
-        }
-
-        return Redirect::route('kategori.index')->with('message', 'Kategori Berhasil Diupdate!');
-    }
-
-    //lihat detail kategori
-    public function show(kategori $kategori)
-    {
-        $kategori->load('parameter');
-        
-        return Inertia::render('kategori/show', [
-            'kategori' => $kategori
-        ]);
+        return Redirect::route('pegawai.kategori.index')->with('message', 'Kategori Berhasil Diupdate!');
     }
 
     //proses delete kategori
@@ -109,14 +89,10 @@ class KategoriController extends Controller
         $kategori = kategori::findOrFail($id);
 
         $kategori->delete();
-
-        if(request()->header('referer') && str_contains(request()->header('referer'), '/test/')) {
-            return Redirect::route('test.kategori.index')->with('message', 'Kategori Berhasil Ditambahkan!');
-        }
         
         if($kategori)
         {
-            return Redirect::route('kategori.index')->with('message', 'Kategori Berhasil Didelete!');
+            return Redirect::route('pegawai.kategori.index')->with('message', 'Kategori Berhasil Didelete!');
         }
     }
 }

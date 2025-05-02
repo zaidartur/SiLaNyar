@@ -14,7 +14,7 @@ class ParameterController extends Controller
     {
         $parameter = parameter_uji::latest()->get();
         
-        return Inertia::render('parameter/index', [
+        return Inertia::render('pegawai/parameter/index', [
             'parameter' => $parameter
         ]);
     }
@@ -22,7 +22,7 @@ class ParameterController extends Controller
     //form tambah parameter
     public function create()
     {
-        return Inertia::render('parameter/create');
+        return Inertia::render('pegawai/parameter/tambah');
     }
 
     //proses tambah parameter
@@ -39,14 +39,14 @@ class ParameterController extends Controller
 
         if($parameter)
         {
-            return Redirect::route('parameter.index')->with('message', 'Parameter Berhasil Dibuat!');
+            return Redirect::route('pegawai.parameter.index')->with('message', 'Parameter Berhasil Dibuat!');
         }
     }
 
     //form edit parameter
     public function edit(parameter_uji $parameter)
     {
-        return Inertia::render('parameter/edit', [
+        return Inertia::render('pegawai/parameter/edit', [
             'parameter' => $parameter
         ]);
     }
@@ -66,7 +66,7 @@ class ParameterController extends Controller
 
         if($parameter)
         {
-            return Redirect::route('parameter.index')->with('message', 'Parameter Berhasil Diupdate!');
+            return Redirect::route('pegawai.parameter.index')->with('message', 'Parameter Berhasil Diupdate!');
         }
     }
 
@@ -79,7 +79,7 @@ class ParameterController extends Controller
 
         if($parameter)
         {
-            return Redirect::route('parameter.index')->with('message', 'Parameter Berhasil Dihapus!');
+            return Redirect::route('pegawai.parameter.index')->with('message', 'Parameter Berhasil Dihapus!');
         }
     }
 }

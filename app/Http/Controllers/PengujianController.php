@@ -17,7 +17,7 @@ class PengujianController extends Controller
     {
         $pengujian = pengujian::with('form_pengajuan', 'pegawai', 'kategori')->get();
 
-        return Inertia::render('pengujian/index', [
+        return Inertia::render('pegawai/pengujian/index', [
             'pengujian' => $pengujian
         ]);
     }
@@ -29,7 +29,7 @@ class PengujianController extends Controller
         $pegawai = pegawai::all();
         $kategori = kategori::all();
         
-        return Inertia::render('pengujian/create', [
+        return Inertia::render('pegawai/pengujian/tambah', [
             'form_pengajuan' => $form_pengajuan,
             'pegawai' => $pegawai,
             'kategori' => $kategori
@@ -51,8 +51,9 @@ class PengujianController extends Controller
 
         $pengujian = pengujian::create($validated);
 
-        if($pengujian) {
-            return redirect('/pengujian')->with('message', 'Pengujian Berhasil Dibuat!');
+        if ($pengujian)
+        {
+            return Redirect::route('pegawai.pengujian.index')->with('message', 'Jadwal Pengujian Berhasil Dibuat!');
         }
 
         return back()->withErrors(['message' => 'Gagal membuat pengujian']);
@@ -65,7 +66,7 @@ class PengujianController extends Controller
         $pegawai = pegawai::all();
         $kategori = kategori::all();
 
-        return Inertia::render('pengujian/edit', [
+        return Inertia::render('pegawai/pengujian/edit', [
             'pengujian' => $pengujian,
             'form_pengajuan' => $form_pengajuan,
             'pegawai' => $pegawai,
@@ -88,7 +89,10 @@ class PengujianController extends Controller
         
         $pengujian->update($validated);
 
-        return redirect('/pengujian')->with('message', 'Pengujian Berhasil Diupdate');
+        if($pengujian)
+        {
+            return Redirect::route('pegawai.pengujian.index')->with('message', 'Pengujian Berhasil Diupdate');
+        }
     }
 
     //lihat detail daftar pengujian
@@ -96,7 +100,7 @@ class PengujianController extends Controller
     {
         $pengujian->load('form_pengajuan', 'pegawai', 'kategori');
 
-        return Inertia::render('pengujian/show', [
+        return Inertia::render('pegawai/pengujian/detail', [
             'pengujian' => $pengujian
         ]);
     }
@@ -110,7 +114,7 @@ class PengujianController extends Controller
 
         if($pengujian)
         {
-            return Redirect::route('pengujian.index')->with('message', 'Jadwal Pengujian Berhasil Dihapus');
+            return Redirect::route('pegawai.pengujian.index')->with('message', 'Jadwal Pengujian Berhasil Dihapus');
         }
     }
 }

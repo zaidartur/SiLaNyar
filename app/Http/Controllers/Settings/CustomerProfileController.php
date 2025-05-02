@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -29,7 +30,7 @@ class CustomerProfileController extends Controller
 
     public function update(Request $request)
     {
-        $customer = Auth::guard('customer')->user();
+        $customer = $request->user('customer');
         
         $request->validate([
             'nama' => 'required|string|max:255',
@@ -40,6 +41,7 @@ class CustomerProfileController extends Controller
             'tipe_instansi' => 'nullable|in:swasta,pemerintahan',
             'alamat_instansi' => 'nullable|string|max:255',
             'kontak_instansi' => 'nullable|string|regex:/^\+[0-9]+$/',
+            'email' => 'required|email|string|lowercase|unique:'.Customer::class
         ]);
 
         if ($request->jenis_user === 'instansi') {
@@ -67,7 +69,7 @@ class CustomerProfileController extends Controller
 
     public function updatePassword(Request $request)
     {
-        $customer = Auth::guard('customer')->user();
+        $customer = $request->user('customer');
         
         $request->validate([
             'password_lama' => 'required',
@@ -86,7 +88,7 @@ class CustomerProfileController extends Controller
 
     public function destroy(Request $request)
     {
-        $customer = Auth::guard('customer')->user();
+        $customer = $request->user('customer');
 
         $request->validate([
             'password' => ['required'],

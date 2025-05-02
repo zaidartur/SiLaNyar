@@ -10,10 +10,11 @@ use App\Http\Controllers\Auth\Pegawai\AuthenticatedSessionController as PegawaiA
 use App\Http\Controllers\Auth\Pegawai\RegisteredUserController as PegawaiRegisteredUserController;
 use App\Http\Controllers\Auth\Customer\RegisteredUserController as CustomerRegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
-use App\Http\Controllers\VerifikasiAdminController;
-use App\Http\Middleware\CheckVerifiedCustomer;
-use App\Http\Middleware\CheckVerifiedPegawai;
-use App\Models\Customer;
+use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
+use App\Http\Controllers\Pegawai\DashboardController;
+use App\Http\Controllers\Settings\CustomerProfileController;
+use App\Http\Controllers\Settings\CustomerResetPasswordController;
+use App\Http\Controllers\Settings\PegawaiProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -29,11 +30,13 @@ Route::prefix('pegawai')->middleware('guest:pegawai')->group(function()
 
 Route::prefix('pegawai')->middleware('auth:pegawai', 'check.verified.pegawai')->group(function()
 {
-    Route::get('detail/{pegawai}', [VerifikasiAdminController::class, 'showPegawai']);
-    Route::put('detail/{id}', [VerifikasiAdminController::class, 'verifikasiPegawai']);
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('pegawai.dashboard');
 
-    Route::get('detail/customer/{customer}', [VerifikasiAdminController::class, 'showCustomer']);
-    Route::put('detail/customer/{id}', [VerifikasiAdminController::class, 'verifikasiCustomer']);
+    Route::get('profile/show', [PegawaiProfileController::class, 'show'])->name('pegawai.profile');
+    Route::get('profile/edit', [PegawaiProfileController::class, 'edit']);
+    Route::put('profile/update', [PegawaiProfileController::class, 'update']);
+
+    Route::delete('profile/destroy', [PegawaiProfileController::class, 'destroy']);
 
     Route::post('logout', [PegawaiAuthenticatedSessionController::class, 'destroy'])->name('pegawai.logout');    
 });
@@ -41,17 +44,27 @@ Route::prefix('pegawai')->middleware('auth:pegawai', 'check.verified.pegawai')->
 //autentikasi customer
 Route::middleware('guest:customer')->group(function()
 {
-    Route::get('registrasi', [CustomerRegisteredUserController::class, 'create'])->name('registrasi');
+    Route::get('registrasi', [CustomerRegisteredUserController::class, 'create'])->name('customer.registrasi');
     Route::post('registrasi', [CustomerRegisteredUserController::class, 'store']);
     
-    Route::get('login', [CustomerAuthenticatedSessionController::class, 'create'])->name('login');
+    Route::get('login', [CustomerAuthenticatedSessionController::class, 'create'])->name('customer.login');
     Route::post('login', [CustomerAuthenticatedSessionController::class, 'store']);
+
+    Route::get('lupapassword', [CustomerResetPasswordController::class, 'lihatForm'])->name('customer.password.lupa');
+    Route::post('lupapassword', [CustomerResetPasswordController::class, 'kirimOtp']);
+    Route::get('verifikasiotp', [CustomerResetPasswordController::class, 'lihatOtpForm'])->name('customer.password.reset');
+    Route::post('verifikasiotp', [CustomerResetPasswordController::class, 'verifikasiOtp']);
+    Route::post('gantipassword', [CustomerResetPasswordController::class, 'gantiPassword']);
 });
 
-Route::middleware(['auth:customer', 'check.verified.customer'])->group(function() {
-    Route::get('dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
+Route::prefix('customer')->middleware(['auth:customer', 'check.verified.customer'])->group(function() {
+    Route::get('dashboard', [CustomerDashboardController::class, 'index'])->name('customer.dashboard');
+
+    Route::get('profile/show', [CustomerProfileController::class, 'show'])->name('customer.profile');
+    Route::get('profile/edit', [CustomerProfileController::class, 'edit']);
+    Route::put('profile/update', [CustomerProfileController::class, 'update']);
+    
+    Route::delete('profile/destroy', [CustomerProfileController::class, 'destroy']);
 
     Route::post('logout', [CustomerAuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
@@ -60,29 +73,6 @@ Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('home');
 
-// Route::middleware('guest')->group(function () {
-//     Route::get('register', [RegisteredUserController::class, 'create'])
-//         ->name('register');
-
-//     Route::post('register', [RegisteredUserController::class, 'store']);
-
-//     Route::get('login', [AuthenticatedSessionController::class, 'create'])
-//         ->name('login');
-
-//     Route::post('login', [AuthenticatedSessionController::class, 'store']);
-
-//     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
-//         ->name('password.request');
-
-//     Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
-//         ->name('password.email');
-
-//     Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
-//         ->name('password.reset');
-
-//     Route::post('reset-password', [NewPasswordController::class, 'store'])
-//         ->name('password.store');
-// });
 
 // Route::middleware('auth')->group(function () {
 //     Route::get('verify-email', EmailVerificationPromptController::class)

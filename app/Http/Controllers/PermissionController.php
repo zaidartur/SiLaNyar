@@ -13,14 +13,14 @@ class PermissionController extends Controller
     {
         $permission = permissions::all();
 
-        return Inertia::render('permission.index', [
+        return Inertia::render('superadmin/permission/index', [
             'permission' => $permission
         ]);
     }
 
     public function create()
     {
-        return Inertia::render('permission.create');
+        return Inertia::render('superadmin/permission/tambah');
     }
 
     public function store(Request $request)
@@ -33,13 +33,13 @@ class PermissionController extends Controller
 
         if ($permission) 
         {
-            return Redirect::route('permission.index')->with('message', 'Permission Berhasil Dibuat!');
+            return Redirect::route('superadmin.permission.index')->with('message', 'Permission Berhasil Dibuat!');
         }
     }
 
     public function edit(permissions $permission)
     {
-        return Inertia::render('permission.edit', [
+        return Inertia::render('superadmin/permission/edit', [
             'permission' => $permission
         ]);
     }
@@ -54,7 +54,7 @@ class PermissionController extends Controller
 
         if($permission)
         {
-            return Redirect::route('permission.index')->with('message', 'Permission Berhasil Diupdate!');
+            return Redirect::route('superadmin.permission.index')->with('message', 'Permission Berhasil Diupdate!');
         }
     }
 
@@ -66,7 +66,7 @@ class PermissionController extends Controller
 
         if($permission)
         {
-            return Redirect::route('permission.index')->with('message', 'Permission Berhasil Dihapus!');
+            return Redirect::route('superadmin.permission.index')->with('message', 'Permission Berhasil Dihapus!');
         }
     }
 }
