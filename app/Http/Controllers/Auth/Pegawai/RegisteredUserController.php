@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Auth\Pegawai;
 
 use App\Http\Controllers\Controller;
-use App\Models\pegawai;
-use App\Models\roles;
+use App\Models\Pegawai;
+use App\Models\Roles;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +16,7 @@ class RegisteredUserController extends Controller
 {
     public function create()
     {
-        $role = roles::all();
+        $role = Roles::all();
         
         return Inertia::render('pegawai/regitrasi', [
             'role' => $role,
@@ -30,7 +30,7 @@ class RegisteredUserController extends Controller
             'jabatan' => 'required|string|max:255',
             'jenis_kelamin' => 'required|in:laki-laki,perempuan',
             'no_telepon' => 'required|string|regex:/^\+[0-9]{1,3}$/',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.pegawai::class,
+            'email' => 'required|string|lowercase|email|max:255|unique:'.Pegawai::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'id_role' => 'required|exists:roles,name'
         ]);

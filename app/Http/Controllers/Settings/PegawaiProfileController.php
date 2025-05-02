@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
-use App\Models\pegawai;
+use App\Models\Pegawai;
 
 class PegawaiProfileController extends Controller
 {
@@ -38,7 +38,7 @@ class PegawaiProfileController extends Controller
             'jabatan' => 'required|string',
             'jenis_kelamin' => 'required|in:laki-laki,perempuan',
             'no_telepon' => 'required|string|regex:/^\+[0-9]+$/',
-            'email' => 'required|string|lowercase|max:255|email|unique:'.pegawai::class
+            'email' => 'required|string|lowercase|max:255|email|unique:'.Pegawai::class
         ]);
 
         $pegawai->update($request->only([

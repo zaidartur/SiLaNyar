@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\form_pengajuan;
+use App\Models\FormPengajuan;
 use App\Models\pegawai;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -19,9 +19,9 @@ class JadwalFactory extends Factory
     public function definition(): array
     {
         return [
-            'id_form_pengajuan' => form_pengajuan::factory(),
+            'id_form_pengajuan' => FormPengajuan::factory(),
             'id_pegawai' => pegawai::factory(),
-            'waktu_pengambilan' => fake()->date(),
+            'waktu_pengambilan' => fake()->dateTimeBetween('now', '+1 month')->format('Y-m-d'),
             'status' => fake()->randomElement(['diproses', 'selesai']),
             'keterangan' => fake()->sentence(),
         ];

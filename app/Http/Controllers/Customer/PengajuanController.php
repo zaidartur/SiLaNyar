@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Customer;
 
-use App\Models\form_pengajuan;
-use App\Models\jenis_cairan;
-use App\Models\kategori;
-use App\Models\parameter_uji;
-use App\Models\pembayaran;
+use App\Models\FormPengajuan;
+use App\Models\JenisCairan;
+use App\Models\Kategori;
+use App\Models\ParameterUji;
+use App\Models\Pembayaran;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +20,7 @@ class PengajuanController extends Controller
     {
         $customer = Auth::guard('customer')->user();
 
-        $pengajuan = form_pengajuan::with(['kategori', 'parameter', 'jenis_cairan'])
+        $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'jenis_cairan'])
             ->where('id_customer', $customer->id)
             ->get();
 
@@ -32,9 +32,9 @@ class PengajuanController extends Controller
     //daftar pengajuan uji lab customer
     public function daftar()
     {
-        $jenis_cairan = jenis_cairan::all();
+        $jenis_cairan = JenisCairan::all();
         $kategori = kategori::all();
-        $parameter = parameter_uji::all();
+        $parameter = ParameterUji::all();
 
         return Inertia::render('customer/pengajuan/tambah', [
             'kategori' => $kategori,
@@ -56,7 +56,7 @@ class PengajuanController extends Controller
             'parameter.*' => 'exists:parameter_uji,id'
         ]);
 
-        $jenis_cairan = jenis_cairan::findOrFail($request->id_jenis_cairan);
+        $jenis_cairan = JenisCairan::findOrFail($request->id_jenis_cairan);
 
         if ($request->volume_sampel < $jenis_cairan->batas_minimum || $request->volume_sampel > $jenis_cairan->batas_maksimum) {
             return Redirect::back()->withErrors([
@@ -64,7 +64,7 @@ class PengajuanController extends Controller
             ])->withInput();
         }
 
-        $pengajuan = form_pengajuan::create([
+        $pengajuan = FormPengajuan::create([
             'id_customer' => Auth::guard('customer')->id(),
             'id_kategori' => $request->id_kategori,
             'id_jenis_cairan' => $request->id_jenis_cairan,
@@ -83,7 +83,7 @@ class PengajuanController extends Controller
     {
         $customer = Auth::guard('customer')->user();
 
-        $pengajuan = form_pengajuan::with(['kategori', 'parameter', 'jenis_cairan'])
+        $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'jenis_cairan'])
             ->where('id', $id)
             ->where('id_customer', $customer->id)
             ->firstOrFail();
