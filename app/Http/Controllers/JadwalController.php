@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\form_pengajuan;
-use App\Models\jadwal;
+use App\Models\FormPengajuan;
+use App\Models\Jadwal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -16,7 +16,7 @@ class JadwalController extends Controller
         $filterByStatus = $request->input('status');
         $filterByTanggal = $request->input('waktu_pengambilan');
 
-        $jadwal = jadwal::with('form_pengajuan')
+        $jadwal = Jadwal::with('form_pengajuan')
                     ->when($filterByTanggal, function ($query) use ($filterByTanggal)
                     {
                         $query->whereDate('waktu_pengambilan', $filterByTanggal);    
@@ -38,7 +38,7 @@ class JadwalController extends Controller
     //form tambah jadwal
     public function create()
     {
-        $form_pengajuan = form_pengajuan::get();
+        $form_pengajuan = FormPengajuan::get();
         return Inertia::render('pegawai/jadwal/tambah', [
             'form_pengajuan' => $form_pengajuan
         ]);
@@ -58,7 +58,7 @@ class JadwalController extends Controller
             'keterangan' => 'required|string|max:255'
         ]);
 
-        $jadwal = jadwal::create($request->all());
+        $jadwal = Jadwal::create($request->all());
 
         if($jadwal) {
             return Redirect::route('pegawai.jadwal.index')->with('message', 'Jadwal Berhasil Dibuat!');
@@ -66,9 +66,9 @@ class JadwalController extends Controller
     }
 
     //form edit jadwal
-    public function edit(jadwal $jadwal)
+    public function edit(Jadwal $jadwal)
     {
-        $form_pengajuan = form_pengajuan::latest()->get();
+        $form_pengajuan = FormPengajuan::latest()->get();
 
         return Inertia::render('pegawai/jadwal/edit', [
             'jadwal' => $jadwal,
@@ -77,7 +77,7 @@ class JadwalController extends Controller
     }
 
     //proses update jadwal
-    public function update(jadwal $jadwal, Request $request)
+    public function update(Jadwal $jadwal, Request $request)
     {
         if($jadwal->status === 'selesai')
         {
@@ -113,7 +113,7 @@ class JadwalController extends Controller
     //proses hapus jadwal
     public function destroy($id)
     {
-        $jadwal = jadwal::findOrFail($id);
+        $jadwal = Jadwal::findOrFail($id);
         
         $jadwal->delete();
 
@@ -123,7 +123,7 @@ class JadwalController extends Controller
         }
     }
 
-    public function show(jadwal $jadwal)
+    public function show(Jadwal $jadwal)
     {
         $jadwal->load(['form_pengajuan', 'pegawai']);
         

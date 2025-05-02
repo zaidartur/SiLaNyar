@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\parameter_uji;
+use App\Models\ParameterUji;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -12,7 +12,7 @@ class ParameterController extends Controller
     //lihat daftar parameter
     public function index()
     {
-        $parameter = parameter_uji::latest()->get();
+        $parameter = ParameterUji::latest()->get();
         
         return Inertia::render('pegawai/parameter/index', [
             'parameter' => $parameter
@@ -35,7 +35,7 @@ class ParameterController extends Controller
             'harga'=>'required|numeric|min:0',
         ]);
 
-        $parameter = parameter_uji::create($request->all());
+        $parameter = ParameterUji::create($request->all());
 
         if($parameter)
         {
@@ -44,7 +44,7 @@ class ParameterController extends Controller
     }
 
     //form edit parameter
-    public function edit(parameter_uji $parameter)
+    public function edit(ParameterUji $parameter)
     {
         return Inertia::render('pegawai/parameter/edit', [
             'parameter' => $parameter
@@ -52,7 +52,7 @@ class ParameterController extends Controller
     }
 
     //proses update parameter
-    public function update(parameter_uji $parameter, Request $request)
+    public function update(ParameterUji $parameter, Request $request)
     {
         $request->validate([
             'nama_parameter'=>'required|string',
@@ -73,7 +73,7 @@ class ParameterController extends Controller
     //proses hapus parameter
     public function destroy($id)
     {
-        $parameter = parameter_uji::findOrFail($id);
+        $parameter = ParameterUji::findOrFail($id);
         
         $parameter->delete();
 
