@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\form_pengajuan;
-use App\Models\pembayaran;
+use App\Models\FormPengajuan;
+use App\Models\Pembayaran;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
@@ -29,7 +29,7 @@ class PembayaranController extends Controller
     //lihat rincian harga pengajuan customer
     public function showRincian($id)
     {
-        $pengajuan = form_pengajuan::with(['kategori', 'parameter'])->findOrFail($id);
+        $pengajuan = FormPengajuan::with(['kategori', 'parameter'])->findOrFail($id);
 
         $totalParameter = $pengajuan->parameter->sum("harga");
         $totalKategori = $pengajuan->kategori->harga ?? 0;
@@ -48,7 +48,7 @@ class PembayaranController extends Controller
     //proses pembayaran
     public function bayarFake(Request $request, $id)
     {
-        $pengajuan = form_pengajuan::findOrFail($id);
+        $pengajuan = FormPengajuan::findOrFail($id);
 
         $totalParameter = $pengajuan->parameter->sum("harga");
         $totalKategori = $pengajuan->kategori->harga ?? 0;
@@ -56,7 +56,7 @@ class PembayaranController extends Controller
 
         $midtrans = $this->createMidtransTransaction($pengajuan, $totalHarga);
 
-        $pembayaran = pembayaran::create([
+        $pembayaran = Pembayaran::create([
             'id_order' => $midtrans,
             'id_form_pengajuan' => $id,
             'total_biaya' => $totalHarga,
@@ -71,7 +71,7 @@ class PembayaranController extends Controller
     //cek status pembayaran
     public function status($id)
     {
-        $pembayaran = pembayaran::findOrFail($id);
+        $pembayaran = Pembayaran::findOrFail($id);
 
         $StatusMidtrans = $this->checkMidtransTransaction($pembayaran->id_order);
 
@@ -90,7 +90,7 @@ class PembayaranController extends Controller
 
     public function bayar(Request $request)
     {
-        $pengajuan = form_pengajuan::with(['kategori', 'parameter'])->findOrFail($request->id);
+        $pengajuan = FormPengajuan::with(['kategori', 'parameter'])->findOrFail($request->id);
 
         $totalParameter = $pengajuan->parameter->sum("harga");
         $totalKategori = $pengajuan->kategori->harga ?? 0;
@@ -137,7 +137,6 @@ class PembayaranController extends Controller
         $id_order = $notif->order_id;
         $status_code = $notif->status_code;
         $status_pembayaran = $notif->transaction_status;
-
         $pembayaran = Pembayaran::with('form_pengajuan.customer')->where('id_order', $id_order)->first();
 
         if (!$pembayaran) {

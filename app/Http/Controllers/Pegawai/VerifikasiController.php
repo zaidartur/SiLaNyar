@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use App\Models\Customer;
-use App\Models\pegawai;
+use App\Models\Pegawai;
 
 class VerifikasiController extends Controller
 {
@@ -31,7 +31,7 @@ class VerifikasiController extends Controller
     //proses verifikasi pegawai
     public function verifikasiPegawai(Request $request, $id)
     {
-        $pegawai = pegawai::findOrFail($id);
+        $pegawai = Pegawai::findOrFail($id);
 
         $request->validate([
             'status_verifikasi' => 'required|in:diterima,ditolak'

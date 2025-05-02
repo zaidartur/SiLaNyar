@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Pegawai;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\form_pengajuan;
-use App\Models\pembayaran;
+use App\Models\FormPengajuan;
+use App\Models\Pembayaran;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
@@ -14,7 +14,7 @@ class AdminPengajuanController extends Controller
         //lihat daftar pengajuan dari Admin
         public function index()
         {
-            $pengajuan = form_pengajuan::with(['kategori', 'parameter', 'customer', 'jenis_cairan'])
+            $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'customer', 'jenis_cairan'])
                         ->orderByDesc('updated_at')
                         ->get();
     
@@ -26,7 +26,7 @@ class AdminPengajuanController extends Controller
         //lihat detail pengajuan dari Admin
         public function show($id)
         {
-            $pengajuan = form_pengajuan::with(['kategori', 'parameter', 'customer', 'jenis_cairan'])
+            $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'customer', 'jenis_cairan'])
                         ->where('id', $id)
                         ->firstOrFail();
 
@@ -36,7 +36,7 @@ class AdminPengajuanController extends Controller
         }
 
         //edit pengajuan dari admin
-        public function edit(form_pengajuan $pengajuan)
+        public function edit(FormPengajuan $pengajuan)
         {
             return Inertia::render('pegawai/pengajuan/edit', [
                 'pengajuan' => $pengajuan
@@ -50,7 +50,7 @@ class AdminPengajuanController extends Controller
                 'status_pengajuan' => 'required|in:diterima,ditolak'
             ]);
     
-            $pengajuan = form_pengajuan::findOrFail($id);
+            $pengajuan = FormPengajuan::findOrFail($id);
     
             $pengajuan->status_pengajuan = $request->status_pengajuan;
     
@@ -58,7 +58,7 @@ class AdminPengajuanController extends Controller
             {
                 $pengajuan->tanggal_terima == now();
     
-                pembayaran::create([
+                Pembayaran::create([
                     'id' => $pengajuan->id,
                     'total_biaya' => $pengajuan->kategori->harga,
                     'status_pembayaran' => 'belum_dibayar'

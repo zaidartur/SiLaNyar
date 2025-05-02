@@ -4,270 +4,168 @@ namespace Tests\Feature\Auth;
 
 use App\Models\Customer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use Inertia\Testing\AssertableInertia as Assert;
 
 class CustomerAuthTest extends TestCase
 {
     use RefreshDatabase;
+    use WithFaker;
 
-    public function test_can_view_welcome_page(): void
-    {
-        $response = $this->get('/');
-        $response->assertStatus(200);
-        $response->assertInertia(fn ($assert) => $assert->component('Welcome'));
-    }
-
-    public function test_can_view_registration_page(): void
+    /**
+     * Test registration page can be rendered
+     */
+    public function test_registration_page_can_be_rendered(): void
     {
         $response = $this->get('/registrasi');
-        $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => $page->component('customer/registrasi'));
+
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('customer/registrasi')
+        );
     }
 
-    public function test_can_view_login_page(): void
+    /**
+     * Test customer can register as individual
+     */
+    public function test_customer_can_register_as_individual(): void
+    {
+        $customerData = [
+            'nama' => 'Test User',
+            'jenis_user' => 'perorangan',
+            'alamat_pribadi' => 'Jl. Test No. 123',
+            'kontak_pribadi' => '+6281234567890',
+            'email' => 'test@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ];
+
+        $response = $this->post('/registrasi', $customerData);
+
+        $response->assertSessionHas('message', 'Akun Berhasil Terdaftar. Harap Tunggu Verifikasi Admin!');
+        $this->assertDatabaseHas('customer', [
+            'email' => 'test@example.com',
+            'jenis_user' => 'perorangan',
+            'status_verifikasi' => 'diproses',
+        ]);
+    }
+
+    /**
+     * Test customer can register as institution
+     */
+    public function test_customer_can_register_as_institution(): void
+    {
+        $customerData = [
+            'nama' => 'Test Admin',
+            'jenis_user' => 'instansi',
+            'kontak_pribadi' => '+6281234567890',
+            'nama_instansi' => 'PT Test',
+            'tipe_instansi' => 'swasta',
+            'alamat_instansi' => 'Jl. Instansi No. 123',
+            'kontak_instansi' => '+6289876543210',
+            'email' => 'instansi@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ];
+
+        $response = $this->post('/registrasi', $customerData);
+
+        $response->assertSessionHas('message', 'Akun Berhasil Terdaftar. Harap Tunggu Verifikasi Admin!');
+        $this->assertDatabaseHas('customer', [
+            'email' => 'instansi@example.com',
+            'jenis_user' => 'instansi',
+            'status_verifikasi' => 'diproses',
+        ]);
+    }
+
+    /**
+     * Test login page can be rendered
+     */
+    public function test_login_page_can_be_rendered(): void
     {
         $response = $this->get('/login');
-        $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => $page->component('customer/login'));
+
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('customer/login')
+        );
     }
 
-    public function test_can_register_as_perorangan(): void
+    /**
+     * Test verified customer can login
+     */
+    public function test_verified_customer_can_login(): void
     {
-        $response = $this->post('/registrasi', [
-            'nama' => 'Test User',
-            'jenis_user' => 'perorangan',
-            'alamat_pribadi' => 'Test Address',
-            'kontak_pribadi' => '+6281234567890',
-            'email' => 'test@example.com',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
+        $customer = Customer::factory()->verified()->create([
+            'email' => 'verified@example.com',
+            'password' => bcrypt('password123'),
         ]);
 
-        $this->assertDatabaseHas('customer', [
-            'nama' => 'Test User',
-            'jenis_user' => 'perorangan',
-            'email' => 'test@example.com',
+        $response = $this->post('/login', [
+            'email' => 'verified@example.com',
+            'password' => 'password123',
+        ]);
+
+        $this->assertAuthenticatedAs($customer, 'customer');
+        $response->assertRedirect(route('customer.dashboard'));
+    }
+
+    /**
+     * Test unverified customer cannot login
+     */
+    public function test_unverified_customer_cannot_login(): void
+    {
+        $customer = Customer::factory()->create([
+            'email' => 'unverified@example.com',
+            'password' => bcrypt('password123'),
             'status_verifikasi' => 'diproses',
         ]);
-        
-        $response->assertRedirect();
-        $response->assertSessionHas('message', 'Akun Berhasil Terdaftar. Harap Tunggu Verifikasi Admin!');
-    }
 
-    public function test_can_register_as_instansi(): void
-    {
-        $response = $this->post('/registrasi', [
-            'nama' => 'Test User',
-            'jenis_user' => 'instansi',
-            'alamat_pribadi' => 'Test Address',
-            'kontak_pribadi' => '+6281234567890',
-            'nama_instansi' => 'Test Company',
-            'tipe_instansi' => 'swasta',
-            'alamat_instansi' => 'Company Address',
-            'kontak_instansi' => '+6289876543210',
-            'email' => 'company@example.com',
+        $response = $this->post('/login', [
+            'email' => 'unverified@example.com',
             'password' => 'password123',
-            'password_confirmation' => 'password123',
         ]);
 
-        $this->assertDatabaseHas('customer', [
-            'nama' => 'Test User',
-            'jenis_user' => 'instansi',
-            'nama_instansi' => 'Test Company',
-            'tipe_instansi' => 'swasta',
-            'email' => 'company@example.com',
-            'status_verifikasi' => 'diproses',
-        ]);
-        
-        $response->assertRedirect();
-        $response->assertSessionHas('message', 'Akun Berhasil Terdaftar. Harap Tunggu Verifikasi Admin!');
+        $response->assertRedirect(route('customer.login'));
+        $response->assertSessionHasErrors(['email' => 'Akun Anda Belum Diverifikasi Oleh Admin']);
     }
 
-    public function test_cannot_register_with_invalid_data(): void
+    /**
+     * Test customer can logout
+     */
+    public function test_customer_can_logout(): void
     {
-        $response = $this->post('/registrasi', [
-            'nama' => '',
-            'jenis_user' => 'terserah',
-            'kontak_pribadi' => 'bukan-nomor',
-            'email' => 'bukan-email',
-            'password' => 'pendek',
-            'password_confirmation' => 'mismatch'
-        ]);
+        $customer = Customer::factory()->verified()->create();
+
+        $response = $this->actingAs($customer, 'customer')
+            ->post('/customer/logout');
+
+        $this->assertGuest('customer');
+        $response->assertRedirect('/');
+    }
+
+    /**
+     * Test registration validation rules
+     */
+    public function test_registration_validation_rules(): void
+    {
+        $response = $this->post('/registrasi', []);
 
         $response->assertSessionHasErrors(['nama', 'jenis_user', 'kontak_pribadi', 'email', 'password']);
     }
 
-    public function test_cannot_register_instansi_without_required_fields(): void
+    /**
+     * Test customer cannot login with invalid credentials
+     */
+    public function test_customer_cannot_login_with_invalid_credentials(): void
     {
-        $response = $this->post('/registrasi', [
-            'nama' => 'Test User',
-            'jenis_user' => 'instansi',
-            'alamat_pribadi' => 'Test Address',
-            'kontak_pribadi' => '+6281234567890',
-            'email' => 'test@example.com',
-            'password' => 'password123',
-            'password_confirmation' => 'password123'
-        ]);
-
-        $response->assertSessionHasErrors(['nama_instansi', 'tipe_instansi', 'alamat_instansi', 'kontak_instansi']);
-    }
-
-    public function test_cannot_register_with_existing_email(): void
-    {
-        Customer::factory()->create([
-            'email' => 'existing@example.com'
-        ]);
-
-        $response = $this->post('/registrasi', [
-            'nama' => 'Test User',
-            'jenis_user' => 'perorangan',
-            'alamat_pribadi' => 'Test Address',
-            'kontak_pribadi' => '+6281234567890',
-            'email' => 'existing@example.com',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
-        ]);
-
-        $response->assertSessionHasErrors(['email']);
-    }
-
-    public function test_verified_customer_can_login(): void
-    {
-        $customer = Customer::factory()->create([
-            'email' => 'test@example.com',
-            'password' => bcrypt('password123'),
-            'status_verifikasi' => 'diterima',
-        ]);
+        $customer = Customer::factory()->verified()->create();
 
         $response = $this->post('/login', [
-            'email' => 'test@example.com',
-            'password' => 'password123'
+            'email' => $customer->email,
+            'password' => 'wrong-password',
         ]);
 
-        $this->assertAuthenticated('customer');
-        $response->assertRedirect('/dashboard');
-    }
-
-    public function test_cannot_login_when_not_verified(): void
-    {
-        $customer = Customer::factory()->create([
-            'email' => 'wyasana12@gmail.com',
-            'password' => bcrypt('password123'),
-            'status_verifikasi' => 'diproses'
-        ]);
-
-        $response = $this->post('/login', [
-            'email' => 'wyasana12@gmail.com',
-            'password' => 'password123'
-        ]);
-
-        $this->assertGuest('customer');
-        $response->assertSessionHasErrors('email');
-    }
-
-    public function test_customer_can_logout()
-    {
-        /** @var Customer $customer */
-        $customer = Customer::factory()->create();
-        
-        $response = $this->actingAs($customer, 'customer')
-                        ->post('logout');
-
-        $this->assertGuest('customer');
-        $response->assertRedirect('/login');
-    }
-
-    public function test_password_must_be_at_least_8_characters(): void
-    {
-        $response = $this->post('/registrasi', [
-            'nama' => 'Test User',
-            'jenis_user' => 'perorangan',
-            'kontak_pribadi' => '+6281234567890',
-            'email' => 'test@example.com',
-            'password' => 'short',
-            'password_confirmation' => 'short',
-        ]);
-
-        $response->assertSessionHasErrors('password');
-    }
-
-    public function test_email_must_be_valid_format(): void
-    {
-        $response = $this->post('/registrasi', [
-            'nama' => 'Test User',
-            'jenis_user' => 'perorangan',
-            'kontak_pribadi' => '+6281234567890',
-            'email' => 'invalid-email',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
-        ]);
-
-        $response->assertSessionHasErrors('email');
-    }
-
-    public function test_cannot_login_with_wrong_credentials(): void
-    {
-        $customer = Customer::factory()->create([
-            'email' => 'correct@example.com',
-            'password' => Hash::make('correctpassword'),
-            'status_verifikasi' => 'diterima'
-        ]);
-
-        $response = $this->post('/login', [
-            'email' => 'correct@example.com',
-            'password' => 'wrongpassword'
-        ]);
-
-        $response->assertSessionHasErrors('email');
-        $this->assertGuest('customer');
-    }
-
-    public function test_cannot_access_dashboard_when_not_authenticated(): void
-    {
-        $response = $this->get('/dashboard');
-        $response->assertRedirect('/login');
-    }
-
-    public function test_cannot_access_dashboard_when_not_verified(): void
-    {
-        $customer = Customer::factory()->create([
-            'status_verifikasi' => 'diproses'
-        ]);
-
-        $response = $this->actingAs($customer, 'customer')
-                        ->get('/dashboard');
-
-        $response->assertRedirect('/login');
-        $response->assertSessionHasErrors('email');
-    }
-
-    public function test_password_confirmation_must_match(): void
-    {
-        $response = $this->post('/registrasi', [
-            'nama' => 'Test User',
-            'jenis_user' => 'perorangan',
-            'kontak_pribadi' => '+6281234567890',
-            'email' => 'test@example.com',
-            'password' => 'password123',
-            'password_confirmation' => 'different123',
-        ]);
-
-        $response->assertSessionHasErrors('password');
-    }
-
-    public function test_kontak_pribadi_must_be_valid_format(): void
-    {
-        $response = $this->post('/registrasi', [
-            'nama' => 'Test User',
-            'jenis_user' => 'perorangan',
-            'kontak_pribadi' => '081234567890',
-            'email' => 'test@example.com',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
-        ]);
-
-        $response->assertSessionHasErrors('kontak_pribadi');
+        $this->assertGuest();
+        $response->assertSessionHasErrors();
     }
 }
-

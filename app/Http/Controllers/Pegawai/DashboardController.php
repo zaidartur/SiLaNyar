@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Pegawai;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
-use App\Models\form_pengajuan;
-use App\Models\hasil_uji;
-use App\Models\jadwal;
-use App\Models\pegawai;
-use App\Models\pengujian;
+use App\Models\FormPengajuan;
+use App\Models\HasilUji;
+use App\Models\Jadwal;
+use App\Models\Pegawai;
+use App\Models\Pengujian;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -20,7 +20,7 @@ class DashboardController extends Controller
 
         if ($pegawaiLogin->hasRole('superadmin')) {
             $customer = Customer::all();
-            $pegawai = pegawai::all();
+            $pegawai = Pegawai::all();
 
             return Inertia::render('dashboard/superadmin', [
                 'customer' => $customer,
@@ -29,11 +29,11 @@ class DashboardController extends Controller
         }
 
         if ($pegawaiLogin->hasRole('teknisi')) {
-            $jadwalPengujian = pengujian::where('id_pegawai', $pegawaiLogin)->count();
-            $jadwalPengambilan = jadwal::where('id_pegawai', $pegawaiLogin)->count();
+            $jadwalPengujian = Pengujian::where('id_pegawai', $pegawaiLogin)->count();
+            $jadwalPengambilan = Jadwal::where('id_pegawai', $pegawaiLogin)->count();
 
-            $pengajuan = form_pengajuan::all();
-            $pengambilan = jadwal::all();
+            $pengajuan = FormPengajuan::all();
+            $pengambilan = Jadwal::all();
 
             return Inertia::render('dashboard/teknisi', [
                 'statistik' => [
@@ -46,10 +46,10 @@ class DashboardController extends Controller
         }
 
         if ($pegawaiLogin->hasRole('admin')) {
-            $pengajuan = form_pengajuan::count();
-            $jadwal = jadwal::count();
-            $pengujian = pengujian::count();
-            $hasil_uji = hasil_uji::count();
+            $pengajuan = FormPengajuan::count();
+            $jadwal = Jadwal::count();
+            $pengujian = Pengujian::count();
+            $hasil_uji = HasilUji::count();
 
             return Inertia::render('dashboard/admin', [
                 'statistik' => [

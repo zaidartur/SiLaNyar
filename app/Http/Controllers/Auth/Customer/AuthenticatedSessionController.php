@@ -11,31 +11,27 @@ use Inertia\Inertia;
 
 class AuthenticatedSessionController extends Controller
 {
-
-    //lihat login customer
     public function create()
     {
         return Inertia::render('customer/login');
     }
 
-    //proses login customer
     public function store(LoginRequest $request)
     {
-        $request->authenticate();
-
-        $request->session()->regenerate();
-
-        return Redirect::route('dashboard');
+        try {
+            $request->authenticate();
+            $request->session()->regenerate();
+            return Redirect::route('customer.dashboard');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return Redirect::route('customer.login')->withErrors($e->errors());
+        }
     }
 
-    //proses logout customer
     public function destroy(Request $request)
     {
-        Auth::guard('customer')->logout(); 
-        
+        Auth::guard('customer')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
-        return Redirect::route('/');
+        return Redirect::route('home');
     }
 }

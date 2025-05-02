@@ -3,8 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use App\Models\form_pengajuan;
-use App\Models\pengujian;
+use App\Models\Pengujian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -16,8 +15,9 @@ class JadwalController extends Controller
         $searchByStatus = $request->input('status');
 
         $customer = Auth::guard('customer')->user();
-        
-        $pengujian = pengujian::whereHas('form_pengajuan', function($query) use ($customer, $searchByStatus)
+
+        $pengujian = Pengujian::whereHas('form_pengajuan', function($query) use ($customer, $searchByStatus)
+
         {
             $query->where('id_customer', $customer->id);  
             
@@ -43,7 +43,7 @@ class JadwalController extends Controller
     {
         $customer = Auth::guard('customer')->user();
         
-        $pengujian = pengujian::with('pegawai', 'kategori')
+        $pengujian = Pengujian::with('pegawai', 'kategori')
         ->whereHas('form_pengajuan', function($query) use ($customer)
         {
             $query->where('id_customer', $customer->id);    

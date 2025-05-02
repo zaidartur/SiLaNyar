@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use App\Models\form_pengajuan;
-use App\Models\pembayaran;
+use App\Models\FormPengajuan;
+use App\Models\Pembayaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -15,11 +15,11 @@ class DashboardController extends Controller
     {
         $customer = Auth::guard('customer')->user();
 
-        $proses = form_pengajuan::where('id_customer', $customer)->where('status_pengajuan', 'proses_validasi')->count();
-        $ditolak = form_pengajuan::where('id_customer', $customer)->where('status_pengajuan', 'ditolak')->count();
-        $diterima = form_pengajuan::where('id_customer', $customer)->where('status_pengajuan', 'diterima')->count();
+        $proses = FormPengajuan::where('id_customer', $customer)->where('status_pengajuan', 'proses_validasi')->count();
+        $ditolak = FormPengajuan::where('id_customer', $customer)->where('status_pengajuan', 'ditolak')->count();
+        $diterima = FormPengajuan::where('id_customer', $customer)->where('status_pengajuan', 'diterima')->count();
 
-        $pengajuan = form_pengajuan::with(['jadwal', 'pembayaran', 'pengujian', 'hasil_uji'])
+        $pengajuan = FormPengajuan::with(['jadwal', 'pembayaran', 'pengujian', 'hasil_uji'])
             ->where('id_customer', $customer)
             ->orderByDesc('updated_at')
             ->get();
