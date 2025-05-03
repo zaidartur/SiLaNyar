@@ -246,7 +246,7 @@ const changeTab = (tabName: string) => {
 
                 <!-- Footer Note -->
                 <footer
-                    class="mt-24 px-8 text-2xl font-normal text-green-700 dark:text-green-500 max-md:mt-10 max-md:max-w-full">
+                    class="mt-24 px-8 text-1xl font-normal text-green-700 dark:text-green-500 max-md:mt-10 max-md:max-w-full">
                     <p class="italic text-center">
                         Note: Apabila ada hal-hal yang meragukan, petugas penerima sampel dapat menolak<br />
                         setelah berkonsultasi dengan pengendali teknis
@@ -349,7 +349,7 @@ const changeTab = (tabName: string) => {
                     </p>
 
                     <!-- Navigation Tabs -->
-                    <div class="flex mb-4 border-b border-gray-300">
+                    <div class="flex justify-center mb-4 border-b border-gray-300">
                         <button @click="changeTab('Berita Terkini')" :class="[
                             'py-2 px-6 text-center font-medium',
                             activeTab === 'Berita Terkini'
