@@ -31,7 +31,7 @@ class JadwalController extends Controller
         ->with('form_pengajuan')
         ->get();
 
-        return Inertia::render('customer/jadwal/index', [
+        return Inertia::render('customer/jadwal/Index', [
             'pengujian' => $pengujian,
             'filter' => [
                 'status' => $searchByStatus
@@ -51,7 +51,7 @@ class JadwalController extends Controller
         ->where('id', $id)
         ->firstOrFail();
 
-        return Inertia::render('customer/jadwal/detail', [
+        return Inertia::render('customer/jadwal/Detail', [
             'pengujian' => $pengujian
         ]);
     }

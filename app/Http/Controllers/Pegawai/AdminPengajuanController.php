@@ -18,7 +18,7 @@ class AdminPengajuanController extends Controller
                         ->orderByDesc('updated_at')
                         ->get();
     
-            return Inertia::render('pegawai/pengajuan/index', [
+            return Inertia::render('pegawai/pengajuan/Index', [
                 'pengajuan' => $pengajuan
             ]);
         }
@@ -30,7 +30,7 @@ class AdminPengajuanController extends Controller
                         ->where('id', $id)
                         ->firstOrFail();
 
-            return Inertia::render('pegawai/pengajuan/detail', [
+            return Inertia::render('pegawai/pengajuan/Detail', [
                 'pengajuan' => $pengajuan
             ]);
         }
@@ -38,7 +38,7 @@ class AdminPengajuanController extends Controller
         //edit pengajuan dari admin
         public function edit(FormPengajuan $pengajuan)
         {
-            return Inertia::render('pegawai/pengajuan/edit', [
+            return Inertia::render('pegawai/pengajuan/Edit', [
                 'pengajuan' => $pengajuan
             ]);
         }

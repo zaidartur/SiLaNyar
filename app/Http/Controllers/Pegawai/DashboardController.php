@@ -22,7 +22,7 @@ class DashboardController extends Controller
             $customer = Customer::all();
             $pegawai = Pegawai::all();
 
-            return Inertia::render('dashboard/superadmin', [
+            return Inertia::render('dashboard/SuperAdmin', [
                 'customer' => $customer,
                 'pegawai' => $pegawai
             ]);
@@ -35,7 +35,7 @@ class DashboardController extends Controller
             $pengajuan = FormPengajuan::all();
             $pengambilan = Jadwal::all();
 
-            return Inertia::render('dashboard/teknisi', [
+            return Inertia::render('dashboard/Teknisi', [
                 'statistik' => [
                     'jadwalPengujian' => $jadwalPengujian,
                     'jadwalPengambilan' => $jadwalPengambilan,
@@ -51,7 +51,7 @@ class DashboardController extends Controller
             $pengujian = Pengujian::count();
             $hasil_uji = HasilUji::count();
 
-            return Inertia::render('dashboard/admin', [
+            return Inertia::render('dashboard/Admin', [
                 'statistik' => [
                     'pengajuan' => $pengajuan,
                     'jadwal' => $jadwal,

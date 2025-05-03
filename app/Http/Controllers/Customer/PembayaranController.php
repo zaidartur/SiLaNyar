@@ -35,7 +35,7 @@ class PembayaranController extends Controller
         $totalKategori = $pengajuan->kategori->harga ?? 0;
         $totalHarga = $totalKategori + $totalParameter;
 
-        return Inertia::render('customer/pembayaran/rincian', [
+        return Inertia::render('customer/pembayaran/Rincian', [
             'pengajuan' => $pengajuan,
             'kategori' => $pengajuan->kategori,
             'parameter' => $pengajuan->parameter,
@@ -82,7 +82,7 @@ class PembayaranController extends Controller
             Mail::to(Auth::guard('customer')->user()->email)->send(new PembayaranMasuk($pembayaran));
         }
 
-        return Inertia::render('customer/pembayaran/status', [
+        return Inertia::render('customer/pembayaran/Status', [
             'pembayaran' => $pembayaran,
             'status' => $StatusMidtrans['status'],
         ]);

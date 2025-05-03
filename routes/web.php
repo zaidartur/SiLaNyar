@@ -20,6 +20,31 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Mail\SendOtpMail;
 
+Route::get('/test-hasiluji', function () {
+    $customer = new \App\Models\Customer(['nama' => 'Budi']);
+    $kategori = new \App\Models\Kategori(['nama' => 'Air Limbah']);
+    $form = new \App\Models\FormPengajuan(['jenis_cairan' => 'Air Sungai']);
+    $form->setRelation('customer', $customer);
+    $form->setRelation('kategori', $kategori);
+
+    $pegawai = new \App\Models\Pegawai(['nama' => 'Teknisi A']);
+    $pengujian = new \App\Models\Pengujian([
+        'tanggal_uji' => now(),
+        'jam_mulai' => '08:00',
+        'jam_selesai' => '10:00',
+    ]);
+    $pengujian->setRelation('form_pengajuan', $form);
+    $pengujian->setRelation('pegawai', $pegawai);
+
+    $hasilUji = new \App\Models\HasilUji(['id' => 1]);
+    $hasilUji->id = 1;
+    $hasilUji->setRelation('pengujian', $pengujian);
+
+    return view('email.hasiluji', [
+        'hasil_uji' => $hasilUji
+    ]);
+});
+
 Route::get('/test-otp', function () {
     $otp = rand(100000, 999999);
     $nama = 'Aji';
@@ -85,8 +110,8 @@ Route::prefix('customer')->middleware(['auth:customer', 'check.verified.customer
 
     //fitur hasil uji
     Route::get('hasil_uji', [CustomerHasilUjiController::class, 'index'])->name('customer.hasil_uji.index');
-    Route::get('hasil_uji/{hasil_uji}', [CustomerHasilUjiController::class, 'show']);
-    Route::get('hasil_uji/{hasil_uji}/PDF', [CustomerHasilUjiController::class, 'convert']);
+    Route::get('hasil_uji/{hasil_uji}', [CustomerHasilUjiController::class, 'show'])->name('customer.hasil_uji.detail');
+    Route::get('hasil_uji/{hasil_uji}/PDF', [CustomerHasilUjiController::class, 'convert'])->name('customer.hasil_uji.convert');
 });
 
 //route pegawai

@@ -16,7 +16,7 @@ class KategoriController extends Controller
     {
         $kategori = Kategori::with('parameter')->get();
         
-        return Inertia::render('pegawai/kategori/index', [
+        return Inertia::render('pegawai/kategori/Index', [
             'kategori' => $kategori,
         ]);
     }
@@ -26,7 +26,7 @@ class KategoriController extends Controller
     {
         $parameter = ParameterUji::all();
 
-        return Inertia::render('pegawai/kategori/tambah', [
+        return Inertia::render('pegawai/kategori/Tambah', [
             'parameter' => $parameter
         ]);    
     }
@@ -58,7 +58,7 @@ class KategoriController extends Controller
     {
         $parameter = ParameterUji::all();
         
-        return Inertia::render('pegawai/kategori/edit', [
+        return Inertia::render('pegawai/kategori/Edit', [
             'kategori' => $kategori,
             'parameter' => $parameter,
         ]);

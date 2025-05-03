@@ -64,7 +64,7 @@ class CustomerResetPasswordController extends Controller
 
     public function lihatOtpForm()
     {
-        return Inertia::render('customer/verifikasiOTP');    
+        return Inertia::render('customer/VerifikasiOTP');    
     }
 
     public function verifikasiOtp(Request $request)
