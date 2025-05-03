@@ -13,14 +13,14 @@ class PegawaiController extends Controller
     {
         $pegawai = Pegawai::all();
         
-        return Inertia::render('superadmin/pegawai/index', [
+        return Inertia::render('superadmin/pegawai/Index', [
             'pegawai' => $pegawai
         ]);
     }
 
     public function show(Pegawai $pegawai)
     {
-        return Inertia::render('superadmin/pegawai/detail', [
+        return Inertia::render('superadmin/pegawai/Detail', [
             'pegawai' => $pegawai
         ]);
     }

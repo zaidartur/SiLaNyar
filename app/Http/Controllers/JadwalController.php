@@ -26,7 +26,7 @@ class JadwalController extends Controller
                         $query->where('status', 'like', '%'.$filterByStatus.'%');    
                     })
                     ->get();
-        return Inertia::render('pegawai/jadwal/index', [
+        return Inertia::render('pegawai/jadwal/Index', [
             'jadwal' => $jadwal,
             'filter' => [
                 'status' => $filterByStatus,
@@ -39,7 +39,7 @@ class JadwalController extends Controller
     public function create()
     {
         $form_pengajuan = FormPengajuan::get();
-        return Inertia::render('pegawai/jadwal/tambah', [
+        return Inertia::render('pegawai/jadwal/Tambah', [
             'form_pengajuan' => $form_pengajuan
         ]);
     }
@@ -70,7 +70,7 @@ class JadwalController extends Controller
     {
         $form_pengajuan = FormPengajuan::latest()->get();
 
-        return Inertia::render('pegawai/jadwal/edit', [
+        return Inertia::render('pegawai/jadwal/Edit', [
             'jadwal' => $jadwal,
             'form_pengajuan' => $form_pengajuan,
         ]);
@@ -127,7 +127,7 @@ class JadwalController extends Controller
     {
         $jadwal->load(['form_pengajuan', 'pegawai']);
         
-        return Inertia::render('jadwal/show', [
+        return Inertia::render('jadwal/Show', [
             'jadwal' => $jadwal
         ]);
     }

@@ -15,6 +15,7 @@ use App\Http\Controllers\Pegawai\DashboardController;
 use App\Http\Controllers\Settings\CustomerProfileController;
 use App\Http\Controllers\Settings\CustomerResetPasswordController;
 use App\Http\Controllers\Settings\PegawaiProfileController;
+use App\Http\Controllers\Settings\PegawaiResetPassword;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -26,6 +27,12 @@ Route::prefix('pegawai')->middleware('guest:pegawai')->group(function()
     
     Route::get('login', [PegawaiAuthenticatedSessionController::class, 'create'])->name('pegawai.login');
     Route::post('login', [PegawaiAuthenticatedSessionController::class, 'store']);
+
+    Route::get('lupapassword', [PegawaiResetPassword::class, 'lihatForm'])->name('pegawai.password.lupa');
+    Route::post('lupapassword', [PegawaiResetPassword::class, 'kirimOtp']);
+    Route::get('verifikasiotp', [PegawaiResetPassword::class, 'lihatOtpForm'])->name('pegawai.password.reset');
+    Route::post('verifikasiotp', [PegawaiResetPassword::class, 'verifikasiOtp']);
+    Route::post('gantipassword', [PegawaiResetPassword::class, 'gantiPassword']);
 });
 
 Route::prefix('pegawai')->middleware('auth:pegawai', 'check.verified.pegawai')->group(function()
@@ -67,25 +74,3 @@ Route::prefix('customer')->middleware(['auth:customer', 'check.verified.customer
 Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('home');
-
-
-// Route::middleware('auth')->group(function () {
-//     Route::get('verify-email', EmailVerificationPromptController::class)
-//         ->name('verification.notice');
-
-//     Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
-//         ->middleware(['signed', 'throttle:6,1'])
-//         ->name('verification.verify');
-
-//     Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-//         ->middleware('throttle:6,1')
-//         ->name('verification.send');
-
-//     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
-//         ->name('password.confirm');
-
-//     Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
-
-//     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
-//         ->name('logout');
-// });

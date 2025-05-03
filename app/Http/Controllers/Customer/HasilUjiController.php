@@ -18,7 +18,7 @@ class HasilUjiController extends Controller
 
         $hasil_uji = HasilUji::with(['parameter', 'pengujian'])->get();
 
-        return Inertia::render('customer/hasil_uji/index', [
+        return Inertia::render('customer/hasil_uji/Index', [
             'customer' => $customer,
             'hasil_uji' => $hasil_uji
         ]);
@@ -29,7 +29,7 @@ class HasilUjiController extends Controller
         $customer = Auth::guard('customer')->user();
         $hasil_uji->load('parameter', 'pengujian');
         
-        return Inertia::render('customer/hasil_uji/show', [
+        return Inertia::render('customer/hasil_uji/Show', [
             'customer' => $customer,
             'hasil_uji' => $hasil_uji
         ]);

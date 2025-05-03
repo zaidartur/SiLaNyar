@@ -14,14 +14,14 @@ class PelangganController extends Controller
         $customer = Customer::orderByDesc('created_at')
                     ->get();
 
-        return Inertia::render('pegawai/pelanggan/index', [
+        return Inertia::render('pegawai/pelanggan/Index', [
             'customer' => $customer
         ]);
     }
 
     public function detail(Customer $customer)
     {
-        return Inertia::render('pegawai/pelanggan/detail', [
+        return Inertia::render('pegawai/pelanggan/Detail', [
             'customer' => $customer
         ]);
     }

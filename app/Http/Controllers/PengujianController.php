@@ -17,7 +17,7 @@ class PengujianController extends Controller
     {
         $pengujian = Pengujian::with('form_pengajuan', 'pegawai', 'kategori')->get();
 
-        return Inertia::render('pegawai/pengujian/index', [
+        return Inertia::render('pegawai/pengujian/Index', [
             'pengujian' => $pengujian
         ]);
     }
@@ -29,7 +29,7 @@ class PengujianController extends Controller
         $pegawai = Pegawai::all();
         $kategori = Kategori::all();
         
-        return Inertia::render('pegawai/pengujian/tambah', [
+        return Inertia::render('pegawai/pengujian/Tambah', [
             'form_pengajuan' => $form_pengajuan,
             'pegawai' => $pegawai,
             'kategori' => $kategori
@@ -66,7 +66,7 @@ class PengujianController extends Controller
         $pegawai = Pegawai::all();
         $kategori = Kategori::all();
 
-        return Inertia::render('pegawai/pengujian/edit', [
+        return Inertia::render('pegawai/pengujian/Edit', [
             'pengujian' => $pengujian,
             'form_pengajuan' => $form_pengajuan,
             'pegawai' => $pegawai,
@@ -107,7 +107,7 @@ class PengujianController extends Controller
     {
         $pengujian->load('form_pengajuan', 'pegawai', 'kategori');
 
-        return Inertia::render('pegawai/pengujian/detail', [
+        return Inertia::render('pegawai/pengujian/Detail', [
             'pengujian' => $pengujian
         ]);
     }

@@ -14,7 +14,7 @@ class ParameterController extends Controller
     {
         $parameter = ParameterUji::latest()->get();
         
-        return Inertia::render('pegawai/parameter/index', [
+        return Inertia::render('pegawai/parameter/Index', [
             'parameter' => $parameter
         ]);
     }
@@ -22,7 +22,7 @@ class ParameterController extends Controller
     //form tambah parameter
     public function create()
     {
-        return Inertia::render('pegawai/parameter/tambah');
+        return Inertia::render('pegawai/parameter/Tambah');
     }
 
     //proses tambah parameter
@@ -46,7 +46,7 @@ class ParameterController extends Controller
     //form edit parameter
     public function edit(ParameterUji $parameter)
     {
-        return Inertia::render('pegawai/parameter/edit', [
+        return Inertia::render('pegawai/parameter/Edit', [
             'parameter' => $parameter
         ]);
     }
