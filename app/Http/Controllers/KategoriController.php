@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\kategori;
-use App\Models\parameter_uji;
+use App\Models\Kategori;
+use App\Models\ParameterUji;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -14,9 +14,9 @@ class KategoriController extends Controller
     //lihat daftar kategori
     public function index()
     {
-        $kategori = kategori::with('parameter')->get();
+        $kategori = Kategori::with('parameter')->get();
         
-        return Inertia::render('kategori/index', [
+        return Inertia::render('pegawai/kategori/index', [
             'kategori' => $kategori,
         ]);
     }
@@ -24,9 +24,9 @@ class KategoriController extends Controller
     //form tambah kategori
     public function create()
     {
-        $parameter = parameter_uji::all();
+        $parameter = ParameterUji::all();
 
-        return Inertia::render('kategori/create', [
+        return Inertia::render('pegawai/kategori/tambah', [
             'parameter' => $parameter
         ]);    
     }
@@ -41,36 +41,31 @@ class KategoriController extends Controller
             'parameter_ids.*' => 'exists:parameter_uji,id'
         ]);
 
-        $kategori = kategori::create($request->only([
+        $kategori = Kategori::create($request->only([
             'nama',
             'harga'
         ]));
 
-        // Attach parameters
         if ($request->parameter_ids) {
             $kategori->parameter()->attach($request->parameter_ids);
         }
-
-        if(request()->header('referer') && str_contains(request()->header('referer'), '/test/')) {
-            return Redirect::route('test.kategori.index')->with('message', 'Kategori Berhasil Ditambahkan!');
-        }
         
-        return Redirect::route('kategori.index')->with('message', 'Kategori Berhasil Ditambahkan!');
+        return Redirect::route('pegawai.kategori.index')->with('message', 'Kategori Berhasil Ditambahkan!');
     }
 
     //form edit kategori
-    public function edit(kategori $kategori)
+    public function edit(Kategori $kategori)
     {
-        $parameter = parameter_uji::all();
+        $parameter = ParameterUji::all();
         
-        return Inertia::render('kategori/edit', [
+        return Inertia::render('pegawai/kategori/edit', [
             'kategori' => $kategori,
             'parameter' => $parameter,
         ]);
     }
 
     //proses update kategori
-    public function update(kategori $kategori, Request $request)
+    public function update(Kategori $kategori, Request $request)
     {
         $request->validate([
             'nama' => 'required|string',
@@ -83,40 +78,21 @@ class KategoriController extends Controller
             'harga'
         ]));
 
-        // Update parameter relationships
         $kategori->parameter()->sync($request->parameter_ids);
 
-        if(request()->header('referer') && str_contains(request()->header('referer'), '/test/')) {
-            return Redirect::route('test.kategori.index')->with('message', 'Kategori Berhasil Diupdate!');
-        }
-
-        return Redirect::route('kategori.index')->with('message', 'Kategori Berhasil Diupdate!');
-    }
-
-    //lihat detail kategori
-    public function show(kategori $kategori)
-    {
-        $kategori->load('parameter');
-        
-        return Inertia::render('kategori/show', [
-            'kategori' => $kategori
-        ]);
+        return Redirect::route('pegawai.kategori.index')->with('message', 'Kategori Berhasil Diupdate!');
     }
 
     //proses delete kategori
     public function destroy($id)
     {
-        $kategori = kategori::findOrFail($id);
+        $kategori = Kategori::findOrFail($id);
 
         $kategori->delete();
-
-        if(request()->header('referer') && str_contains(request()->header('referer'), '/test/')) {
-            return Redirect::route('test.kategori.index')->with('message', 'Kategori Berhasil Ditambahkan!');
-        }
         
         if($kategori)
         {
-            return Redirect::route('kategori.index')->with('message', 'Kategori Berhasil Didelete!');
+            return Redirect::route('pegawai.kategori.index')->with('message', 'Kategori Berhasil Didelete!');
         }
     }
 }

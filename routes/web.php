@@ -1,18 +1,31 @@
 <?php
-use App\Http\Controllers\Auth\Customer\AuthenticatedSessionController;
-use App\Http\Controllers\Auth\Customer\RegisteredUserController;
+
+use App\Http\Controllers\Customer\HasilUjiController as CustomerHasilUjiController;
+use App\Http\Controllers\Customer\JadwalController as CustomerJadwalController;
+use App\Http\Controllers\Customer\PembayaranController;
+use App\Http\Controllers\Customer\PengajuanController as CustomerPengajuanController;
 use App\Http\Controllers\HasilUjiController;
 use App\Http\Controllers\JadwalController;
+use App\Http\Controllers\JenisCairanController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\ParameterController;
-use App\Http\Controllers\PengajuanController;
+use App\Http\Controllers\Pegawai\AdminPengajuanController;
+use App\Http\Controllers\Pegawai\PegawaiController;
+use App\Http\Controllers\Pegawai\PelangganController;
+use App\Http\Controllers\Pegawai\VerifikasiController;
 use App\Http\Controllers\PengujianController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
-use App\Http\Middleware\CheckVerifiedCustomer;
-use App\Http\Middleware\CheckPermission;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Mail\SendOtpMail;
+
+Route::get('/test-otp', function () {
+    $otp = rand(100000, 999999);
+    $nama = 'Aji';
+    
+    return view('email.otp', ['otp' => $otp, 'nama' => $nama]);
+});
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -23,139 +36,128 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 //route superadmin
+Route::prefix('superadmin')->middleware(['auth:pegawai'])->group(function () {
 
-Route::prefix('superadmin')->middleware(['auth:pegawai'])->group(function()
-{
-    //crud permission
-   Route::middleware(['check.permission:kelola-permission'])->group(function()
-   {
-        Route::get('permission', [PermissionController::class, 'index'])->name('permission.index');
+    //fitur permission
+    Route::middleware(['check.permission:kelola-permission'])->group(function () {
+        Route::get('permission', [PermissionController::class, 'index'])->name('superadmin.permission.index');
         Route::get('permission/create', [PermissionController::class, 'create']);
         Route::post('permission/store', [PermissionController::class, 'store']);
         Route::get('permission/edit/{permission}', [PermissionController::class, 'edit']);
         Route::put('permission/{permission}/edit', [PermissionController::class, 'update']);
         Route::delete('permission/{id}', [PermissionController::class, 'destroy']);
-   });
+    });
 
-   //crud role
-   Route::middleware(['check.permission:kelola-role'])->group(function()
-   {
-        Route::get('role', [RoleController::class, 'index'])->name('role.index');
+    //fitur role
+    Route::middleware(['check.permission:kelola-role'])->group(function () {
+        Route::get('role', [RoleController::class, 'index'])->name('superadmin.role.index');
         Route::get('role/create', [RoleController::class, 'create']);
         Route::post('role/store', [RoleController::class, 'store']);
         Route::get('role/edit/{role}', [RoleController::class, 'edit']);
         Route::post('role/{role}/edit', [RoleController::class, 'update']);
         Route::delete('role/{id}', [RoleController::class, 'destroy']);
-   });
+    });
+
+    //fitur verifikasi pegawai
+    Route::get('pegawai', [PegawaiController::class, 'index'])->middleware('check.permission:lihat-pegawai')->name('superadmin.pegawai.index');
+    Route::get('pegawai/{pegawai}', [PegawaiController::class, 'show'])->middleware('check.permission:detail-pegawai');
+    Route::post('verifikasi/{id}', [VerifikasiController::class, 'verifikasiPegawai'])->middleware('check.permission:verifikasi-pegawai');
 });
 
 //route user
+Route::prefix('customer')->middleware(['auth:customer', 'check.verified.customer'])->group(function () {
 
-//pengajuan
-Route::get('pengajuan/daftar', [PengajuanController::class, 'register']);
-Route::post('pengajuan/store', [PengajuanController::class, 'store']);
+    //fitur jadwal
+    Route::get('pengujian', [CustomerJadwalController::class, 'index'])->name('customer.jadwal.index');
+    Route::get('pengujian/{id}', [CustomerJadwalController::class, 'show']);
+
+    //fitur pengajuan
+    Route::get('pengajuan', [CustomerPengajuanController::class, 'index'])->name('customer.pengajuan.index');
+    Route::get('pengajuan/daftar', [CustomerPengajuanController::class, 'daftar'])->name('customer.pengajuan.daftar');
+    Route::post('pengajuan/store', [CustomerPengajuanController::class, 'store'])->name('customer.pengajuan.store');
+    Route::get('pengajuan/{id}', [CustomerPengajuanController::class, 'show'])->name('customer.pengajuan.show');
+
+    //fitur pembayaran
+    Route::get('pembayaran/rincian/{id}', [PembayaranController::class, 'showRincian'])->name('customer.pembayaran.rincian');
+    Route::post('pembayaran/bayar', [PembayaranController::class, 'bayar']);
+    Route::post('pembayaran/fake/{id}', [PembayaranController::class, 'bayarFake']);
+    Route::get('pembayaran/status/{id}', [PembayaranController::class, 'status'])->name('customer.pembayaran.status');
+
+    //fitur hasil uji
+    Route::get('hasil_uji', [CustomerHasilUjiController::class, 'index'])->name('customer.hasil_uji.index');
+    Route::get('hasil_uji/{hasil_uji}', [CustomerHasilUjiController::class, 'show']);
+    Route::get('hasil_uji/{hasil_uji}/PDF', [CustomerHasilUjiController::class, 'convert']);
+});
 
 //route pegawai
+Route::prefix('pegawai')->middleware(['auth:pegawai', 'check.verified.pegawai'])->group(function () {  // Ubah guard dari customer ke pegawai
 
-//route admin
-Route::get('/admin', function () {
-    return Inertia::render('admin/Dashboard');
-})->name('dashboard.admin');
+    //fitur pengajuan
+    Route::get('pengajuan', [AdminPengajuanController::class, 'index'])->middleware('check.permission:lihat-pengajuan')->name('pegawai.pengajuan.index');
+    Route::get('pengajuan/{id}', [AdminPengajuanController::class, 'show'])->middleware('check.permission:detail-pengajuan')->name('pegawai.pengajuan.show');
+    Route::get('pengajuan/edit/{pengajuan}', [AdminPengajuanController::class, 'edit'])->middleware('check.permission:edit-pengajuan')->name('pegawai.pengajuan.edit');
+    Route::put('pengajuan/{id}/edit', [AdminPengajuanController::class, 'update'])->name('pegawai.pengajuan.update');
 
-//crud kategori
-Route::get('kategori/', [KategoriController::class, 'index']);
+    //fitur pengujian
+    Route::get('pengujian/', [PengujianController::class, 'index'])->middleware('check.permission:lihat-pengujian')->name('pegawai.pengujian.index');
+    Route::get('pengujian/create', [PengujianController::class, 'create'])->middleware('check.permission:tambah-pengujian');
+    Route::post('pengujian/store', [PengujianController::class, 'store']);
+    Route::get('pengujian/edit/{pengujian}', [PengujianController::class, 'edit'])->middleware('check.permission:edit-pengujian');
+    Route::put('pengujian/{pengujian}/edit', [PengujianController::class, 'update']);
+    Route::get('pengujian/{pengujian}', [PengujianController::class, 'show'])->middleware('check.permission:detail-pengujian');
+    Route::delete('pengujian/{id}', [PengujianController::class, 'destroy'])->middleware('check.permission:delete-pengujian');
 
-//crud parameter
-Route::get('parameter/', [ParameterController::class, 'index'])->name('parameter.index');
-Route::get('parameter/create', [ParameterController::class, 'create']);
-Route::post('parameter/store', [ParameterController::class, 'store']);
-Route::get('parameter/edit/{parameter}', [ParameterController::class, 'edit']);
-Route::put('parameter/{parameter}/edit', [ParameterController::class, 'update']);
-Route::delete('parameter/{id}', [ParameterController::class, 'destroy']);
+    //fitur pengambilan/pengantaran
+    Route::get('jadwal/', [JadwalController::class, 'index'])->middleware('check.permission:lihat-pengambilan')->name('pegawai.pengambilan.index');
+    Route::get('jadwal/create', [JadwalController::class, 'create'])->middleware('check.permission:tambah-pengambilan');
+    Route::post('jadwal/store', [JadwalController::class, 'store']);
+    Route::get('jadwal/{jadwal}/edit', [JadwalController::class, 'edit'])->middleware('check.permission:edit-pengambilan');
+    Route::put('jadwal/edit/{jadwal}', [JadwalController::class, 'update']);
+    Route::get('jadwal/{jadwal}', [JadwalController::class, 'show'])->middleware('check.permission:detail-pengambilan');
+    Route::delete('jadwal/{id}', [JadwalController::class, 'destroy'])->middleware('check.permission:delete-pengambilan');
 
-//crud kategori
-Route::get('kategori/',[KategoriController::class, 'index'])->name('kategori.index');
-Route::get('kategori/create', [KategoriController::class, 'create']);
-Route::post('kategori/store', [KategoriController::class, 'store']);
-Route::get('kategori/{kategori}/edit', [KategoriController::class, 'edit']);
-Route::put('kategori/edit/{kategori}', [KategoriController::class, 'update']);
-Route::post('kategori/{id}', [KategoriController::class, 'destroy']);
+    //fitur jenis cairan
+    Route::get('jenis_cairan', [JenisCairanController::class, 'index'])->middleware('check.permission:lihat-jenis_sampel')->name('pegawai.jenis_cairan.index');
+    Route::get('jenis_cairan/create', [JenisCairanController::class, 'create'])->middleware('check.permission:tambah-jenis_sampel');
+    Route::post('jenis_cairan/store', [JenisCairanController::class, 'store']);
+    Route::get('jenis_cairan/edit/{jenis_cairan}', [JenisCairanController::class, 'edit'])->middleware('check.permission:edit-jenis_sampel');
+    Route::put('jenis_cairan/{jenis_cairan}/edit', [JenisCairanController::class, 'update']);
+    Route::delete('jenis_cairan/{id}', [JenisCairanController::class, 'destroy'])->middleware('check.permission:delete-jenis_sampel');
 
-Route::get('kategori/{kategori}', [KategoriController::class, 'show']);
-Route::delete('kategori/{id}',[KategoriController::class, 'destroy']);
+    //fitur kategori
+    Route::get('kategori/', [KategoriController::class, 'index'])->middleware('check.permission:lihat-kategori')->name('pegawai.kategori.index');
+    Route::get('kategori/create', [KategoriController::class, 'create'])->middleware('check.permission:tambah-kategori');
+    Route::post('kategori/store', [KategoriController::class, 'store']);
+    Route::get('kategori/{kategori}/edit', [KategoriController::class, 'edit'])->middleware('check.permission:edit-kategori');
+    Route::put('kategori/edit/{kategori}', [KategoriController::class, 'update']);
+    Route::delete('kategori/{id}', [KategoriController::class, 'destroy'])->middleware('check.permission:delete-kategori');
 
-//crud pengujian
-Route::get('pengujian/', [PengujianController::class, 'index'])->name('pengujian.index');
-Route::get('pengujian/create', [PengujianController::class, 'create']);
-Route::post('pengujian/store', [PengujianController::class, 'store']);
-Route::get('pengujian/edit/{pengujian}', [PengujianController::class, 'edit']);
-Route::put('pengujian/{pengujian}/edit', [PengujianController::class, 'update']);
-Route::get('pengujian/{pengujian}', [PengujianController::class, 'show']);
-Route::delete('pengujian/{id}',[PengujianController::class, 'destroy']);
+    //fitur parameter
+    Route::get('parameter/', [ParameterController::class, 'index'])->middleware('check.permission:lihat-parameter')->name('pegawai.parameter.index');
+    Route::get('parameter/create', [ParameterController::class, 'create'])->middleware('check.permission:tambah-parameter');
+    Route::post('parameter/store', [ParameterController::class, 'store']);
+    Route::get('parameter/edit/{parameter}', [ParameterController::class, 'edit'])->middleware('check.permission:edit-parameter');
+    Route::put('parameter/{parameter}/edit', [ParameterController::class, 'update']);
+    Route::delete('parameter/{id}', [ParameterController::class, 'destroy'])->middleware('check.permission:delete-parameter');
 
-//crud hasil uji
-Route::get('hasiluji/', [HasilUjiController::class, 'index'])->name('hasil_uji.index');
-Route::get('hasiluji/create', [HasilUjiController::class, 'create']);
-Route::post('hasiluji/store', [HasilUjiController::class, 'store']);
-Route::get('hasiluji/edit/{hasil_uji}', [HasilUjiController::class, 'edit']);
-Route::put('hasiluji/{hasil_uji}/edit', [HasilUjiController::class, 'update']);
-Route::get('hasiluji/{hasil_uji}', [HasilUjiController::class, 'show']);
-Route::delete('hasiluji/{id}', [HasilUjiController::class, 'destroy']);
+    //fitur hasil uji
+    Route::get('hasiluji/', [HasilUjiController::class, 'index'])->middleware('check.permission:lihat-hasil_uji')->name('pegawai.hasil_uji.index');
+    Route::get('hasiluji/create', [HasilUjiController::class, 'create'])->middleware('check.permission:tambah-hasil_uji');
+    Route::post('hasiluji/store', [HasilUjiController::class, 'store']);
+    Route::get('hasiluji/edit/{hasil_uji}', [HasilUjiController::class, 'edit'])->middleware('check.permission:edit-hasil_uji');
+    Route::put('hasiluji/{hasil_uji}/edit', [HasilUjiController::class, 'update']);
+    Route::get('hasiluji/{hasil_uji}', [HasilUjiController::class, 'show'])->middleware('check.permission:detail-hasil_uji');
+    Route::delete('hasiluji/{id}', [HasilUjiController::class, 'destroy'])->middleware('check.permission:delete-hasil_uji');
 
-//crud jadwal
-Route::get('jadwal/', [JadwalController::class, 'index'])->name('jadwal.index');
-Route::get('jadwal/create', [JadwalController::class, 'create']);
-Route::post('jadwal/store', [JadwalController::class, 'store']);
-Route::get('jadwal/{jadwal}', [JadwalController::class, 'show'])->name('jadwal.show');
-Route::get('jadwal/{jadwal}/edit', [JadwalController::class, 'edit']);
-Route::put('jadwal/edit/{jadwal}', [JadwalController::class, 'update']);
-Route::delete('jadwal/{id}', [JadwalController::class, 'destroy']);
+    //fitur pelanggan
+    Route::get('pelanggan', [PelangganController::class, 'index'])->middleware('check.permission:lihat-pelanggan')->name('pegawai.pelanggan.index');
+    Route::get('pelanggan/{customer}', [PelangganController::class, 'show'])->middleware('check.permission:detail-pelanggan');
 
-// Route for test dashboard
-Route::get('/test', function () {
-    return view('test.dashboard');
+    //fitur verifikasi customer
+    Route::post('pelanggan/verifikasi/{id}', [VerifikasiController::class, 'verifikasiCustomer'])->middleware('check.permission:verifikasi-customer');
 });
 
-// Test routes for Kategori
-Route::prefix('test/kategori')->group(function () {
-    Route::get('/', function () {
-        $kategori = \App\Models\kategori::latest()->get();
-        return view('test.kategori.index', compact('kategori'));
-    })->name('test.kategori.index');
-    
-    Route::get('/create', function () {
-        return view('test.kategori.create');
-    });
-    
-    Route::get('/{kategori}/edit', function ($id) {
-        $kategori = \App\Models\kategori::findOrFail($id);
-        return view('test.kategori.edit', compact('kategori'));
-    });
-});
-
-// Test routes for Jadwal
-Route::prefix('test/jadwal')->group(function () {
-    Route::get('/', function () {
-        $jadwal = \App\Models\jadwal::latest()->get();
-        $form_pengajuan = \App\Models\form_pengajuan::latest()->get();
-        return view('test.jadwal.index', compact('jadwal', 'form_pengajuan'));
-    })->name('test.jadwal.index');
-    
-    Route::get('/create', function () {
-        $form_pengajuan = \App\Models\form_pengajuan::latest()->get();
-        return view('test.jadwal.create', compact('form_pengajuan'));
-    });
-    
-    Route::get('/{jadwal}/edit', function ($id) {
-        $jadwal = \App\Models\jadwal::findOrFail($id);
-        $form_pengajuan = \App\Models\form_pengajuan::latest()->get();
-        return view('test.jadwal.edit', compact('jadwal', 'form_pengajuan'));
-    });
-});
-
-//pengajuan
-Route::get('pengajuan/', [PengajuanController::class, 'index']);
-Route::post('pengajuan/{id}/verifikasi', [PengajuanController::class, 'verification']);
+Route::post('midtrans/callback', [PembayaranController::class, 'callback'])->name('midtrans.callback');
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

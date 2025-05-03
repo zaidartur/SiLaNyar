@@ -2,25 +2,34 @@
 
 namespace Database\Factories;
 
-use App\Models\jadwal;
-use App\Models\form_pengajuan;
-use App\Models\pegawai;
+use App\Models\FormPengajuan;
+use App\Models\Pegawai;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class jadwalFactory extends Factory
+class JadwalFactory extends Factory
 {
-    protected $model = jadwal::class;
-
     public function definition(): array
     {
+        // Create or get a form pengajuan with 'diterima' status
+        $formPengajuan = FormPengajuan::inRandomOrder()
+            ->where('status_pengajuan', 'diterima')
+            ->first() ?? FormPengajuan::factory()->create([
+                'status_pengajuan' => 'diterima'
+            ]);
+
+        // Get or create a verified pegawai
+        $pegawai = Pegawai::inRandomOrder()
+            ->where('status_verifikasi', 'diterima')
+            ->first() ?? Pegawai::factory()->create([
+                'status_verifikasi' => 'diterima'
+            ]);
+
         return [
-            'id_form_pengajuan' => form_pengajuan::factory(),
-            'id_pegawai' => pegawai::factory(),
-            'waktu_pengambilan' => $this->faker->date(), // Changed to match date column type
-            'status' => $this->faker->randomElement(['diproses', 'selesai']),
-            'keterangan' => $this->faker->sentence(),
-            'created_at' => now(),
-            'updated_at' => now()
+            'id_form_pengajuan' => $formPengajuan->id,
+            'id_pegawai' => $pegawai->id,
+            'waktu_pengambilan' => fake()->dateTimeBetween('now', '+1 week')->format('Y-m-d'),
+            'status' => fake()->randomElement(['diproses', 'selesai']),
+            'keterangan' => fake()->sentence() // Ubah dari optional() menjadi wajib
         ];
     }
 }

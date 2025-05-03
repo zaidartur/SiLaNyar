@@ -2,20 +2,36 @@
 
 namespace Database\Factories;
 
-use App\Models\kategori;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class kategoriFactory extends Factory
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Kategori>
+ */
+class KategoriFactory extends Factory
 {
-    protected $model = kategori::class;
-
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
     public function definition(): array
     {
         return [
-            'nama' => $this->faker->unique()->word(),
-            'harga' => $this->faker->numberBetween(50000, 500000),
-            'created_at' => now(),
-            'updated_at' => now()
+            'nama' => fake()->randomElement([
+                'Kualitas Air Minum',
+                'Air Permukaan',
+                'Air Limbah Domestik',
+                'Air Limbah Industri',
+                'Air Tanah',
+                'Air PDAM'
+            ]),
+            'harga' => fake()->randomElement([
+                150000,  // Basic testing package
+                300000,  // Standard testing package
+                500000,  // Complete testing package
+                750000,  // Professional testing package
+                1000000  // Comprehensive testing package
+            ])
         ];
     }
 }

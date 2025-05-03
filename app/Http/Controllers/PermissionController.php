@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\permissions;
+use App\Models\Permissions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -11,16 +11,16 @@ class PermissionController extends Controller
 {
     public function index()
     {
-        $permission = permissions::all();
+        $permission = Permissions::all();
 
-        return Inertia::render('permission.index', [
+        return Inertia::render('superadmin/permission/index', [
             'permission' => $permission
         ]);
     }
 
     public function create()
     {
-        return Inertia::render('permission.create');
+        return Inertia::render('superadmin/permission/tambah');
     }
 
     public function store(Request $request)
@@ -29,22 +29,22 @@ class PermissionController extends Controller
             'name' => 'required|string|max:255'
         ]);
 
-        $permission = permissions::create($request->all());
+        $permission = Permissions::create($request->all());
 
         if ($permission) 
         {
-            return Redirect::route('permission.index')->with('message', 'Permission Berhasil Dibuat!');
+            return Redirect::route('superadmin.permission.index')->with('message', 'Permission Berhasil Dibuat!');
         }
     }
 
-    public function edit(permissions $permission)
+    public function edit(Permissions $permission)
     {
-        return Inertia::render('permission.edit', [
+        return Inertia::render('superadmin/permission/edit', [
             'permission' => $permission
         ]);
     }
 
-    public function update(Request $request, permissions $permission)
+    public function update(Request $request, Permissions $permission)
     {
         $request->validate([
             'name' => 'required|string|max:255'
@@ -54,19 +54,19 @@ class PermissionController extends Controller
 
         if($permission)
         {
-            return Redirect::route('permission.index')->with('message', 'Permission Berhasil Diupdate!');
+            return Redirect::route('superadmin.permission.index')->with('message', 'Permission Berhasil Diupdate!');
         }
     }
 
     public function destroy($id)
     {
-        $permission = permissions::findOrFail($id);
+        $permission = Permissions::findOrFail($id);
         
         $permission->delete();
 
         if($permission)
         {
-            return Redirect::route('permission.index')->with('message', 'Permission Berhasil Dihapus!');
+            return Redirect::route('superadmin.permission.index')->with('message', 'Permission Berhasil Dihapus!');
         }
     }
 }

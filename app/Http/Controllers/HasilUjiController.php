@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\hasil_uji;
-use App\Models\parameter_uji;
-use App\Models\pengujian;
+use App\Models\HasilUji;
+use App\Models\ParameterUji;
+use App\Models\Pengujian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -14,9 +14,9 @@ class HasilUjiController extends Controller
     //lihat list hasil uji
     public function index()
     {
-        $hasil_uji = hasil_uji::with('parameter', 'pengujian');
+        $hasil_uji = HasilUji::with('parameter', 'pengujian', 'kategori');
 
-        return Inertia::render('hasil_uji/index', [
+        return Inertia::render('pegawai/hasil_uji/index', [
             'hasil_uji' => $hasil_uji
         ]);
     }
@@ -25,10 +25,10 @@ class HasilUjiController extends Controller
     //form tambah hasil uji
     public function create()
     {
-        $parameter = parameter_uji::all();
-        $pengujian = pengujian::all();
+        $parameter = ParameterUji::all();
+        $pengujian = Pengujian::all();
         
-        return Inertia::render('hasil_uji/create', [
+        return Inertia::render('pegawai/hasil_uji/tambah', [
             'parameter' => $parameter,
             'pengujian' => $pengujian,
         ]);
@@ -44,21 +44,21 @@ class HasilUjiController extends Controller
             'keterangan' => 'required|string|max:255'
         ]);
 
-        $hasil_uji = hasil_uji::create($request->all());
+        $hasil_uji = HasilUji::create($request->all());
 
         if($hasil_uji)
         {
-            return Redirect::route('hasil_uji.index')->with('message', 'Hasil Uji Berhasil Dibuat!');
+            return Redirect::route('pegawai.hasil_uji.index')->with('message', 'Hasil Uji Berhasil Dibuat!');
         }
     }
 
     //form edit hasil uji
-    public function edit(hasil_uji $hasil_uji)
+    public function edit(HasilUji $hasil_uji)
     {
-        $parameter = parameter_uji::all();
-        $pengujian = pengujian::all();
+        $parameter = ParameterUji::all();
+        $pengujian = Pengujian::all();
         
-        return Inertia::render('hasil_uji/edit', [
+        return Inertia::render('pegawai/hasil_uji/edit', [
             'hasil_uji' => $hasil_uji,
             'parameter' => $parameter,
             'pengujian' => $pengujian
@@ -66,7 +66,7 @@ class HasilUjiController extends Controller
     }
 
     //proses update hasil uji
-    public function update(hasil_uji $hasil_uji, Request $request)
+    public function update(HasilUji $hasil_uji, Request $request)
     {
         $request->validate([
             'id_parameter' => 'required|exists:parameter_uji,id',
@@ -75,20 +75,20 @@ class HasilUjiController extends Controller
             'keterangan' => 'required|string|max:255'
         ]);
         
-        $hasil_uji = hasil_uji::update($request->all());
+        $hasil_uji = HasilUji::update($request->all());
 
         if ($hasil_uji)
         {
-            return Redirect::route('hasil_uji.index')->with('message', 'Hasil Uji Berhasil Diupdate!');
+            return Redirect::route('pegawai.hasil_uji.index')->with('message', 'Hasil Uji Berhasil Diupdate!');
         }
     }
 
     //lihat detail hasil uji
-    public function show(hasil_uji $hasil_uji)
+    public function show(HasilUji $hasil_uji)
     {
         $hasil_uji->load('parameter', 'pengujian');
 
-        return Inertia::render('hasil_uji/show', [
+        return Inertia::render('pegawai/hasil_uji/detail', [
             'hasil_uji' => $hasil_uji
         ]);
     }
@@ -96,13 +96,13 @@ class HasilUjiController extends Controller
     //hapus hasil uji
     public function destroy($id)
     {
-        $hasil_uji = hasil_uji::findOrFail($id);
+        $hasil_uji = HasilUji::findOrFail($id);
         
         $hasil_uji->delete();
 
         if($hasil_uji)
         {
-            return Redirect::route('hasil_uji.index')->with('message','Hasil Uji Berhasil Dihapus!');
+            return Redirect::route('pegawai.hasil_uji.index')->with('message','Hasil Uji Berhasil Dihapus!');
         }
     }
 }

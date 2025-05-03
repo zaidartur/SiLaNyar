@@ -3,9 +3,18 @@
 namespace Tests;
 
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
-use Inertia\Testing\AssertableInertia as Assert;
+use Illuminate\Support\Facades\Artisan;
 
 abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+        
+        if (!app()->environment('production')) {
+            Artisan::call('key:generate', ['--force' => true]);
+        }
+    }
 }

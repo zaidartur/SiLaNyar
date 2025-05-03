@@ -2,27 +2,50 @@
 
 namespace Database\Factories;
 
-use App\Models\pegawai;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
-class pegawaiFactory extends Factory
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Pegawai>
+ */
+class PegawaiFactory extends Factory
 {
-    protected $model = pegawai::class;
-
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
     public function definition(): array
     {
+        $jabatan = fake()->randomElement([
+            'Admin Lab',
+            'Kepala Lab',
+            'Analis Kimia',
+            'Analis Mikrobiologi',
+            'Analis Air',
+            'Manajer Teknis',
+            'Staff Lab'
+        ]);
+
         return [
-            'nama' => $this->faker->name(),
-            'jabatan' => $this->faker->jobTitle(),
-            'jenis_kelamin' => $this->faker->randomElement(['laki-laki', 'perempuan']),
-            'no_telepon' => $this->faker->phoneNumber(),
-            'email' => $this->faker->unique()->safeEmail(),
-            'password' => bcrypt('password'),
-            'status_verifikasi' => $this->faker->randomElement(['diproses', 'diterima', 'ditolak']),
+            'nama' => fake()->name(),
+            'jabatan' => $jabatan,
+            'jenis_kelamin' => fake()->randomElement(['laki-laki', 'perempuan']),
+            'status_verifikasi' => 'diproses',
+            'no_telepon' => '+62' . fake()->numerify('8##########'),
+            'email' => fake()->unique()->safeEmail(),
+            'password' => Hash::make('password123'),
             'email_verified_at' => now(),
-            'created_at' => now(),
-            'updated_at' => now()
         ];
+    }
+
+    public function verified(): static
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'status_verifikasi' => 'diterima',
+                'email_verified_at' => now(),
+            ];
+        });
     }
 }

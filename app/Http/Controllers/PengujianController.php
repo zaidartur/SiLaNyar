@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\form_pengajuan;
-use App\Models\kategori;
-use App\Models\pegawai;
-use App\Models\pengujian;
+use App\Models\FormPengajuan;
+use App\Models\Kategori;
+use App\Models\Pegawai;
+use App\Models\Pengujian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -15,9 +15,9 @@ class PengujianController extends Controller
     //lihat daftar jadwal pengujian
     public function index()
     {
-        $pengujian = pengujian::with('form_pengajuan', 'pegawai', 'kategori')->get();
+        $pengujian = Pengujian::with('form_pengajuan', 'pegawai', 'kategori')->get();
 
-        return Inertia::render('pengujian/index', [
+        return Inertia::render('pegawai/pengujian/index', [
             'pengujian' => $pengujian
         ]);
     }
@@ -25,11 +25,11 @@ class PengujianController extends Controller
     //form tambah jadwal pengujian
     public function create()
     {
-        $form_pengajuan = form_pengajuan::all();
-        $pegawai = pegawai::all();
-        $kategori = kategori::all();
+        $form_pengajuan = FormPengajuan::all();
+        $pegawai = Pegawai::all();
+        $kategori = Kategori::all();
         
-        return Inertia::render('pengujian/create', [
+        return Inertia::render('pegawai/pengujian/tambah', [
             'form_pengajuan' => $form_pengajuan,
             'pegawai' => $pegawai,
             'kategori' => $kategori
@@ -39,32 +39,34 @@ class PengujianController extends Controller
     //proses tambah jadwal pengujian
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'id_form_pengajuan' => 'required|exists:form_pengajuan,id',
             'id_pegawai' => 'required|exists:pegawai,id',
-            'kategori' => 'required|exists:kategori,id',
+            'id_kategori' => 'required|exists:kategori,id',
             'tanggal_uji' => 'required|date',
             'jam_mulai' => 'required|date_format:H:i',
             'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
-            'status' => 'required|in:diproses,selesai'
+            'status' => 'required|in:diproses,selesai',
         ]);
 
-        $pengujian = pengujian::create($request->all());
+        $pengujian = Pengujian::create($validated);
 
         if ($pengujian)
         {
-            return Redirect::route('pengujian.index')->with('message', 'Jadwal Pengujian Berhasil Dibuat!');
+            return Redirect::route('pegawai.pengujian.index')->with('message', 'Jadwal Pengujian Berhasil Dibuat!');
         }
+
+        return back()->withErrors(['message' => 'Gagal membuat pengujian']);
     }
 
     //form edit jadwal pengujian
-    public function edit(pengujian $pengujian)
+    public function edit(Pengujian $pengujian)
     {
-        $form_pengajuan = form_pengajuan::all();
-        $pegawai = pegawai::all();
-        $kategori = kategori::all();
+        $form_pengajuan = FormPengajuan::all();
+        $pegawai = Pegawai::all();
+        $kategori = Kategori::all();
 
-        return Inertia::render('pengujian/edit', [
+        return Inertia::render('pegawai/pengujian/edit', [
             'pengujian' => $pengujian,
             'form_pengajuan' => $form_pengajuan,
             'pegawai' => $pegawai,
@@ -73,9 +75,16 @@ class PengujianController extends Controller
     }
 
     //proses update daftar pengujian
-    public function update(pengujian $pengujian, Request $request)
+    public function update(Pengujian $pengujian, Request $request)
     {
-        $request->validate([
+        if($pengujian->status === 'selesai')
+        {
+            return Redirect::back()->withErrors([
+                'status' => 'Jadwal Yang Sudah Selesai Tidak Dapat Diubah!'
+            ]);
+        }
+
+        $validated = $request->validate([
             'id_form_pengajuan' => 'required|exists:form_pengajuan,id',
             'id_pegawai' => 'required|exists:pegawai,id',
             'id_kategori' => 'required|exists:kategori,id',
@@ -85,20 +94,20 @@ class PengujianController extends Controller
             'status' => 'required|in:diproses,selesai'
         ]);
         
-        $pengujian = pengujian::update($request->all());
+        $pengujian->update($validated);
 
         if($pengujian)
         {
-            return Redirect::route('pengujian.index')->with('message', 'Pengujian Berhasil Diupdate');
+            return Redirect::route('pegawai.pengujian.index')->with('message', 'Pengujian Berhasil Diupdate');
         }
     }
 
     //lihat detail daftar pengujian
-    public function show(pengujian $pengujian)
+    public function show(Pengujian $pengujian)
     {
         $pengujian->load('form_pengajuan', 'pegawai', 'kategori');
 
-        return Inertia::render('pengujian/show', [
+        return Inertia::render('pegawai/pengujian/detail', [
             'pengujian' => $pengujian
         ]);
     }
@@ -106,13 +115,13 @@ class PengujianController extends Controller
     //proses hapus daftar pengujian
     public function destroy($id)
     {
-        $pengujian = pengujian::findOrFail($id);
+        $pengujian = Pengujian::findOrFail($id);
         
         $pengujian->delete();
 
         if($pengujian)
         {
-            return Redirect::route('pengujian.index')->with('message', 'Jadwal Pengujian Berhasil Dihapus');
+            return Redirect::route('pegawai.pengujian.index')->with('message', 'Jadwal Pengujian Berhasil Dihapus');
         }
     }
 }

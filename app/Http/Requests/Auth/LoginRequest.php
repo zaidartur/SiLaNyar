@@ -41,7 +41,6 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        // Coba login dengan guard 'customer'
         if (! Auth::guard('customer')->attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
@@ -50,22 +49,17 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        // Ambil user yang sedang login
         $user = Auth::guard('customer')->user();
-
-        // Cek status verifikasi
-        if ($user->status_verifikasi !== 'diterima') {
-            // Logout user jika belum diverifikasi
+        if ($user && $user->status_verifikasi !== 'diterima') {
             Auth::guard('customer')->logout();
-
+            
             throw ValidationException::withMessages([
-                'email' => 'Akun Anda belum diverifikasi.',
+                'email' => 'Akun Anda Belum Diverifikasi Oleh Admin',
             ]);
         }
 
         RateLimiter::clear($this->throttleKey());
     }
-
 
     /**
      * Ensure the login request is not rate limited.
