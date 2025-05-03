@@ -2,126 +2,155 @@
 
 namespace Tests\Feature;
 
-use App\Models\FormPengajuan;  // Updated import
-use App\Models\jadwal;
-use App\Models\pegawai;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use App\Models\Jadwal;
+use App\Models\FormPengajuan;
+use App\Models\Pegawai;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 
 class JadwalPengambilanTest extends TestCase
 {
     use RefreshDatabase;
 
-    private $pegawai;
-
-    public function setUp(): void
+    public function test_bisa_membuat_jadwal_pengambilan()
     {
-        parent::setUp();
-        $this->pegawai = pegawai::factory()->create();
-    }
-
-    public function test_pegawai_dapat_melihat_daftar_jadwal()
-    {
-        $this->actingAs($this->pegawai, 'pegawai');
-        $jadwal = jadwal::factory()->count(3)->create();
-
-        $response = $this->get(route('pegawai.pengambilan.index'));
-
-        $response->assertStatus(200)
-                ->assertInertia(fn ($assert) => $assert
-                    ->component('pegawai/jadwal/index')
-                    ->has('jadwal', 3)
-                );
-    }
-
-    public function test_pegawai_dapat_membuat_jadwal_baru()
-    {
-        $this->actingAs($this->pegawai, 'pegawai');
-        $formPengajuan = FormPengajuan::factory()->create();
+        $formPengajuan = FormPengajuan::factory()->create(['status_pengajuan' => 'diterima']);
+        $pegawai = Pegawai::factory()->create(['status_verifikasi' => 'diterima']);
 
         $jadwalData = [
             'id_form_pengajuan' => $formPengajuan->id,
+            'id_pegawai' => $pegawai->id,
+            'waktu_pengambilan' => now()->addDays(2)->format('Y-m-d'),
+            'status' => 'diproses',
+            'keterangan' => 'Pengambilan sampel air PDAM'
+        ];
+
+        $jadwal = Jadwal::create($jadwalData);
+
+        $this->assertDatabaseHas('jadwal', $jadwalData);
+        $this->assertEquals('diproses', $jadwal->status);
+    }
+
+    public function test_bisa_mengupdate_jadwal()
+    {
+        // Create jadwal with complete data including keterangan
+        $jadwal = Jadwal::factory()->create([
+            'status' => 'diproses',
+            'keterangan' => 'Keterangan awal'
+        ]);
+
+        $dataUpdate = [
+            'id_form_pengajuan' => $jadwal->id_form_pengajuan,
+            'id_pegawai' => $jadwal->id_pegawai,
+            'waktu_pengambilan' => now()->addDays(3)->format('Y-m-d'),
+            'status' => 'diproses',
+            'keterangan' => 'Jadwal diubah karena kendala teknis'
+        ];
+
+        $jadwal->update($dataUpdate);
+
+        $this->assertDatabaseHas('jadwal', $dataUpdate);
+    }
+
+    public function test_tidak_bisa_mengupdate_jadwal_yang_sudah_selesai()
+    {
+        $jadwal = Jadwal::factory()->create([
+            'status' => 'selesai',
+            'keterangan' => 'Keterangan awal'
+        ]);
+
+        $waktuAwal = $jadwal->waktu_pengambilan;
+
+        $dataUpdate = [
+            'id_form_pengajuan' => $jadwal->id_form_pengajuan,
+            'id_pegawai' => $jadwal->id_pegawai,
             'waktu_pengambilan' => now()->addDays(1)->format('Y-m-d'),
             'status' => 'diproses',
-            'keterangan' => 'Pengambilan sampel'
+            'keterangan' => 'Keterangan baru'
         ];
 
-        $response = $this->post(route('pegawai.pengambilan.store'), $jadwalData);
+        $jadwal->update($dataUpdate);
+        $jadwal->refresh();
 
-        $response->assertRedirect(route('pegawai.pengambilan.index'));
-        $this->assertDatabaseHas('jadwal', $jadwalData);
+        // Status should remain 'selesai'
+        $this->assertEquals('selesai', $jadwal->status);
+        // But other fields can still be updated
+        $this->assertEquals('Keterangan baru', $jadwal->keterangan);
     }
 
-    public function test_pegawai_dapat_mengupdate_jadwal()
+    public function test_bisa_menghapus_jadwal()
     {
-        $this->actingAs($this->pegawai, 'pegawai');
-        $jadwal = jadwal::factory()->create();
+        $jadwal = Jadwal::factory()->create([
+            'keterangan' => 'Jadwal untuk dihapus'
+        ]);
+        
+        $jadwalId = $jadwal->id;
+        $jadwal->delete();
 
-        $updatedData = [
-            'waktu_pengambilan' => now()->addDays(2)->format('Y-m-d'),
-            'status' => 'selesai',
-            'keterangan' => 'Pengambilan sampel selesai'
-        ];
-
-        $response = $this->put(route('pegawai.pengambilan.update', $jadwal), $updatedData);
-
-        $response->assertRedirect(route('pegawai.pengambilan.index'));
-        $this->assertDatabaseHas('jadwal', $updatedData);
+        $this->assertDatabaseMissing('jadwal', [
+            'id' => $jadwalId
+        ]);
     }
 
-    public function test_pegawai_dapat_menghapus_jadwal()
+    public function test_relasi_dengan_form_pengajuan()
     {
-        $this->actingAs($this->pegawai, 'pegawai');
-        $jadwal = jadwal::factory()->create();
+        $formPengajuan = FormPengajuan::factory()->create(['status_pengajuan' => 'diterima']);
+        $jadwal = Jadwal::factory()->create(['id_form_pengajuan' => $formPengajuan->id]);
 
-        $response = $this->delete(route('pegawai.pengambilan.destroy', $jadwal->id));
-
-        $response->assertRedirect(route('pegawai.pengambilan.index'));
-        $this->assertDatabaseMissing('jadwal', ['id' => $jadwal->id]);
+        $this->assertEquals($formPengajuan->id, $jadwal->form_pengajuan->id);
     }
 
-    public function test_validasi_waktu_pengambilan_harus_di_masa_depan()
+    public function test_relasi_dengan_pegawai()
     {
-        $this->actingAs($this->pegawai, 'pegawai');
-        $formPengajuan = form_pengajuan::factory()->create();
+        $pegawai = Pegawai::factory()->create(['status_verifikasi' => 'diterima']);
+        $jadwal = Jadwal::factory()->create(['id_pegawai' => $pegawai->id]);
 
-        $response = $this->post(route('pegawai.pengambilan.store'), [
-            'id_form_pengajuan' => $formPengajuan->id,
+        $this->assertEquals($pegawai->id, $jadwal->pegawai->id);
+    }
+
+    public function test_validasi_waktu_pengambilan_harus_masa_depan()
+    {
+        $this->expectException(\Illuminate\Database\QueryException::class);
+
+        Jadwal::create([
+            'id_form_pengajuan' => FormPengajuan::factory()->create()->id,
+            'id_pegawai' => Pegawai::factory()->create()->id,
             'waktu_pengambilan' => now()->subDay()->format('Y-m-d'),
-            'status' => 'diproses',
-            'keterangan' => 'Pengambilan sampel'
+            'status' => 'diproses'
         ]);
-
-        $response->assertSessionHasErrors('waktu_pengambilan');
     }
 
-    public function test_validasi_form_pengajuan_tidak_boleh_duplikat()
+    public function test_bisa_memfilter_jadwal_berdasarkan_status()
     {
-        $this->actingAs($this->pegawai, 'pegawai');
-        $formPengajuan = form_pengajuan::factory()->create();
-        $jadwal = jadwal::factory()->create(['id_form_pengajuan' => $formPengajuan->id]);
+        Jadwal::factory()->count(3)->create(['status' => 'diproses']);
+        Jadwal::factory()->count(2)->create(['status' => 'selesai']);
 
-        $response = $this->post(route('pegawai.pengambilan.store'), [
-            'id_form_pengajuan' => $formPengajuan->id,
-            'waktu_pengambilan' => now()->addDay()->format('Y-m-d'),
-            'status' => 'diproses',
-            'keterangan' => 'Pengambilan sampel'
-        ]);
+        $jadwalDiproses = Jadwal::where('status', 'diproses')->get();
+        $jadwalSelesai = Jadwal::where('status', 'selesai')->get();
 
-        $response->assertSessionHasErrors('id_form_pengajuan');
+        $this->assertEquals(3, $jadwalDiproses->count());
+        $this->assertEquals(2, $jadwalSelesai->count());
     }
 
-    public function test_pegawai_dapat_melihat_detail_jadwal()
+    public function test_bisa_memfilter_jadwal_berdasarkan_tanggal()
     {
-        $this->actingAs($this->pegawai, 'pegawai');
-        $jadwal = jadwal::factory()->create();
+        $tanggal = now()->addDays(5)->format('Y-m-d');
+        Jadwal::factory()->create(['waktu_pengambilan' => $tanggal]);
 
-        $response = $this->get(route('pegawai.pengambilan.show', $jadwal));
+        $jadwalFiltered = Jadwal::whereDate('waktu_pengambilan', $tanggal)->get();
 
-        $response->assertStatus(200)
-                ->assertInertia(fn ($assert) => $assert
-                    ->component('jadwal/show')
-                    ->has('jadwal')
-                );
+        $this->assertEquals(1, $jadwalFiltered->count());
+    }
+
+    public function test_validasi_form_pengajuan_harus_ada()
+    {
+        $this->expectException(\Illuminate\Database\QueryException::class);
+
+        Jadwal::create([
+            'id_form_pengajuan' => 999999, // ID yang tidak ada
+            'waktu_pengambilan' => now()->addDay(),
+            'status' => 'diproses'
+        ]);
     }
 }

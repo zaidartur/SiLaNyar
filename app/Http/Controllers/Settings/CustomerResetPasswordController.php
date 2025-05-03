@@ -24,26 +24,26 @@ class CustomerResetPasswordController extends Controller
     {
         $request->validate([
             'identitas' => 'required',
-            'via' => 'required|in:email,notelp'
+            'via' => 'required|in:email,whatsapp'
         ]);
 
         $customer = Customer::where('email', $request->identitas)
                             ->orWhere('kontak_pribadi', $request->identitas)
                             ->orWhere('kontak_instansi', $request->identitas)
-                            ->first();
+                            ->firstOrFail();
 
-        $otp = rand(100000, 999999);
+        $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
         PasswordOtp::create([
             'identitas' => $request->identitas,
             'via' => $request->via,
             'otp' => $otp,
-            'expired' => now()->addMinutes(5),
+            'expired_at' => now()->addMinutes(5),
         ]);
 
-        if($request->via == 'email')
-        {
-            Mail::to($request->identitas)->send(new SendOtpMail($otp, $customer->nama));
+        if ($request->via === 'email') {
+            Mail::to($request->identitas)
+                ->send(new SendOtpMail($otp, $customer->nama));
         } else {
             $message = urlencode("*DLH Kabupaten Karanganyar*\n*$otp* adalah kode lupa password Anda. Demi keamanan, jangan bagikan kode ini kesiapapun.\n`Kode ini kedaluarsa dalam 5 menit`");
             $phone = $request->identitas;
@@ -56,10 +56,11 @@ class CustomerResetPasswordController extends Controller
             }
         }
 
-        return Redirect::route('customer.password.reset')->with([
-            'identitas' => $request->identitas,
-            'via' => $request->via
-        ]);
+        return redirect()->route('customer.password.reset')
+            ->with([
+                'identitas' => $request->identitas,
+                'via' => $request->via
+            ]);
     }
 
     public function lihatOtpForm()

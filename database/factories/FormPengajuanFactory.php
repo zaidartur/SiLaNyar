@@ -2,13 +2,13 @@
 
 namespace Database\Factories;
 
-use App\Models\customer;
-use App\Models\kategori;
-use App\Models\jenis_cairan;
+use App\Models\Customer;
+use App\Models\Kategori;
+use App\Models\JenisCairan;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\form_pengajuan>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\FormPengajuan>
  */
 class FormPengajuanFactory extends Factory
 {
@@ -19,18 +19,16 @@ class FormPengajuanFactory extends Factory
      */
     public function definition(): array
     {
+        $metode = $this->faker->randomElement(['diantar', 'diambil']);
+        
         return [
-            'id_customer' => customer::factory(),
-            'id_kategori' => kategori::factory(),
-            'id_jenis_cairan' => jenis_cairan::factory(),
-            'volume_sampel' => fake()->randomFloat(2, 0.1, 100),
-            'status_pengajuan' => fake()->randomElement(['proses_validasi', 'diterima', 'ditolak']),
-            'metode_pengambilan' => fake()->randomElement(['diantar', 'diambil']),
-            'lokasi' => fake()->when(
-                fn ($attrs) => $attrs['metode_pengambilan'] === 'diambil',
-                fn () => fake()->address(),
-                fn () => null
-            ),
+            'id_customer' => Customer::factory(),
+            'id_kategori' => Kategori::factory(),
+            'id_jenis_cairan' => JenisCairan::factory(),
+            'volume_sampel' => $this->faker->randomFloat(2, 0.1, 100),
+            'status_pengajuan' => $this->faker->randomElement(['proses_validasi', 'diterima', 'ditolak']),
+            'metode_pengambilan' => $metode,
+            'lokasi' => $metode === 'diambil' ? $this->faker->address() : null,
         ];
     }
 

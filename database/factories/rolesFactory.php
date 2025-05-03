@@ -5,7 +5,7 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\roles>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Roles>
  */
 class RolesFactory extends Factory
 {
@@ -17,49 +17,35 @@ class RolesFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->unique()->words(2, true),
-            'guard_name' => 'pegawai',
+            'name' => fake()->unique()->randomElement([
+                'Admin Lab',
+                'Kepala Lab',
+                'Manajer Teknis',
+                'Analis Senior',
+                'Analis Junior',
+                'Staff Admin',
+                'Petugas Sampling',
+                'Quality Control'
+            ]),
+            'guard_name' => 'pegawai'
         ];
     }
 
     /**
-     * Configure the factory for common admin roles.
+     * Configure the factory with basic permissions.
      */
-    public function admin(): static
+    public function withBasicPermissions(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'name' => fake()->randomElement([
-                'super admin',
-                'admin',
-                'manager',
-                'supervisor'
-            ]),
-        ]);
-    }
-
-    /**
-     * Configure the factory for staff roles.
-     */
-    public function staff(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'name' => fake()->randomElement([
-                'analis',
-                'teknisi',
-                'operator',
-                'staff lab'
-            ]),
-        ]);
-    }
-
-    /**
-     * Configure the factory with permissions.
-     */
-    public function withPermissions(array $permissions = null): static
-    {
-        return $this->afterCreating(function ($role) use ($permissions) {
-            $permissions = $permissions ?? \App\Models\permissions::factory()->count(3)->create();
-            $role->syncPermissions($permissions);
+        return $this->afterCreating(function ($role) {
+            // Get or create basic permissions based on role name
+            $basicPermissions = collect([
+                'lihat-pengujian',
+                'lihat-hasil_uji',
+                'lihat-pengajuan',
+                'detail-pengajuan'
+            ]);
+            
+            $role->syncPermissions($basicPermissions);
         });
     }
 }

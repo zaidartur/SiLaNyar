@@ -31,13 +31,10 @@ Route::prefix('pegawai')->middleware('guest:pegawai')->group(function()
 Route::prefix('pegawai')->middleware('auth:pegawai', 'check.verified.pegawai')->group(function()
 {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('pegawai.dashboard');
-
     Route::get('profile/show', [PegawaiProfileController::class, 'show'])->name('pegawai.profile');
     Route::get('profile/edit', [PegawaiProfileController::class, 'edit']);
     Route::put('profile/update', [PegawaiProfileController::class, 'update']);
-
-    Route::delete('profile/destroy', [PegawaiProfileController::class, 'destroy']);
-
+    Route::delete('profile/destroy', [PegawaiProfileController::class, 'destroy'])->name('pegawai.profile.destroy');
     Route::post('logout', [PegawaiAuthenticatedSessionController::class, 'destroy'])->name('pegawai.logout');    
 });
 
@@ -63,9 +60,7 @@ Route::prefix('customer')->middleware(['auth:customer', 'check.verified.customer
     Route::get('profile/show', [CustomerProfileController::class, 'show'])->name('customer.profile');
     Route::get('profile/edit', [CustomerProfileController::class, 'edit']);
     Route::put('profile/update', [CustomerProfileController::class, 'update']);
-    
-    Route::delete('profile/destroy', [CustomerProfileController::class, 'destroy']);
-
+    Route::delete('profile/destroy', [CustomerProfileController::class, 'destroy'])->name('customer.profile.destroy');
     Route::post('logout', [CustomerAuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
 

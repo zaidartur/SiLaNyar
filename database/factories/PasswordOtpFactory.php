@@ -17,43 +17,15 @@ class PasswordOtpFactory extends Factory
      */
     public function definition(): array
     {
+        $isEmail = fake()->boolean();
+        
         return [
-            'identitas' => fake()->unique()->email(),
-            'otp' => fake()->numerify('######'), // 6-digit OTP
-            'via' => fake()->randomElement(['email', 'whatsapp']),
-            'expired_at' => Carbon::now()->addMinutes(15), // Default 15 minutes expiry
+            'identitas' => $isEmail 
+                ? fake()->safeEmail() 
+                : '+62' . fake()->numerify('8##########'),
+            'otp' => str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT),
+            'via' => $isEmail ? 'email' : 'whatsapp',
+            'expired_at' => Carbon::now()->addMinutes(15),
         ];
-    }
-
-    /**
-     * Configure the factory for email OTP.
-     */
-    public function viaEmail(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'via' => 'email',
-            'identitas' => fake()->unique()->safeEmail(),
-        ]);
-    }
-
-    /**
-     * Configure the factory for WhatsApp OTP.
-     */
-    public function viaWhatsapp(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'via' => 'whatsapp',
-            'identitas' => fake()->unique()->phoneNumber(),
-        ]);
-    }
-
-    /**
-     * Configure the factory for expired OTP.
-     */
-    public function expired(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'expired_at' => Carbon::now()->subMinutes(fake()->numberBetween(1, 60)),
-        ]);
     }
 }

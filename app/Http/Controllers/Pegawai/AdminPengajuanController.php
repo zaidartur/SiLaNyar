@@ -51,15 +51,15 @@ class AdminPengajuanController extends Controller
             ]);
     
             $pengajuan = FormPengajuan::findOrFail($id);
-    
             $pengajuan->status_pengajuan = $request->status_pengajuan;
     
-            if($request->status_pengajuan == 'diterima')
-            {
-                $pengajuan->tanggal_terima == now();
+            if ($request->status_pengajuan == 'diterima') {
+                // Generate ID Order
+                $idOrder = 'LAB-' . date('Ymd') . '-' . str_pad(mt_rand(1, 9999), 4, '0', STR_PAD_LEFT);
     
                 Pembayaran::create([
-                    'id' => $pengajuan->id,
+                    'id_order' => $idOrder,
+                    'id_form_pengajuan' => $pengajuan->id,
                     'total_biaya' => $pengajuan->kategori->harga,
                     'status_pembayaran' => 'belum_dibayar'
                 ]);
@@ -67,6 +67,7 @@ class AdminPengajuanController extends Controller
     
             $pengajuan->save();
     
-            return Redirect::route('pegawai.pengajuan.index')->with('message', 'Pengajuan Telah Diterima!');
+            return redirect()->route('pegawai.pengajuan.index')
+                ->with('message', 'Pengajuan Telah ' . ucfirst($request->status_pengajuan) . '!');
         }
 }

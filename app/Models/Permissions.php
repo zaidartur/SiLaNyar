@@ -14,6 +14,7 @@ class Permissions extends SpatiePermission
     protected $guard_name = 'pegawai';
 
     protected $fillable = [
-        'name'
+        'name',
+        'guard_name'  // Tambahkan guard_name ke fillable (ini biar guad_name bisa diisi di set up test, soalnya kalau nggak nanti harus setting default guad_name di migrations)
     ];
 }
