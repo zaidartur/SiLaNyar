@@ -1,28 +1,15 @@
 <script setup lang="ts">
 import AdminSidebar from '@/components/admin/Sidebar.vue'
 import AdminHeader from '@/components/admin/Header.vue'
-import { useForm } from '@inertiajs/vue3'
 
-const form = useForm({})
-
-const handleLogout = () => {
-    form.post(route('admin.logout'))
-}
 </script>
 
 <template>
-    <div class="min-h-screen bg-gray-100">
-        <!-- Admin Sidebar -->
+    <div class="flex h-screen">
         <AdminSidebar />
-
-
-        <div class="lg:ml-64">
-            <!-- Admin Header -->
-            <AdminHeader @logout="handleLogout" />
-
-
-            <!-- Main Content -->
-            <main class="p-8">
+        <div class="flex-1 flex flex-col bg-gray-100">
+            <AdminHeader />
+            <main class="flex-1 overflow-y-auto p-4">
                 <slot />
             </main>
         </div>
