@@ -45,8 +45,9 @@ class RegisteredUserController extends Controller
             'status_verifikasi' => 'diproses',
         ]);
 
-        $pegawai->assignRole($request->role);
-
+        $role = Roles::findOrFail($request->role);
+        $pegawai->assignRole($role);
+        
         event(new Registered($pegawai));
         
         return Redirect::back()->with('message', 'Akun Berhasil Terdaftar. Harap Tunggu Verifikasi Super Admin!');
