@@ -51,7 +51,7 @@ Route::prefix('customer/sso')->group(function()
 
 Route::middleware('guest:customer')->group(function()
 {
-    Route::get('registrasi', [CustomerRegisteredUserController::class, 'create'])->name('customer.registrasi');
+    Route::get('registrasi', [CustomerRegisteredUserController::class, 'create'])->name('customer.register');
     Route::post('registrasi', [CustomerRegisteredUserController::class, 'store']);
     
     Route::get('login', [CustomerAuthenticatedSessionController::class, 'create'])->name('customer.login');

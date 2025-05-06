@@ -67,8 +67,7 @@ class DashboardController extends Controller
                 ]
             ];
         }
-
-        return Inertia::render('dashboard/Customer', [
+        return Inertia::render('Dashboard', [
             'statistik' => [
                 'proses' => $proses,
                 'ditolak' => $ditolak,
