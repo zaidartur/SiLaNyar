@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
 class CustomerProfileController extends Controller
-{   
+{
     public function show()
     {
         return Inertia::render('customer/profile/show', [

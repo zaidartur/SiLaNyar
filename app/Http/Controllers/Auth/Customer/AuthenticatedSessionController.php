@@ -13,7 +13,7 @@ class AuthenticatedSessionController extends Controller
 {
     public function create()
     {
-        return Inertia::render('customer/login');
+        return Inertia::render('auth/Login');
     }
 
     public function store(LoginRequest $request)
