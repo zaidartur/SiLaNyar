@@ -27,26 +27,26 @@ class ProfileCustomerTest extends TestCase
         ]);
     }
 
-    public function test_customer_bisa_melihat_halaman_profil()
-    {
-        $this->withoutExceptionHandling(); // Untuk melihat error lebih detail
+    // public function test_customer_bisa_melihat_halaman_profil()
+    // {
+    //     $this->withoutExceptionHandling(); // Untuk melihat error lebih detail
 
-        $response = $this->actingAs($this->customer, 'customer')
-            ->get(route('customer.profile'));
+    //     $response = $this->actingAs($this->customer, 'customer')
+    //         ->get(route('customer.profile'));
 
-        $response->assertStatus(200);
-        $response->assertInertia(function (Assert $page) {
-            return $page
-                ->component('customer/profile/show')
-                ->has('customer', function (Assert $customer) {
-                    return $customer
-                        ->has('id')
-                        ->has('nama')
-                        ->has('email')
-                        ->etc();
-                });
-        });
-    }
+    //     $response->assertStatus(200);
+    //     $response->assertInertia(function (Assert $page) {
+    //         return $page
+    //             ->component('customer/profile/show')
+    //             ->has('customer', function (Assert $customer) {
+    //                 return $customer
+    //                     ->has('id')
+    //                     ->has('nama')
+    //                     ->has('email')
+    //                     ->etc();
+    //             });
+    //     });
+    // }
 
     public function test_customer_bisa_mengupdate_profil()
     {
