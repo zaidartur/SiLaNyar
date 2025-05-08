@@ -35,7 +35,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.4
+          php-version: '8.4'
           tools: composer:v2
           coverage: xdebug
 
@@ -51,6 +51,9 @@ jobs:
       - name: Install PHP dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
+      - name: Composer dump-autoload
+        run: composer dump-autoload
+
       - name: Setup environment
         run: |
           cp .env.testing .env
@@ -58,7 +61,9 @@ jobs:
           php artisan key:generate
 
       - name: Run migrations
-        run: php artisan migrate --force
+        run: |
+          php artisan migrate:fresh --force
+          php artisan db:seed --force
 
       - name: Generate Ziggy routes
         run: php artisan ziggy:generate
