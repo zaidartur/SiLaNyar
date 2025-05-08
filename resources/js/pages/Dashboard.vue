@@ -11,10 +11,6 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-// Add data for the new content
-const bulletIcon = "https://cdn.builder.io/api/v1/image/assets/TEMP/fff689dc8350fb828f397d0c5ecf83aeccfb0cc6?placeholderIfAbsent=true&apiKey=6e80c266b96f4327b2d8569c33619dcf";
-const rejectedBulletIcon = "https://cdn.builder.io/api/v1/image/assets/TEMP/dbead78d1e3d5e23a94657a6b75448b0533e7b59?placeholderIfAbsent=true&apiKey=6e80c266b96f4327b2d8569c33619dcf";
-
 const syaratPenerimaan = ref([
     "Volume / jumlah sample minimal 2,5 liter",
     "Volume / jumlah sample lemak 1 liter dengan berbotol kaca gelap dan bermulut lebar",
