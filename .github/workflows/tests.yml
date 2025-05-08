@@ -59,11 +59,25 @@ jobs:
           cp .env.testing .env
           php artisan config:clear
           php artisan key:generate
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: silanyar
+          DB_USERNAME: root
+          DB_PASSWORD: root
 
       - name: Run migrations
         run: |
           php artisan migrate:fresh --force
           php artisan db:seed --force
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: silanyar
+          DB_USERNAME: root
+          DB_PASSWORD: root
 
       - name: Generate Ziggy routes
         run: php artisan ziggy:generate
