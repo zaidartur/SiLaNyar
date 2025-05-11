@@ -31,7 +31,6 @@ class ParameterController extends Controller
         $request->validate([
             'nama_parameter'=>'required|string',
             'satuan'=>'required|string',
-            'baku_mutu'=>'required',
             'harga'=>'required|numeric|min:0',
         ]);
 
@@ -57,11 +56,9 @@ class ParameterController extends Controller
         $request->validate([
             'nama_parameter'=>'required|string',
             'satuan'=>'required|string',
-            'baku_mutu'=>'required',
             'harga'=>'required|numeric|min:0',
         ]);
 
-        // Perbaikan: Gunakan instance $parameter yang sudah di-inject
         $parameter->update($request->all());
 
         if($parameter)

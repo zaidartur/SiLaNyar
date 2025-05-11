@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Models\FormPengajuan;
+use App\Models\Jadwal;
 use App\Models\JenisCairan;
 use App\Models\Kategori;
 use App\Models\ParameterUji;
@@ -33,7 +34,7 @@ class PengajuanController extends Controller
     public function daftar()
     {
         $jenis_cairan = JenisCairan::all();
-        $kategori = kategori::all();
+        $kategori = Kategori::all();
         $parameter = ParameterUji::all();
 
         return Inertia::render('customer/pengajuan/Tambah', [
@@ -58,13 +59,19 @@ class PengajuanController extends Controller
                 'max:' . $jenisCairan->batas_maksimum
             ],
             'metode_pengambilan' => 'required|in:diantar,diambil',
-            'lokasi' => 'required_if:metode_pengambilan,diambil|nullable|string|max:255',
+            'lokasi' => 'required_if:metode_pengambilan,diambil|string',
             'parameter' => 'required|array',
-            'parameter.*' => 'exists:parameter_uji,id'
+            'parameter.*' => 'exists:parameter_uji,id',
+            'waktu_pengambilan' => 'required_if:metode_pengambilan,diantar|date|after_or_equal:today',
+            'keterangan' => 'nullable|string|max:255',
         ], [
             'volume_sampel.min' => "Volume Sampel Harus Diantara {$jenisCairan->batas_minimum} atau {$jenisCairan->batas_maksimum} Untuk Jenis Cairan",
             'volume_sampel.max' => "Volume Sampel Harus Diantara {$jenisCairan->batas_minimum} atau {$jenisCairan->batas_maksimum} Untuk Jenis Cairan"
         ]);
+
+        if($validated['metode_pengambilan'] === 'diantar') {
+            $validated['lokasi'] = 'Jl. Lawu No.204, Tegalasri, Bejen, Kec. Karanganyar, Kabupaten Karanganyar, Jawa Tengah 57716 (DLH Kabupaten Karanganyar)';
+        }
 
         $pengajuan = FormPengajuan::create([
             'id_customer' => Auth::guard('customer')->id(),
@@ -74,6 +81,18 @@ class PengajuanController extends Controller
             'metode_pengambilan' => $validated['metode_pengambilan'],
             'lokasi' => $validated['lokasi'],
         ]);
+
+        $pengajuan->parameter()->attach($validated['parameter']);
+
+        if($validated['metode_pengambilan'] === 'diantar')
+        {
+            Jadwal::create([
+                'id_form_pengajuan' => $pengajuan->id,
+                'waktu_pengambilan' => $validated['waktu_pengambilan'],
+                'keterangan' => $validated['keterangan'] ?? null,
+                'status' => 'diproses'
+            ]);
+        }
 
         if ($pengajuan) {
             return redirect()->route('customer.pengajuan.index')

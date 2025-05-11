@@ -16,6 +16,8 @@ return new class extends Migration
            $table->id();
            $table->foreignId('id_parameter')->constrained('parameter_uji')->onDelete('cascade');
            $table->foreignId('id_kategori')->constrained('kategori')->onDelete('cascade');
+           $table->string('baku_mutu');
+           $table->timestamps();
         });
     }
 

@@ -10,198 +10,140 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
-use Midtrans\Config;
-use Midtrans\Snap;
-use App\Mail\PembayaranMasuk;
 use Midtrans\Notification;
 use App\Mail\KonfirmasiPembayaran;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class PembayaranController extends Controller
 {
-    public function __construct()
+    private function hitungTotalBiaya(FormPengajuan $pengajuan)
     {
-        Config::$serverKey = env('MIDTRANS_SERVER_KEY');
-        Config::$clientKey = env('MIDTRANS_CLIENT_KEY');
-        Config::$isProduction = env('MIDTRANS_IS_PRODUCTION');
-    }
+        $kategori = $pengajuan->kategori;
+        $parameterDipilih = $pengajuan->parameter;
+        $parameterKategori = $kategori->parameter;
 
-    //lihat rincian harga pengajuan customer
-    public function showRincian($id)
-    {
-        $pengajuan = FormPengajuan::with(['kategori', 'parameter'])->findOrFail($id);
-
-        $totalParameter = $pengajuan->parameter->sum("harga");
-        $totalKategori = $pengajuan->kategori->harga ?? 0;
-        $totalHarga = $totalKategori + $totalParameter;
-
-        return Inertia::render('customer/pembayaran/Rincian', [
-            'pengajuan' => $pengajuan,
-            'kategori' => $pengajuan->kategori,
-            'parameter' => $pengajuan->parameter,
-            'totalKategori' => $totalKategori,
-            'totalParameter' => $totalParameter,
-            'totalHarga' => $totalHarga,
-        ]);
-    }
-
-    //proses pembayaran
-    public function bayarFake(Request $request, $id)
-    {
-        $pengajuan = FormPengajuan::findOrFail($id);
-
-        $totalParameter = $pengajuan->parameter->sum("harga");
-        $totalKategori = $pengajuan->kategori->harga ?? 0;
-        $totalHarga = $totalKategori + $totalParameter;
-
-        $midtrans = $this->createMidtransTransaction($pengajuan, $totalHarga);
-
-        $pembayaran = Pembayaran::create([
-            'id_order' => $midtrans,
-            'id_form_pengajuan' => $id,
-            'total_biaya' => $totalHarga,
-            'tanggal_pembayaran' => now(),
-            'metode_pembayaran' => $midtrans['payment_type'],
-            'status_pembayaran' => 'belum_dibayar',
-        ]);
-
-        return Redirect::route('customer.pembayaran.status', ['id' => $pembayaran->id]);
-    }
-
-    //cek status pembayaran
-    public function status($id)
-    {
-        $pembayaran = Pembayaran::findOrFail($id);
-
-        $StatusMidtrans = $this->checkMidtransTransaction($pembayaran->id_order);
-
-        $pembayaran->status_pembayaran = $StatusMidtrans['status'];
-        $pembayaran->save();
-
-        if ($StatusMidtrans['status'] === 'selesai') {
-            Mail::to(Auth::guard('customer')->user()->email)->send(new PembayaranMasuk($pembayaran));
+        if ($parameterDipilih->count() == $parameterKategori->count() && $parameterDipilih->pluck('id')->diff($parameterKategori->pluck('id')->isEmpty())) {
+            return $kategori->harga;
+        } else {
+            return $parameterDipilih->sum('harga');
         }
+    }
 
-        return Inertia::render('customer/pembayaran/Status', [
-            'pembayaran' => $pembayaran,
-            'status' => $StatusMidtrans['status'],
+    public function index()
+    {
+        $customer = Auth::guard('customer')->user();
+        
+        $pengajuan = FormPengajuan::with(['kategori', 'parameter'])->get();
+
+        $totalBiaya = $this->hitungTotalBiaya($pengajuan->id);
+
+        return Inertia::render('customer/pembayaran/Index', [
+            'pengajuan' => $pengajuan,
+            'totalBiaya' => $totalBiaya,
+            'detailPembayaran' => [
+                'kategori' => $pengajuan->kategori,
+                'parameter' => $pengajuan->parameter,
+            ]
         ]);
     }
 
-    public function bayar(Request $request)
+    public function show($id)
     {
-        $pengajuan = FormPengajuan::with(['kategori', 'parameter'])->findOrFail($request->id);
-
-        $totalParameter = $pengajuan->parameter->sum("harga");
-        $totalKategori = $pengajuan->kategori->harga ?? 0;
-        $totalHarga = $totalKategori + $totalParameter;
-
-        Config::$serverKey = config('midtrans.server_key');
-        Config::$isProduction = config('midtrans.is_production');
-        Config::$isSanitized = config('midtrans.sanitized');
-        Config::$is3ds = config('midtrans.3ds');
-
         $customer = Auth::guard('customer')->user();
 
-        $id_order = 'ORDER-' . time();
-        $parameter = [
-            'transaction_details' => [
-                'order_id' => $id_order,
-                'gross_amount' => $totalHarga,
-            ],
-            'customer_details' => [
-                'nama' => $customer->nama,
-                'email' => $customer->email,
-            ],
-        ];
+        $pengajuan = FormPengajuan::with(['kategori', 'parameter'])->findOrFail($id);
 
-        try {
-            $snapToken = Snap::getSnapToken($parameter);
-            return response()->json([
-                'snap_token' => $snapToken,
-                'order_id' => $id_order,
-                'gross_amount' => $totalHarga
-            ]);
-        } catch (\Exception $err) {
-            Log::error('Tidak Bisa Mendapatkan Token', ['error' => $err->getMessage(), 'order_id' => $parameter['transaction_details'['order_id']]]);
+        $totalBiaya = $this->hitungTotalBiaya($pengajuan);
 
-            return Redirect::back()->withErrors([
-                'Terjadi Kesalahan Saat Membuat Transaksi:'.$err->getMessage()
-            ]);
-        }
-    }
+        $metode_pembayaran = ['transfer'];
 
-    public function callback(Request $request)
-    {
-        $notif =  new Notification();
-        $id_order = $notif->order_id;
-        $status_code = $notif->status_code;
-        $status_pembayaran = $notif->transaction_status;
-        $pembayaran = Pembayaran::with('form_pengajuan.customer')->where('id_order', $id_order)->first();
-
-        if (!$pembayaran) {
-            return response()->json(['message' => 'Order tidak ditemukan'], 404);
+        if ($pengajuan->metode_pengantaran === 'diantar') {
+            $metode_pembayaran[] = 'tunai';
         }
 
-        if ($status_pembayaran == 'capture' || $status_pembayaran == 'settlement') {
-            $pembayaran->status_pembayaran = 'selesai';
-        } elseif ($status_pembayaran == 'pending') {
-            $pembayaran->status_pembayaran = 'menunggu_konfirmasi';
-        } elseif ($status_pembayaran == 'deny' || $status_pembayaran == 'expire') {
-            $pembayaran->status_pembayaran = 'gagal';
-        }
-
-        Mail::to($pembayaran->form_pengajuan->customer->email)->send(new KonfirmasiPembayaran($pembayaran));
-
-        $pembayaran->save();
-
-        return response()->json([
-            'message' => 'Notifikasi Masuk'
+        return Inertia::render('customer/pembayaran/Show', [
+            'pengajuan' => $pengajuan,
+            'totalBiaya' => $totalBiaya,
+            'metodePembayaran' => $metode_pembayaran,
+            'detailPembayaran' => [
+                'kategori' => $pengajuan->kategori,
+                'parameter' => $pengajuan->parameter
+            ]
         ]);
     }
 
-    private function createMidtransTransaction($pengajuan, $totalHarga)
+    public function upload($id)
     {
-        $order = 'order_' . time();
+        $customer = Auth::guard('customer')->user();
 
-        $transaction_details = [
-            'id_order' => $order,
-            'total_biaya' => $totalHarga,
-        ];
+        $pengajuan = FormPengajuan::with(['pembayaran', 'kategori', 'parameter'])->findOrFail($id);
 
-        $item_details = [
-            [
-                'id' => $pengajuan->id,
-                'total_biaya' => $totalHarga,
-                'quantity' => 1,
-                'name' => 'Pembayaran Pengajuan #' . $pengajuan->id,
-            ]
-        ];
+        if (!$pengajuan->pembayaran || $pengajuan->pembayaran->status !== 'transfer') {
+            return Redirect::back();
+        }
 
-        $customer_details =
-            [
-                'nama' => Auth::guard('customer')->user()->nama,
-                'email' => Auth::guard('customer')->user()->email,
-                'kontak' => Auth::guard('customer')->user()->kontak_pribadi,
-            ];
-
-        $transaction_details =
-            [
-                'transaksi_detail' => $transaction_details,
-                'item_detail' => $item_details,
-                'customer_detail' => $customer_details,
-            ];
-
-        $snap = new Snap();
-        $response = $snap->createTransaction($transaction_details);
-
-        return $response;
+        return Inertia::render('customer/pembayaran/Upload', [
+            'pengajuan' => $pengajuan,
+            'pembayaran' => $pengajuan->pembayaran
+        ]);
     }
 
-    private function checkMidtransTransaction($order)
+    public function process($id, Request $request)
     {
-        return [
-            'status' => 'selesai'
+        $pengajuan = FormPengajuan::findOrFail($id);
+        
+        if ($pengajuan->status === 'diproses') {
+            return Redirect::back()->withErrors([
+                'status' => 'Harap Menunggu Verifikasi Administrasi Pengajuan Selesai Sebelum Melakukan Pembayaran'
+            ]);
+        }
+
+        $validated = $request->validate([
+            'metode_pembayaran' => 'required|in:tunai,transfer',
+            'bukti_pembayaran' => 'required_if:metode_pembayaran,transfer|images|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        if ($validated['metode_pembayaran'] === 'transfer' && $pengajuan->metode_pengantaran !== 'diantar') {
+            return Redirect::back()->withErrors([
+                'metode_pembayaran' => 'Metode Pembayaran Tunai Hanya Tersedia Untuk Metode Pengantaran Diantar'
+            ]);
+        }
+
+        $totalBiaya = $this->hitungTotalBiaya($pengajuan);
+
+        $idOrder = $pengajuan->pembayaran->id_order ?? 'INV-'.strtoupper(Str::random(10));
+
+        $data = [
+            'id_order' => $idOrder,
+            'metode_pembayaran' => $validated['metode_pembayaran'],
+            'total_biaya' => $totalBiaya,
+            'status_pembayaran' => 'diproses',
+            'tanggal_pembayaran' => now()
         ];
+
+        if ($validated['metode_pembayaran'] === 'transfer' || $request->hasFile('bukti_pembayaran')) {
+            $buktiPath = $request->file('bukti_pembayaran')->store('bukti_pembayaran', 'public');
+            $data['bukti_pembayaran'] = $buktiPath;
+        }
+
+        $pembayaran = Pembayaran::updateOrCreate([
+            ['id_form_pengajuan' => $pengajuan],
+            $data
+        ]);
+
+        return Redirect::route('customer.pembayaran.sukses')->with('message', 'Pembayaran Berhasil.');
+    }
+
+    public function success($id)
+    {
+        $customer = Auth::guard('customer')->user();
+        
+        $pengajuan = FormPengajuan::with(['pembayaran'])->findOrFail($id);       
+
+        return Inertia::render('customer/pembayaran/Sukses', [
+            'pengajuan' => $pengajuan,
+            'pembayaran' => $pengajuan->pembayaran
+        ]);
     }
 }

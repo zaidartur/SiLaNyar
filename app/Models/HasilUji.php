@@ -29,4 +29,9 @@ class HasilUji extends Model
     {
         return $this->belongsTo(Pengujian::class, 'id_pengujian');
     }
+
+    public function riwayat()
+    {
+        return $this->hasMany(HasilUjiHistori::class);    
+    }
 }

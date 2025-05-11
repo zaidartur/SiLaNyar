@@ -26,38 +26,20 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'nama' => 'required|string|max:255',
-            'jenis_user' => 'required|in:instansi,perorangan',
-            'alamat_pribadi' => 'nullable|string|max:255',
-            'kontak_pribadi' => 'required|string|regex:/^\+[0-9]+$/',
-            'nama_instansi' => 'nullable|string|max:255',
-            'tipe_instansi' => 'nullable|in:swasta,pemerintahan',
-            'alamat_instansi' => 'nullable|string|max:255',
-            'kontak_instansi' => 'nullable|string|regex:/^\+[0-9]+$/',
+            'nik' => 'required|string|max:16',
+            'jabatan' => 'required|string|max:255',
+            'no_telepon' => 'required|string|regex:/^\+[0-9]+$/',
             'email' => 'required|string|lowercase|email|max:255|unique:' . Customer::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        if ($request->jenis_user === 'instansi') {
-            $request->validate([
-                'nama_instansi' => 'required|string|max:255',
-                'tipe_instansi' => 'required|in:swasta,pemerintahan',
-                'alamat_instansi' => 'required|string|max:255',
-                'kontak_instansi' => 'required|string|regex:/^\+[0-9]+$/',
-            ]);
-        }
-
         $customer = Customer::create([
             'nama' => $request->nama,
-            'jenis_user' => $request->jenis_user,
-            'alamat_pribadi' => $request->alamat_pribadi,
-            'kontak_pribadi' => $request->kontak_pribadi,
-            'nama_instansi' => $request->nama_instansi,
-            'tipe_instansi' => $request->tipe_instansi,
-            'alamat_instansi' => $request->alamat_instansi,
-            'kontak_instansi' => $request->kontak_instansi,
+            'nik' => $request->nik,
+            'jabatan' => $request->jabatan,
+            'no_telepon' => $request->no_telepon,
             'email' => $request->email,
             'password' => bcrypt($request->password),
-            'status_verifikasi' => 'diproses',
         ]);
 
         event(new Registered($customer));

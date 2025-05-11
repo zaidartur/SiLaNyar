@@ -18,7 +18,9 @@ class Kategori extends Model
 
     public function parameter()
     {
-        return $this->belongsToMany(ParameterUji::class, 'parameter_kategori', 'id_kategori', 'id_parameter');
+        return $this->belongsToMany(ParameterUji::class, 'parameter_kategori', 'id_kategori', 'id_parameter')
+                    ->withPivot('baku_mutu')
+                    ->withTimestamps();
     }
 
     public function form_pengajuan()

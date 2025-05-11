@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('nama_parameter');
             $table->string('satuan');
-            $table->float('baku_mutu');
             $table->integer('harga');
             $table->timestamps();
         });

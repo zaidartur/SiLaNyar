@@ -14,7 +14,10 @@ class KategoriController extends Controller
     //lihat daftar kategori
     public function index()
     {
-        $kategori = Kategori::with('parameter')->get();
+        $kategori = Kategori::load(['parameter' => function ($baku_mutu) 
+        {
+            $baku_mutu->withPivot('baku_mutu');
+        }])->get();
         
         return Inertia::render('pegawai/kategori/Index', [
             'kategori' => $kategori,
@@ -37,25 +40,33 @@ class KategoriController extends Controller
         $request->validate([
             'nama' => 'required|string|unique:kategori,nama',
             'harga' => 'required|numeric|min:0',
-            'parameter_ids' => 'required|array',
-            'parameter_ids.*' => 'exists:parameter_uji,id'
+            'parameter' => 'required|array',
+            'parameter.*.id' => 'required|exists:parameter_uji,id',
+            'parameter.*.baku_mutu' => 'required|string|max:255',
         ]);
 
         $kategori = Kategori::create($request->only([
             'nama',
-            'harga'
+            'harga',
         ]));
 
-        if ($request->parameter_ids) {
-            $kategori->parameter()->attach($request->parameter_ids);
+        $syncData = [];
+        foreach ($request->parameter as $param) {
+            $syncData[$param['id']] = ['baku_mutu' => $param['baku_mutu']];
         }
+
+        $kategori->parameter()->attach($syncData);
         
         return Redirect::route('pegawai.kategori.index')->with('message', 'Kategori Berhasil Ditambahkan!');
     }
 
     //form edit kategori
     public function edit(Kategori $kategori)
-    {
+    {   
+        $kategori->load(['parameter' => function ($baku_mutu) {
+            $baku_mutu->withPivot('baku_mutu');
+        }]);
+
         $parameter = ParameterUji::all();
         
         return Inertia::render('pegawai/kategori/Edit', [
@@ -70,7 +81,9 @@ class KategoriController extends Controller
         $request->validate([
             'nama' => 'required|string',
             'harga' => 'required|numeric|min:0',
-            'parameter_ids' => 'required|array'
+            'parameter' => 'required|array',
+            'parameter.*.id' => 'required|exists:parameter_uji,id',
+            'parameter.*.baku_mutu' => 'required|string|max:255'
         ]);
 
         $kategori->update($request->only([
@@ -78,7 +91,12 @@ class KategoriController extends Controller
             'harga'
         ]));
 
-        $kategori->parameter()->sync($request->parameter_ids);
+        $syncData = [];
+        foreach ($request->parameter as $param) {
+            $syncData[$param['id']] = ['baku_mutu' => $param['baku_mutu']];
+        }
+        
+        $kategori->parameter()->sync($syncData);
 
         return Redirect::route('pegawai.kategori.index')->with('message', 'Kategori Berhasil Diupdate!');
     }

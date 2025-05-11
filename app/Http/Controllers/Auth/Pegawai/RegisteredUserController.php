@@ -42,7 +42,6 @@ class RegisteredUserController extends Controller
             'jabatan' => $request->jabatan,
             'jenis_kelamin' => $request->jenis_kelamin,
             'no_telepon' => $request->no_telepon,
-            'status_verifikasi' => 'diproses',
         ]);
 
         $role = Roles::findOrFail($request->role);

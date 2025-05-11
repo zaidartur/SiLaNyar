@@ -15,12 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('id_order')->unique();
             $table->foreignId('id_form_pengajuan')->constrained('form_pengajuan')->onDelete('cascade');
-            $table->unsignedInteger('total_biaya'); // Ubah menjadi unsignedInteger
+            $table->unsignedInteger('total_biaya');
             $table->date('tanggal_pembayaran')->nullable();
-            $table->string('metode_pembayaran')->nullable();
-            $table->string('status_pembayaran');
+            $table->enum('metode_pembayaran', ['tunai', 'transfer']);
+            $table->enum('status_pembayaran', ['diproses', 'selesai', 'gagal']);
             $table->string('bukti_pembayaran')->nullable();
-            $table->string('id_transaksi')->nullable();
             $table->timestamps();
         });
     }

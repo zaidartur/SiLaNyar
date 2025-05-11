@@ -20,7 +20,6 @@ class Pembayaran extends Model
         'metode_pembayaran',
         'status_pembayaran',
         'bukti_pembayaran',
-        'id_transaksi'
     ];
 
     protected static function boot()
