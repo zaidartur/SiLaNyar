@@ -11,11 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('jenis_cairan', function (Blueprint $table) {
+        Schema::create('instansi', function(Blueprint $table)
+        {
             $table->id();
+            $table->foreignId('id_customer')->constrained('customer')->onDelete('cascade');
             $table->string('nama');
-            $table->float('batas_minimum');
-            $table->float('batas_maksimum');
+            $table->enum('tipe', ['swasta', 'pemerintahan', 'pribadi']);
+            $table->string('alamat');
+            $table->string('no_telepon');
+            $table->string('email')->unique();
+            $table->timestamps();
         });
     }
 
@@ -24,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('jenis_cairan'); // Also add proper drop table
+        //
     }
 };

@@ -14,8 +14,7 @@ class ParameterUji extends Model
     protected $fillable = [
         'nama_parameter',
         'satuan',
-        'baku_mutu',
-        'harga'
+        'harga',
     ];
 
     public function pengujian()
@@ -37,6 +36,8 @@ class ParameterUji extends Model
 
     public function kategori()
     {
-        return $this->belongsToMany(Kategori::class, 'parameter_kategori', 'id_parameter', 'id_kategori');    
+        return $this->belongsToMany(Kategori::class, 'parameter_kategori', 'id_parameter', 'id_kategori')
+                    ->withPivot('baku_mutu')
+                    ->withTimestamps();    
     }
 }

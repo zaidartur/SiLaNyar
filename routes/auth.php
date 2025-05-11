@@ -1,15 +1,9 @@
 <?php
 
 use App\Http\Controllers\Auth\Customer\AuthenticatedSessionController as CustomerAuthenticatedSessionController;
-use App\Http\Controllers\Auth\ConfirmablePasswordController;
-use App\Http\Controllers\Auth\EmailVerificationNotificationController;
-use App\Http\Controllers\Auth\EmailVerificationPromptController;
-use App\Http\Controllers\Auth\NewPasswordController;
-use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\Pegawai\AuthenticatedSessionController as PegawaiAuthenticatedSessionController;
 use App\Http\Controllers\Auth\Pegawai\RegisteredUserController as PegawaiRegisteredUserController;
 use App\Http\Controllers\Auth\Customer\RegisteredUserController as CustomerRegisteredUserController;
-use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\Pegawai\DashboardController;
 use App\Http\Controllers\Settings\CustomerProfileController;
@@ -22,9 +16,6 @@ use Inertia\Inertia;
 //autentikasi pegawai
 Route::prefix('pegawai')->middleware('guest:pegawai')->group(function()
 {
-    Route::get('registrasi', [PegawaiRegisteredUserController::class, 'create'])->name('pegawai.registrasi');
-    Route::post('registrasi', [PegawaiRegisteredUserController::class, 'store']);
-    
     Route::get('login', [PegawaiAuthenticatedSessionController::class, 'create'])->name('pegawai.login');
     Route::post('login', [PegawaiAuthenticatedSessionController::class, 'store']);
 
@@ -34,10 +25,14 @@ Route::prefix('pegawai')->middleware('guest:pegawai')->group(function()
     Route::post('verifikasiotp', [PegawaiResetPassword::class, 'verifikasiOtp']);
     Route::post('gantipassword', [PegawaiResetPassword::class, 'gantiPassword']);
 });
-
-Route::prefix('pegawai')->middleware('auth:pegawai', 'check.verified.pegawai')->group(function()
+Route::get('admin/dashboard', [DashboardController::class, 'indexNoAuthent'])->name('pegawai.dashboard');
+Route::prefix('pegawai')->middleware('auth:pegawai')->group(function()
 {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('pegawai.dashboard');
+
+    Route::get('registrasi', [PegawaiRegisteredUserController::class, 'create'])->name('pegawai.registrasi');
+    Route::post('registrasi', [PegawaiRegisteredUserController::class, 'store']);
+    
     Route::get('profile/show', [PegawaiProfileController::class, 'show'])->name('pegawai.profile');
     Route::get('profile/edit', [PegawaiProfileController::class, 'edit']);
     Route::put('profile/update', [PegawaiProfileController::class, 'update']);
@@ -64,10 +59,16 @@ Route::middleware('guest:customer')->group(function()
 Route::prefix('customer')->middleware(['auth:customer', 'check.verified.customer'])->group(function() {
     Route::get('dashboard', [CustomerDashboardController::class, 'index'])->name('customer.dashboard');
 
+    //Fitur Profil
     Route::get('profile/show', [CustomerProfileController::class, 'show'])->name('customer.profile');
     Route::get('profile/edit', [CustomerProfileController::class, 'edit']);
     Route::put('profile/update', [CustomerProfileController::class, 'update']);
     Route::delete('profile/destroy', [CustomerProfileController::class, 'destroy'])->name('customer.profile.destroy');
+
+    //Fitur Instansi
+    Route::post('profile/instansi', [CustomerProfileController::class, 'storeOrUpdateInstansi']);
+    
+
     Route::post('logout', [CustomerAuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
 

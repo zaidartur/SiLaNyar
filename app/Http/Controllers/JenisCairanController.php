@@ -11,7 +11,10 @@ class JenisCairanController extends Controller
 {
     public function index()
     {
-        return Inertia::render('pegawai/jenis_cairan/Index');    
+        $jenis_cairan = JenisCairan::all();
+        return Inertia::render('pegawai/jenis_cairan/Index', [
+            'jenisCairan' => $jenis_cairan
+        ]);    
     }
 
     public function create()
@@ -23,8 +26,8 @@ class JenisCairanController extends Controller
     {
         $request->validate([
             'nama' => 'required|string|max:255',
-            'batas_minimum' => 'required|float',
-            'batas_maksimum' => 'required|float'
+            'batas_minimum' => 'required|numeric',
+            'batas_maksimum' => 'required|numeric'
         ]);
 
         $jenis_cairan = JenisCairan::create($request->all());
@@ -46,8 +49,8 @@ class JenisCairanController extends Controller
     {
         $request->validate([
             'nama' => 'required|string|max:255',
-            'batas_minimum' => 'required|float',
-            'batas_maksimum' => 'required|float'
+            'batas_minimum' => 'required|numeric',
+            'batas_maksimum' => 'required|numeric'
         ]);
 
         $jenis_cairan->update($request->all());

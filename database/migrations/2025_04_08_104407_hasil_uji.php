@@ -17,7 +17,8 @@ return new class extends Migration
             $table->foreignId('id_pengujian')->constrained('pengujian')->onDelete('cascade');
             $table->float('nilai');
             $table->string('keterangan');
-            $table->enum('status', ['acc', 'revisi'])->nullable();
+            $table->enum('status', ['acc', 'revisi', 'draf'])->default('draf');
+            $table->string('file_pdf')->nullable();
             $table->timestamps();
         });
     }

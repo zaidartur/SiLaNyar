@@ -15,14 +15,9 @@ class Customer extends Authenticatable
     
     protected $fillable = [
         'nama',
-        'jenis_user',
-        'alamat_pribadi',
-        'kontak_pribadi',
-        'nama_instansi',
-        'tipe_instansi',
-        'alamat_instansi',
-        'kontak_instansi',
-        'status_verifikasi',
+        'nik',
+        'jabatan',
+        'no_telepon',
         'email',
         'password'
     ];
@@ -40,5 +35,10 @@ class Customer extends Authenticatable
     public function form_pengajuan()
     {
         return $this->hasMany(FormPengajuan::class);
+    }
+
+    public function instansi()
+    {
+        return $this->hasMany(Instansi::class);    
     }
 }

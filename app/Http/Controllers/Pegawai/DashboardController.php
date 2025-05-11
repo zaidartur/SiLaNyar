@@ -61,6 +61,6 @@ class DashboardController extends Controller
             ]);
         }
 
-        return Inertia::render('dashboard/default');
+        return Inertia::render('dashboard/Default');
     }
 }

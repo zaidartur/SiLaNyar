@@ -14,16 +14,11 @@ return new class extends Migration
         Schema::create('customer', function (Blueprint $table) {
             $table->id();
             $table->string('nama');
-            $table->enum('jenis_user', ["instansi", "perorangan"]);
-            $table->string('alamat_pribadi')->nullable();
-            $table->string('kontak_pribadi');
-            $table->string('nama_instansi')->nullable();
-            $table->enum('tipe_instansi', ['swasta', 'pemerintahan'])->nullable();
-            $table->string('alamat_instansi')->nullable();
-            $table->string('kontak_instansi')->nullable();
+            $table->string('nik');
+            $table->string('jabatan');
+            $table->string('no_telepon');
             $table->string('email')->unique();
             $table->string('password');
-            $table->enum('status_verifikasi', ['diproses', 'diterima', 'ditolak'])->default('diproses');
             $table->rememberToken();
             $table->timestamp('email_verified_at')->nullable();
             $table->timestamps();

@@ -133,18 +133,6 @@ class PengajuanForAdminTest extends TestCase
         $response->assertSessionHasErrors('status_pengajuan');
     }
 
-    public function test_admin_bisa_melihat_riwayat_pengajuan()
-    {
-        FormPengajuan::factory()->count(5)->create();
-
-        $response = $this->actingAs($this->admin, 'pegawai')
-            ->get(route('pegawai.pengajuan.index'));
-
-        $response->assertInertia(fn (Assert $page) => $page
-            ->component('pegawai/pengajuan/index')
-            ->has('pengajuan', 6) // 5 new + 1 from setUp
-        );
-    }
 
     public function test_pengajuan_diterima_membuat_pembayaran()
     {

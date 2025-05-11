@@ -21,7 +21,6 @@ class Pegawai extends Authenticatable
         'no_telepon',
         'email',
         'password',
-        'status_verifikasi'
     ];
 
     protected $hidden = [
