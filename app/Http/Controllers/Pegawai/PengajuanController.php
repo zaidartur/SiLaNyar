@@ -9,9 +9,9 @@ use App\Models\Pembayaran;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
-class AdminPengajuanController extends Controller
+class PengajuanController extends Controller
 {
-        //lihat daftar pengajuan dari Admin
+        //lihat daftar pengajuan dari pegawai
         public function index()
         {
             $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'customer', 'jenis_cairan'])
@@ -23,7 +23,7 @@ class AdminPengajuanController extends Controller
             ]);
         }
     
-        //lihat detail pengajuan dari Admin
+        //lihat detail pengajuan dari pegawai
         public function show($id)
         {
             $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'customer', 'jenis_cairan'])
@@ -35,7 +35,7 @@ class AdminPengajuanController extends Controller
             ]);
         }
 
-        //edit pengajuan dari admin
+        //edit pengajuan dari pegawai
         public function edit(FormPengajuan $pengajuan)
         {
             return Inertia::render('pegawai/pengajuan/Edit', [
@@ -43,26 +43,31 @@ class AdminPengajuanController extends Controller
             ]);
         }
         
-        //proses verifikasi pengajuan oleh admin
+        //update pengajuan dari pegawai
         public function update($id, Request $request)
         {
-            $request->validate([
+            $pengajuan = FormPengajuan::with(['kategori', 'parameter'])->findOrFail($id);
+
+            $rules = [
                 'status_pengajuan' => 'required|in:diterima,ditolak'
-            ]);
+            ];
+
+            if($pengajuan->metode_pengambilan === 'diantar')
+            {
+                $rules['id_kategori'] = 'required|exists:kategori,id';
+                $rules['parameter'] = 'required|array';
+                $rules['parameter.*'] = 'exists:parameter_uji,id';
+            }
+
+            $validated = $request->validate($rules);
     
-            $pengajuan = FormPengajuan::findOrFail($id);
-            $pengajuan->status_pengajuan = $request->status_pengajuan;
-    
-            if ($request->status_pengajuan == 'diterima') {
-                // Generate ID Order
-                $idOrder = 'LAB-' . date('Ymd') . '-' . str_pad(mt_rand(1, 9999), 4, '0', STR_PAD_LEFT);
-    
-                Pembayaran::create([
-                    'id_order' => $idOrder,
-                    'id_form_pengajuan' => $pengajuan->id,
-                    'total_biaya' => $pengajuan->kategori->harga,
-                    'status_pembayaran' => 'belum_dibayar'
-                ]);
+            $pengajuan->status_pengajuan = $validated['status_pengajuan'];
+
+            if($pengajuan->metode_pengajuan === 'diantar')
+            {
+                $pengajuan->id_kategori = $validated['id_kategori'];
+
+                $pengajuan->parameter()->sync($validated['parameter']);
             }
     
             $pengajuan->save();

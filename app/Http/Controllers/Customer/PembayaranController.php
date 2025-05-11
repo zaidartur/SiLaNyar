@@ -52,7 +52,17 @@ class PembayaranController extends Controller
     {
         $customer = Auth::guard('customer')->user();
 
-        $pengajuan = FormPengajuan::with(['kategori', 'parameter'])->findOrFail($id);
+        $pengajuan = FormPengajuan::with(['kategori', 'parameter'])
+                                    ->where('id',$id)
+                                    ->where('status_pengajuan', 'diterima')
+                                    ->firstOrFail();
+
+        if($pengajuan->status_pengajuan !== 'diterima')
+        {
+            return Redirect::back()->withErrors([
+                'status_pengajuan' => 'Pengajuan Anda Belum Diverifikasi Oleh Admin, Harap Tunggu Verifikasi Administrasi Sebelum Melakukan Pembayaran'
+            ]);
+        }
 
         $totalBiaya = $this->hitungTotalBiaya($pengajuan);
 
@@ -79,7 +89,7 @@ class PembayaranController extends Controller
 
         $pengajuan = FormPengajuan::with(['pembayaran', 'kategori', 'parameter'])->findOrFail($id);
 
-        if (!$pengajuan->pembayaran || $pengajuan->pembayaran->status !== 'transfer') {
+        if (!$pengajuan->pembayaran || $pengajuan->pembayaran->metode_pembayaran !== 'transfer') {
             return Redirect::back();
         }
 
@@ -93,9 +103,9 @@ class PembayaranController extends Controller
     {
         $pengajuan = FormPengajuan::findOrFail($id);
         
-        if ($pengajuan->status === 'diproses') {
+        if ($pengajuan->status_pengajuan !== 'diterima') {
             return Redirect::back()->withErrors([
-                'status' => 'Harap Menunggu Verifikasi Administrasi Pengajuan Selesai Sebelum Melakukan Pembayaran'
+                'status_pengajuan' => 'Harap Menunggu Verifikasi Administrasi Pengajuan Selesai Sebelum Melakukan Pembayaran'
             ]);
         }
 

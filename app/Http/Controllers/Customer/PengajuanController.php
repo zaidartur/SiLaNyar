@@ -49,8 +49,7 @@ class PengajuanController extends Controller
     {
         $jenisCairan = JenisCairan::findOrFail($request->id_jenis_cairan);
 
-        $validated = $request->validate([
-            'id_kategori' => 'required|exists:kategori,id',
+        $rules = [
             'id_jenis_cairan' => 'required|exists:jenis_cairan,id',
             'volume_sampel' => [
                 'required',
@@ -60,32 +59,39 @@ class PengajuanController extends Controller
             ],
             'metode_pengambilan' => 'required|in:diantar,diambil',
             'lokasi' => 'required_if:metode_pengambilan,diambil|string',
-            'parameter' => 'required|array',
-            'parameter.*' => 'exists:parameter_uji,id',
             'waktu_pengambilan' => 'required_if:metode_pengambilan,diantar|date|after_or_equal:today',
             'keterangan' => 'nullable|string|max:255',
-        ], [
+        ];
+
+        if ($request->metode_pengambilan === 'diambil') {
+            $rules['id_kategori'] = 'required|exists:kategori,id';
+            $rules['parameter'] = 'required|array';
+            $rules['parameter.*'] = 'exists:parameter_uji,id';
+        }
+
+        $validated = $request->validate($rules, [
             'volume_sampel.min' => "Volume Sampel Harus Diantara {$jenisCairan->batas_minimum} atau {$jenisCairan->batas_maksimum} Untuk Jenis Cairan",
             'volume_sampel.max' => "Volume Sampel Harus Diantara {$jenisCairan->batas_minimum} atau {$jenisCairan->batas_maksimum} Untuk Jenis Cairan"
         ]);
 
-        if($validated['metode_pengambilan'] === 'diantar') {
+        if ($validated['metode_pengambilan'] === 'diantar') {
             $validated['lokasi'] = 'Jl. Lawu No.204, Tegalasri, Bejen, Kec. Karanganyar, Kabupaten Karanganyar, Jawa Tengah 57716 (DLH Kabupaten Karanganyar)';
         }
 
         $pengajuan = FormPengajuan::create([
             'id_customer' => Auth::guard('customer')->id(),
-            'id_kategori' => $validated['id_kategori'],
+            'id_kategori' => $validated['id_kategori'] ?? null,
             'id_jenis_cairan' => $validated['id_jenis_cairan'],
             'volume_sampel' => $validated['volume_sampel'],
             'metode_pengambilan' => $validated['metode_pengambilan'],
             'lokasi' => $validated['lokasi'],
         ]);
 
-        $pengajuan->parameter()->attach($validated['parameter']);
+        if ($validated['metode_pengambilan'] === 'diambil' && !empty($validated['parameter'])) {
+            $pengajuan->parameter()->attach($validated['parameter']);
+        }
 
-        if($validated['metode_pengambilan'] === 'diantar')
-        {
+        if ($validated['metode_pengambilan'] === 'diantar') {
             Jadwal::create([
                 'id_form_pengajuan' => $pengajuan->id,
                 'waktu_pengambilan' => $validated['waktu_pengambilan'],
@@ -94,12 +100,11 @@ class PengajuanController extends Controller
             ]);
         }
 
-        if ($pengajuan) {
-            return redirect()->route('customer.pengajuan.index')
-                ->with('message', 'Pengajuan Berhasil Ditambahkan');
+        if (!$pengajuan) {
+            return redirect()->back()->withErrors(['error' => 'Gagal membuat pengajuan']);
         }
-
-        return redirect()->back()->withErrors(['error' => 'Gagal membuat pengajuan']);
+        return redirect()->route('customer.pengajuan.index')
+            ->with('message', 'Pengajuan Berhasil Ditambahkan');
     }
 
     //lihat detail pengajuan dari user

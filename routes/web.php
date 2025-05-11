@@ -11,7 +11,7 @@ use App\Http\Controllers\JadwalController;
 use App\Http\Controllers\JenisCairanController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\ParameterController;
-use App\Http\Controllers\Pegawai\AdminPengajuanController;
+use App\Http\Controllers\Pegawai\PengajuanController as PegawaiPengajuanController;
 use App\Http\Controllers\Pegawai\PegawaiController;
 use App\Http\Controllers\Pegawai\PelangganController;
 use App\Http\Controllers\Pegawai\PembayaranController as PegawaiPembayaranController;
@@ -132,10 +132,10 @@ Route::prefix('customer')->middleware(['auth:customer', 'check.verified.customer
 Route::prefix('pegawai')->middleware(['auth:pegawai'])->group(function () {
 
     //fitur pengajuan
-    Route::get('pengajuan', [AdminPengajuanController::class, 'index'])->middleware('check.permission:lihat-pengajuan')->name('pegawai.pengajuan.index');
-    Route::get('pengajuan/{id}', [AdminPengajuanController::class, 'show'])->middleware('check.permission:detail-pengajuan')->name('pegawai.pengajuan.show');
-    Route::get('pengajuan/edit/{pengajuan}', [AdminPengajuanController::class, 'edit'])->middleware('check.permission:edit-pengajuan')->name('pegawai.pengajuan.edit');
-    Route::put('pengajuan/{id}/edit', [AdminPengajuanController::class, 'update'])->name('pegawai.pengajuan.update');
+    Route::get('pengajuan', [PegawaiPengajuanController::class, 'index'])->middleware('check.permission:lihat-pengajuan')->name('pegawai.pengajuan.index');
+    Route::get('pengajuan/{id}', [PegawaiPengajuanController::class, 'show'])->middleware('check.permission:detail-pengajuan')->name('pegawai.pengajuan.show');
+    Route::get('pengajuan/edit/{pengajuan}', [PegawaiPengajuanController::class, 'edit'])->middleware('check.permission:edit-pengajuan')->name('pegawai.pengajuan.edit');
+    Route::put('pengajuan/{id}/edit', [PegawaiPengajuanController::class, 'update'])->name('pegawai.pengajuan.update');
 
     //fitur pembayaran
     Route::get('pembayaran', [PegawaiPembayaranController::class, 'index'])->middleware('check.permission:lihat-pembayaran')->name('pegawai.pembayaran.index');
