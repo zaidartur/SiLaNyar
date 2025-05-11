@@ -38,7 +38,8 @@ class JadwalController extends Controller
     //form tambah jadwal
     public function create()
     {
-        $form_pengajuan = FormPengajuan::get();
+        $form_pengajuan = FormPengajuan::where('status_pengambilan', 'diambil')->get();
+
         return Inertia::render('pegawai/jadwal/Tambah', [
             'form_pengajuan' => $form_pengajuan
         ]);
@@ -58,6 +59,15 @@ class JadwalController extends Controller
             'keterangan' => 'required|string|max:255'
         ]);
 
+        $pengajuan = FormPengajuan::findOrFail($request->id_form_pengajuan);
+
+        if($pengajuan->metode_pengambilan !== 'diambil')
+        {
+            return Redirect::back()->withErrors([
+                'metode_pengambilan' => 'Jadwal Hanya Bisa Dibuat Ketika Customer Memilih Diambil'
+            ]);
+        }
+
         $jadwal = Jadwal::create($request->all());
 
         if($jadwal) {
@@ -68,7 +78,7 @@ class JadwalController extends Controller
     //form edit jadwal
     public function edit(Jadwal $jadwal)
     {
-        $form_pengajuan = FormPengajuan::latest()->get();
+        $form_pengajuan = FormPengajuan::where('metode_pengambilan', 'diambil')->latest()->get();
 
         return Inertia::render('pegawai/jadwal/Edit', [
             'jadwal' => $jadwal,
@@ -94,9 +104,18 @@ class JadwalController extends Controller
                 'waktu_pengambilan' => 'Jadwal Tidak Dapat Diganti Karena Sudah Melewati Batas Reschedule!'
             ]);
         }
+
+        $pengajuan = FormPengajuan::findOrFail($jadwal->id_form_pengajuan);
+
+        if($pengajuan->metode_pengambilan !== 'diambil')
+        {
+            return Redirect::back()->withErrors([
+                'metode_pengambilan' => 'Jadwal Hanya Bisa Dibuat Ketika Customer Memilih Diambil'
+            ]);
+        }
         
         $request->validate([
-            'id_form_pengajuan' => 'nullable',
+            'id_form_pengajuan' => 'required',
             'waktu_pengambilan' => 'required|date',
             'status' => 'required|in:diproses,selesai',
             'keterangan' => 'required|string|max:255'
