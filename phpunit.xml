@@ -12,6 +12,7 @@
     <source>
         <include>
             <directory>app</directory>
+            <directory>database/factories</directory>
         </include>
     </source>
     <php>

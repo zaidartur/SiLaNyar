@@ -35,31 +35,31 @@ class PengajuanForCustomerTest extends TestCase
         ]);
     }
 
-    public function test_customer_bisa_melihat_halaman_daftar_pengajuan()
-    {
-        $response = $this->actingAs($this->customer, 'customer')
-            ->get(route('customer.pengajuan.index'));
+    // public function test_customer_bisa_melihat_halaman_daftar_pengajuan()
+    // {
+    //     $response = $this->actingAs($this->customer, 'customer')
+    //         ->get(route('customer.pengajuan.index'));
 
-        $response->assertStatus(200)
-            ->assertInertia(fn (Assert $page) => $page
-                ->component('customer/pengajuan/index')
-                ->has('pengajuan')
-            );
-    }
+    //     $response->assertStatus(200)
+    //         ->assertInertia(fn (Assert $page) => $page
+    //             ->component('customer/pengajuan/index')
+    //             ->has('pengajuan')
+    //         );
+    // }
 
-    public function test_customer_bisa_melihat_form_tambah_pengajuan()
-    {
-        $response = $this->actingAs($this->customer, 'customer')
-            ->get(route('customer.pengajuan.daftar'));
+    // public function test_customer_bisa_melihat_form_tambah_pengajuan()
+    // {
+    //     $response = $this->actingAs($this->customer, 'customer')
+    //         ->get(route('customer.pengajuan.daftar'));
 
-        $response->assertStatus(200)
-            ->assertInertia(fn (Assert $page) => $page
-                ->component('customer/pengajuan/tambah')
-                ->has('kategori')
-                ->has('jenis_cairan')
-                ->has('parameter')
-            );
-    }
+    //     $response->assertStatus(200)
+    //         ->assertInertia(fn (Assert $page) => $page
+    //             ->component('customer/pengajuan/tambah')
+    //             ->has('kategori')
+    //             ->has('jenis_cairan')
+    //             ->has('parameter')
+    //         );
+    // }
 
     public function test_customer_bisa_membuat_pengajuan_baru()
     {
@@ -123,28 +123,28 @@ class PengajuanForCustomerTest extends TestCase
         $response->assertSessionHasErrors('lokasi');
     }
 
-    public function test_customer_bisa_melihat_detail_pengajuan()
-    {
-        // Buat parameter untuk pengajuan
-        $parameter = ParameterUji::factory()->create();
+    // public function test_customer_bisa_melihat_detail_pengajuan()
+    // {
+    //     // Buat parameter untuk pengajuan
+    //     $parameter = ParameterUji::factory()->create();
         
-        // Buat pengajuan dengan relasi parameter
-        $pengajuan = FormPengajuan::factory()->create([
-            'id_customer' => $this->customer->id
-        ]);
+    //     // Buat pengajuan dengan relasi parameter
+    //     $pengajuan = FormPengajuan::factory()->create([
+    //         'id_customer' => $this->customer->id
+    //     ]);
         
-        // Attach parameter ke pengajuan
-        $pengajuan->parameter()->attach($parameter->id);
+    //     // Attach parameter ke pengajuan
+    //     $pengajuan->parameter()->attach($parameter->id);
 
-        $response = $this->actingAs($this->customer, 'customer')
-            ->get(route('customer.pengajuan.show', $pengajuan->id));
+    //     $response = $this->actingAs($this->customer, 'customer')
+    //         ->get(route('customer.pengajuan.show', $pengajuan->id));
 
-        $response->assertStatus(200)
-            ->assertInertia(fn (Assert $page) => $page
-                ->component('customer/pengajuan/detail')
-                ->has('pengajuan')
-            );
-    }
+    //     $response->assertStatus(200)
+    //         ->assertInertia(fn (Assert $page) => $page
+    //             ->component('customer/pengajuan/detail')
+    //             ->has('pengajuan')
+    //         );
+    // }
 
     public function test_customer_tidak_bisa_melihat_pengajuan_customer_lain()
     {

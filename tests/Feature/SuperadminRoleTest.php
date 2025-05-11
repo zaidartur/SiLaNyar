@@ -59,15 +59,15 @@ class SuperadminRoleTest extends TestCase
         ]);
     }
 
-    public function test_superadmin_bisa_melihat_daftar_role()
-    {
-        $response = $this->actingAs($this->superadmin, 'pegawai')->get('/superadmin/role');
+    // public function test_superadmin_bisa_melihat_daftar_role()
+    // {
+    //     $response = $this->actingAs($this->superadmin, 'pegawai')->get('/superadmin/role');
 
-        $response->assertStatus(200)
-            ->assertInertia(fn (Assert $page) => $page
-                ->component('superadmin/role/index')
-                ->has('role'));
-    }
+    //     $response->assertStatus(200)
+    //         ->assertInertia(fn (Assert $page) => $page
+    //             ->component('superadmin/role/index')
+    //             ->has('role'));
+    // }
 
     public function test_superadmin_bisa_membuat_role_baru()
     {

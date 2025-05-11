@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\pegawai;
-use App\Models\roles;
+use App\Models\Pegawai;
+use App\Models\Roles;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -14,7 +14,7 @@ class SuperAdminSeeder extends Seeder
      */
     public function run(): void
     {
-        $superadmin = pegawai::create([
+        $superadmin = Pegawai::create([
             'nama' => 'Super Admin',
             'email' => 'selainsuperadmin@gmail.com',
             'password' => bcrypt('namanyasilanyar'),
@@ -23,7 +23,7 @@ class SuperAdminSeeder extends Seeder
             'no_telepon' => '+6285741358179',
         ]);
 
-        $role = roles::firstOrCreate(['name' => 'superadmin'], ['guard_name' => 'pegawai']);
+        $role = Roles::firstOrCreate(['name' => 'superadmin'], ['guard_name' => 'pegawai']);
 
         $superadmin->assignRole('superadmin');
 

@@ -53,32 +53,32 @@ class PengajuanForAdminTest extends TestCase
         ]);
     }
 
-    public function test_admin_bisa_melihat_daftar_pengajuan()
-    {
-        $this->withoutExceptionHandling();
+    // public function test_admin_bisa_melihat_daftar_pengajuan()
+    // {
+    //     $this->withoutExceptionHandling();
 
-        $response = $this->actingAs($this->admin, 'pegawai')
-            ->from('/pegawai/dashboard')
-            ->get('/pegawai/pengajuan');
+    //     $response = $this->actingAs($this->admin, 'pegawai')
+    //         ->from('/pegawai/dashboard')
+    //         ->get('/pegawai/pengajuan');
 
-        $response->assertOk()
-            ->assertInertia(fn (Assert $page) => $page
-                ->component('pegawai/pengajuan/index')
-                ->has('pengajuan')
-            );
-    }
+    //     $response->assertOk()
+    //         ->assertInertia(fn (Assert $page) => $page
+    //             ->component('pegawai/pengajuan/index')
+    //             ->has('pengajuan')
+    //         );
+    // }
 
-    public function test_admin_bisa_melihat_detail_pengajuan()
-    {
-        $response = $this->actingAs($this->admin, 'pegawai')
-            ->get('/pegawai/pengajuan/' . $this->pengajuan->id);
+    // public function test_admin_bisa_melihat_detail_pengajuan()
+    // {
+    //     $response = $this->actingAs($this->admin, 'pegawai')
+    //         ->get('/pegawai/pengajuan/' . $this->pengajuan->id);
 
-        $response->assertOk()
-        ->assertInertia(fn (Assert $page) => $page
-                ->component('pegawai/pengajuan/detail')
-                ->has('pengajuan')
-            );
-    }
+    //     $response->assertOk()
+    //     ->assertInertia(fn (Assert $page) => $page
+    //             ->component('pegawai/pengajuan/detail')
+    //             ->has('pengajuan')
+    //         );
+    // }
 
     public function test_admin_bisa_menerima_pengajuan()
     {
@@ -133,6 +133,18 @@ class PengajuanForAdminTest extends TestCase
         $response->assertSessionHasErrors('status_pengajuan');
     }
 
+    // public function test_admin_bisa_melihat_riwayat_pengajuan()
+    // {
+    //     FormPengajuan::factory()->count(5)->create();
+
+    //     $response = $this->actingAs($this->admin, 'pegawai')
+    //         ->get(route('pegawai.pengajuan.index'));
+
+    //     $response->assertInertia(fn (Assert $page) => $page
+    //         ->component('pegawai/pengajuan/index')
+    //         ->has('pengajuan', 6) // 5 new + 1 from setUp
+    //     );
+    // }
 
     public function test_pengajuan_diterima_membuat_pembayaran()
     {

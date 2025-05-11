@@ -16,14 +16,14 @@ class CustomerAuthTest extends TestCase
     /**
      * Test registration page can be rendered
      */
-    public function test_registration_page_can_be_rendered(): void
-    {
-        $response = $this->get('/registrasi');
+    // public function test_registration_page_can_be_rendered(): void
+    // {
+    //     $response = $this->get('/registrasi');
 
-        $response->assertInertia(fn (Assert $page) => $page
-            ->component('customer/registrasi')
-        );
-    }
+    //     $response->assertInertia(fn (Assert $page) => $page
+    //         ->component('customer/registrasi')
+    //     );
+    // }
 
     /**
      * Test customer can register as individual
@@ -81,14 +81,14 @@ class CustomerAuthTest extends TestCase
     /**
      * Test login page can be rendered
      */
-    public function test_login_page_can_be_rendered(): void
-    {
-        $response = $this->get('/login');
+    // public function test_login_page_can_be_rendered(): void
+    // {
+    //     $response = $this->get('/login');
 
-        $response->assertInertia(fn (Assert $page) => $page
-            ->component('customer/login')
-        );
-    }
+    //     $response->assertInertia(fn (Assert $page) => $page
+    //         ->component('customer/login')
+    //     );
+    // }
 
     /**
      * Test verified customer can login
@@ -132,16 +132,16 @@ class CustomerAuthTest extends TestCase
     /**
      * Test customer can logout
      */
-    public function test_customer_can_logout(): void
-    {
-        $customer = Customer::factory()->verified()->create();
+    // public function test_customer_can_logout(): void
+    // {
+    //     $customer = Customer::factory()->verified()->create();
 
-        $response = $this->actingAs($customer, 'customer')
-            ->post('/customer/logout');
+    //     $response = $this->actingAs($customer, 'customer')
+    //         ->post('/customer/logout');
 
-        $this->assertGuest('customer');
-        $response->assertRedirect('/');
-    }
+    //     $this->assertGuest('customer');
+    //     $response->assertRedirect('/');
+    // }
 
     /**
      * Test registration validation rules

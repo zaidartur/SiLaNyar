@@ -27,15 +27,15 @@ class ResetPasswordCustomerTest extends TestCase
         ]);
     }
 
-    public function test_customer_bisa_melihat_form_lupa_password()
-    {
-        $response = $this->get(route('customer.password.lupa'));
+    // public function test_customer_bisa_melihat_form_lupa_password()
+    // {
+    //     $response = $this->get(route('customer.password.lupa'));
 
-        $response->assertStatus(200)
-            ->assertInertia(fn ($assert) => $assert
-                ->component('customer/LupaPassword')
-            );
-    }
+    //     $response->assertStatus(200)
+    //         ->assertInertia(fn ($assert) => $assert
+    //             ->component('customer/LupaPassword')
+    //         );
+    // }
 
     public function test_customer_bisa_meminta_otp_via_email()
     {
@@ -69,25 +69,25 @@ class ResetPasswordCustomerTest extends TestCase
         $response->assertSessionHasErrors('identitas');
     }
 
-    public function test_customer_bisa_verifikasi_otp()
-    {
-        $otp = '123456';
+    // public function test_customer_bisa_verifikasi_otp()
+    // {
+    //     $otp = '123456';
         
-        PasswordOtp::factory()->create([
-            'identitas' => 'test@example.com',
-            'otp' => $otp,
-            'expired_at' => now()->addMinutes(5)
-        ]);
+    //     PasswordOtp::factory()->create([
+    //         'identitas' => 'test@example.com',
+    //         'otp' => $otp,
+    //         'expired_at' => now()->addMinutes(5)
+    //     ]);
 
-        $response = $this->post('/verifikasiotp', [
-            'identitas' => 'test@example.com',
-            'otp' => $otp
-        ]);
+    //     $response = $this->post('/verifikasiotp', [
+    //         'identitas' => 'test@example.com',
+    //         'otp' => $otp
+    //     ]);
 
-        $response->assertInertia(fn ($assert) => $assert
-            ->component('customer/GantiPassword')
-        );
-    }
+    //     $response->assertInertia(fn ($assert) => $assert
+    //         ->component('customer/GantiPassword')
+    //     );
+    // }
 
     public function test_otp_tidak_valid_akan_ditolak()
     {

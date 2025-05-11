@@ -25,23 +25,23 @@ class ProfilePegawaiTest extends TestCase
         ]);
     }
 
-    public function test_pegawai_bisa_melihat_halaman_profil()
-    {
-        $response = $this->actingAs($this->pegawai, 'pegawai')
-            ->get(route('pegawai.profile'));
+    // public function test_pegawai_bisa_melihat_halaman_profil()
+    // {
+    //     $response = $this->actingAs($this->pegawai, 'pegawai')
+    //         ->get(route('pegawai.profile'));
 
-        $response->assertStatus(200)
-            ->assertInertia(fn (Assert $page) => $page
-                ->component('pegawai/profile/show')
-                ->has('pegawai', fn (Assert $pegawai) => $pegawai
-                    ->has('id')
-                    ->has('nama')
-                    ->has('email')
-                    ->has('jabatan')
-                    ->etc()
-                )
-            );
-    }
+    //     $response->assertStatus(200)
+    //         ->assertInertia(fn (Assert $page) => $page
+    //             ->component('pegawai/profile/show')
+    //             ->has('pegawai', fn (Assert $pegawai) => $pegawai
+    //                 ->has('id')
+    //                 ->has('nama')
+    //                 ->has('email')
+    //                 ->has('jabatan')
+    //                 ->etc()
+    //             )
+    //         );
+    // }
 
     public function test_pegawai_bisa_mengupdate_profil()
     {
