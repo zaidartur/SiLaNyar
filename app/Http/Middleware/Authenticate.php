@@ -2,17 +2,17 @@
 
 namespace App\Http\Middleware;
 
-use Closure;
+use Illuminate\Auth\Middleware\Authenticate as BaseMiddleware;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
-use App\Http\Middleware\Authenticate as Middleware;
 
-class Authenticate extends Middleware
+class Authenticate extends BaseMiddleware
 {
-    protected function redirectTo(Request $request)
+    /**
+     * Get the path the user should be redirected to when they are not authenticated.
+     */
+    protected function redirectTo(Request $request): ?string
     {
         if (!$request->expectsJson()) {
-
             if ($request->is('pegawai/*') || $request->is('pegawai')) {
                 return route('pegawai.login');
             }

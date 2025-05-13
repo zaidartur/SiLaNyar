@@ -32,6 +32,6 @@ class AuthenticatedSessionController extends Controller
         Auth::guard('customer')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return Redirect::route('customer.dashboard');
+        return Redirect::route('home');
     }
 }

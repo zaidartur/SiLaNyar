@@ -49,15 +49,6 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        $user = Auth::guard('customer')->user();
-        if ($user && $user->status_verifikasi !== 'diterima') {
-            Auth::guard('customer')->logout();
-            
-            throw ValidationException::withMessages([
-                'email' => 'Akun Anda Belum Diverifikasi Oleh Admin',
-            ]);
-        }
-
         RateLimiter::clear($this->throttleKey());
     }
 

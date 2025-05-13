@@ -56,7 +56,7 @@ Route::middleware('guest:customer')->group(function()
     Route::post('gantipassword', [CustomerResetPasswordController::class, 'gantiPassword']);
 });
 
-Route::prefix('customer')->middleware(['auth:customer', 'check.verified.customer'])->group(function() {
+Route::prefix('customer')->middleware(['auth:customer'])->group(function() {
     Route::get('dashboard', [CustomerDashboardController::class, 'index'])->name('customer.dashboard');
 
     //Fitur Profil
@@ -69,7 +69,7 @@ Route::prefix('customer')->middleware(['auth:customer', 'check.verified.customer
     Route::post('profile/instansi', [CustomerProfileController::class, 'storeOrUpdateInstansi']);
     
 
-    Route::post('logout', [CustomerAuthenticatedSessionController::class, 'destroy'])->name('logout');
+    Route::post('logout', [CustomerAuthenticatedSessionController::class, 'destroy'])->name('customer.logout');
 });
 
 Route::get('/', function () {

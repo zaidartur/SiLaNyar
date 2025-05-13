@@ -18,29 +18,13 @@ class CustomerFactory extends Factory
      */
     public function definition(): array
     {
-        $jenisUser = fake()->randomElement(['instansi', 'perorangan']);
-        $isInstansi = $jenisUser === 'instansi';
-        
         return [
-            'nama' => $isInstansi ? fake()->company() : fake()->name(),
-            'jenis_user' => $jenisUser,
-            'alamat_pribadi' => $isInstansi ? null : fake()->address(),
-            'kontak_pribadi' => '+62' . fake()->numerify('8##########'),
-            'nama_instansi' => $isInstansi ? fake()->randomElement([
-                'PT. Air Mineral Indonesia',
-                'PDAM Kota',
-                'Dinas Lingkungan Hidup',
-                'RS Umum Daerah',
-                'PT. Industri Kimia',
-                'Lab Kesehatan',
-                'PT. Pengolahan Air'
-            ]) : null,
-            'tipe_instansi' => $isInstansi ? fake()->randomElement(['swasta', 'pemerintahan']) : null,
-            'alamat_instansi' => $isInstansi ? fake()->address() : null,
-            'kontak_instansi' => $isInstansi ? '(021) ' . fake()->numerify('#######') : null,
+            'nama' => fake()->name(),
+            'nik' => fake()->numerify('################'),
+            'jabatan' => fake()->jobTitle(),
+            'no_telepon' => '+62' . fake()->numerify('8##########'),
             'email' => fake()->unique()->safeEmail(),
             'password' => Hash::make('password123'),
-            'status_verifikasi' => 'diproses',
             'email_verified_at' => now(),
             'remember_token' => Str::random(10),
         ];
@@ -50,7 +34,6 @@ class CustomerFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'status_verifikasi' => 'diterima',
                 'email_verified_at' => now(),
             ];
         });
