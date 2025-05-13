@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('jadwal', function(Blueprint $table) {
             $table->id();
+            $table->string('kode_pengambilan')->unique();
             $table->foreignId('id_form_pengajuan')->constrained('form_pengajuan')->onDelete('cascade');
             $table->foreignId('id_pegawai')->constrained('pegawai')->onDelete('cascade');
             $table->date('waktu_pengambilan');

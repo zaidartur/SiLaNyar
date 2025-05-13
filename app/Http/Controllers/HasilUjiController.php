@@ -84,8 +84,7 @@ class HasilUjiController extends Controller
             'status' => 'required|in:acc,revisi,draft'
         ]);
 
-        if($hasil_uji->status !== 'acc') 
-        {
+        if ($hasil_uji->status !== 'acc') {
             HasilUjiHistori::create([
                 'id_hasil_uji' => $hasil_uji->id,
                 'id_parameter' => $request->id_parameter,
@@ -96,7 +95,7 @@ class HasilUjiController extends Controller
                 'id_pegawai' => Auth::guard('pegawai')->id()
             ]);
         }
-        
+
         $hasil_uji->update($request->all());
 
         if ($hasil_uji->status === 'acc') {
@@ -124,11 +123,13 @@ class HasilUjiController extends Controller
     {
         $hasil_uji = HasilUji::with(['riwayat'])->findOrFail($id);
 
-        return Inertia::render('pegawai/hasil_uji/Riwayat',
-        [
-            'riwayat' => $hasil_uji->riwayat,
-            'id_hasil_uji' => $hasil_uji->id,
-        ]);
+        return Inertia::render(
+            'pegawai/hasil_uji/Riwayat',
+            [
+                'riwayat' => $hasil_uji->riwayat,
+                'id_hasil_uji' => $hasil_uji->id,
+            ]
+        );
     }
 
     //hapus hasil uji
