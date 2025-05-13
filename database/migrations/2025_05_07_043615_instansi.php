@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('instansi', function(Blueprint $table)
         {
             $table->id();
+            $table->string('kode_instansi')->unique();
             $table->foreignId('id_customer')->constrained('customer')->onDelete('cascade');
             $table->string('nama');
             $table->enum('tipe', ['swasta', 'pemerintahan', 'pribadi']);

@@ -21,6 +21,29 @@ class FormPengajuan extends Model
         'lokasi'
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model)
+        {
+            $prefix = 'DP-'.date('my');
+            $akhir = self::where('kode_hasil_uji', 'like', $prefix . '%')
+                        ->orderBy('kode_hasil_uji', 'desc')
+                        ->first();
+
+            $lanjut = 1;
+
+            if($akhir)
+            {
+                $akhirKode = (int)substr($akhir->kode_hasil_uji, -3);
+                $lanjut = $akhirKode + 1;
+            }
+
+            $model->kode_hasil_uji = $prefix.'-'.str_pad($lanjut, 3, '0', STR_PAD_LEFT);
+        });
+    }
+
     public function customer()
     {
         return $this->belongsTo(Customer::class, 'id_customer');  

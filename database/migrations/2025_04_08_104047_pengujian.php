@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('pengujian', function(Blueprint $table) {
             $table->id();
+            $table->string('kode_pengujian')->unique();
             $table->foreignId('id_form_pengajuan')->constrained('form_pengajuan')->onDelete('cascade');
             $table->foreignId('id_pegawai')->constrained('pegawai')->onDelete('cascade');
             $table->foreignId('id_kategori')->constrained('kategori')->onDelete('cascade');

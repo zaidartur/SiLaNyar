@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('jenis_cairan', function (Blueprint $table) {
             $table->id();
+            $table->string('kode_jenis_cairan')->unique();
             $table->string('nama');
             $table->float('batas_minimum');
             $table->float('batas_maksimum');
