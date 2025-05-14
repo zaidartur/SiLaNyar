@@ -13,14 +13,14 @@ class PermissionController extends Controller
     {
         $permission = Permissions::all();
 
-        return Inertia::render('superadmin/permission/index', [
+        return Inertia::render('superadmin/permission/Index', [
             'permission' => $permission
         ]);
     }
 
     public function create()
     {
-        return Inertia::render('superadmin/permission/tambah');
+        return Inertia::render('superadmin/permission/Tambah');
     }
 
     public function store(Request $request)
@@ -39,7 +39,7 @@ class PermissionController extends Controller
 
     public function edit(Permissions $permission)
     {
-        return Inertia::render('superadmin/permission/edit', [
+        return Inertia::render('superadmin/permission/Edit', [
             'permission' => $permission
         ]);
     }

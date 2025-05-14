@@ -14,7 +14,7 @@ class RoleController extends Controller
     {
         $role = Roles::with('permissions')->get(); // Ubah dari permission ke permissions
 
-        return Inertia::render('superadmin/role/index', [
+        return Inertia::render('superadmin/role/Index', [
             'role' => $role
         ]);
     }
@@ -23,7 +23,7 @@ class RoleController extends Controller
     {
         $permission = Permissions::all();
         
-        return Inertia::render('superadmin/role/tambah', [
+        return Inertia::render('superadmin/role/Tambah', [
             'permission' => $permission
         ]);
     }

@@ -11,12 +11,12 @@ class JenisCairanController extends Controller
 {
     public function index()
     {
-        return Inertia::render('pegawai/jenis_cairan/index');    
+        return Inertia::render('pegawai/jenis_cairan/Index');    
     }
 
     public function create()
     {
-        return Inertia::render('pegawai/jenis_cairan/tambah');    
+        return Inertia::render('pegawai/jenis_cairan/Tambah');    
     }
 
     public function store(Request $request)
@@ -37,7 +37,7 @@ class JenisCairanController extends Controller
 
     public function edit(JenisCairan $jenis_cairan)
     {
-        return Inertia::render('pegawai/jenis_cairan/edit',[
+        return Inertia::render('pegawai/jenis_cairan/Edit',[
             'jenis_cairan' => $jenis_cairan
         ]);
     }

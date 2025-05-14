@@ -26,7 +26,7 @@ class CheckVerifiedCustomer
             {
                 Auth::guard('customer')->logout();
 
-                return Redirect::route('login')->withErrors([
+                return Redirect::route('customer.login')->withErrors([
                     'email' => 'Akun Anda Belum Diverifikasi Oleh Admin'
                 ]);
             }

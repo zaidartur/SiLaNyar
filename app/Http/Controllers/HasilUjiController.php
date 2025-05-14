@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\HasilUji;
 use App\Models\ParameterUji;
 use App\Models\Pengujian;
+use App\Notifications\HasilUjiNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -16,7 +17,7 @@ class HasilUjiController extends Controller
     {
         $hasil_uji = HasilUji::with('parameter', 'pengujian', 'kategori');
 
-        return Inertia::render('pegawai/hasil_uji/index', [
+        return Inertia::render('pegawai/hasil_uji/Index', [
             'hasil_uji' => $hasil_uji
         ]);
     }
@@ -28,7 +29,7 @@ class HasilUjiController extends Controller
         $parameter = ParameterUji::all();
         $pengujian = Pengujian::all();
         
-        return Inertia::render('pegawai/hasil_uji/tambah', [
+        return Inertia::render('pegawai/hasil_uji/Tambah', [
             'parameter' => $parameter,
             'pengujian' => $pengujian,
         ]);
@@ -46,6 +47,9 @@ class HasilUjiController extends Controller
 
         $hasil_uji = HasilUji::create($request->all());
 
+        $customer = $hasil_uji->pengujian->form_pengajuan->customer;
+        $customer->notify(new HasilUjiNotification($hasil_uji));
+
         if($hasil_uji)
         {
             return Redirect::route('pegawai.hasil_uji.index')->with('message', 'Hasil Uji Berhasil Dibuat!');
@@ -58,7 +62,7 @@ class HasilUjiController extends Controller
         $parameter = ParameterUji::all();
         $pengujian = Pengujian::all();
         
-        return Inertia::render('pegawai/hasil_uji/edit', [
+        return Inertia::render('pegawai/hasil_uji/Edit', [
             'hasil_uji' => $hasil_uji,
             'parameter' => $parameter,
             'pengujian' => $pengujian
@@ -75,7 +79,10 @@ class HasilUjiController extends Controller
             'keterangan' => 'required|string|max:255'
         ]);
         
-        $hasil_uji = HasilUji::update($request->all());
+        $hasil_uji->update($request->all());
+
+        $customer = $hasil_uji->pengujian->form_pengajuan->customer;
+        $customer->notify(new HasilUjiNotification($hasil_uji));
 
         if ($hasil_uji)
         {
@@ -88,7 +95,7 @@ class HasilUjiController extends Controller
     {
         $hasil_uji->load('parameter', 'pengujian');
 
-        return Inertia::render('pegawai/hasil_uji/detail', [
+        return Inertia::render('pegawai/hasil_uji/Detail', [
             'hasil_uji' => $hasil_uji
         ]);
     }

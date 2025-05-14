@@ -68,6 +68,7 @@ class DashboardController extends Controller
             ];
         }
 
+
         return Inertia::render('Dashboard', [
             'statistik' => [
                 'proses' => $proses,

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\CheckPermission;
 use App\Http\Middleware\CheckVerifiedCustomer;
 use App\Http\Middleware\CheckVerifiedPegawai;
@@ -29,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'check.permission' => CheckPermission::class,
             'check.verified.pegawai' => CheckVerifiedPegawai::class,
             'check.verified.customer' => CheckVerifiedCustomer::class,
+            'auth' => Authenticate::class
         ]);
         
     })

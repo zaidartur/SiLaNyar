@@ -15,7 +15,8 @@ class AuthenticatedSessionController extends Controller
     //lihat login pegawai
     public function create()
     {
-        return Inertia::render('admin/auth/Login');
+
+        return Inertia::render('pegawai/Login');
     }
 
     //proses login pegawai

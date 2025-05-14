@@ -18,7 +18,7 @@ class RegisteredUserController extends Controller
     {
         $role = Roles::all();
         
-        return Inertia::render('pegawai/regitrasi', [
+        return Inertia::render('pegawai/Regitrasi', [
             'role' => $role,
         ]);
     }

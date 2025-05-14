@@ -24,7 +24,7 @@ class PengajuanController extends Controller
             ->where('id_customer', $customer->id)
             ->get();
 
-        return Inertia::render('customer/pengajuan/index', [
+        return Inertia::render('customer/pengajuan/Index', [
             'pengajuan' => $pengajuan
         ]);
     }
@@ -36,7 +36,7 @@ class PengajuanController extends Controller
         $kategori = kategori::all();
         $parameter = ParameterUji::all();
 
-        return Inertia::render('customer/pengajuan/tambah', [
+        return Inertia::render('customer/pengajuan/Tambah', [
             'kategori' => $kategori,
             'jenis_cairan' => $jenis_cairan,
             'parameter' => $parameter
@@ -93,7 +93,7 @@ class PengajuanController extends Controller
             ->where('id_customer', $customer->id)
             ->firstOrFail();
 
-        return Inertia::render('customer/pengajuan/detail', [
+        return Inertia::render('customer/pengajuan/Detail', [
             'pengajuan' => $pengajuan
         ]);
     }

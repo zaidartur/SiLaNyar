@@ -8,7 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-class pegawai extends Authenticatable
+class Pegawai extends Authenticatable
 {
     use HasFactory, Notifiable, HasRoles;
 

@@ -13,7 +13,8 @@ class AuthenticatedSessionController extends Controller
 {
     public function create()
     {
-        return Inertia::render('auth/Login');
+
+        return Inertia::render('customer/Login');
     }
 
     public function store(LoginRequest $request)
@@ -32,6 +33,6 @@ class AuthenticatedSessionController extends Controller
         Auth::guard('customer')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return Redirect::route('home');
+        return Redirect::route('customer.dashboard');
     }
 }
