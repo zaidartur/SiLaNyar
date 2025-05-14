@@ -19,17 +19,6 @@ class Customer extends Authenticatable
         'jabatan',
         'no_telepon',
         'email',
-        'password'
-    ];
-
-    protected $hidden = [
-        'password',
-        'remember_token'
-    ];
-
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed'
     ];
 
     public function form_pengajuan()

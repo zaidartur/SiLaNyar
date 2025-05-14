@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\Customer\AuthenticatedSessionController as Custome
 use App\Http\Controllers\Auth\Pegawai\AuthenticatedSessionController as PegawaiAuthenticatedSessionController;
 use App\Http\Controllers\Auth\Pegawai\RegisteredUserController as PegawaiRegisteredUserController;
 use App\Http\Controllers\Auth\Customer\RegisteredUserController as CustomerRegisteredUserController;
+use App\Http\Controllers\auth\SSOAuthController;
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\Pegawai\DashboardController;
 use App\Http\Controllers\Settings\CustomerProfileController;
@@ -41,6 +42,13 @@ Route::prefix('pegawai')->middleware('auth:pegawai')->group(function()
 });
 
 //autentikasi customer
+Route::prefix('customer/sso')->group(function()
+{
+   Route::get('/redirect', [SSOAuthController::class, 'redirect'])->name('customer.sso.redirect');
+   Route::get('/callback', [SSOAuthController::class, 'callback'])->name('customer.sso.callback');
+   Route::get('/logout', [SSOAuthController::class, 'logout'])->name('customer.sso.logout'); 
+});
+
 Route::middleware('guest:customer')->group(function()
 {
     Route::get('registrasi', [CustomerRegisteredUserController::class, 'create'])->name('customer.registrasi');
