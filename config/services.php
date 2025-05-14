@@ -14,6 +14,15 @@ return [
     |
     */
 
+    'sso' => [
+        'client_id' => env('SSO_CLIENT_ID'),
+        'client_secret' => env('SSO_CLIENT_SECRET'),
+        'redirect' => env('SSO_REDIRECT_URI'),
+        'auth_url' => env('SSO_AUTH_URL'),
+        'token_url' => env('SSO_TOKEN_URL'),
+        'user_url' => env('SSO_API_URL'),
+    ],
+
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],

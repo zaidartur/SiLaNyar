@@ -6,6 +6,7 @@ use App\Http\Middleware\CheckVerifiedCustomer;
 use App\Http\Middleware\CheckVerifiedPegawai;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\SSOAuthenticated;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -28,7 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'check.permission' => CheckPermission::class,
-            'check.verified.customer' => CheckVerifiedCustomer::class,
+            'sso.auth' => SSOAuthenticated::class, 
             'auth' => Authenticate::class,
         ]);
         
