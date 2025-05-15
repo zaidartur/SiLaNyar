@@ -15,7 +15,7 @@ defineProps<Props>();
 <template>
     <DropdownMenuSeparator />
     <DropdownMenuGroup>
-        <DropdownMenuItem :as-child="true">
+        <!-- <DropdownMenuItem :as-child="true">
             <Link class="block w-full" :href="route('profile.edit')" as="button">
             <UserIcon class="mr-2 h-4 w-4" />
             Profil
@@ -26,7 +26,7 @@ defineProps<Props>();
             <LayoutDashboard class="mr-2 h-4 w-4" />
             Dashboard
             </Link>
-        </DropdownMenuItem>
+        </DropdownMenuItem> -->
     </DropdownMenuGroup>
     <DropdownMenuSeparator />
     <DropdownMenuItem :as-child="true">

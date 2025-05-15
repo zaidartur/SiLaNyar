@@ -19,7 +19,8 @@ class PengajuanController extends Controller
                         ->get();
     
             return Inertia::render('pegawai/pengajuan/Index', [
-                'pengajuan' => $pengajuan
+                'pengajuan' => $pengajuan,
+                'filter' => request()->all()
             ]);
         }
     

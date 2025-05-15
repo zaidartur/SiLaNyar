@@ -13,6 +13,7 @@ class AuthenticatedSessionController extends Controller
 {
     public function create()
     {
+
         return Inertia::render('customer/Login');
     }
 

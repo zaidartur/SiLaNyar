@@ -15,7 +15,8 @@ class ParameterController extends Controller
         $parameter = ParameterUji::latest()->get();
         
         return Inertia::render('pegawai/parameter/Index', [
-            'parameter' => $parameter
+            'parameter' => $parameter,
+            'filter' => request()->all()
         ]);
     }
 

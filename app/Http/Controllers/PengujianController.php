@@ -19,7 +19,8 @@ class PengujianController extends Controller
         $pengujian = Pengujian::with('form_pengajuan', 'pegawai', 'kategori')->get();
 
         return Inertia::render('pegawai/pengujian/Index', [
-            'pengujian' => $pengujian
+            'pengujian' => $pengujian,
+            'filter' => request()->all()
         ]);
     }
 
