@@ -15,8 +15,10 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 //autentikasi pegawai
-Route::prefix('pegawai')->middleware('guest:pegawai')->group(function()
-{
+Route::prefix('pegawai')->middleware('guest:pegawai')->group(function () {
+    Route::get('registrasi', [PegawaiRegisteredUserController::class, 'create'])->name('pegawai.registrasi');
+    Route::post('registrasi', [PegawaiRegisteredUserController::class, 'store']);
+
     Route::get('login', [PegawaiAuthenticatedSessionController::class, 'create'])->name('pegawai.login');
     Route::post('login', [PegawaiAuthenticatedSessionController::class, 'store']);
 
@@ -27,33 +29,30 @@ Route::prefix('pegawai')->middleware('guest:pegawai')->group(function()
     Route::post('gantipassword', [PegawaiResetPassword::class, 'gantiPassword']);
 });
 Route::get('admin/dashboard', [DashboardController::class, 'indexNoAuthent'])->name('pegawai.dashboard');
-Route::prefix('pegawai')->middleware('auth:pegawai')->group(function()
-{
+Route::prefix('pegawai')->middleware('auth:pegawai')->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('pegawai.dashboard');
 
     Route::get('registrasi', [PegawaiRegisteredUserController::class, 'create'])->name('pegawai.registrasi');
     Route::post('registrasi', [PegawaiRegisteredUserController::class, 'store']);
-    
+
     Route::get('profile/show', [PegawaiProfileController::class, 'show'])->name('pegawai.profile');
     Route::get('profile/edit', [PegawaiProfileController::class, 'edit']);
     Route::put('profile/update', [PegawaiProfileController::class, 'update']);
     Route::delete('profile/destroy', [PegawaiProfileController::class, 'destroy'])->name('pegawai.profile.destroy');
-    Route::post('logout', [PegawaiAuthenticatedSessionController::class, 'destroy'])->name('pegawai.logout');    
+    Route::post('logout', [PegawaiAuthenticatedSessionController::class, 'destroy'])->name('pegawai.logout');
 });
 
 //autentikasi customer
-Route::prefix('customer/sso')->group(function()
-{
-   Route::get('/redirect', [SSOAuthController::class, 'redirect'])->name('customer.sso.redirect');
-   Route::get('/callback', [SSOAuthController::class, 'callback'])->name('customer.sso.callback');
-   Route::get('/logout', [SSOAuthController::class, 'logout'])->name('customer.sso.logout'); 
+Route::prefix('customer/sso')->group(function () {
+    Route::get('/redirect', [SSOAuthController::class, 'redirect'])->name('customer.sso.redirect');
+    Route::get('/callback', [SSOAuthController::class, 'callback'])->name('customer.sso.callback');
+    Route::get('/logout', [SSOAuthController::class, 'logout'])->name('customer.sso.logout');
 });
 
-Route::middleware('guest:customer')->group(function()
-{
-    Route::get('registrasi', [CustomerRegisteredUserController::class, 'create'])->name('customer.registrasi');
+Route::middleware('guest:customer')->group(function () {
+    Route::get('registrasi', [CustomerRegisteredUserController::class, 'create'])->name('customer.register');
     Route::post('registrasi', [CustomerRegisteredUserController::class, 'store']);
-    
+
     Route::get('login', [CustomerAuthenticatedSessionController::class, 'create'])->name('customer.login');
     Route::post('login', [CustomerAuthenticatedSessionController::class, 'store']);
 
@@ -64,7 +63,7 @@ Route::middleware('guest:customer')->group(function()
     Route::post('gantipassword', [CustomerResetPasswordController::class, 'gantiPassword']);
 });
 
-Route::prefix('customer')->middleware(['auth:customer'])->group(function() {
+Route::prefix('customer')->middleware(['auth:customer'])->group(function () {
     Route::get('dashboard', [CustomerDashboardController::class, 'index'])->name('customer.dashboard');
 
     //Fitur Profil
@@ -75,7 +74,7 @@ Route::prefix('customer')->middleware(['auth:customer'])->group(function() {
 
     //Fitur Instansi
     Route::post('profile/instansi', [CustomerProfileController::class, 'storeOrUpdateInstansi']);
-    
+
 
     Route::post('logout', [CustomerAuthenticatedSessionController::class, 'destroy'])->name('customer.logout');
 });

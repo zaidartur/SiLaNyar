@@ -98,7 +98,7 @@ const changeTab = (tabName: string) => {
             </section>
 
             <!-- Main Content -->
-            <section id="informasi" class="flex flex-col w-full bg-white dark:bg-black p-12">
+            <section id="informasi" class="flex flex-col w-full bg-white p-12">
                 <h1 class="self-center text-4xl font-bold text-green-700 dark:text-green-500 max-md:max-w-full mb-12">
                     Jadwal Pelayanan dan Syarat Penerimaan Sample
                 </h1>
@@ -110,7 +110,7 @@ const changeTab = (tabName: string) => {
                         <h2 class="text-4xl font-bold text-green-700 dark:text-green-500 mb-6">
                             Syarat Penerimaan Sample
                         </h2>
-                        <h3 class="mt-6 text-xl text-black dark:text-white">
+                        <h3 class="mt-6 text-xl text-black ">
                             Syarat Kelengkapan dan Kelayakan Sample :
                         </h3>
                         <div class="mt-8">
@@ -125,7 +125,7 @@ const changeTab = (tabName: string) => {
                                                 d="M5 13l4 4L19 7"></path>
                                         </svg>
                                     </div>
-                                    <span class="text-xl font-medium text-black dark:text-gray-200">
+                                    <span class="text-xl font-medium text-black ">
                                         {{ text }}
                                     </span>
                                 </li>
@@ -134,7 +134,7 @@ const changeTab = (tabName: string) => {
 
                         <!-- Sample Ditolak -->
                         <div class="mt-16 mb-8">
-                            <h2 class="text-4xl mb-8 font-bold text-green-700 dark:text-green-500">
+                            <h2 class="text-4xl mb-8 font-bold text-green-700 ">
                                 Sample dapat ditolak apabila
                             </h2>
                             <div class="mt-6">
@@ -149,7 +149,7 @@ const changeTab = (tabName: string) => {
                                                     d="M6 18L18 6M6 6l12 12"></path>
                                             </svg>
                                         </div>
-                                        <span class="text-xl font-medium text-black dark:text-gray-200">
+                                        <span class="text-xl font-medium text-black ">
                                             {{ text }}
                                         </span>
                                     </li>
@@ -162,28 +162,28 @@ const changeTab = (tabName: string) => {
                     <div class="flex flex-col space-y-8">
                         <!-- BOD Sample Table -->
                         <div class="mb-12">
-                            <h2 class="text-4xl font-extrabold text-center text-green-700 dark:text-green-500 mb-5">
+                            <h2 class="text-4xl font-extrabold text-center text-green-700  mb-5">
                                 Sample dengan parameter BOD
                             </h2>
 
-                            <div class="border border-green-700 dark:border-green-500 rounded-lg overflow-hidden">
+                            <div class="border border-green-700 rounded-lg overflow-hidden">
                                 <table class="w-full border-collapse">
-                                    <thead class="bg-green-700 dark:bg-green-500 text-white">
+                                    <thead class="bg-green-700 text-white">
                                         <tr>
                                             <th
-                                                class="px-6 py-3 text-3xl font-bold text-center border-r border-white dark:border-green-500">
+                                                class="px-6 py-3 text-3xl font-bold text-center border-r border-white ">
                                                 Hari</th>
                                             <th class="px-6 py-3 text-3xl font-bold text-center">Waktu</th>
                                         </tr>
                                     </thead>
                                     <tbody
-                                        class="bg-white dark:bg-gray-800 divide-y divide-green-700 dark:divide-green-600">
+                                        class="bg-white  divide-y divide-green-700 ">
                                         <tr>
                                             <td
-                                                class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white border-r border-green-700 dark:border-green-500">
+                                                class="px-6 py-4 text-3xl font-bold text-center text-black  border-r border-green-700 ">
                                                 Rabu-Kamis</td>
                                             <td
-                                                class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white">
+                                                class="px-6 py-4 text-3xl font-bold text-center text-black ">
                                                 08.00 - 11.00</td>
                                         </tr>
                                     </tbody>
@@ -193,16 +193,16 @@ const changeTab = (tabName: string) => {
                             <!-- Non-BOD Sample Table -->
                             <div class="mt-8">
                                 <h2
-                                    class="text-4xl font-extrabold text-center text-green-700 dark:text-green-500 mt-8 mb-5">
+                                    class="text-4xl font-extrabold text-center text-green-700  mt-8 mb-5">
                                     Sample Tanpa parameter BOD
                                 </h2>
 
-                                <div class="border border-green-700 dark:border-green-500 rounded-lg overflow-hidden">
+                                <div class="border border-green-700  rounded-lg overflow-hidden">
                                     <table class="w-full border-collapse">
-                                        <thead class="bg-green-700 dark:bg-green-500 text-white">
+                                        <thead class="bg-green-700  text-white">
                                             <tr>
                                                 <th
-                                                    class="px-6 py-3 text-3xl font-bold text-center border-r border-white dark:border-green-500">
+                                                    class="px-6 py-3 text-3xl font-bold text-center border-r border-white ">
                                                     Hari
                                                 </th>
                                                 <th class="px-6 py-3 text-3xl font-bold text-center">
@@ -211,24 +211,24 @@ const changeTab = (tabName: string) => {
                                             </tr>
                                         </thead>
                                         <tbody
-                                            class="bg-white dark:bg-gray-800 divide-y divide-green-700 dark:divide-green-500">
+                                            class="bg-white divide-y divide-green-700 ">
                                             <tr>
                                                 <td
-                                                    class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white border-r border-green-700 dark:border-green-500">
+                                                    class="px-6 py-4 text-3xl font-bold text-center text-black  border-r border-green-700 dark:border-green-500">
                                                     Rabu-Kamis
                                                 </td>
                                                 <td
-                                                    class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white">
+                                                    class="px-6 py-4 text-3xl font-bold text-center text-black ">
                                                     08.00 - 11.00
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td
-                                                    class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white border-r border-green-700 dark:border-green-500">
+                                                    class="px-6 py-4 text-3xl font-bold text-center text-black  border-r border-green-700 dark:border-green-500">
                                                     Jumat
                                                 </td>
                                                 <td
-                                                    class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white">
+                                                    class="px-6 py-4 text-3xl font-bold text-center text-black ">
                                                     08.00 - 10.00
                                                 </td>
                                             </tr>
@@ -253,7 +253,7 @@ const changeTab = (tabName: string) => {
             <!-- Section Alur Pelayanan -->
             <section>
                 <div
-                    class="flex flex-col justify-center items-center bg-green-200 p-6 rounded-md border border-blue-300">
+                    class="flex flex-col justify-center items-center bg-green-100 p-6 rounded-md border border-blue-300">
                     <h1 class="text-3xl font-semibold text-green-700 text-center mb-8">
                         Diagram Alur Pelayanan Laboratorium Penguji Dinas Lingkungan Hidup<br>
                         Kabupaten karanganyar
@@ -271,11 +271,11 @@ const changeTab = (tabName: string) => {
             </section>
 
             <!-- Section Alur Kerja -->
-            <section class="bg-green-50 dark:bg-black p-4 md:p-8 rounded-0">
-                <h1 class="text-2xl md:text-4xl text-green-700 dark:text-green-500 font-bold text-center mb-4 md:mb-6">
+            <section class="bg-green-50  p-4 md:p-8 rounded-0">
+                <h1 class="text-2xl md:text-4xl text-green-700 :text-green-500 font-bold text-center mb-4 md:mb-6">
                     Alur Kerja Laboratorium
                 </h1>
-                <p class="text-center text-base md:text-lg mb-8 md:mb-16 text-gray-600 dark:text-gray-300">
+                <p class="text-center text-base md:text-lg mb-8 md:mb-16 text-black :text-gray-300">
                     SiLanyar mengotomatisasi dan mengintegrasikan seluruh alur kerja laboratorium lingkungan
                 </p>
 
@@ -284,20 +284,20 @@ const changeTab = (tabName: string) => {
                     <!-- Desktop workflow -->
                     <div class="hidden md:block relative">
                         <!-- Connecting line -->
-                        <div class="absolute h-0.5 bg-green-700 dark:bg-green-500 w-[80%] left-[10%] top-8 z-0"></div>
+                        <div class="absolute h-0.5 bg-green-700 :bg-green-500 w-[80%] left-[10%] top-8 z-0"></div>
 
                         <!-- Steps with circles -->
                         <div class="flex justify-between relative z-10">
                             <div v-for="step in workflowSteps" :key="step.number" class="flex flex-col items-center">
                                 <div
-                                    class="bg-green-700 dark:bg-green-600 text-white rounded-full w-12 h-12 lg:w-16 lg:h-16 flex items-center justify-center text-xl lg:text-2xl font-bold mb-4">
+                                    class="bg-green-700 :bg-green-600 text-white rounded-full w-12 h-12 lg:w-16 lg:h-16 flex items-center justify-center text-xl lg:text-2xl font-bold mb-4">
                                     {{ step.number }}
                                 </div>
                                 <h3
-                                    class="text-green-700 dark:text-green-500 font-bold text-sm lg:text-lg mb-2 text-center">
+                                    class="text-green-700 :text-green-500 font-bold text-sm lg:text-lg mb-2 text-center">
                                     {{ step.title }}
                                 </h3>
-                                <p class="text-xs lg:text-sm text-center max-w-xs text-gray-600 dark:text-gray-300">
+                                <p class="text-xs lg:text-sm text-center max-w-xs text-black :text-gray-300">
                                     {{ step.description }}
                                 </p>
                             </div>
@@ -336,101 +336,33 @@ const changeTab = (tabName: string) => {
             </section>
 
             <!-- About Us -->
-            <section id="about-us" class="bg-green-200 py-16">
+            <section id="about-us" class="bg-green-100 py-16">
                 <div class="max-w-4xl mx-auto p-4">
                     <!-- Header -->
-                    <h1 class="text-4xl text-center font-bold text-green-700 mb-2">About Us</h1>
-                    <p class="text-center text-gray-800 mb-6">
-                        Temukan berbagai informasi terkait lingkungan dan kebersihan di Kabupaten Karanganyar
-                    </p>
+                    <h1 class="text-4xl text-center font-bold text-green-700 mb-8">About Us</h1>
 
-                    <!-- Navigation Tabs -->
-                    <div class="flex justify-center mb-4 border-b border-gray-300">
-                        <button @click="changeTab('Berita Terkini')" :class="[
-                            'py-2 px-6 text-center font-medium',
-                            activeTab === 'Berita Terkini'
-                                ? 'bg-green-600 text-white'
-                                : 'text-gray-700 hover:text-green-600'
-                        ]">
-                            Berita Terkini
-                        </button>
-                        <button @click="changeTab('Regulasi')" :class="[
-                            'py-2 px-6 text-center font-medium',
-                            activeTab === 'Regulasi'
-                                ? 'bg-green-600 text-white'
-                                : 'text-gray-700 hover:text-green-600'
-                        ]">
-                            Regulasi
-                        </button>
-                        <button @click="changeTab('Agenda')" :class="[
-                            'py-2 px-6 text-center font-medium',
-                            activeTab === 'Agenda'
-                                ? 'bg-green-600 text-white'
-                                : 'text-gray-700 hover:text-green-600'
-                        ]">
-                            Agenda
-                        </button>
-                        <button @click="changeTab('Statistik')" :class="[
-                            'py-2 px-6 text-center font-medium',
-                            activeTab === 'Statistik'
-                                ? 'bg-green-600 text-white'
-                                : 'text-gray-700 hover:text-green-600'
-                        ]">
-                            Statistik
-                        </button>
-                    </div>
+                    <h2 class="text-2xl font-bold text-green-700 mb-4">Dinas Lingkungan Hidup Kabupaten Karanganyar</h2>
 
-                    <!-- Content Box -->
-                    <div class="bg-gray-200 rounded-lg p-4">
-                        <!-- Program 1 -->
-                        <div class="mb-6">
-                            <div class="flex items-center mb-2">
-                                <div class="w-6 h-6 bg-red-200 rounded-full flex items-center justify-center mr-2">
-                                    <span class="text-red-500 text-lg">🌱</span>
-                                </div>
-                                <h2 class="text-lg font-medium text-green-700">Program Pengelolaan Sampah Terpadu
-                                    Kabupaten Karanganyar</h2>
-                            </div>
-                            <p class="text-sm text-gray-800 ml-8">
-                                Pemerintah Kabupaten Karanganyar meluncurkan program pengelolaan sampah terpadu yang
-                                melibatkan partisipasi masyarakat dalam
-                                pemilahan sampah dan bank sampah di tingkat desa.
-                            </p>
-                            <div class="border-b border-gray-300 my-4"></div>
-                        </div>
+                    <div class="space-y-4 font-normal text-gray-800">
+                        <p>
+                            Dinas Lingkungan Hidup Kabupaten Karanganyar adalah instansi pemerintah yang bertugas
+                            mengelola dan menjaga kelestarian lingkungan hidup di wilayah Kabupaten Karanganyar. Kami
+                            berkomitmen untuk menciptakan lingkungan yang bersih, sehat, dan berkelanjutan bagi seluruh
+                            masyarakat.
+                        </p>
 
-                        <!-- Program 2 -->
-                        <div class="mb-6">
-                            <div class="flex items-center mb-2">
-                                <div class="w-6 h-6 bg-red-200 rounded-full flex items-center justify-center mr-2">
-                                    <span class="text-red-500 text-lg">🌳</span>
-                                </div>
-                                <h2 class="text-lg font-medium text-green-700">Penanaman 5.000 Pohon di Sepanjang
-                                    Bantaran Sungai</h2>
-                            </div>
-                            <p class="text-sm text-gray-800 ml-8">
-                                Dinas Lingkungan Hidup bersama komunitas lingkungan melakukan penanaman 5.000 pohon di
-                                sepanjang bantaran sungai untuk
-                                mencegah erosi dan menjaga kualitas air.
-                            </p>
-                            <div class="border-b border-gray-300 my-4"></div>
-                        </div>
+                        <p>
+                            Sejak didirikan pada tahun 2008, kami telah melaksanakan berbagai program pengelolaan
+                            lingkungan, termasuk pengelolaan sampah terpadu, penghijauan, konservasi sumber daya air,
+                            pemantauan kualitas udara, serta pendidikan dan kesadaran lingkungan untuk masyarakat.
+                        </p>
 
-                        <!-- Program 3 -->
-                        <div class="mb-2">
-                            <div class="flex items-center mb-2">
-                                <div class="w-6 h-6 bg-red-200 rounded-full flex items-center justify-center mr-2">
-                                    <span class="text-red-500 text-lg">🌡️</span>
-                                </div>
-                                <h2 class="text-lg font-medium text-green-700">Monitoring Kualitas Udara dengan Smart
-                                    Sensor</h2>
-                            </div>
-                            <p class="text-sm text-gray-800 ml-8">
-                                Pemasangan sensor kualitas udara di beberapa titik strategis Kabupaten Karanganyar untuk
-                                pemantauan real-time kualitas udara yang
-                                terintegrasi dengan SiLanVar
-                            </p>
-                        </div>
+                        <p>
+                            Visi kami adalah mewujudkan Kabupaten Karanganyar yang hijau, bersih, dan lestari melalui
+                            pengelolaan lingkungan yang berkelanjutan dan partisipatif. Kami mengajak seluruh lapisan
+                            masyarakat untuk berperan aktif dalam menjaga kelestarian lingkungan hidup demi masa depan
+                            yang lebih baik.
+                        </p>
                     </div>
                 </div>
             </section>

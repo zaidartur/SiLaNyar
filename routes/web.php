@@ -22,6 +22,7 @@ use App\Http\Controllers\RoleController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Mail\SendOtpMail;
+use App\Models\Pegawai;
 
 Route::get('/test-hasiluji', function () {
     $customer = new \App\Models\Customer(['nama' => 'Budi']);
@@ -51,7 +52,7 @@ Route::get('/test-hasiluji', function () {
 Route::get('/test-otp', function () {
     $otp = rand(100000, 999999);
     $nama = 'Aji';
-    
+
     return view('email.otp', ['otp' => $otp, 'nama' => $nama]);
 });
 
@@ -205,5 +206,4 @@ Route::prefix('pegawai')->middleware(['auth:pegawai'])->group(function () {
 
 Route::post('midtrans/callback', [PembayaranController::class, 'callback'])->name('midtrans.callback');
 
-require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
