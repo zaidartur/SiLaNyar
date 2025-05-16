@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import AppLogo from '@/components/AppLogo.vue';
-import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,6 @@ import UserMenuContent from '@/components/UserMenuContent.vue';
 import { getInitials } from '@/composables/useInitials';
 import type { BreadcrumbItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { Menu } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 interface Props {
@@ -27,9 +25,9 @@ const auth = computed(() => page.props.auth);
 <template>
     <div>
         <div class="border-b border-sidebar-border/80">
-            <div class="flex h-20 items-center px-4 w-full">
+            <div class="flex h-20 w-full items-center px-4">
                 <Link :href="route('dashboard')" class="flex items-center gap-x-2">
-                <AppLogo />
+                    <AppLogo />
                 </Link>
 
                 <div class="ml-auto flex items-center space-x-2">
@@ -41,12 +39,14 @@ const auth = computed(() => page.props.auth);
 
                     <DropdownMenu>
                         <DropdownMenuTrigger :as-child="true">
-                            <Button variant="ghost" size="icon"
-                                class="relative size-10 w-auto rounded-full p-1 focus-within:ring-2 focus-within:ring-primary">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                class="relative size-10 w-auto rounded-full p-1 focus-within:ring-2 focus-within:ring-primary"
+                            >
                                 <Avatar class="size-8 overflow-hidden rounded-full">
                                     <AvatarImage src="/storage/assetslandingpage/LogoUser.png" :alt="auth.user.name" />
-                                    <AvatarFallback
-                                        class="rounded-lg bg-neutral-200 font-semibold text-black dark:bg-neutral-700 dark:text-white">
+                                    <AvatarFallback class="rounded-lg bg-neutral-200 font-semibold text-black dark:bg-neutral-700 dark:text-white">
                                         {{ getInitials(auth.user?.name) }}
                                     </AvatarFallback>
                                 </Avatar>

@@ -1,30 +1,29 @@
 <script setup lang="ts">
-import { useForm } from '@inertiajs/vue3'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { computed } from 'vue'
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useForm } from '@inertiajs/vue3';
 
 const props = defineProps<{
     parameter: {
-        id: number,
-        nama_parameter: string,
-        satuan: string,
-        baku_mutu: string,
-        harga: number
-    }
-}>()
+        id: number;
+        nama_parameter: string;
+        satuan: string;
+        baku_mutu: string;
+        harga: number;
+    };
+}>();
 
 const form = useForm({
     nama_parameter: props.parameter.nama_parameter,
     satuan: props.parameter.satuan,
     baku_mutu: props.parameter.baku_mutu,
-    harga: props.parameter.harga
-})
+    harga: props.parameter.harga,
+});
 
 const submit = () => {
-    form.put(`/pegawai/parameter/${props.parameter.id}/edit`)
-}
+    form.put(`/pegawai/parameter/${props.parameter.id}/edit`);
+};
 </script>
 
 <template>
@@ -67,15 +66,18 @@ const submit = () => {
                         </span>
                     </div>
 
-                    <Button type="submit" class="w-full" :disabled="form.processing">
-                        Simpan Perubahan
-                    </Button>
+                    <Button type="submit" class="w-full" :disabled="form.processing"> Simpan Perubahan </Button>
                 </div>
             </form>
         </div>
         <div class="hidden bg-muted lg:block">
-            <img src="/placeholder.svg" alt="Image" width="1920" height="1080"
-                class="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale" />
+            <img
+                src="/placeholder.svg"
+                alt="Image"
+                width="1920"
+                height="1080"
+                class="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+            />
         </div>
     </div>
 </template>
