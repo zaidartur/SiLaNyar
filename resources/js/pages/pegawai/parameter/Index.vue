@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue'
 import { Link } from '@inertiajs/vue3'
-import { ref } from 'vue'
 
 const props = defineProps<{
     parameter: any[],
@@ -11,12 +10,7 @@ const props = defineProps<{
     }
 }>()
 
-const status = ref(props.filter.status)
-const tanggal = ref(props.filter.tanggal)
 
-const handleFilter = () => {
-    window.location.href = `/pegawai/parameter?status=${status.value}&tanggal=${tanggal.value}`
-}
 </script>
 
 <template>

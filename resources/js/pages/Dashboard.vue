@@ -60,12 +60,8 @@ const workflowSteps = ref([
     }
 ]);
 
-// Add to script setup section
-const activeTab = ref('Berita Terkini');
 
-const changeTab = (tabName: string) => {
-    activeTab.value = tabName;
-};
+
 </script>
 
 <template>
@@ -98,7 +94,7 @@ const changeTab = (tabName: string) => {
             </section>
 
             <!-- Main Content -->
-            <section id="informasi" class="flex flex-col w-full bg-white p-12">
+            <section id="informasi" class="flex flex-col w-full bg-white dark:bg-black p-12">
                 <h1 class="self-center text-4xl font-bold text-green-700 dark:text-green-500 max-md:max-w-full mb-12">
                     Jadwal Pelayanan dan Syarat Penerimaan Sample
                 </h1>
@@ -107,10 +103,10 @@ const changeTab = (tabName: string) => {
                 <div class="grid grid-cols-2 gap-12 mt-8 px-8 max-md:grid-cols-1 w-full">
                     <!-- Syarat Penerimaan Sample -->
                     <div class="space-y-8">
-                        <h2 class="text-4xl font-bold text-green-700 dark:text-green-500 mb-6">
+                        <h2 class="text-4xl font-bold text-green-700 dark:text-green-600 mb-6">
                             Syarat Penerimaan Sample
                         </h2>
-                        <h3 class="mt-6 text-xl text-black ">
+                        <h3 class="mt-6 text-xl text-black dark:text-white ">
                             Syarat Kelengkapan dan Kelayakan Sample :
                         </h3>
                         <div class="mt-8">
@@ -125,7 +121,7 @@ const changeTab = (tabName: string) => {
                                                 d="M5 13l4 4L19 7"></path>
                                         </svg>
                                     </div>
-                                    <span class="text-xl font-medium text-black ">
+                                    <span class="text-xl font-medium text-black dark:text-white">
                                         {{ text }}
                                     </span>
                                 </li>
@@ -134,7 +130,7 @@ const changeTab = (tabName: string) => {
 
                         <!-- Sample Ditolak -->
                         <div class="mt-16 mb-8">
-                            <h2 class="text-4xl mb-8 font-bold text-green-700 ">
+                            <h2 class="text-4xl mb-8 font-bold text-green-700 dark:text-green-600">
                                 Sample dapat ditolak apabila
                             </h2>
                             <div class="mt-6">
@@ -149,7 +145,7 @@ const changeTab = (tabName: string) => {
                                                     d="M6 18L18 6M6 6l12 12"></path>
                                             </svg>
                                         </div>
-                                        <span class="text-xl font-medium text-black ">
+                                        <span class="text-xl font-medium text-black dark:text-white">
                                             {{ text }}
                                         </span>
                                     </li>
@@ -162,28 +158,25 @@ const changeTab = (tabName: string) => {
                     <div class="flex flex-col space-y-8">
                         <!-- BOD Sample Table -->
                         <div class="mb-12">
-                            <h2 class="text-4xl font-extrabold text-center text-green-700  mb-5">
+                            <h2 class="text-4xl font-extrabold text-center text-customDarkGreen dark:text-green-600 mb-5">
                                 Sample dengan parameter BOD
                             </h2>
 
                             <div class="border border-green-700 rounded-lg overflow-hidden">
                                 <table class="w-full border-collapse">
-                                    <thead class="bg-green-700 text-white">
+                                    <thead class="bg-customDarkGreen text-white">
                                         <tr>
-                                            <th
-                                                class="px-6 py-3 text-3xl font-bold text-center border-r border-white ">
+                                            <th class="px-6 py-3 text-3xl font-bold text-center border-r border-customDarkGreen ">
                                                 Hari</th>
                                             <th class="px-6 py-3 text-3xl font-bold text-center">Waktu</th>
                                         </tr>
                                     </thead>
-                                    <tbody
-                                        class="bg-white  divide-y divide-green-700 ">
+                                    <tbody class="bg-white dark:bg-black divide-y divide-green-700 ">
                                         <tr>
                                             <td
-                                                class="px-6 py-4 text-3xl font-bold text-center text-black  border-r border-green-700 ">
+                                                class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white border-r border-customDarkGreen">
                                                 Rabu-Kamis</td>
-                                            <td
-                                                class="px-6 py-4 text-3xl font-bold text-center text-black ">
+                                            <td class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white">
                                                 08.00 - 11.00</td>
                                         </tr>
                                     </tbody>
@@ -192,17 +185,16 @@ const changeTab = (tabName: string) => {
 
                             <!-- Non-BOD Sample Table -->
                             <div class="mt-8">
-                                <h2
-                                    class="text-4xl font-extrabold text-center text-green-700  mt-8 mb-5">
+                                <h2 class="text-4xl font-extrabold text-center text-customDarkGreen dark:text-green-600 mt-8 mb-5">
                                     Sample Tanpa parameter BOD
                                 </h2>
 
                                 <div class="border border-green-700  rounded-lg overflow-hidden">
                                     <table class="w-full border-collapse">
-                                        <thead class="bg-green-700  text-white">
+                                        <thead class="bg-customDarkGreen text-white">
                                             <tr>
                                                 <th
-                                                    class="px-6 py-3 text-3xl font-bold text-center border-r border-white ">
+                                                    class="px-6 py-3 text-3xl font-bold text-center border-r border-customDarkGreen ">
                                                     Hari
                                                 </th>
                                                 <th class="px-6 py-3 text-3xl font-bold text-center">
@@ -210,25 +202,22 @@ const changeTab = (tabName: string) => {
                                                 </th>
                                             </tr>
                                         </thead>
-                                        <tbody
-                                            class="bg-white divide-y divide-green-700 ">
+                                        <tbody class="bg-white dark:bg-black divide-y divide-green-700 ">
                                             <tr>
                                                 <td
-                                                    class="px-6 py-4 text-3xl font-bold text-center text-black  border-r border-green-700 dark:border-green-500">
+                                                    class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white border-r border-customDarkGreen dark:border-green-500">
                                                     Rabu-Kamis
                                                 </td>
-                                                <td
-                                                    class="px-6 py-4 text-3xl font-bold text-center text-black ">
+                                                <td class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white">
                                                     08.00 - 11.00
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td
-                                                    class="px-6 py-4 text-3xl font-bold text-center text-black  border-r border-green-700 dark:border-green-500">
+                                                    class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white border-r border-customDarkGreen dark:border-green-500">
                                                     Jumat
                                                 </td>
-                                                <td
-                                                    class="px-6 py-4 text-3xl font-bold text-center text-black ">
+                                                <td class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white">
                                                     08.00 - 10.00
                                                 </td>
                                             </tr>
@@ -271,11 +260,11 @@ const changeTab = (tabName: string) => {
             </section>
 
             <!-- Section Alur Kerja -->
-            <section class="bg-green-50  p-4 md:p-8 rounded-0">
-                <h1 class="text-2xl md:text-4xl text-green-700 :text-green-500 font-bold text-center mb-4 md:mb-6">
+            <section class="bg-green-50 dark:bg-black p-4 md:p-8 rounded-0">
+                <h1 class="text-2xl md:text-4xl text-customDarkGreen dark:text-green-600 font-bold text-center mb-4 md:mb-6">
                     Alur Kerja Laboratorium
                 </h1>
-                <p class="text-center text-base md:text-lg mb-8 md:mb-16 text-black :text-gray-300">
+                <p class="text-center text-base md:text-lg mb-8 md:mb-16 text-black dark:text-gray-300">
                     SiLanyar mengotomatisasi dan mengintegrasikan seluruh alur kerja laboratorium lingkungan
                 </p>
 
@@ -284,7 +273,7 @@ const changeTab = (tabName: string) => {
                     <!-- Desktop workflow -->
                     <div class="hidden md:block relative">
                         <!-- Connecting line -->
-                        <div class="absolute h-0.5 bg-green-700 :bg-green-500 w-[80%] left-[10%] top-8 z-0"></div>
+                        <div class="absolute h-0.5 bg-green-700 dark:bg-green-500 w-[80%] left-[10%] top-8 z-0"></div>
 
                         <!-- Steps with circles -->
                         <div class="flex justify-between relative z-10">
@@ -297,7 +286,7 @@ const changeTab = (tabName: string) => {
                                     class="text-green-700 :text-green-500 font-bold text-sm lg:text-lg mb-2 text-center">
                                     {{ step.title }}
                                 </h3>
-                                <p class="text-xs lg:text-sm text-center max-w-xs text-black :text-gray-300">
+                                <p class="text-xs lg:text-sm text-center max-w-xs text-black dark:text-gray-300">
                                     {{ step.description }}
                                 </p>
                             </div>

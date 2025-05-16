@@ -75,7 +75,10 @@ class DashboardController extends Controller
             ],
             'pengajuan' => $pengajuan,
             'pilihPengajuan' => $pilihPengajuan,
-            'statusList' => $statusList
+            'statusList' => $statusList,
+            'auth' => [
+                'user' => $customer,
+            ],
         ]);
     }
 }
