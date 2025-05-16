@@ -33,7 +33,8 @@ Route::prefix('pegawai')->middleware('guest:pegawai')->group(function () {
     Route::post('verifikasiotp', [PegawaiResetPassword::class, 'verifikasiOtp']);
     Route::post('gantipassword', [PegawaiResetPassword::class, 'gantiPassword']);
 });
-Route::get('admin/dashboard', [DashboardController::class, 'indexNoAuthent'])->name('pegawai.dashboard');
+Route::get('admin/dashboard', [DashboardController::class, 'indexTest'])->name('pegawai.dashboard');
+
 Route::prefix('pegawai')->middleware('auth:pegawai')->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('pegawai.dashboard');
 
@@ -50,7 +51,6 @@ Route::prefix('pegawai')->middleware('auth:pegawai')->group(function () {
 Route::middleware('guest:customer')->group(function()
 {
     Route::get('registrasi', [CustomerRegisteredUserController::class, 'create'])->name('customer.registrasi');
-
     Route::post('registrasi', [CustomerRegisteredUserController::class, 'store']);
 
     Route::get('login', [CustomerAuthenticatedSessionController::class, 'create'])->name('customer.login');

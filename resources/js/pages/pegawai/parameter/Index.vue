@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import AdminLayout from '@/layouts/admin/AdminLayout.vue';
-import { Link } from '@inertiajs/vue3';
+import AdminLayout from '@/layouts/admin/AdminLayout.vue'
+import { Link } from '@inertiajs/vue3'
 
 const props = defineProps<{
     parameter: any[];

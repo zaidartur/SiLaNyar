@@ -43,8 +43,8 @@ const submit = () => {
 
                     <div class="grid gap-2">
                         <Label for="baku_mutu">Baku Mutu</Label>
-                        <Input id="baku_mutu" v-model="form.baku_mutu" type="number" step="0.01" placeholder="Contoh: 6.5 - 8.5"
-                            required />
+                        <Input id="baku_mutu" v-model="form.baku_mutu" type="number" step="0.01"
+                            placeholder="Contoh: 6.5 - 8.5" required />
                         <span v-if="form.errors.baku_mutu" class="text-sm text-red-600">
                             {{ form.errors.baku_mutu }}
                         </span>
@@ -65,9 +65,12 @@ const submit = () => {
                 </div>
             </form>
         </div>
-        <div class="hidden bg-muted lg:block">
-            <img src="/placeholder.svg" alt="Image" width="1920" height="1080"
-                class="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale" />
+        <div class="hidden bg-green-800 lg:flex lg:items-center lg:justify-center flex-col">
+            <img src="/storage/assetsadmin/logodlh.png" alt="Logo DLH" class="w-auto h-48 object-contain mx-auto" />
+            <div class="text-center text-white mt-6">
+                <h2 class="text-2xl font-bold mb-2 border-b border-white pb-2">SiLanYar</h2>
+                <p class="text-sm">Sistem Laboratoruim Karanganyar</p>
+            </div>
         </div>
     </div>
 </template>

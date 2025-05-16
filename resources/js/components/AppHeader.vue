@@ -19,10 +19,20 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const page = usePage();
-const auth = computed(() => page.props.auth);
+
+interface User {
+    nama?: string;
+}
+
+interface Auth {
+    user?: User;
+}
+const auth = computed<Auth>(() => page.props.auth as Auth);
 </script>
 
 <template>
+    <!-- Tambahkan ini untuk debug -->
+    <pre>{{ auth }}</pre>
     <div>
         <div class="border-b border-sidebar-border/80">
             <div class="flex h-20 w-full items-center px-4">
@@ -32,28 +42,25 @@ const auth = computed(() => page.props.auth);
 
                 <div class="ml-auto flex items-center space-x-2">
                     <div class="relative flex items-center space-x-1">
-                        <span v-if="auth?.user?.name">
-                            {{ auth.user.name }}
+                        <span v-if="auth.user?.nama" class="ml-2 font-bold text-customDarkGreen">
+                            {{ auth.user.nama }}
                         </span>
                     </div>
 
                     <DropdownMenu>
                         <DropdownMenuTrigger :as-child="true">
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                class="relative size-10 w-auto rounded-full p-1 focus-within:ring-2 focus-within:ring-primary"
-                            >
-                                <Avatar class="size-8 overflow-hidden rounded-full">
-                                    <AvatarImage src="/storage/assetslandingpage/LogoUser.png" :alt="auth.user.name" />
-                                    <AvatarFallback class="rounded-lg bg-neutral-200 font-semibold text-black dark:bg-neutral-700 dark:text-white">
-                                        {{ getInitials(auth.user?.name) }}
-                                    </AvatarFallback>
+                            <Button variant="ghost" size="icon"
+                                class="relative size-16 w-auto rounded-full p-1 focus-within:ring-2 focus-within:ring-primary">
+                                <Avatar class="size-14 overflow-hidden rounded-full bg-white">
+                                    <AvatarImage src="/storage/assetslandingpage/LogoUser.png" :alt="auth.user?.nama" />
+                                    <!-- <AvatarFallback class="rounded-lg bg-neutral-200 font-semibold text-black">
+                                        {{ getInitials(auth.user?.nama) }}
+                                    </AvatarFallback> -->
                                 </Avatar>
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" class="w-56">
-                            <UserMenuContent :user="auth.user" />
+                        <DropdownMenuContent align="end" class="w-56 z-50">
+                            <UserMenuContent />
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>

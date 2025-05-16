@@ -60,7 +60,7 @@ Route::get('/', function () {
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->name('dashboard');
 
 //route superadmin
 Route::prefix('superadmin')->middleware(['auth:pegawai'])->group(function () {
@@ -127,7 +127,7 @@ Route::prefix('customer')->middleware(['auth:customer'])->group(function () {
 });
 
 //route pegawai
-Route::prefix('pegawai')->middleware(['auth:pegawai'])->group(function () {
+Route::prefix('pegawai')->group(function () {
 
     //fitur instansi
     Route::get('instansi', [VerifikasiInstansi::class, 'index'])->name('pegawai.instansi.index');
@@ -182,12 +182,12 @@ Route::prefix('pegawai')->middleware(['auth:pegawai'])->group(function () {
     Route::delete('kategori/{id}', [KategoriController::class, 'destroy'])->middleware('check.permission:delete-kategori');
 
     //fitur parameter
-    Route::get('parameter/', [ParameterController::class, 'index'])->middleware('check.permission:lihat-parameter')->name('pegawai.parameter.index');
-    Route::get('parameter/create', [ParameterController::class, 'create'])->middleware('check.permission:tambah-parameter');
+    Route::get('parameter/', [ParameterController::class, 'index'])->name('pegawai.parameter.index');
+    Route::get('parameter/create', [ParameterController::class, 'create'])->name('pegawai.parameter.tambah');
     Route::post('parameter/store', [ParameterController::class, 'store']);
-    Route::get('parameter/edit/{parameter}', [ParameterController::class, 'edit'])->middleware('check.permission:edit-parameter');
+    Route::get('parameter/edit/{parameter}', [ParameterController::class, 'edit'])->name('pegawai.parameter.edit');
     Route::put('parameter/{parameter}/edit', [ParameterController::class, 'update']);
-    Route::delete('parameter/{id}', [ParameterController::class, 'destroy'])->middleware('check.permission:delete-parameter');
+    Route::delete('parameter/{id}', [ParameterController::class, 'destroy'])->name('pegawai.parameter.destroy');
 
     //fitur hasil uji
     Route::get('hasiluji/', [HasilUjiController::class, 'index'])->middleware('check.permission:lihat-hasil_uji')->name('pegawai.hasil_uji.index');

@@ -24,7 +24,7 @@ const form = useForm({
 
 const submit = () => {
     form.jenis_user = selectedJenisAkun.value === 'pribadi' ? 'perorangan' : 'instansi'
-    form.post(route('customer.register'), {
+    form.post(route('customer.registrasi'), {
         onSuccess: () => {
             form.reset()
             step.value = 1
