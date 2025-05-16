@@ -3,17 +3,16 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
+use Inertia\Inertia;
 
 class SSOController extends Controller
 {
-    private $clientId = 'b41e9d5b-938b-447d-80cf-d4f53d253acf';
-    private $clientSecret = 'r71UEJ4qoQ4lbaoOpD1SYF9hAvFwS1v4Ts1A65by';
-    private $authorizeUrl = 'https://sakti.karanganyarkab.go.id/login/oauth/authorize';
-    private $tokenUrl = 'https://sakti.karanganyarkab.go.id/login/oauth/access_token';
-    private $apiUrl = 'https://sakti.karanganyarkab.go.id/api/user';
 
     public function redirect(Request $request)
     {
@@ -39,7 +38,7 @@ class SSOController extends Controller
             return redirect('/')->withErrors(['SSO state mismatch']);
         }
 
-        $response = Http::withoutVerifying()->asForm()->post(config('services.sso.token_url'), [
+        $response = Http::timeout(60)->withoutVerifying()->asForm()->post(config('services.sso.token_url'), [
             'grant_type' => 'authorization_code',
             'client_id' => config('services.sso.client_id'),
             'client_secret' => config('services.sso.client_secret'),
@@ -51,30 +50,46 @@ class SSOController extends Controller
             return redirect('/')->withErrors(['Failed to get access token']);
         }
 
-        session(['access_token' => $response['access_token']]);
+        $aksesToken = $response['access_token'];
+        session(['access_token' => $aksesToken]);
+
+        $userResponse =  Http::withoutVerifying()->withToken($aksesToken)
+            ->withHeaders([
+                'Accept' => 'application/json',
+                'User-agent' => 'https://example-app.com/',
+            ])
+            ->get(config('services.sso.api_user_url'));
+
+        if ($userResponse->failed()) {
+            return Redirect::route('/')->withErrors(['Gagal Mengambil Informasi Data']);
+        }
+
+        $userData = $userResponse->json();
+
+        $customer = Customer::updateOrCreate(
+            ['email' => $userData['email']],
+            [
+                'nama'           => $userData['nama'],
+                'nik'            => $userData['nik'],
+                'tanggal_lahir'  => $userData['tgl_lahir'],
+                'rt'             => $userData['rt'],
+                'rw'             => $userData['rw'],
+                'kode_pos'       => $userData['kode_pos'],
+                'alamat'         => $userData['alamat'],
+                'username'       => $userData['username'],
+                'no_telepon'     => $userData['no_wa'],
+            ]
+        );
+
+        Auth::guard('customer')->login($customer);
 
         return redirect('customer/dashboard');
     }
 
     public function logout()
     {
+        Auth::guard('customer')->logout();
         session()->forget('access_token');
         return redirect('/');
-    }
-
-    public function user()
-    {
-        if (!session()->has('access_token')) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
-
-        $response = Http::withToken(session('access_token'))
-            ->withHeaders([
-                'Accept' => 'application/json',
-                'User-Agent' => 'https://example-app.com/'
-            ])
-            ->get(config('services.sso.api_user_url'));
-
-        return $response->json();
     }
 }

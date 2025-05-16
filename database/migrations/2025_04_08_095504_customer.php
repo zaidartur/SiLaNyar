@@ -15,8 +15,13 @@ return new class extends Migration
             $table->id();
             $table->string('nama');
             $table->string('nik')->unique();
-            $table->string('jabatan')->nullable();
-            $table->string('no_telepon')->nullable();
+            $table->date('tanggal_lahir');
+            $table->integer('rt');
+            $table->integer('rw');
+            $table->integer('kode_pos');
+            $table->string('alamat');
+            $table->string('username');
+            $table->string('no_telepon');
             $table->string('email')->unique();
             $table->timestamps();
         });
