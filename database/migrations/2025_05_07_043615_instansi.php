@@ -21,6 +21,8 @@ return new class extends Migration
             $table->string('alamat');
             $table->string('no_telepon');
             $table->string('email')->unique();
+            $table->enum('status_verifikasi', ['diproses', 'diterima', 'ditolak'])->default('diproses');
+            $table->string('diverifikasi_oleh');
             $table->timestamps();
         });
     }

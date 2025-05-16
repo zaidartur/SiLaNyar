@@ -18,10 +18,12 @@ class Instansi extends Model
         'alamat',
         'no_telepon',
         'email',
+        'status_verifikasi',
+        'diverifikasi_oleh'
     ];
 
     public function customer()
     {
-        $this->belongsTo(Customer::class, 'id_customer');    
+        $this->belongsTo(Customer::class, 'id_customer');
     }
 }

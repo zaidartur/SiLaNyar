@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import AppLogo from '@/components/AppLogo.vue';
-import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,6 @@ import UserMenuContent from '@/components/UserMenuContent.vue';
 import { getInitials } from '@/composables/useInitials';
 import type { BreadcrumbItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { Menu } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 interface Props {
@@ -37,9 +35,9 @@ const auth = computed<Auth>(() => page.props.auth as Auth);
     <pre>{{ auth }}</pre>
     <div>
         <div class="border-b border-sidebar-border/80">
-            <div class="flex h-20 items-center px-4 w-full">
+            <div class="flex h-20 w-full items-center px-4">
                 <Link :href="route('dashboard')" class="flex items-center gap-x-2">
-                <AppLogo />
+                    <AppLogo />
                 </Link>
 
                 <div class="ml-auto flex items-center space-x-2">
