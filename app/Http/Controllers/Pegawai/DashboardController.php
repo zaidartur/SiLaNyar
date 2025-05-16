@@ -12,7 +12,7 @@ use App\Models\Pengujian;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class DashboardController extends Controller
+class   DashboardController extends Controller
 {
     public function index()
     {
@@ -51,7 +51,7 @@ class DashboardController extends Controller
             $pengujian = Pengujian::count();
             $hasil_uji = HasilUji::count();
 
-            return Inertia::render('dashboard/Admin', [
+            return Inertia::render('pegawai/Dashboard', [
                 'statistik' => [
                     'pengajuan' => $pengajuan,
                     'jadwal' => $jadwal,
@@ -62,5 +62,10 @@ class DashboardController extends Controller
         }
 
         return Inertia::render('dashboard/Default');
+    }
+
+    public function indexTest()
+    {
+        return Inertia::render('pegawai/Dashboard');
     }
 }

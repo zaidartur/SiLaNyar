@@ -206,5 +206,4 @@ Route::prefix('pegawai')->middleware(['auth:pegawai'])->group(function () {
 
 Route::post('midtrans/callback', [PembayaranController::class, 'callback'])->name('midtrans.callback');
 
-require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

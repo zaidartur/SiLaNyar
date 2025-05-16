@@ -18,7 +18,8 @@ class RegisteredUserController extends Controller
     //lihat daftar customer
     public function create()
     {
-        return Inertia::render('customer/Registrasi');
+
+        return Inertia::render('customer/Register');
     }
 
     //proses daftar customer

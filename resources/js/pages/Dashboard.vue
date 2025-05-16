@@ -12,19 +12,19 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const syaratPenerimaan = ref([
-    "Volume / jumlah sample minimal 2,5 liter",
-    "Volume / jumlah sample lemak 1 liter dengan berbotol kaca gelap dan bermulut lebar",
-    "Volume sample vecal coli dan total coli minimal 100 ml dengan botol kaca gelap steril",
-    "Kondisi wadah / kemasan sampel harus bersih dan tidak terkontaminasi",
-    "Waktu pengambilan sampel serta lama penyimpanan harus jelas",
-    "Memberikan informasi jika sampel diawetkan meliputi waktu pengawetan dan bahan pengawet yang digunakan"
+    'Volume / jumlah sample minimal 2,5 liter',
+    'Volume / jumlah sample lemak 1 liter dengan berbotol kaca gelap dan bermulut lebar',
+    'Volume sample vecal coli dan total coli minimal 100 ml dengan botol kaca gelap steril',
+    'Kondisi wadah / kemasan sampel harus bersih dan tidak terkontaminasi',
+    'Waktu pengambilan sampel serta lama penyimpanan harus jelas',
+    'Memberikan informasi jika sampel diawetkan meliputi waktu pengawetan dan bahan pengawet yang digunakan',
 ]);
 
 const sampleDitolak = ref([
-    "Volume atau jumlah sampel kurang dari persyaratan",
-    "Sampel sudah terlalu lama disolasi",
-    "Sampel mengalami kerusakan di perjalanan saat pengiriman sampel",
-    "Kemasan sampel sudah rusak atau tidak sesuai sehingga mempengaruhi isi sampel"
+    'Volume atau jumlah sampel kurang dari persyaratan',
+    'Sampel sudah terlalu lama disolasi',
+    'Sampel mengalami kerusakan di perjalanan saat pengiriman sampel',
+    'Kemasan sampel sudah rusak atau tidak sesuai sehingga mempengaruhi isi sampel',
 ]);
 
 defineProps({
@@ -36,60 +36,48 @@ const workflowSteps = ref([
     {
         number: 1,
         title: 'Registrasi Sampel',
-        description: 'Pendaftaran sampel dengan data lengkap lokasi, waktu pengambilan, dan parameter uji.'
+        description: 'Pendaftaran sampel dengan data lengkap lokasi, waktu pengambilan, dan parameter uji.',
     },
     {
         number: 2,
         title: 'Verifikasi Sample',
-        description: 'Pemeriksaan kesesuaian sampel dengan kriteria pengujian.'
+        description: 'Pemeriksaan kesesuaian sampel dengan kriteria pengujian.',
     },
     {
         number: 3,
         title: 'Distribusi Sample',
-        description: 'Pembagian sampel ke bagian laboratorium yang sesuai.'
+        description: 'Pembagian sampel ke bagian laboratorium yang sesuai.',
     },
     {
         number: 4,
         title: 'Menganalisis Sample',
-        description: 'Pengujian sampel menggunakan metode dan peralatan yang tepat.'
+        description: 'Pengujian sampel menggunakan metode dan peralatan yang tepat.',
     },
     {
         number: 5,
         title: 'Pelaporan',
-        description: 'Penyusunan hasil analisis dalam bentuk laporan.'
-    }
+        description: 'Penyusunan hasil analisis dalam bentuk laporan.',
+    },
 ]);
-
-// Add to script setup section
-const activeTab = ref('Berita Terkini');
-
-const changeTab = (tabName: string) => {
-    activeTab.value = tabName;
-};
 </script>
 
 <template>
-
     <Head title="Dashboard" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <!-- Remove padding and make container full width -->
         <div class="flex min-h-screen w-full flex-col">
             <!-- Hero Section -->
-            <section class="relative h-screen w-full bg-cover bg-center"
-                style="background-image: url('/storage/assetslandingpage/hero.png')">
-                <div class="absolute inset-0 bg-black/40 flex items-center justify-center text-white">
+            <section class="relative h-screen w-full bg-cover bg-center" style="background-image: url('/storage/assetslandingpage/hero.png')">
+                <div class="absolute inset-0 flex items-center justify-center bg-black/40 text-white">
                     <div class="text-center">
-                        <h2 class="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-                            Sistem Laboratorium Lingkungan Terpadu
-                        </h2>
+                        <h2 class="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">Sistem Laboratorium Lingkungan Terpadu</h2>
                         <p class="mx-auto mt-6 max-w-2xl text-lg leading-8">
-                            Manajemen dan monitoring laboratorium lingkungan yang komprehensif untuk memantau
-                            kualitas lingkungan di Kabupaten Karanganyar.
+                            Manajemen dan monitoring laboratorium lingkungan yang komprehensif untuk memantau kualitas lingkungan di Kabupaten
+                            Karanganyar.
                         </p>
                         <div class="mt-10">
-                            <button
-                                class="rounded-lg bg-orange-400 px-6 py-3 text-lg font-semibold text-white transition-colors hover:bg-orange-500">
+                            <button class="rounded-lg bg-orange-400 px-6 py-3 text-lg font-semibold text-white transition-colors hover:bg-orange-500">
                                 Pelajari Sistem Lab
                             </button>
                         </div>
@@ -98,34 +86,26 @@ const changeTab = (tabName: string) => {
             </section>
 
             <!-- Main Content -->
-            <section id="informasi" class="flex flex-col w-full bg-white dark:bg-black p-12">
-                <h1 class="self-center text-4xl font-bold text-green-700 dark:text-green-500 max-md:max-w-full mb-12">
+            <section id="informasi" class="flex w-full flex-col bg-white p-12">
+                <h1 class="mb-12 self-center text-4xl font-bold text-green-700 dark:text-green-500 max-md:max-w-full">
                     Jadwal Pelayanan dan Syarat Penerimaan Sample
                 </h1>
 
                 <!-- Container pakai grid -->
-                <div class="grid grid-cols-2 gap-12 mt-8 px-8 max-md:grid-cols-1 w-full">
+                <div class="mt-8 grid w-full grid-cols-2 gap-12 px-8 max-md:grid-cols-1">
                     <!-- Syarat Penerimaan Sample -->
                     <div class="space-y-8">
-                        <h2 class="text-4xl font-bold text-green-700 dark:text-green-500 mb-6">
-                            Syarat Penerimaan Sample
-                        </h2>
-                        <h3 class="mt-6 text-xl text-black dark:text-white">
-                            Syarat Kelengkapan dan Kelayakan Sample :
-                        </h3>
+                        <h2 class="mb-6 text-4xl font-bold text-green-700 dark:text-green-500">Syarat Penerimaan Sample</h2>
+                        <h3 class="mt-6 text-xl text-black">Syarat Kelengkapan dan Kelayakan Sample :</h3>
                         <div class="mt-8">
                             <ul class="space-y-6">
-                                <li v-for="(text, index) in syaratPenerimaan" :key="index"
-                                    class="flex items-start gap-3">
-                                    <div
-                                        class="flex-shrink-0 h-6 w-6 rounded-full bg-green-600 flex items-center justify-center mt-1">
-                                        <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M5 13l4 4L19 7"></path>
+                                <li v-for="(text, index) in syaratPenerimaan" :key="index" class="flex items-start gap-3">
+                                    <div class="mt-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-green-600">
+                                        <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                         </svg>
                                     </div>
-                                    <span class="text-xl font-medium text-black dark:text-gray-200">
+                                    <span class="text-xl font-medium text-black">
                                         {{ text }}
                                     </span>
                                 </li>
@@ -133,23 +113,17 @@ const changeTab = (tabName: string) => {
                         </div>
 
                         <!-- Sample Ditolak -->
-                        <div class="mt-16 mb-8">
-                            <h2 class="text-4xl mb-8 font-bold text-green-700 dark:text-green-500">
-                                Sample dapat ditolak apabila
-                            </h2>
+                        <div class="mb-8 mt-16">
+                            <h2 class="mb-8 text-4xl font-bold text-green-700">Sample dapat ditolak apabila</h2>
                             <div class="mt-6">
                                 <ul class="space-y-6">
-                                    <li v-for="(text, index) in sampleDitolak" :key="index"
-                                        class="flex items-start gap-3">
-                                        <div
-                                            class="flex-shrink-0 h-6 w-6 rounded-full bg-red-500 flex items-center justify-center mt-1">
-                                            <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M6 18L18 6M6 6l12 12"></path>
+                                    <li v-for="(text, index) in sampleDitolak" :key="index" class="flex items-start gap-3">
+                                        <div class="mt-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-red-500">
+                                            <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                             </svg>
                                         </div>
-                                        <span class="text-xl font-medium text-black dark:text-gray-200">
+                                        <span class="text-xl font-medium text-black">
                                             {{ text }}
                                         </span>
                                     </li>
@@ -162,29 +136,20 @@ const changeTab = (tabName: string) => {
                     <div class="flex flex-col space-y-8">
                         <!-- BOD Sample Table -->
                         <div class="mb-12">
-                            <h2 class="text-4xl font-extrabold text-center text-green-700 dark:text-green-500 mb-5">
-                                Sample dengan parameter BOD
-                            </h2>
+                            <h2 class="mb-5 text-center text-4xl font-extrabold text-green-700">Sample dengan parameter BOD</h2>
 
-                            <div class="border border-green-700 dark:border-green-500 rounded-lg overflow-hidden">
+                            <div class="overflow-hidden rounded-lg border border-green-700">
                                 <table class="w-full border-collapse">
-                                    <thead class="bg-green-700 dark:bg-green-500 text-white">
+                                    <thead class="bg-green-700 text-white">
                                         <tr>
-                                            <th
-                                                class="px-6 py-3 text-3xl font-bold text-center border-r border-white dark:border-green-500">
-                                                Hari</th>
-                                            <th class="px-6 py-3 text-3xl font-bold text-center">Waktu</th>
+                                            <th class="border-r border-white px-6 py-3 text-center text-3xl font-bold">Hari</th>
+                                            <th class="px-6 py-3 text-center text-3xl font-bold">Waktu</th>
                                         </tr>
                                     </thead>
-                                    <tbody
-                                        class="bg-white dark:bg-gray-800 divide-y divide-green-700 dark:divide-green-600">
+                                    <tbody class="divide-y divide-green-700 bg-white">
                                         <tr>
-                                            <td
-                                                class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white border-r border-green-700 dark:border-green-500">
-                                                Rabu-Kamis</td>
-                                            <td
-                                                class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white">
-                                                08.00 - 11.00</td>
+                                            <td class="border-r border-green-700 px-6 py-4 text-center text-3xl font-bold text-black">Rabu-Kamis</td>
+                                            <td class="px-6 py-4 text-center text-3xl font-bold text-black">08.00 - 11.00</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -192,45 +157,32 @@ const changeTab = (tabName: string) => {
 
                             <!-- Non-BOD Sample Table -->
                             <div class="mt-8">
-                                <h2
-                                    class="text-4xl font-extrabold text-center text-green-700 dark:text-green-500 mt-8 mb-5">
-                                    Sample Tanpa parameter BOD
-                                </h2>
+                                <h2 class="mb-5 mt-8 text-center text-4xl font-extrabold text-green-700">Sample Tanpa parameter BOD</h2>
 
-                                <div class="border border-green-700 dark:border-green-500 rounded-lg overflow-hidden">
+                                <div class="overflow-hidden rounded-lg border border-green-700">
                                     <table class="w-full border-collapse">
-                                        <thead class="bg-green-700 dark:bg-green-500 text-white">
+                                        <thead class="bg-green-700 text-white">
                                             <tr>
-                                                <th
-                                                    class="px-6 py-3 text-3xl font-bold text-center border-r border-white dark:border-green-500">
-                                                    Hari
-                                                </th>
-                                                <th class="px-6 py-3 text-3xl font-bold text-center">
-                                                    Waktu
-                                                </th>
+                                                <th class="border-r border-white px-6 py-3 text-center text-3xl font-bold">Hari</th>
+                                                <th class="px-6 py-3 text-center text-3xl font-bold">Waktu</th>
                                             </tr>
                                         </thead>
-                                        <tbody
-                                            class="bg-white dark:bg-gray-800 divide-y divide-green-700 dark:divide-green-500">
+                                        <tbody class="divide-y divide-green-700 bg-white">
                                             <tr>
                                                 <td
-                                                    class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white border-r border-green-700 dark:border-green-500">
+                                                    class="border-r border-green-700 px-6 py-4 text-center text-3xl font-bold text-black dark:border-green-500"
+                                                >
                                                     Rabu-Kamis
                                                 </td>
-                                                <td
-                                                    class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white">
-                                                    08.00 - 11.00
-                                                </td>
+                                                <td class="px-6 py-4 text-center text-3xl font-bold text-black">08.00 - 11.00</td>
                                             </tr>
                                             <tr>
                                                 <td
-                                                    class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white border-r border-green-700 dark:border-green-500">
+                                                    class="border-r border-green-700 px-6 py-4 text-center text-3xl font-bold text-black dark:border-green-500"
+                                                >
                                                     Jumat
                                                 </td>
-                                                <td
-                                                    class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white">
-                                                    08.00 - 10.00
-                                                </td>
+                                                <td class="px-6 py-4 text-center text-3xl font-bold text-black">08.00 - 10.00</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -241,9 +193,8 @@ const changeTab = (tabName: string) => {
                 </div>
 
                 <!-- Footer Note -->
-                <footer
-                    class="mt-24 px-8 text-1xl font-normal text-green-700 dark:text-green-500 max-md:mt-10 max-md:max-w-full">
-                    <p class="italic text-center">
+                <footer class="text-1xl mt-24 px-8 font-normal text-green-700 dark:text-green-500 max-md:mt-10 max-md:max-w-full">
+                    <p class="text-center italic">
                         Note: Apabila ada hal-hal yang meragukan, petugas penerima sampel dapat menolak<br />
                         setelah berkonsultasi dengan pengendali teknis
                     </p>
@@ -252,52 +203,52 @@ const changeTab = (tabName: string) => {
 
             <!-- Section Alur Pelayanan -->
             <section>
-                <div
-                    class="flex flex-col justify-center items-center bg-green-200 p-6 rounded-md border border-blue-300">
-                    <h1 class="text-3xl font-semibold text-green-700 text-center mb-8">
-                        Diagram Alur Pelayanan Laboratorium Penguji Dinas Lingkungan Hidup<br>
+                <div class="flex flex-col items-center justify-center rounded-md border border-blue-300 bg-green-100 p-6">
+                    <h1 class="mb-8 text-center text-3xl font-semibold text-green-700">
+                        Diagram Alur Pelayanan Laboratorium Penguji Dinas Lingkungan Hidup<br />
                         Kabupaten karanganyar
                     </h1>
 
-                    <div class="w-full max-w-4xl mx-auto mb-8">
-                        <img src="/storage/assetslandingpage/alurdiagram.png" alt="Diagram Alur Pelayanan Laboratorium"
-                            class="w-full h-auto object-contain rounded-lg shadow-lg" />
+                    <div class="mx-auto mb-8 w-full max-w-4xl">
+                        <img
+                            src="/storage/assetslandingpage/alurdiagram.png"
+                            alt="Diagram Alur Pelayanan Laboratorium"
+                            class="h-auto w-full rounded-lg object-contain shadow-lg"
+                        />
                     </div>
 
-                    <div class="mt-6 text-green-700 text-sm italic">
+                    <div class="mt-6 text-sm italic text-green-700">
                         <p>Note: Pendaftaran Dilakukan 1 Hari Sebelum Penyerahan Sample</p>
                     </div>
                 </div>
             </section>
 
             <!-- Section Alur Kerja -->
-            <section class="bg-green-50 dark:bg-black p-4 md:p-8 rounded-0">
-                <h1 class="text-2xl md:text-4xl text-green-700 dark:text-green-500 font-bold text-center mb-4 md:mb-6">
-                    Alur Kerja Laboratorium
-                </h1>
-                <p class="text-center text-base md:text-lg mb-8 md:mb-16 text-gray-600 dark:text-gray-300">
+            <section class="rounded-0 bg-green-50 p-4 md:p-8">
+                <h1 class=":text-green-500 mb-4 text-center text-2xl font-bold text-green-700 md:mb-6 md:text-4xl">Alur Kerja Laboratorium</h1>
+                <p class=":text-gray-300 mb-8 text-center text-base text-black md:mb-16 md:text-lg">
                     SiLanyar mengotomatisasi dan mengintegrasikan seluruh alur kerja laboratorium lingkungan
                 </p>
 
                 <!-- Workflow diagram -->
                 <div class="mb-8 md:mb-12">
                     <!-- Desktop workflow -->
-                    <div class="hidden md:block relative">
+                    <div class="relative hidden md:block">
                         <!-- Connecting line -->
-                        <div class="absolute h-0.5 bg-green-700 dark:bg-green-500 w-[80%] left-[10%] top-8 z-0"></div>
+                        <div class=":bg-green-500 absolute left-[10%] top-8 z-0 h-0.5 w-[80%] bg-green-700"></div>
 
                         <!-- Steps with circles -->
-                        <div class="flex justify-between relative z-10">
+                        <div class="relative z-10 flex justify-between">
                             <div v-for="step in workflowSteps" :key="step.number" class="flex flex-col items-center">
                                 <div
-                                    class="bg-green-700 dark:bg-green-600 text-white rounded-full w-12 h-12 lg:w-16 lg:h-16 flex items-center justify-center text-xl lg:text-2xl font-bold mb-4">
+                                    class=":bg-green-600 mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-700 text-xl font-bold text-white lg:h-16 lg:w-16 lg:text-2xl"
+                                >
                                     {{ step.number }}
                                 </div>
-                                <h3
-                                    class="text-green-700 dark:text-green-500 font-bold text-sm lg:text-lg mb-2 text-center">
+                                <h3 class=":text-green-500 mb-2 text-center text-sm font-bold text-green-700 lg:text-lg">
                                     {{ step.title }}
                                 </h3>
-                                <p class="text-xs lg:text-sm text-center max-w-xs text-gray-600 dark:text-gray-300">
+                                <p class=":text-gray-300 max-w-xs text-center text-xs text-black lg:text-sm">
                                     {{ step.description }}
                                 </p>
                             </div>
@@ -305,25 +256,27 @@ const changeTab = (tabName: string) => {
                     </div>
 
                     <!-- Mobile workflow -->
-                    <div class="md:hidden space-y-0"> <!-- Changed space-y-6 to space-y-0 -->
-                        <div v-for="(step, index) in workflowSteps" :key="step.number" class="flex relative">
+                    <div class="space-y-0 md:hidden">
+                        <!-- Changed space-y-6 to space-y-0 -->
+                        <div v-for="(step, index) in workflowSteps" :key="step.number" class="relative flex">
                             <!-- Added relative positioning -->
-                            <div class="flex flex-col items-center mr-4">
+                            <div class="mr-4 flex flex-col items-center">
                                 <!-- Circle with number -->
                                 <div
-                                    class="bg-green-700 dark:bg-green-600 text-white rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold z-10">
+                                    class="z-10 flex h-12 w-12 items-center justify-center rounded-full bg-green-700 text-xl font-bold text-white dark:bg-green-600"
+                                >
                                     <!-- Added z-10 -->
                                     {{ step.number }}
                                 </div>
                                 <!-- Vertical line -->
-                                <div v-if="index !== workflowSteps.length - 1"
-                                    class="w-0.5 bg-green-700 dark:bg-green-500 h-24 mt-0">
+                                <div v-if="index !== workflowSteps.length - 1" class="mt-0 h-24 w-0.5 bg-green-700 dark:bg-green-500">
                                     <!-- Changed h-12 to h-24 and mt-2 to mt-0 -->
                                 </div>
                             </div>
                             <!-- Content -->
-                            <div class="pb-8"> <!-- Added padding bottom -->
-                                <h3 class="text-green-700 dark:text-green-500 font-bold text-lg mb-1">
+                            <div class="pb-8">
+                                <!-- Added padding bottom -->
+                                <h3 class="mb-1 text-lg font-bold text-green-700 dark:text-green-500">
                                     {{ step.title }}
                                 </h3>
                                 <p class="text-sm text-gray-600 dark:text-gray-300">
@@ -336,101 +289,31 @@ const changeTab = (tabName: string) => {
             </section>
 
             <!-- About Us -->
-            <section id="about-us" class="bg-green-200 py-16">
-                <div class="max-w-4xl mx-auto p-4">
+            <section id="about-us" class="bg-green-100 py-16">
+                <div class="mx-auto max-w-4xl p-4">
                     <!-- Header -->
-                    <h1 class="text-4xl text-center font-bold text-green-700 mb-2">About Us</h1>
-                    <p class="text-center text-gray-800 mb-6">
-                        Temukan berbagai informasi terkait lingkungan dan kebersihan di Kabupaten Karanganyar
-                    </p>
+                    <h1 class="mb-8 text-center text-4xl font-bold text-green-700">About Us</h1>
 
-                    <!-- Navigation Tabs -->
-                    <div class="flex justify-center mb-4 border-b border-gray-300">
-                        <button @click="changeTab('Berita Terkini')" :class="[
-                            'py-2 px-6 text-center font-medium',
-                            activeTab === 'Berita Terkini'
-                                ? 'bg-green-600 text-white'
-                                : 'text-gray-700 hover:text-green-600'
-                        ]">
-                            Berita Terkini
-                        </button>
-                        <button @click="changeTab('Regulasi')" :class="[
-                            'py-2 px-6 text-center font-medium',
-                            activeTab === 'Regulasi'
-                                ? 'bg-green-600 text-white'
-                                : 'text-gray-700 hover:text-green-600'
-                        ]">
-                            Regulasi
-                        </button>
-                        <button @click="changeTab('Agenda')" :class="[
-                            'py-2 px-6 text-center font-medium',
-                            activeTab === 'Agenda'
-                                ? 'bg-green-600 text-white'
-                                : 'text-gray-700 hover:text-green-600'
-                        ]">
-                            Agenda
-                        </button>
-                        <button @click="changeTab('Statistik')" :class="[
-                            'py-2 px-6 text-center font-medium',
-                            activeTab === 'Statistik'
-                                ? 'bg-green-600 text-white'
-                                : 'text-gray-700 hover:text-green-600'
-                        ]">
-                            Statistik
-                        </button>
-                    </div>
+                    <h2 class="mb-4 text-2xl font-bold text-green-700">Dinas Lingkungan Hidup Kabupaten Karanganyar</h2>
 
-                    <!-- Content Box -->
-                    <div class="bg-gray-200 rounded-lg p-4">
-                        <!-- Program 1 -->
-                        <div class="mb-6">
-                            <div class="flex items-center mb-2">
-                                <div class="w-6 h-6 bg-red-200 rounded-full flex items-center justify-center mr-2">
-                                    <span class="text-red-500 text-lg">🌱</span>
-                                </div>
-                                <h2 class="text-lg font-medium text-green-700">Program Pengelolaan Sampah Terpadu
-                                    Kabupaten Karanganyar</h2>
-                            </div>
-                            <p class="text-sm text-gray-800 ml-8">
-                                Pemerintah Kabupaten Karanganyar meluncurkan program pengelolaan sampah terpadu yang
-                                melibatkan partisipasi masyarakat dalam
-                                pemilahan sampah dan bank sampah di tingkat desa.
-                            </p>
-                            <div class="border-b border-gray-300 my-4"></div>
-                        </div>
+                    <div class="space-y-4 font-normal text-gray-800">
+                        <p>
+                            Dinas Lingkungan Hidup Kabupaten Karanganyar adalah instansi pemerintah yang bertugas mengelola dan menjaga kelestarian
+                            lingkungan hidup di wilayah Kabupaten Karanganyar. Kami berkomitmen untuk menciptakan lingkungan yang bersih, sehat, dan
+                            berkelanjutan bagi seluruh masyarakat.
+                        </p>
 
-                        <!-- Program 2 -->
-                        <div class="mb-6">
-                            <div class="flex items-center mb-2">
-                                <div class="w-6 h-6 bg-red-200 rounded-full flex items-center justify-center mr-2">
-                                    <span class="text-red-500 text-lg">🌳</span>
-                                </div>
-                                <h2 class="text-lg font-medium text-green-700">Penanaman 5.000 Pohon di Sepanjang
-                                    Bantaran Sungai</h2>
-                            </div>
-                            <p class="text-sm text-gray-800 ml-8">
-                                Dinas Lingkungan Hidup bersama komunitas lingkungan melakukan penanaman 5.000 pohon di
-                                sepanjang bantaran sungai untuk
-                                mencegah erosi dan menjaga kualitas air.
-                            </p>
-                            <div class="border-b border-gray-300 my-4"></div>
-                        </div>
+                        <p>
+                            Sejak didirikan pada tahun 2008, kami telah melaksanakan berbagai program pengelolaan lingkungan, termasuk pengelolaan
+                            sampah terpadu, penghijauan, konservasi sumber daya air, pemantauan kualitas udara, serta pendidikan dan kesadaran
+                            lingkungan untuk masyarakat.
+                        </p>
 
-                        <!-- Program 3 -->
-                        <div class="mb-2">
-                            <div class="flex items-center mb-2">
-                                <div class="w-6 h-6 bg-red-200 rounded-full flex items-center justify-center mr-2">
-                                    <span class="text-red-500 text-lg">🌡️</span>
-                                </div>
-                                <h2 class="text-lg font-medium text-green-700">Monitoring Kualitas Udara dengan Smart
-                                    Sensor</h2>
-                            </div>
-                            <p class="text-sm text-gray-800 ml-8">
-                                Pemasangan sensor kualitas udara di beberapa titik strategis Kabupaten Karanganyar untuk
-                                pemantauan real-time kualitas udara yang
-                                terintegrasi dengan SiLanVar
-                            </p>
-                        </div>
+                        <p>
+                            Visi kami adalah mewujudkan Kabupaten Karanganyar yang hijau, bersih, dan lestari melalui pengelolaan lingkungan yang
+                            berkelanjutan dan partisipatif. Kami mengajak seluruh lapisan masyarakat untuk berperan aktif dalam menjaga kelestarian
+                            lingkungan hidup demi masa depan yang lebih baik.
+                        </p>
                     </div>
                 </div>
             </section>

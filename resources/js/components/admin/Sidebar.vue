@@ -31,7 +31,7 @@ const toggleKategori = () => {
         </div>
         <nav class="space-y-10 font-bold text-xl">
             <div>
-                <a href="/admin/dashboard" class="flex items-center gap-3 py-3 px-3 rounded hover:bg-green-700">
+                <a href="/pegawai/dashboard" class="flex items-center gap-3 py-3 px-3 rounded hover:bg-green-700">
                     <img src="/storage/assetsadmin/beranda.png" alt="Dashboard" class="w-6 h-6" />
                     <span>Beranda</span>
                 </a>
@@ -51,16 +51,16 @@ const toggleKategori = () => {
                         </svg>
                     </button>
                     <div v-if="isDaftarOpen" class="pl-8 space-y-1">
-                        <a href="/admin/jadwal-pengambilan"
+                        <a href="/pegawai/jadwal"
                             class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                             <div class="w-2 h-2 rounded-full bg-white"></div>
                             <span>Jadwal Pengambilan</span>
                         </a>
-                        <a href="/admin/pengajuan" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
+                        <a href="/pegawai/pengajuan" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                             <div class="w-2 h-2 rounded-full bg-white"></div>
                             <span>Pengajuan</span>
                         </a>
-                        <a href="/admin/pengujian" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
+                        <a href="/pegawai/pengujian" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                             <div class="w-2 h-2 rounded-full bg-white"></div>
                             <span>Pengujian</span>
                         </a>
@@ -82,7 +82,7 @@ const toggleKategori = () => {
                         </svg>
                     </button>
                     <div v-if="isKategoriOpen" class="pl-8 space-y-1">
-                        <a href="/admin/parameter" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
+                        <a href="/pegawai/parameter" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                             <div class="w-2 h-2 rounded-full bg-white"></div>
                             <span>Parameter</span>
                         </a>

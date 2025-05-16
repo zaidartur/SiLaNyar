@@ -24,6 +24,6 @@ class Instansi extends Model
 
     public function customer()
     {
-        $this->belongsTo(Customer::class, 'id_customer');    
+        $this->belongsTo(Customer::class, 'id_customer');
     }
 }
