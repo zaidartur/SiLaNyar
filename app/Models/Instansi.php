@@ -18,6 +18,8 @@ class Instansi extends Model
         'alamat',
         'no_telepon',
         'email',
+        'status_verifikasi',
+        'diverifikasi_oleh'
     ];
 
     public function customer()

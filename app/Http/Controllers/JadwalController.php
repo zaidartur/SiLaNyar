@@ -26,7 +26,7 @@ class JadwalController extends Controller
                         $query->where('status', 'like', '%'.$filterByStatus.'%');    
                     })
                     ->get();
-        return Inertia::render('pegawai/jadwal/Index', [
+        return Inertia::render('pegawai/pengambilan/Index', [
             'jadwal' => $jadwal,
             'filter' => [
                 'status' => $filterByStatus,
@@ -40,7 +40,7 @@ class JadwalController extends Controller
     {
         $form_pengajuan = FormPengajuan::where('status_pengambilan', 'diambil')->get();
 
-        return Inertia::render('pegawai/jadwal/Tambah', [
+        return Inertia::render('pegawai/pengambilan/Tambah', [
             'form_pengajuan' => $form_pengajuan
         ]);
     }
@@ -71,7 +71,7 @@ class JadwalController extends Controller
         $jadwal = Jadwal::create($request->all());
 
         if($jadwal) {
-            return Redirect::route('pegawai.jadwal.index')->with('message', 'Jadwal Berhasil Dibuat!');
+            return Redirect::route('pegawai.pengambilan.index')->with('message', 'Jadwal Berhasil Dibuat!');
         }
     }
 
@@ -80,7 +80,7 @@ class JadwalController extends Controller
     {
         $form_pengajuan = FormPengajuan::where('metode_pengambilan', 'diambil')->latest()->get();
 
-        return Inertia::render('pegawai/jadwal/Edit', [
+        return Inertia::render('pegawai/pengambilan/Edit', [
             'jadwal' => $jadwal,
             'form_pengajuan' => $form_pengajuan,
         ]);
@@ -125,7 +125,7 @@ class JadwalController extends Controller
 
         if($updated)
         {
-            return Redirect::route('pegawai.jadwal.index')->with('message', 'Jadwal Berhasil Diupdate!');
+            return Redirect::route('pegawai.pengambilan.index')->with('message', 'Jadwal Berhasil Diupdate!');
         }
     }
 
@@ -138,7 +138,7 @@ class JadwalController extends Controller
 
         if($jadwal)
         {
-            return Redirect::route('pegawai.jadwal.index')->with('message', 'Jadwal Berhasil Dihapus!');
+            return Redirect::route('pegawai.pengambilan.index')->with('message', 'Jadwal Berhasil Dihapus!');
         }
     }
 
@@ -146,7 +146,7 @@ class JadwalController extends Controller
     {
         $jadwal->load(['form_pengajuan', 'pegawai']);
         
-        return Inertia::render('jadwal/Show', [
+        return Inertia::render('pengambilan/Show', [
             'jadwal' => $jadwal
         ]);
     }

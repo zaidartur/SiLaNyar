@@ -17,10 +17,10 @@ return [
     'sso' => [
         'client_id' => env('SSO_CLIENT_ID'),
         'client_secret' => env('SSO_CLIENT_SECRET'),
-        'redirect' => env('SSO_REDIRECT_URI'),
-        'auth_url' => env('SSO_AUTH_URL'),
+        'authorize_url' => env('SSO_AUTHORIZE_URL'),
         'token_url' => env('SSO_TOKEN_URL'),
-        'user_url' => env('SSO_API_URL'),
+        'api_user_url' => env('SSO_API_USER_URL'),
+        'login_url' => env('SSO_LOGIN_URL'),
     ],
 
     'postmark' => [
