@@ -4,15 +4,20 @@ use App\Http\Controllers\Auth\Customer\AuthenticatedSessionController as Custome
 use App\Http\Controllers\Auth\Pegawai\AuthenticatedSessionController as PegawaiAuthenticatedSessionController;
 use App\Http\Controllers\Auth\Pegawai\RegisteredUserController as PegawaiRegisteredUserController;
 use App\Http\Controllers\Auth\Customer\RegisteredUserController as CustomerRegisteredUserController;
-use App\Http\Controllers\auth\SSOAuthController;
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\Pegawai\DashboardController;
 use App\Http\Controllers\Settings\CustomerProfileController;
 use App\Http\Controllers\Settings\CustomerResetPasswordController;
 use App\Http\Controllers\Settings\PegawaiProfileController;
 use App\Http\Controllers\Settings\PegawaiResetPassword;
+use App\Http\Controllers\Auth\SSOController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
+Route::get('sso/login', [SSOController::class, 'redirect'])->name('sso.login');
+Route::get('sso/callback', [SSOController::class, 'callback'])->name('sso.callback');
+Route::get('sso/logout', [SSOController::class, 'logout'])->name('sso.logout');
+Route::get('sso/user', [SSOController::class, 'user'])->name('sso.user');
 
 //autentikasi pegawai
 Route::prefix('pegawai')->middleware('guest:pegawai')->group(function () {
@@ -42,15 +47,10 @@ Route::prefix('pegawai')->middleware('auth:pegawai')->group(function () {
     Route::post('logout', [PegawaiAuthenticatedSessionController::class, 'destroy'])->name('pegawai.logout');
 });
 
-//autentikasi customer
-Route::prefix('customer/sso')->group(function () {
-    Route::get('/redirect', [SSOAuthController::class, 'redirect'])->name('customer.sso.redirect');
-    Route::get('/callback', [SSOAuthController::class, 'callback'])->name('customer.sso.callback');
-    Route::get('/logout', [SSOAuthController::class, 'logout'])->name('customer.sso.logout');
-});
+Route::middleware('guest:customer')->group(function()
+{
+    Route::get('registrasi', [CustomerRegisteredUserController::class, 'create'])->name('customer.registrasi');
 
-Route::middleware('guest:customer')->group(function () {
-    Route::get('registrasi', [CustomerRegisteredUserController::class, 'create'])->name('customer.register');
     Route::post('registrasi', [CustomerRegisteredUserController::class, 'store']);
 
     Route::get('login', [CustomerAuthenticatedSessionController::class, 'create'])->name('customer.login');
