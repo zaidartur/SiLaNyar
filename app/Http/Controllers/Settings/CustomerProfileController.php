@@ -10,21 +10,51 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Http;
 
 class CustomerProfileController extends Controller
 {
+    private function user()
+    {
+        if (!session()->has('access_token')) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $response = Http::withoutVerifying()->withToken(session('access_token'))
+            ->withHeaders([
+                'Accept' => 'application/json',
+                'User-Agent' => 'https://example-app.com/'
+            ])
+            ->get(config('services.sso.api_user_url'));
+
+        return $response->json();
+    }
+
     public function show()
     {
-        $customer = auth()->guard('customer')->user();
+        $userData = $this->user();
 
-        $instansi = Instansi::where('id_customer', $customer->id)
-            ->get();
+        if (isset($userData['error'])) {
+            return redirect()->route('login')->with('error', 'Unauthorized');
+        }
 
-        return Inertia::render('customer/profile/show', [
-            'customer' => $customer,
-            'instansi' => $instansi,
+        return Inertia::render('customer/profile/Show', [
+            'user' => $userData
         ]);
     }
+
+    // public function show()
+    // {
+    //     $customer = auth()->guard('customer')->user();
+
+    //     $instansi = Instansi::where('id_customer', $customer->id)
+    //         ->get();
+
+    //     return Inertia::render('customer/profile/show', [
+    //         'customer' => $customer,
+    //         'instansi' => $instansi,
+    //     ]);
+    // }
 
     public function storeOrUpdateInstansi(Request $request)
     {
