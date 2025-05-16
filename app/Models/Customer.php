@@ -16,7 +16,12 @@ class Customer extends Authenticatable
     protected $fillable = [
         'nama',
         'nik',
-        'jabatan',
+        'tanggal_lahir',
+        'rt',
+        'rw',
+        'kode_pos',
+        'alamat',
+        'username',
         'no_telepon',
         'email',
     ];
