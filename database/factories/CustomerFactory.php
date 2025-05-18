@@ -21,21 +21,14 @@ class CustomerFactory extends Factory
         return [
             'nama' => fake()->name(),
             'nik' => fake()->numerify('################'),
-            'jabatan' => fake()->jobTitle(),
+            'tanggal_lahir' => fake()->date(),
+            'rt' => fake()->numberBetween(1, 99),
+            'rw' => fake()->numberBetween(1, 99),
+            'kode_pos' => fake()->numberBetween(10000, 99999),
+            'alamat' => fake()->address(),
+            'username' => fake()->userName(),
             'no_telepon' => '+62' . fake()->numerify('8##########'),
             'email' => fake()->unique()->safeEmail(),
-            'password' => Hash::make('password123'),
-            'email_verified_at' => now(),
-            'remember_token' => Str::random(10),
         ];
-    }
-
-    public function verified(): static
-    {
-        return $this->state(function (array $attributes) {
-            return [
-                'email_verified_at' => now(),
-            ];
-        });
     }
 }
