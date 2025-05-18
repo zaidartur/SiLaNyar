@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import AppLogo from '@/components/AppLogo.vue';
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import UserMenuContent from '@/components/UserMenuContent.vue';
-import { getInitials } from '@/composables/useInitials';
 import type { BreadcrumbItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
@@ -48,8 +47,11 @@ const auth = computed<Auth>(() => page.props.auth as Auth);
 
                     <DropdownMenu>
                         <DropdownMenuTrigger :as-child="true">
-                            <Button variant="ghost" size="icon"
-                                class="relative size-16 w-auto rounded-full p-1 focus-within:ring-2 focus-within:ring-primary">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                class="relative size-16 w-auto rounded-full p-1 focus-within:ring-2 focus-within:ring-primary"
+                            >
                                 <Avatar class="size-14 overflow-hidden rounded-full bg-white">
                                     <AvatarImage src="/storage/assetslandingpage/LogoUser.png" :alt="auth.user?.nama" />
                                     <!-- <AvatarFallback class="rounded-lg bg-neutral-200 font-semibold text-black">
@@ -58,7 +60,7 @@ const auth = computed<Auth>(() => page.props.auth as Auth);
                                 </Avatar>
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" class="w-56 z-50">
+                        <DropdownMenuContent align="end" class="z-50 w-56">
                             <UserMenuContent />
                         </DropdownMenuContent>
                     </DropdownMenu>
