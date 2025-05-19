@@ -15,24 +15,27 @@ class JadwalController extends Controller
     {
         $filterByStatus = $request->input('status');
         $filterByTanggal = $request->input('waktu_pengambilan');
+        $filterByMetode = $request->input('metode_pengambilan');
 
         $jadwal = Jadwal::with('form_pengajuan')
-                    ->when($filterByTanggal, function ($query) use ($filterByTanggal)
-                    {
-                        $query->whereDate('waktu_pengambilan', $filterByTanggal);    
-                    })
-                    ->when($filterByStatus, function ($query) use ($filterByStatus) 
-                    {
-                        $query->where('status', 'like', '%'.$filterByStatus.'%');    
-                    })
-                    ->get();
+            ->when($filterByTanggal, function ($query) use ($filterByTanggal) {
+                $query->whereDate('waktu_pengambilan', $filterByTanggal);
+            })
+            ->when($filterByStatus, function ($query) use ($filterByStatus) {
+                $query->where('status', 'like', '%' . $filterByStatus . '%');
+            })
+            ->when($filterByMetode, function ($query) use ($filterByMetode) {
+                $query->where('metode_pengambilan', 'like', '%' . $filterByMetode . '%');
+            })
+            ->get();
+
         return Inertia::render('pegawai/pengambilan/Index', [
             'jadwal' => $jadwal,
             'filter' => [
                 'status' => $filterByStatus,
                 'tanggal' => $filterByTanggal,
             ],
-        ]);    
+        ]);
     }
 
     //form tambah jadwal
@@ -61,8 +64,7 @@ class JadwalController extends Controller
 
         $pengajuan = FormPengajuan::findOrFail($request->id_form_pengajuan);
 
-        if($pengajuan->metode_pengambilan !== 'diambil')
-        {
+        if ($pengajuan->metode_pengambilan !== 'diambil') {
             return Redirect::back()->withErrors([
                 'metode_pengambilan' => 'Jadwal Hanya Bisa Dibuat Ketika Customer Memilih Diambil'
             ]);
@@ -70,7 +72,7 @@ class JadwalController extends Controller
 
         $jadwal = Jadwal::create($request->all());
 
-        if($jadwal) {
+        if ($jadwal) {
             return Redirect::route('pegawai.pengambilan.index')->with('message', 'Jadwal Berhasil Dibuat!');
         }
     }
@@ -89,8 +91,7 @@ class JadwalController extends Controller
     //proses update jadwal
     public function update(Jadwal $jadwal, Request $request)
     {
-        if($jadwal->status === 'selesai')
-        {
+        if ($jadwal->status === 'selesai') {
             return Redirect::back()->withErrors([
                 'status' => 'Jadwal Yang Sudah Selesai Tidak Dapat Diubah!'
             ]);
@@ -98,8 +99,7 @@ class JadwalController extends Controller
 
         $batasEditTanggal = $jadwal->waktu_pengambilan->copy()->subDay();
 
-        if(now()->greaterThan($batasEditTanggal))
-        {
+        if (now()->greaterThan($batasEditTanggal)) {
             return Redirect::back()->withErrors([
                 'waktu_pengambilan' => 'Jadwal Tidak Dapat Diganti Karena Sudah Melewati Batas Reschedule!'
             ]);
@@ -107,13 +107,12 @@ class JadwalController extends Controller
 
         $pengajuan = FormPengajuan::findOrFail($jadwal->id_form_pengajuan);
 
-        if($pengajuan->metode_pengambilan !== 'diambil')
-        {
+        if ($pengajuan->metode_pengambilan !== 'diambil') {
             return Redirect::back()->withErrors([
                 'metode_pengambilan' => 'Jadwal Hanya Bisa Dibuat Ketika Customer Memilih Diambil'
             ]);
         }
-        
+
         $request->validate([
             'id_form_pengajuan' => 'required',
             'waktu_pengambilan' => 'required|date',
@@ -123,8 +122,7 @@ class JadwalController extends Controller
 
         $updated = $jadwal->update($request->all());
 
-        if($updated)
-        {
+        if ($updated) {
             return Redirect::route('pegawai.pengambilan.index')->with('message', 'Jadwal Berhasil Diupdate!');
         }
     }
@@ -133,11 +131,10 @@ class JadwalController extends Controller
     public function destroy($id)
     {
         $jadwal = Jadwal::findOrFail($id);
-        
+
         $jadwal->delete();
 
-        if($jadwal)
-        {
+        if ($jadwal) {
             return Redirect::route('pegawai.pengambilan.index')->with('message', 'Jadwal Berhasil Dihapus!');
         }
     }
@@ -145,7 +142,7 @@ class JadwalController extends Controller
     public function show(Jadwal $jadwal)
     {
         $jadwal->load(['form_pengajuan', 'pegawai']);
-        
+
         return Inertia::render('pengambilan/Show', [
             'jadwal' => $jadwal
         ]);

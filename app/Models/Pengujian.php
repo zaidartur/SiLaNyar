@@ -23,14 +23,27 @@ class Pengujian extends Model
         'status'
     ];
 
+    protected static function boot()
+    {  
+        parent::boot();
+
+        static::creating(function ($model)
+        {
+            $akhir = self::max('id') ?? 0;
+            $lanjut = $akhir + 1;
+            
+            $model->kode_pengujian = 'DJ-'.str_pad($lanjut, 3, '0', STR_PAD_LEFT);
+        });
+    }
+
     public function form_pengajuan()
     {
         return $this->belongsTo(FormPengajuan::class, 'id_form_pengajuan');    
     }
 
-    public function pegawai()
+    public function user()
     {
-        return $this->belongsTo(Pegawai::class, 'id_pegawai');    
+        return $this->belongsTo(User::class, 'id_user');    
     }
 
     public function kategori()

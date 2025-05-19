@@ -10,15 +10,13 @@ use Inertia\Inertia;
 
 class KategoriController extends Controller
 {
-
     //lihat daftar kategori
     public function index()
     {
-        $kategori = Kategori::load(['parameter' => function ($baku_mutu) 
-        {
+        $kategori = Kategori::load(['parameter' => function ($baku_mutu) {
             $baku_mutu->withPivot('baku_mutu');
         }])->get();
-        
+
         return Inertia::render('pegawai/kategori/Index', [
             'kategori' => $kategori,
         ]);
@@ -31,7 +29,7 @@ class KategoriController extends Controller
 
         return Inertia::render('pegawai/kategori/Tambah', [
             'parameter' => $parameter
-        ]);    
+        ]);
     }
 
     //proses tambah kategori
@@ -56,19 +54,19 @@ class KategoriController extends Controller
         }
 
         $kategori->parameter()->attach($syncData);
-        
+
         return Redirect::route('pegawai.kategori.index')->with('message', 'Kategori Berhasil Ditambahkan!');
     }
 
     //form edit kategori
     public function edit(Kategori $kategori)
-    {   
+    {
         $kategori->load(['parameter' => function ($baku_mutu) {
             $baku_mutu->withPivot('baku_mutu');
         }]);
 
         $parameter = ParameterUji::all();
-        
+
         return Inertia::render('pegawai/kategori/Edit', [
             'kategori' => $kategori,
             'parameter' => $parameter,
@@ -95,7 +93,7 @@ class KategoriController extends Controller
         foreach ($request->parameter as $param) {
             $syncData[$param['id']] = ['baku_mutu' => $param['baku_mutu']];
         }
-        
+
         $kategori->parameter()->sync($syncData);
 
         return Redirect::route('pegawai.kategori.index')->with('message', 'Kategori Berhasil Diupdate!');
@@ -107,9 +105,8 @@ class KategoriController extends Controller
         $kategori = Kategori::findOrFail($id);
 
         $kategori->delete();
-        
-        if($kategori)
-        {
+
+        if ($kategori) {
             return Redirect::route('pegawai.kategori.index')->with('message', 'Kategori Berhasil Didelete!');
         }
     }

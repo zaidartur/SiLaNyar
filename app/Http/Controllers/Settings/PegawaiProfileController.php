@@ -27,18 +27,18 @@ class PegawaiProfileController extends Controller
             'pegawai' => $pegawai
         ]);
     }
-    
+
 
     public function update(Request $request)
     {
         $pegawai = $request->user('pegawai');
-        
+
         $request->validate([
             'nama' => 'required|string|max:255',
             'jabatan' => 'required|in:Admin Lab,Kepala Lab,Analis Kimia,Analis Mikrobiologi,Analis Air,Manajer Teknis,Staff Lab',
             'jenis_kelamin' => 'required|in:laki-laki,perempuan',
             'no_telepon' => 'required|string|regex:/^\+[0-9]+$/',
-            'email' => 'required|string|lowercase|max:255|email|unique:pegawai,email,'.$pegawai->id
+            'email' => 'required|string|lowercase|max:255|email|unique:pegawai,email,' . $pegawai->id
         ]);
 
         $pegawai->update($request->only([
@@ -60,8 +60,7 @@ class PegawaiProfileController extends Controller
             'password' => ['required'],
         ]);
 
-        if(!Hash::check($request->password, $pegawai->password ))
-        {
+        if (!Hash::check($request->password, $pegawai->password)) {
             return Redirect::back()->withErrors(['password' => 'Password Yang Anda Masukkan Salah!']);
         }
 

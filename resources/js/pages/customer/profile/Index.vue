@@ -174,7 +174,7 @@ const deleteInstansi = (id) => {
       </div>
     </div>
 
-    <!-- <div class="profile p-4 border-2 border-gray-700 rounded-lg dark:border-gray-700">
+    <div class="profile p-4 border-2 border-gray-700 rounded-lg dark:border-gray-700">
       <h1>Profil Saya</h1>
       <ul>
         <li><strong>NIK:</strong> {{ user.nik }}</li>
@@ -193,7 +193,7 @@ const deleteInstansi = (id) => {
         <li><strong>Username:</strong> {{ user.username }}</li>
         <li><strong>ID:</strong> {{ user.id }}</li>
       </ul>
-    </div> -->
+    </div>
   </CustomerLayout>
 </template>
 

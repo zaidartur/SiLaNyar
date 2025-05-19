@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('kode_aduan')->unique();
             $table->foreignId('id_hasil_uji')->constrained('hasil_uji')->onDelete('cascade');
-            $table->foreignId('id_customer')->constrained('customer')->onDelete('cascade');
+            $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
             $table->string('masalah');
             $table->string('perbaikan');
             $table->enum('status', ['diterima', 'ditolak'])->nullable();

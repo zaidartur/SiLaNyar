@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\Customer;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -13,7 +13,6 @@ use Inertia\Inertia;
 
 class SSOController extends Controller
 {
-
     public function redirect(Request $request)
     {
         $state = bin2hex(random_bytes(16));
@@ -66,7 +65,7 @@ class SSOController extends Controller
 
         $userData = $userResponse->json();
 
-        $customer = Customer::updateOrCreate(
+        $user = User::updateOrCreate(
             ['email' => $userData['email']],
             [
                 'nama'           => $userData['nama'],
@@ -81,14 +80,19 @@ class SSOController extends Controller
             ]
         );
 
-        Auth::guard('customer')->login($customer);
+        Auth::guard('web')->login($user);
+
+        if(!$user->hasRole('customer')) 
+        {
+            $user->assignRole('customer');
+        }
 
         return redirect('customer/dashboard');
     }
 
     public function logout()
     {
-        Auth::guard('customer')->logout();
+        Auth::guard('web')->logout();
         session()->forget('access_token');
         return redirect('/');
     }

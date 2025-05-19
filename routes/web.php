@@ -13,23 +13,26 @@ use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\ParameterController;
 use App\Http\Controllers\Pegawai\PengajuanController as PegawaiPengajuanController;
 use App\Http\Controllers\Pegawai\PegawaiController;
+use App\Http\Controllers\Auth\Pegawai\RegisteredUserController as PegawaiRegisteredUserController;
 use App\Http\Controllers\Pegawai\PelangganController;
 use App\Http\Controllers\Pegawai\PembayaranController as PegawaiPembayaranController;
+use App\Http\Controllers\Pegawai\VerifikasiAduanController;
 use App\Http\Controllers\Pegawai\VerifikasiInstansi;
 use App\Http\Controllers\PengujianController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/test-hasiluji', function () {
-    $customer = new \App\Models\Customer(['nama' => 'Budi']);
+    $customer = new \App\Models\User(['nama' => 'Budi']);
     $kategori = new \App\Models\Kategori(['nama' => 'Air Limbah']);
     $form = new \App\Models\FormPengajuan(['jenis_cairan' => 'Air Sungai']);
     $form->setRelation('customer', $customer);
     $form->setRelation('kategori', $kategori);
 
-    $pegawai = new \App\Models\Pegawai(['nama' => 'Teknisi A']);
+    $pegawai = new \App\Models\User(['nama' => 'Teknisi A']);
     $pengujian = new \App\Models\Pengujian([
         'tanggal_uji' => now(),
         'jam_mulai' => '08:00',
@@ -63,7 +66,7 @@ Route::get('/dashboard', function () {
 })->name('dashboard');
 
 //route superadmin
-Route::prefix('superadmin')->middleware(['auth:pegawai'])->group(function () {
+Route::prefix('superadmin')->middleware(['auth:web', 'role:superadmin'])->group(function () {
 
     //fitur permission
     Route::middleware(['check.permission:kelola-permission'])->group(function () {
@@ -80,18 +83,23 @@ Route::prefix('superadmin')->middleware(['auth:pegawai'])->group(function () {
         Route::get('role', [RoleController::class, 'index'])->name('superadmin.role.index');
         Route::get('role/create', [RoleController::class, 'create']);
         Route::post('role/store', [RoleController::class, 'store']);
-        Route::get('role/edit/{role}', [RoleController::class, 'edit']);
-        Route::post('role/{role}/edit', [RoleController::class, 'update']);
+        Route::get('role/edit/{role}', [RoleController::class, 'edit'])->name('superadmin.role.edit');
+        Route::put('role/{role}/edit', [RoleController::class, 'update']);
         Route::delete('role/{id}', [RoleController::class, 'destroy']);
     });
 
-    //fitur verifikasi pegawai
-    Route::get('pegawai', [PegawaiController::class, 'index'])->middleware('check.permission:lihat-pegawai')->name('superadmin.pegawai.index');
-    Route::get('pegawai/{pegawai}', [PegawaiController::class, 'show'])->middleware('check.permission:detail-pegawai');
+    //fitur user
+    Route::middleware(['check.permission:kelola-user'])->group(function () {
+        Route::get('users', [UserController::class, 'index'])->name('pegawai.index');
+        Route::post('users/{user}/sync-roles', [UserController::class, 'syncRoles'])->name('superadmin.users.syncRoles');
+        Route::get('pegawai', [PegawaiRegisteredUserController::class, 'index'])->name('pegawai.index');
+        Route::get('registrasi', [PegawaiRegisteredUserController::class, 'create'])->name('pegawai.registrasi');
+        Route::post('registrasi', [PegawaiRegisteredUserController::class, 'store']);
+    });
 });
 
 //route user
-Route::prefix('customer')->middleware(['auth:customer'])->group(function () {
+Route::prefix('customer')->middleware(['auth:web', 'role:customer'])->group(function () {
 
     //fitur jadwal
     Route::get('pengujian', [CustomerJadwalController::class, 'index'])->name('customer.jadwal.index');
@@ -101,10 +109,11 @@ Route::prefix('customer')->middleware(['auth:customer'])->group(function () {
     Route::get('pengajuan', [CustomerPengajuanController::class, 'index'])->name('customer.pengajuan.index');
     Route::get('pengajuan/daftar', [CustomerPengajuanController::class, 'daftar'])->name('customer.pengajuan.daftar');
     Route::post('pengajuan/store', [CustomerPengajuanController::class, 'store'])->name('customer.pengajuan.store');
-    Route::get('pengajuan/{id}', [CustomerPengajuanController::class, 'show'])->name('customer.pengajuan.show');
+    Route::get('pengajuan/{id}', [CustomerPengajuanController::class, 'show'])->name('customer.pengajuan.detail');
 
     //fitur pembayaran
-    Route::get('pembayaran/{id}', [PembayaranController::class, 'show'])->name('customer.pembayaran.show');
+    Route::get('pembayaran', [PembayaranController::class, 'index'])->name('customer.pembayaran.index');
+    Route::get('pembayaran/{id}', [PembayaranController::class, 'show'])->name('customer.pembayaran.detail');
     Route::get('pembayaran/upload/{id}', [PembayaranController::class, 'upload'])->name('customer.pembayaran.upload');
     Route::post('pembayaran/{id}', [PembayaranController::class, 'process']);
     Route::get('pembayaran/{id}/sukses', [PembayaranController::class, 'sukses'])->name('customer.pembayaran.sukses');
@@ -137,13 +146,13 @@ Route::prefix('pegawai')->group(function () {
 
     //fitur pengajuan
     Route::get('pengajuan', [PegawaiPengajuanController::class, 'index'])->middleware('check.permission:lihat-pengajuan')->name('pegawai.pengajuan.index');
-    Route::get('pengajuan/{id}', [PegawaiPengajuanController::class, 'show'])->middleware('check.permission:detail-pengajuan')->name('pegawai.pengajuan.show');
+    Route::get('pengajuan/{id}', [PegawaiPengajuanController::class, 'show'])->middleware('check.permission:detail-pengajuan')->name('pegawai.pengajuan.detail');
     Route::get('pengajuan/edit/{pengajuan}', [PegawaiPengajuanController::class, 'edit'])->middleware('check.permission:edit-pengajuan')->name('pegawai.pengajuan.edit');
     Route::put('pengajuan/{id}/edit', [PegawaiPengajuanController::class, 'update'])->name('pegawai.pengajuan.update');
 
     //fitur pembayaran
     Route::get('pembayaran', [PegawaiPembayaranController::class, 'index'])->middleware('check.permission:lihat-pembayaran')->name('pegawai.pembayaran.index');
-    Route::get('pembayaran/{id}', [PegawaiPembayaranController::class, 'show'])->middleware('check.permission:detail-pembayaran')->name('pegawai.pembayaran.show');
+    Route::get('pembayaran/{id}', [PegawaiPembayaranController::class, 'show'])->middleware('check.permission:detail-pembayaran')->name('pegawai.pembayaran.detail');
     Route::get('pembayaran/edit/{id}', [PegawaiPembayaranController::class, 'edit'])->middleware('check.permission:edit-pembayaran')->name('pegawai.pembayaran.edit');
     Route::put('pembayaran/{pembayaran}/edit', [PegawaiPembayaranController::class, 'update']);
 
@@ -199,11 +208,10 @@ Route::prefix('pegawai')->group(function () {
     Route::get('hasiluji/riwayat/{id}', [HasilUjiController::class, 'riwayat'])->middleware('check.permission:riwayat-hasil_uji');
     Route::delete('hasiluji/{id}', [HasilUjiController::class, 'destroy'])->middleware('check.permission:delete-hasil_uji');
 
-    //fitur pelanggan
-    Route::get('pelanggan', [PelangganController::class, 'index'])->middleware('check.permission:lihat-pelanggan')->name('pegawai.pelanggan.index');
-    Route::get('pelanggan/{customer}', [PelangganController::class, 'show'])->middleware('check.permission:detail-pelanggan');
+    //fitur Aduan
+    Route::get('aduan/', [VerifikasiAduanController::class, 'index'])->name('pegawai.aduan.index');
+    Route::get('aduan/{aduan}', [VerifikasiAduanController::class, 'show'])->name('pegawai.aduan.detail');
+    Route::put('aduan/verifikasi/{id}', [VerifikasiAduanController::class, 'verifikasi']);
 });
-
-Route::post('midtrans/callback', [PembayaranController::class, 'callback'])->name('midtrans.callback');
 
 require __DIR__ . '/auth.php';

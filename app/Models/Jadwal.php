@@ -19,14 +19,9 @@ class Jadwal extends Model
         'keterangan'
     ];
 
-    public function update(array $attributes = [], array $options = [])
+    protected static function boot()
     {
-        // Jika status saat ini adalah 'selesai', hapus status dari atribut yang akan diupdate
-        if ($this->status === 'selesai' && isset($attributes['status'])) {
-            unset($attributes['status']);
-        }
-        
-        return parent::update($attributes, $options);
+        parent::boot();    
     }
 
     public function form_pengajuan()
@@ -34,8 +29,8 @@ class Jadwal extends Model
         return $this->belongsTo(FormPengajuan::class, 'id_form_pengajuan');
     }
 
-    public function pegawai()
+    public function user()
     {
-        return $this->belongsTo(Pegawai::class, 'id_pegawai');
+        return $this->belongsTo(User::class, 'id_pegawai');
     }
 }

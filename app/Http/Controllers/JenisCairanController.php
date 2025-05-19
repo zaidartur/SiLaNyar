@@ -14,12 +14,12 @@ class JenisCairanController extends Controller
         $jenis_cairan = JenisCairan::all();
         return Inertia::render('pegawai/jenis_cairan/Index', [
             'jenisCairan' => $jenis_cairan
-        ]);    
+        ]);
     }
 
     public function create()
     {
-        return Inertia::render('pegawai/jenis_cairan/Tambah');    
+        return Inertia::render('pegawai/jenis_cairan/Tambah');
     }
 
     public function store(Request $request)
@@ -32,15 +32,14 @@ class JenisCairanController extends Controller
 
         $jenis_cairan = JenisCairan::create($request->all());
 
-        if($jenis_cairan)
-        {
+        if ($jenis_cairan) {
             return Redirect::route('pegawai.jenis_cairan.index')->with('message', 'Jenis Cairan Berhasil Ditambahkan');
         }
     }
 
     public function edit(JenisCairan $jenis_cairan)
     {
-        return Inertia::render('pegawai/jenis_cairan/Edit',[
+        return Inertia::render('pegawai/jenis_cairan/Edit', [
             'jenis_cairan' => $jenis_cairan
         ]);
     }
@@ -55,8 +54,7 @@ class JenisCairanController extends Controller
 
         $jenis_cairan->update($request->all());
 
-        if($jenis_cairan)
-        {
+        if ($jenis_cairan) {
             return Redirect::route('pegawai.jenis_cairan.index')->with('message', 'Jenis Cairan Berhasil Diedit!');
         }
     }
@@ -64,11 +62,10 @@ class JenisCairanController extends Controller
     public function destroy($id)
     {
         $jenis_cairan = JenisCairan::findOrFail($id);
-        
+
         $jenis_cairan->delete();
 
-        if($jenis_cairan)
-        {
+        if ($jenis_cairan) {
             return Redirect::route('pegawai.jenis_cairan.index')->with('message', 'Jenis Cairan Berhasil Dihapus!');
         }
     }

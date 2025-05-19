@@ -19,10 +19,10 @@ class PengajuanController extends Controller
     //list pengajuan dari customer
     public function index()
     {
-        $customer = Auth::guard('customer')->user();
+        $user = Auth::user();
 
         $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'jenis_cairan'])
-            ->where('id_customer', $customer->id)
+            ->where('id_user', $user->id)
             ->get();
 
         return Inertia::render('customer/pengajuan/Index', [
@@ -79,7 +79,7 @@ class PengajuanController extends Controller
         }
 
         $pengajuan = FormPengajuan::create([
-            'id_customer' => Auth::guard('customer')->id(),
+            'id_user' => Auth::id(),
             'id_kategori' => $validated['id_kategori'] ?? null,
             'id_jenis_cairan' => $validated['id_jenis_cairan'],
             'volume_sampel' => $validated['volume_sampel'],
@@ -110,11 +110,11 @@ class PengajuanController extends Controller
     //lihat detail pengajuan dari user
     public function show($id)
     {
-        $customer = Auth::guard('customer')->user();
+        $user = Auth::user();
 
         $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'jenis_cairan'])
             ->where('id', $id)
-            ->where('id_customer', $customer->id)
+            ->where('id_user', $user->id)
             ->firstOrFail();
 
         return Inertia::render('customer/pengajuan/Detail', [

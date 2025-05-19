@@ -16,14 +16,18 @@ class Instansi extends Model
         'nama',
         'tipe',
         'alamat',
-        'no_telepon',
+        'wilayah',
+        'desa/kelurahan',
         'email',
+        'no_telepon',
+        'posisi/jabatan',
+        'departemen/divisi',
         'status_verifikasi',
         'diverifikasi_oleh'
     ];
-
-    public function customer()
+    
+    public function user()
     {
-        $this->belongsTo(Customer::class, 'id_customer');
+        $this->belongsTo(User::class, 'id_customer');
     }
 }

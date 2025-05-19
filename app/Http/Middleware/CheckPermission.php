@@ -16,8 +16,8 @@ class CheckPermission
     public function handle(Request $request, Closure $next, $permission)
     {
         // Gunakan Auth facade untuk mengecek user dan permission
-        if (!Auth::guard('pegawai')->check() || !Auth::guard('pegawai')->user()->hasPermissionTo($permission)) {
-            abort(403, 'Unauthorized action.');
+        if (!Auth::guard('web')->check() || !Auth::guard('web')->user()->hasPermissionTo($permission)) {
+            abort(403, 'Tidak Mendapatkan Akses Di Fitur Ini!');
         }
 
         return $next($request);

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\FormPengajuan;
 use App\Models\Kategori;
-use App\Models\Pegawai;
+use App\Models\User;
 use App\Models\Pengujian;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -16,7 +16,7 @@ class PengujianController extends Controller
     //lihat daftar jadwal pengujian
     public function index()
     {
-        $pengujian = Pengujian::with('form_pengajuan', 'pegawai', 'kategori')->get();
+        $pengujian = Pengujian::with('form_pengajuan', 'user', 'kategori')->get();
 
         return Inertia::render('pegawai/pengujian/Index', [
             'pengujian' => $pengujian,
@@ -28,12 +28,12 @@ class PengujianController extends Controller
     public function create()
     {
         $form_pengajuan = FormPengajuan::all();
-        $pegawai = Pegawai::all();
+        $user = User::role('teknisi');
         $kategori = Kategori::all();
 
         return Inertia::render('pegawai/pengujian/Tambah', [
             'form_pengajuan' => $form_pengajuan,
-            'pegawai' => $pegawai,
+            'user' => $user,
             'kategori' => $kategori
         ]);
     }
@@ -43,7 +43,7 @@ class PengujianController extends Controller
     {
         $request->validate([
             'id_form_pengajuan' => 'required|exists:form_pengajuan,id',
-            'id_pegawai' => 'required|exists:pegawai,id',
+            'id_user' => 'required|exists:user,id',
             'id_kategori' => 'required|exists:kategori,id',
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
@@ -62,7 +62,7 @@ class PengujianController extends Controller
             if (!in_array($tanggalSaatIni->dayOfWeek, [Carbon::SATURDAY, Carbon::SUNDAY])) {
                 Pengujian::create([
                     'id_form_pengajuan' => $request->id_form_pengajuan,
-                    'id_pegawai' => $request->id_pegawai,
+                    'id_user' => $request->id_user,
                     'id_kategori' => $request->id_kategori,
                     'tanggal_uji' => $tanggalSaatIni->format('d-m-Y'),
                     'jam_mulai' => $request->jam_mulai,
@@ -86,14 +86,20 @@ class PengujianController extends Controller
     //form edit jadwal pengujian
     public function edit(Pengujian $pengujian)
     {
-        $form_pengajuan = FormPengajuan::all();
-        $pegawai = Pegawai::all();
+        $pengujian->load(['form_pengajuan.kategori', 'form_pengajuan.parameter', 'form_pengajuan.user']);
+
+        $form_pengajuan = FormPengajuan::select('id', 'kode_pengajuan', 'id_user', 'id_kategori')
+            ->with('kategori:id,nama')
+            ->with('user:id,nama')
+            ->get();
+
+        $user = User::role('teknisi')->select('id', 'nama')->get();
         $kategori = Kategori::all();
 
         return Inertia::render('pegawai/pengujian/Edit', [
             'pengujian' => $pengujian,
             'form_pengajuan' => $form_pengajuan,
-            'pegawai' => $pegawai,
+            'user' => $user,
             'kategori' => $kategori,
         ]);
     }
@@ -109,7 +115,7 @@ class PengujianController extends Controller
 
         $validated = $request->validate([
             'id_form_pengajuan' => 'required|exists:form_pengajuan,id',
-            'id_pegawai' => 'required|exists:pegawai,id',
+            'id_user' => 'required|exists:user,id',
             'id_kategori' => 'required|exists:kategori,id',
             'tanggal_uji' => 'required|date',
             'jam_mulai' => 'required|date_format:H:i',
@@ -127,7 +133,7 @@ class PengujianController extends Controller
     //lihat detail daftar pengujian
     public function show(Pengujian $pengujian)
     {
-        $pengujian->load('form_pengajuan', 'pegawai', 'kategori');
+        $pengujian->load(['form_pengajuan', 'form_pengajuan.kategori', 'form_pengajuan.parameter', 'form_pengajuan.user', 'user']);
 
         return Inertia::render('pegawai/pengujian/Detail', [
             'pengujian' => $pengujian

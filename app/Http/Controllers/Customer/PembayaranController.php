@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Midtrans\Notification;
 use App\Mail\KonfirmasiPembayaran;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class PembayaranController extends Controller
@@ -32,9 +31,11 @@ class PembayaranController extends Controller
 
     public function index()
     {
-        $customer = Auth::guard('customer')->user();
-        
-        $pengajuan = FormPengajuan::with(['kategori', 'parameter'])->get();
+        $user = Auth::user();
+
+        $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'user'])
+            ->where('id_user', $user->id)
+            ->get();
 
         $totalBiaya = $this->hitungTotalBiaya($pengajuan->id);
 
@@ -50,15 +51,15 @@ class PembayaranController extends Controller
 
     public function show($id)
     {
-        $customer = Auth::guard('customer')->user();
+        $user = Auth::user();
 
         $pengajuan = FormPengajuan::with(['kategori', 'parameter'])
-                                    ->where('id',$id)
-                                    ->where('status_pengajuan', 'diterima')
-                                    ->firstOrFail();
+            ->where('id', $id)
+            ->where('id_user', $user->id)
+            ->where('status_pengajuan', 'diterima')
+            ->firstOrFail();
 
-        if($pengajuan->status_pengajuan !== 'diterima')
-        {
+        if ($pengajuan->status_pengajuan !== 'diterima') {
             return Redirect::back()->withErrors([
                 'status_pengajuan' => 'Pengajuan Anda Belum Diverifikasi Oleh Admin, Harap Tunggu Verifikasi Administrasi Sebelum Melakukan Pembayaran'
             ]);
@@ -85,9 +86,10 @@ class PembayaranController extends Controller
 
     public function upload($id)
     {
-        $customer = Auth::guard('customer')->user();
-
-        $pengajuan = FormPengajuan::with(['pembayaran', 'kategori', 'parameter'])->findOrFail($id);
+        $user = Auth::user();
+        $pengajuan = FormPengajuan::with(['pembayaran', 'kategori', 'parameter'])
+            ->where('id_user', $user->id)
+            ->findOrFail($id);
 
         if (!$pengajuan->pembayaran || $pengajuan->pembayaran->metode_pembayaran !== 'transfer') {
             return Redirect::back();
@@ -101,8 +103,11 @@ class PembayaranController extends Controller
 
     public function process($id, Request $request)
     {
-        $pengajuan = FormPengajuan::findOrFail($id);
-        
+        $user = Auth::user();
+
+        $pengajuan = FormPengajuan::where('id_user', $user->id)
+            ->findOrFail($id);
+
         if ($pengajuan->status_pengajuan !== 'diterima') {
             return Redirect::back()->withErrors([
                 'status_pengajuan' => 'Harap Menunggu Verifikasi Administrasi Pengajuan Selesai Sebelum Melakukan Pembayaran'
@@ -122,7 +127,7 @@ class PembayaranController extends Controller
 
         $totalBiaya = $this->hitungTotalBiaya($pengajuan);
 
-        $idOrder = $pengajuan->pembayaran->id_order ?? 'INV-'.strtoupper(Str::random(10));
+        $idOrder = $pengajuan->pembayaran->id_order ?? 'INV-' . strtoupper(Str::random(10));
 
         $data = [
             'id_order' => $idOrder,
@@ -147,13 +152,13 @@ class PembayaranController extends Controller
 
     public function success($id)
     {
-        $customer = Auth::guard('customer')->user();
-        
-        $pengajuan = FormPengajuan::with(['pembayaran'])->findOrFail($id);       
+        $pembayaran = Pembayaran::with(['form_pengajuan'])->findOrFail($id);
 
+        if ($pembayaran->form_pengajuan->id_user !== Auth::id()) {
+            abort(403, 'Pastikan Anda Autentikasi Dengan User Yang Sama Dengan Akun User Yang Anda Ajukan!');
+        }
         return Inertia::render('customer/pembayaran/Sukses', [
-            'pengajuan' => $pengajuan,
-            'pembayaran' => $pengajuan->pembayaran
+            'pembayaran' => $pembayaran
         ]);
     }
 }
