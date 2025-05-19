@@ -14,7 +14,7 @@ class VerifikasiInstansi extends Controller
     //daftar instansi
     public function index()
     {
-        $instansi = Instansi::with(['customer'])->get();
+        $instansi = Instansi::with(['user'])->get();
 
         return Inertia::render('pegawai/instansi/Index', [
             'instansi' => $instansi
@@ -24,14 +24,13 @@ class VerifikasiInstansi extends Controller
     //edit instansi
     public function edit(Instansi $instansi)
     {
-        $instansi->with(['customer'])->get();
+        $instansi->with(['user'])->get();
 
         return Inertia::render('pegawai/instansi/Edit', [
             'instansi' => $instansi
         ]);
     }
 
-    
     //proses verifikasi instansi
     public function verifikasi($id, Request $request)
     {
@@ -58,7 +57,7 @@ class VerifikasiInstansi extends Controller
     //detail instansi
     public function show(Instansi $instansi)
     {
-        $instansi->with(['customer'])->get();
+        $instansi->with(['user'])->get();
 
         return Inertia::render('pegawai/instansi/Detail', [
             'instansi' => $instansi

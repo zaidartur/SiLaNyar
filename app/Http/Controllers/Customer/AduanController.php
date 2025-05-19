@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Mail\AduanMasukNotification;
 use App\Models\Aduan;
 use App\Models\HasilUji;
+use App\Models\Pegawai;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
@@ -14,25 +18,22 @@ class AduanController extends Controller
 {
     public function create(HasilUji $hasil_uji)
     {
-        $customer = Auth::guard('customer')->user();
+        $user = Auth::user();
 
-        if(!$hasil_uji->id_customer !== $customer->id)
-        {
-            abort(403, 'Anda Tidak Memiliki Akses Di Aduan Ini!');
+        if (!$hasil_uji->pengujian->form_pengajuan->id_user !== $user->id) {
+            abort(403, 'Anda Tidak Memiliki Akses Di Halaman Ini!');
         }
 
         return Inertia::render('Customer/Aduan/Create', [
             'hasil_uji' => $hasil_uji,
-            'customer' => $customer
         ]);
     }
 
     public function store(HasilUji $hasil_uji, Request $request)
     {
-        $customer = Auth::guard('customer')->user();
-        
-        if(!$hasil_uji->id_customer !== $customer->id)
-        {
+        $user = Auth::user();
+
+        if (!$hasil_uji->pengujian->form_pengajuan->id_user !== $user->id) {
             abort(403, 'Anda Tidak Memiliki Akses Di Aduan Ini!');
         }
 
@@ -43,10 +44,16 @@ class AduanController extends Controller
 
         $aduan = Aduan::create([
             'id_hasil_uji' => $hasil_uji->id,
-            'id_customer' => $customer->id,
+            'id_user' => $user->id,
             'masalah' => $request->masalah,
             'perbaikan' => $request->perbaikan
         ]);
+
+        $adminData = User::role('admin')->get();
+
+        foreach ($adminData as $admin) {
+            Mail::to($admin->email)->send(new AduanMasukNotification($aduan));
+        }
 
         return Redirect::route('customer.hasil_uji.index')->with('message', 'Aduan Berhasil Terkirim');
     }

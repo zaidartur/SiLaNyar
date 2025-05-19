@@ -13,7 +13,7 @@ class ParameterController extends Controller
     public function index()
     {
         $parameter = ParameterUji::latest()->get();
-        
+
         return Inertia::render('pegawai/parameter/Index', [
             'parameter' => $parameter,
             'filter' => request()->all()
@@ -30,15 +30,14 @@ class ParameterController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_parameter'=>'required|string',
-            'satuan'=>'required|string',
-            'harga'=>'required|numeric|min:0',
+            'nama_parameter' => 'required|string',
+            'satuan' => 'required|string',
+            'harga' => 'required|numeric|min:0',
         ]);
 
         $parameter = ParameterUji::create($request->all());
 
-        if($parameter)
-        {
+        if ($parameter) {
             return Redirect::route('pegawai.parameter.index')->with('message', 'Parameter Berhasil Dibuat!');
         }
     }
@@ -55,15 +54,14 @@ class ParameterController extends Controller
     public function update(ParameterUji $parameter, Request $request)
     {
         $request->validate([
-            'nama_parameter'=>'required|string',
-            'satuan'=>'required|string',
-            'harga'=>'required|numeric|min:0',
+            'nama_parameter' => 'required|string',
+            'satuan' => 'required|string',
+            'harga' => 'required|numeric|min:0',
         ]);
 
         $parameter->update($request->all());
 
-        if($parameter)
-        {
+        if ($parameter) {
             return Redirect::route('pegawai.parameter.index')->with('message', 'Parameter Berhasil Diupdate!');
         }
     }
@@ -72,11 +70,10 @@ class ParameterController extends Controller
     public function destroy($id)
     {
         $parameter = ParameterUji::findOrFail($id);
-        
+
         $parameter->delete();
 
-        if($parameter)
-        {
+        if ($parameter) {
             return Redirect::route('pegawai.parameter.index')->with('message', 'Parameter Berhasil Dihapus!');
         }
     }

@@ -71,13 +71,12 @@ class PegawaiResetPassword extends Controller
         ]);
 
         $otpRecord = PasswordOtp::where('identitas', $request->identitas)
-                                ->where('otp', $request->otp)
-                                ->where('expired_at', '>', now())
-                                ->latest()
-                                ->first();
+            ->where('otp', $request->otp)
+            ->where('expired_at', '>', now())
+            ->latest()
+            ->first();
 
-        if(!$otpRecord)
-        {
+        if (!$otpRecord) {
             return Redirect::back()->withErrors(['otp' => 'OTP Yang Anda Masukkan Salah atau Sudah Kedaluarsa.']);
         }
 
@@ -94,11 +93,10 @@ class PegawaiResetPassword extends Controller
         ]);
 
         $pegawai = Pegawai::where('email', $request->identitas)
-                          ->orWhere('no_telepon', $request->identitas)
-                          ->first();
+            ->orWhere('no_telepon', $request->identitas)
+            ->first();
 
-        if(!$pegawai)
-        {
+        if (!$pegawai) {
             return Redirect::back()->withErrors(['identitas' => 'User Tidak Ditemukan']);
         }
 

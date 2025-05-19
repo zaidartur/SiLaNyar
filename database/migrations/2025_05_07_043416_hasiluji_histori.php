@@ -17,7 +17,7 @@ return new class extends Migration
            $table->foreignId('id_hasil_uji')->constrained('hasil_uji')->onDelete('cascade');
            $table->foreignId('id_parameter')->constrained('parameter_uji')->onDelete('cascade');
            $table->foreignId('id_pengujian')->constrained('pengujian')->onDelete('cascade');
-           $table->foreignId('id_pegawai')->constrained('pegawai')->onDelete('cascade');
+           $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
            $table->float('nilai');
            $table->string('keterangan');
            $table->enum('status', ['acc', 'revisi', 'draf'])->default('draf');

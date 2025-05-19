@@ -10,26 +10,23 @@ use Inertia\Inertia;
 
 class JadwalController extends Controller
 {
+    //lihat jadwal
     public function index(Request $request)
     {
         $searchByStatus = $request->input('status');
 
-        $customer = Auth::guard('customer')->user();
+        $user = Auth::user();
 
-        $pengujian = Pengujian::whereHas('form_pengajuan', function($query) use ($customer, $searchByStatus)
+        $pengujian = Pengujian::whereHas('form_pengajuan', function ($query) use ($user, $searchByStatus) {
+            $query->where('id_user', $user->id);
 
-        {
-            $query->where('id_customer', $customer->id);  
-            
-            if($searchByStatus)
-            {
-                $query->where('status', 'like', '%'.$searchByStatus.'%');
+            if ($searchByStatus) {
+                $query->where('status', 'like', '%' . $searchByStatus . '%');
             }
-            
         })
-        ->orderBy('tanggal_uji')
-        ->with('form_pengajuan')
-        ->get();
+            ->orderBy('tanggal_uji')
+            ->with('form_pengajuan')
+            ->get();
 
         return Inertia::render('customer/jadwal/Index', [
             'pengujian' => $pengujian,
@@ -39,17 +36,17 @@ class JadwalController extends Controller
         ]);
     }
 
+    //detail jadwal
     public function show($id)
     {
-        $customer = Auth::guard('customer')->user();
-        
+        $user = Auth::user();
+
         $pengujian = Pengujian::with('pegawai', 'kategori')
-        ->whereHas('form_pengajuan', function($query) use ($customer)
-        {
-            $query->where('id_customer', $customer->id);    
-        })
-        ->where('id', $id)
-        ->firstOrFail();
+            ->whereHas('form_pengajuan', function ($query) use ($user) {
+                $query->where('id_user', $user->id);
+            })
+            ->where('id', $id)
+            ->firstOrFail();
 
         return Inertia::render('customer/jadwal/Detail', [
             'pengujian' => $pengujian

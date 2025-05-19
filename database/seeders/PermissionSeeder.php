@@ -58,12 +58,12 @@ class PermissionSeeder extends Seeder
 
         foreach ($permission as $per)
         {
-            Permissions::firstOrCreate(['name' => $per], ['guard_name' => 'pegawai']);
+            Permissions::firstOrCreate(['name' => $per], ['guard_name' => 'web']);
         }
 
         foreach ($allFitur as $all)
         {
-            Permissions::create(['name' => $all], ['guard_name' => 'pegawai']);
+            Permissions::create(['name' => $all], ['guard_name' => 'web']);
         }
     }
 }

@@ -16,11 +16,23 @@ class Kategori extends Model
         'harga'
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $akhir = self::max('id') ?? 0;
+            $lanjut = $akhir + 1;
+
+            $model->kode_kategori = 'DK-' . str_pad($lanjut, 3, '0', STR_PAD_LEFT);
+        });
+    }
+
     public function parameter()
     {
         return $this->belongsToMany(ParameterUji::class, 'parameter_kategori', 'id_kategori', 'id_parameter')
-                    ->withPivot('baku_mutu')
-                    ->withTimestamps();
+            ->withPivot('baku_mutu')
+            ->withTimestamps();
     }
 
     public function form_pengajuan()

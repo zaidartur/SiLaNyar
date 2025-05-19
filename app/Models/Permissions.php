@@ -11,10 +11,22 @@ class Permissions extends SpatiePermission
 
     protected $table = 'permissions';
 
-    protected $guard_name = 'pegawai';
+    protected $guard_name = 'web';
 
     protected $fillable = [
         'name',
-        'guard_name'  // Tambahkan guard_name ke fillable (ini biar guad_name bisa diisi di set up test, soalnya kalau nggak nanti harus setting default guad_name di migrations)
+        'guard_name'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $akhir = self::max('id') ?? 0;
+            $lanjut = $akhir + 1;
+
+            $model->kode_permission = 'PS-' . str_pad($lanjut, 3, '0', STR_PAD_LEFT);
+        });
+    }
 }

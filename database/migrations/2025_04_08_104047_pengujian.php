@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('kode_pengujian')->unique();
             $table->foreignId('id_form_pengajuan')->constrained('form_pengajuan')->onDelete('cascade');
-            $table->foreignId('id_pegawai')->constrained('pegawai')->onDelete('cascade');
+            $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
             $table->foreignId('id_kategori')->constrained('kategori')->onDelete('cascade');
             $table->date('tanggal_uji');
             $table->time('jam_mulai');

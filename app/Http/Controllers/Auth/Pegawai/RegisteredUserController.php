@@ -14,11 +14,19 @@ use Illuminate\Validation\Rules;
 
 class RegisteredUserController extends Controller
 {
+    public function index()
+    {
+        $pegawai = Pegawai::with(['roles', 'permissions']);
+
+        return Inertia::render('superadmin/pegawai/Index', [
+            'pegawai' => $pegawai
+        ]);
+    }
     public function create()
     {
         $role = Roles::all();
         
-        return Inertia::render('pegawai/Regitrasi', [
+        return Inertia::render('superadmin/pegawai/Registrasi', [
             'role' => $role,
         ]);
     }
@@ -49,6 +57,6 @@ class RegisteredUserController extends Controller
         
         event(new Registered($pegawai));
         
-        return Redirect::back()->with('message', 'Akun Berhasil Terdaftar. Harap Tunggu Verifikasi Super Admin!');
+        return Redirect::back()->with('message', 'Akun Berhasil Terdaftar');
     }
 }
