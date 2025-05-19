@@ -11,16 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('instansi', function(Blueprint $table)
-        {
+        Schema::create('instansi', function (Blueprint $table) {
             $table->id();
             $table->string('kode_instansi')->unique();
-            $table->foreignId('id_customer')->constrained('customer')->onDelete('cascade');
+            $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
             $table->string('nama');
             $table->enum('tipe', ['swasta', 'pemerintahan', 'pribadi']);
             $table->string('alamat');
+            $table->string('wilayah');
+            $table->string('desa/kelurahan');
+            $table->string('email')->unique();  
             $table->string('no_telepon');
-            $table->string('email')->unique();
+            $table->string('posisi/jabatan');
+            $table->string('departemen/divisi');
             $table->enum('status_verifikasi', ['diproses', 'diterima', 'ditolak'])->default('diproses');
             $table->string('diverifikasi_oleh');
             $table->timestamps();

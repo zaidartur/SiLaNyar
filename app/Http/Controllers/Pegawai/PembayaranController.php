@@ -14,7 +14,7 @@ class PembayaranController extends Controller
 {
     public function index()
     {
-        $pembayaran = Pembayaran::with(['form_pengajuan', 'form_pengajuan.customer'])->get();
+        $pembayaran = Pembayaran::with(['form_pengajuan', 'form_pengajuan.user'])->get();
 
         return Inertia::render('pegawai/pembayaran/Index', [
             'pembayaran' => $pembayaran
@@ -23,8 +23,8 @@ class PembayaranController extends Controller
 
     public function show($id)
     {
-        $pembayaran = Pembayaran::with(['form_pengajuan', 'form_pengajuan.customer'])->findOrFail($id);
-        
+        $pembayaran = Pembayaran::with(['form_pengajuan', 'form_pengajuan.user'])->findOrFail($id);
+
         return Inertia::render('pegawai/pembayaran/Detail', [
             'pembayaran' => $pembayaran
         ]);
@@ -32,7 +32,7 @@ class PembayaranController extends Controller
 
     public function edit($id)
     {
-        $pembayaran = Pembayaran::with(['form_pengajuan', 'form_pengajuan.customer'])->findOrFail($id);
+        $pembayaran = Pembayaran::with(['form_pengajuan', 'form_pengajuan.user'])->findOrFail($id);
 
         return Inertia::render('pegawai/pembayaran/Edit', [
             'pembayaran' => $pembayaran
@@ -47,12 +47,12 @@ class PembayaranController extends Controller
 
         $pembayaran->update($request->all());
 
-        if($request->status_pembayaran === 'selesai' && $pembayaran->form_pengajuan && $pembayaran->form_pengajuan->customer) {
+        if ($request->status_pembayaran === 'selesai' && $pembayaran->form_pengajuan && $pembayaran->form_pengajuan->user) {
             try {
-                $pembayaran->form_pengajuan->customer->notify(new PembayaranSukses($pembayaran));
+                $pembayaran->form_pengajuan->user->notify(new PembayaranSukses($pembayaran));
             } catch (\Exception $err) {
                 return Redirect::back()->withErrors([
-                    'notification' => 'Gagal Mengirim Email:'.$err->getMessage()
+                    'notification' => 'Gagal Mengirim Email:' . $err->getMessage()
                 ]);
             }
         }

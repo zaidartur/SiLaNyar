@@ -13,14 +13,25 @@ class Roles extends SpatieRole
 
     protected $fillable = [
         'name',
-        'guard_name'  // Tambahkan guard_name ke fillable
+        'guard_name'
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $akhir = self::max('id') ?? 0;
+            $lanjut = $akhir + 1;
+
+            $model->kode_role = 'RL-' . str_pad($lanjut, 3, '0', STR_PAD_LEFT);
+        });
+    }
     // Set default guard name
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
-        
-        $this->guard_name = $this->guard_name ?? 'pegawai';
+
+        $this->guard_name = $this->guard_name ?? 'web';
     }
 }

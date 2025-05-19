@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\CheckPermission;
+use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\CheckVerifiedCustomer;
 use App\Http\Middleware\CheckVerifiedPegawai;
 use App\Http\Middleware\HandleAppearance;
@@ -29,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'check.permission' => CheckPermission::class,
+            'role' => CheckRole::class,
             'sso.auth' => SSOAuthenticated::class,
         ]);
     })

@@ -17,4 +17,17 @@ class JenisCairan extends Model
         'batas_minimum',
         'batas_maksimum'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($model)
+        {
+            $akhir = self::max('id') ?? 0;
+            $lanjut = $akhir + 1;
+
+            $model->kode_jenis_cairan = 'JC-'.str_pad($lanjut, 3, '0', STR_PAD_LEFT);
+        });
+    }
 }

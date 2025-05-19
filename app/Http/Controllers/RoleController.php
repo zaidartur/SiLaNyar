@@ -22,7 +22,7 @@ class RoleController extends Controller
     public function create()
     {
         $permission = Permissions::all();
-        
+
         return Inertia::render('superadmin/role/Tambah', [
             'permission' => $permission
         ]);
@@ -43,24 +43,23 @@ class RoleController extends Controller
 
         try {
             // Cek unique setelah validasi dasar
-            if (Roles::where('name', $request->name)->where('guard_name', 'pegawai')->exists()) {
+            if (Roles::where('name', $request->name)->where('guard_name', 'web')->exists()) {
                 return back()->withErrors([
-                    'name' => 'The name has already been taken.'
+                    'name' => 'Nama Sudah Dipakai.'
                 ])->withInput();
             }
 
             $role = Roles::create([
                 'name' => $request->name,
-                'guard_name' => 'pegawai'
+                'guard_name' => 'web'
             ]);
 
             if ($request->has('permissions')) {
                 $role->syncPermissions($request->permissions);
             }
 
-            return redirect('/superadmin/role')
+            return Redirect::route('superadmin.role.index')
                 ->with('message', 'Role Berhasil Ditambahkan!');
-
         } catch (\Exception $e) {
             return back()->withErrors([
                 'name' => 'An error occurred while creating the role.'
@@ -72,7 +71,7 @@ class RoleController extends Controller
     {
         $permission = Permissions::all();
 
-        return Inertia::render('role.edit', [
+        return Inertia::render('superadmin/role/Edit', [
             'roles' => $role->load('permissions'), // Ubah dari 'permission' ke 'permissions'
             'permissions' => $permission
         ]);
@@ -88,7 +87,7 @@ class RoleController extends Controller
 
         $role->update([
             'name' => $request->name, // Ubah dari nama ke name untuk konsistensi
-            'guard_name' => 'pegawai'
+            'guard_name' => 'web'
         ]);
 
         if (isset($request->permissions)) {
@@ -101,11 +100,10 @@ class RoleController extends Controller
     public function destroy($id)
     {
         $role = Roles::findOrFail($id);
-        
+
         $role->delete();
 
-        if($role)
-        {
+        if ($role) {
             return Redirect::route('superadmin.role.index')->with('message', 'Role Berhasil Dihapus!');
         }
     }

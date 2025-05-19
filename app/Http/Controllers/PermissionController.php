@@ -31,8 +31,7 @@ class PermissionController extends Controller
 
         $permission = Permissions::create($request->all());
 
-        if ($permission) 
-        {
+        if ($permission) {
             return Redirect::route('superadmin.permission.index')->with('message', 'Permission Berhasil Dibuat!');
         }
     }
@@ -52,8 +51,7 @@ class PermissionController extends Controller
 
         $permission->update($request->all());
 
-        if($permission)
-        {
+        if ($permission) {
             return Redirect::route('superadmin.permission.index')->with('message', 'Permission Berhasil Diupdate!');
         }
     }
@@ -61,11 +59,10 @@ class PermissionController extends Controller
     public function destroy($id)
     {
         $permission = Permissions::findOrFail($id);
-        
+
         $permission->delete();
 
-        if($permission)
-        {
+        if ($permission) {
             return Redirect::route('superadmin.permission.index')->with('message', 'Permission Berhasil Dihapus!');
         }
     }

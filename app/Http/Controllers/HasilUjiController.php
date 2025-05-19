@@ -24,7 +24,6 @@ class HasilUjiController extends Controller
         ]);
     }
 
-
     //form tambah hasil uji
     public function create()
     {
@@ -63,6 +62,8 @@ class HasilUjiController extends Controller
     //form edit hasil uji
     public function edit(HasilUji $hasil_uji)
     {
+        $hasil_uji->load(['parameter', 'pengujian']);
+
         $parameter = ParameterUji::all();
         $pengujian = Pengujian::all();
 
@@ -92,7 +93,7 @@ class HasilUjiController extends Controller
                 'nilai' => $request->nilai,
                 'keterangan' => $request->keterangan,
                 'status' => $request->status,
-                'id_pegawai' => Auth::guard('pegawai')->id()
+                'id_user' => Auth::id()
             ]);
         }
 
@@ -111,7 +112,7 @@ class HasilUjiController extends Controller
     //lihat detail hasil uji
     public function show(HasilUji $hasil_uji)
     {
-        $hasil_uji->load('parameter', 'pengujian');
+        $hasil_uji->load(['parameter', 'pengujian']);
 
         return Inertia::render('pegawai/hasil_uji/Detail', [
             'hasil_uji' => $hasil_uji

@@ -17,7 +17,7 @@ class CustomerResetPasswordController extends Controller
 {
     public function lihatForm()
     {
-        return Inertia::render('customer/LupaPassword');    
+        return Inertia::render('customer/LupaPassword');
     }
 
     public function kirimOtp(Request $request)
@@ -28,9 +28,9 @@ class CustomerResetPasswordController extends Controller
         ]);
 
         $customer = Customer::where('email', $request->identitas)
-                            ->orWhere('kontak_pribadi', $request->identitas)
-                            ->orWhere('kontak_instansi', $request->identitas)
-                            ->firstOrFail();
+            ->orWhere('kontak_pribadi', $request->identitas)
+            ->orWhere('kontak_instansi', $request->identitas)
+            ->firstOrFail();
 
         $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
@@ -65,7 +65,7 @@ class CustomerResetPasswordController extends Controller
 
     public function lihatOtpForm()
     {
-        return Inertia::render('customer/VerifikasiOTP');    
+        return Inertia::render('customer/VerifikasiOTP');
     }
 
     public function verifikasiOtp(Request $request)
@@ -76,13 +76,12 @@ class CustomerResetPasswordController extends Controller
         ]);
 
         $otpRecord = PasswordOtp::where('identitas', $request->identitas)
-                    ->where('otp', $request->otp)
-                    ->where('expired_at', '>', now())
-                    ->latest()
-                    ->first();
+            ->where('otp', $request->otp)
+            ->where('expired_at', '>', now())
+            ->latest()
+            ->first();
 
-        if(!$otpRecord)
-        {
+        if (!$otpRecord) {
             return Redirect::back()->withErrors(['otp' => 'OTP Yang Anda Masukkan Salah atau Sudah Kedaluarsa.']);
         }
 
@@ -99,12 +98,11 @@ class CustomerResetPasswordController extends Controller
         ]);
 
         $customer = Customer::where('email', $request->identitas)
-                    ->orWhere('kontak_pribadi', $request->identitas)
-                    ->orWhere('kontak_instansi', $request->identitas)
-                    ->first();
+            ->orWhere('kontak_pribadi', $request->identitas)
+            ->orWhere('kontak_instansi', $request->identitas)
+            ->first();
 
-        if(!$customer)
-        {
+        if (!$customer) {
             return Redirect::back()->withErrors(['identitas' => 'User Tidak Ditemukan']);
         }
 
