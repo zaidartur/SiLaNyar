@@ -38,13 +38,11 @@ class CustomerProfileController extends Controller
             return redirect()->route('login')->with('error', 'Unauthorized');
         }
 
-        $customer = auth()->guard('customer')->user();
-        $instansiData = Instansi::where('id_customer', $customer->id)->get();
-
         $instansi = Instansi::where('id_customer', $userData['id'])->get();
 
         return Inertia::render('customer/profile/Index', [
             'user' => $userData,
+
             'instansi' => $instansi
         ]);
     }
