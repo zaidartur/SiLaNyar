@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Link } from '@inertiajs/vue3';
-import { LogOut } from 'lucide-vue-next';
+import { UserIcon, LayoutDashboard, LogOut } from 'lucide-vue-next';
 
 // interface Props {
 //     user: User;

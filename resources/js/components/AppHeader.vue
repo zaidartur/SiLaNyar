@@ -30,10 +30,9 @@ const auth = computed<Auth>(() => page.props.auth as Auth);
 </script>
 
 <template>
-    <!-- Tambahkan ini untuk debug -->
-    <pre>{{ auth }}</pre>
+    <!-- <pre>{{ auth }}</pre> -->
     <div>
-        <div class="border-b border-sidebar-border/80">
+        <div class="bg-white border-b border-sidebar-border/80">
             <div class="flex h-20 w-full items-center px-4">
                 <Link :href="route('dashboard')" class="flex items-center gap-x-2">
                     <AppLogo />

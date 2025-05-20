@@ -12,7 +12,7 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Instrument Sans', ...defaultTheme.fontFamily.sans],
+                sans: ['Lato', ...defaultTheme.fontFamily.sans],
             },
             borderRadius: {
                 lg: 'var(--radius)',
@@ -72,6 +72,7 @@ export default {
                 },
                 customGreen: '#2E7D32',
                 customDarkGreen: '#2E7D32',
+                customLightGreen: '#81C784',
                 customGray: '#3A3A3A',
             },
         },
