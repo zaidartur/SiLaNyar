@@ -38,29 +38,25 @@ class CustomerProfileController extends Controller
             return redirect()->route('login')->with('error', 'Unauthorized');
         }
 
-        $instansi = Instansi::where('id_customer', $userData['id'])->get();
+        $customer = auth()->guard('customer')->user();
+        $instansiData = Instansi::where('id_customer', $customer->id)->get();
 
-        return Inertia::render('customer/profile/Index', [
+        return Inertia::render('customer/profile/Show', [
             'user' => $userData,
+            'instansi' => $instansiData        ]);
+    }
 
+    public function showInstansi(Instansi $instansi)
+    {
+        $customer = auth()->guard('customer')->user();
+        $instansi->where('id_customer', $customer->id)->get();
+
+        return Inertia::render('customer/profile/ShowInstansi', [
             'instansi' => $instansi
         ]);
     }
 
-    // public function show()
-    // {
-    //     $customer = auth()->guard('customer')->user();
-
-    //     $instansi = Instansi::where('id_customer', $customer->id)
-    //         ->get();
-
-    //     return Inertia::render('customer/profile/show', [
-    //         'customer' => $customer,
-    //         'instansi' => $instansi,
-    //     ]);
-    // }
-
-    public function storeOrUpdateInstansi(Request $request)
+    public function storeInstansi(Request $request)
     {
         $customer = auth()->guard('customer')->user();
 
@@ -72,7 +68,7 @@ class CustomerProfileController extends Controller
             'email' => 'required|string|lowercase|email|max:255|unique:instansi,email',
         ]);
 
-        $instansi = Instansi::updateOrCreate(
+        $instansi = Instansi::create(
             ['id_customer' => $customer->id],
             [
                 'nama' => $request->nama,
@@ -84,7 +80,47 @@ class CustomerProfileController extends Controller
             ]
         );
 
+        if (!$instansi) {
+            return Redirect::back()->withError('Validasi Salah');
+        }
         return Redirect::back()->with('message', 'Instansi Berhasil Ditambah!');
+    }
+
+    public function editInstansi(Instansi $instansi)
+    {
+        $customer = auth()->guard('customer')->user();
+
+        $instansi->where('id_customer', $customer)->get();
+
+        return Inertia::render('customer/profile/EditInstansi', [
+            'instansi' => $instansi
+        ]);
+    }
+
+    public function updateIntansi(Instansi $instansi, Request $request)
+    {
+        $customer = auth()->guard('customer')->user();
+
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'tipe' => 'required|in:swasta,pemerintahan',
+            'alamat' => 'required|string|max:255',
+            'no_telepon' => 'required|regex:/^\+[0-9]+$/|string',
+            'email' => 'required|string|lowercase|email|max:255|unique' . Instansi::class,
+        ]);
+
+        $instansi->update(
+            ['id_customer' => $customer->id],
+            [
+                'nama' => $request->nama,
+                'tipe' => $request->tipe,
+                'alamat' => $request->alamat,
+                'no_telepon' => $request->no_telepon,
+                'email' => $request->email
+            ]
+        );
+
+        return Redirect::route('customer.profile.instansi.detail')->with('message', 'Data Instansi Berhasil Diupdate!');
     }
 
     public function edit()

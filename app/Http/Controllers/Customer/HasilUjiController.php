@@ -40,14 +40,9 @@ class HasilUjiController extends Controller
         }
 
         $hasil_uji->load('parameter', 'pengujian');
-<<<<<<< HEAD
-        
-        return Inertia::render('customer/hasil_uji/Index', [
-            'customer' => $customer,
-=======
+
 
         return Inertia::render('customer/hasil_uji/Show', [
->>>>>>> 0181e98 (Menggabungkan model Customer dan Pegawai serta Mengganti apapun yang berhubungan dengan autentikasi customer dan pegawai)
             'hasil_uji' => $hasil_uji
         ]);
     }
