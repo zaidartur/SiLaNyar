@@ -37,7 +37,7 @@ class HasilUjiController extends Controller
 
         $hasil_uji->load('parameter', 'pengujian');
         
-        return Inertia::render('customer/hasil_uji/Show', [
+        return Inertia::render('customer/hasil_uji/Index', [
             'customer' => $customer,
             'hasil_uji' => $hasil_uji
         ]);

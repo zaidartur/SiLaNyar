@@ -20,7 +20,7 @@ const toggleMenu = () => {
 </script>
 
 <template>
-    <nav class="bg-customGreen">
+    <nav class="bg-customDarkGreen">
         <div class="mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex h-16 items-center justify-between">
                 <!-- Desktop Menu -->

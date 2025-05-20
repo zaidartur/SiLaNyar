@@ -14,3 +14,4 @@ export { default as DropdownMenuSub } from './DropdownMenuSub.vue';
 export { default as DropdownMenuSubContent } from './DropdownMenuSubContent.vue';
 export { default as DropdownMenuSubTrigger } from './DropdownMenuSubTrigger.vue';
 export { default as DropdownMenuTrigger } from './DropdownMenuTrigger.vue';
+export { default as DropdownMenuUserDashboard } from './DropdownMenuUserDashboard.vue';

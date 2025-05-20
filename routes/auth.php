@@ -73,7 +73,7 @@ Route::prefix('customer')->middleware(['auth:customer'])->group(function () {
     Route::delete('profile/destroy', [CustomerProfileController::class, 'destroy'])->name('customer.profile.destroy');
 
     //Fitur Instansi
-    Route::post('profile/instansi', [CustomerProfileController::class, 'storeOrUpdateInstansi']);
+    Route::post('profile/instansi', [CustomerProfileController::class, 'storeOrUpdateInstansi'])->name('customer.profile.instansi');
 
 
     Route::post('logout', [CustomerAuthenticatedSessionController::class, 'destroy'])->name('customer.logout');

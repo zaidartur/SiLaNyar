@@ -38,8 +38,11 @@ class CustomerProfileController extends Controller
             return redirect()->route('login')->with('error', 'Unauthorized');
         }
 
-        return Inertia::render('customer/profile/Show', [
-            'user' => $userData
+        $instansi = Instansi::where('id_customer', $userData['id'])->get();
+
+        return Inertia::render('customer/profile/Index', [
+            'user' => $userData,
+            'instansi' => $instansi
         ]);
     }
 
@@ -65,7 +68,7 @@ class CustomerProfileController extends Controller
             'tipe' => 'required|in:swasta,pemerintahan',
             'alamat' => 'required|string|max:255',
             'no_telepon' => 'required|regex:/^\+[0-9]+$/|string',
-            'email' => 'required|string|lowercase|email|max:255|unique' . Instansi::class,
+            'email' => 'required|string|lowercase|email|max:255|unique:instansi,email',
         ]);
 
         $instansi = Instansi::updateOrCreate(
@@ -75,7 +78,8 @@ class CustomerProfileController extends Controller
                 'tipe' => $request->tipe,
                 'alamat' => $request->alamat,
                 'no_telepon' => $request->no_telepon,
-                'email' => $request->email
+                'email' => $request->email,
+                'status_verifikasi' => 'belum diverifikasi',
             ]
         );
 
