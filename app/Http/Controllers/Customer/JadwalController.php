@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Jadwal;
 use App\Models\Pengujian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,19 +18,41 @@ class JadwalController extends Controller
 
         $user = Auth::user();
 
-        $pengujian = Pengujian::whereHas('form_pengajuan', function ($query) use ($user, $searchByStatus) {
+        $jadwal = Jadwal::whereHas('form_pengajuan', function ($query) use ($user, $searchByStatus) {
             $query->where('id_user', $user->id);
 
             if ($searchByStatus) {
                 $query->where('status', 'like', '%' . $searchByStatus . '%');
             }
         })
-            ->orderBy('tanggal_uji')
+            ->orderBy('waktu_pengambilan')
             ->with('form_pengajuan')
             ->get();
 
+        $jadwalAntarTerbaru = Jadwal::whereHas('form_pengajuan', function ($query) use ($user) {
+            $query->where('metode_pengambilan', 'diantar')
+                ->where('id_user', $user->id);
+        })
+            ->with('form_pengajuan')
+            ->latest()
+            ->first();
+
+        $idJadwalAntarTerbaru = $jadwalAntarTerbaru?->id;
+
+        $jadwalAmbilTerbaru = Jadwal::whereHas('form_pengajuan', function ($query) use ($user) {
+            $query->where('metode_pengambilan', 'diambil')
+                ->where('id_user', $user->id);
+        })
+            ->with('form_pengajuan')
+            ->latest()
+            ->first();
+
+        $idJadwalAmbilTerbaru = $jadwalAmbilTerbaru?->id;
+
         return Inertia::render('customer/jadwal/Index', [
-            'pengujian' => $pengujian,
+            'jadwal' => $jadwal,
+            'jadwalAntarTerbaru' => $idJadwalAntarTerbaru,
+            'jadwalAmbilTerbaru' => $idJadwalAmbilTerbaru,
             'filter' => [
                 'status' => $searchByStatus
             ],
@@ -41,15 +64,15 @@ class JadwalController extends Controller
     {
         $user = Auth::user();
 
-        $pengujian = Pengujian::with('pegawai', 'kategori')
-            ->whereHas('form_pengajuan', function ($query) use ($user) {
-                $query->where('id_user', $user->id);
-            })
-            ->where('id', $id)
-            ->firstOrFail();
+        $jadwal = Jadwal::whereHas('form_pengajuan', function ($query) use ($user) {
+            $query->where('id_user', $user->id);
+        })
+            ->with(['form_pengajuan', 'form_pengajuan.kategori'])
+            ->findOrFail($id)
+            ->get();
 
         return Inertia::render('customer/jadwal/Detail', [
-            'pengujian' => $pengujian
+            'jadwal' => $jadwal
         ]);
     }
 }

@@ -15,7 +15,7 @@ class Pengujian extends Model
 
     protected $fillable = [
         'id_form_pengajuan',
-        'id_pegawai',
+        'id_user',
         'id_kategori',
         'tanggal_uji',
         'jam_mulai',
@@ -61,28 +61,5 @@ class Pengujian extends Model
     public function hasil_uji()
     {
         return $this->hasMany(HasilUji::class);
-    }
-
-    public function update(array $attributes = [], array $options = [])
-    {
-        // Validasi jam selesai harus setelah jam mulai
-        if (isset($attributes['jam_mulai']) && isset($attributes['jam_selesai'])) {
-            $validator = Validator::make($attributes, [
-                'jam_selesai' => 'after:jam_mulai'
-            ]);
-
-            if ($validator->fails()) {
-                throw ValidationException::withMessages([
-                    'jam_selesai' => ['Jam selesai harus setelah jam mulai']
-                ]);
-            }
-        }
-
-        // Jika status saat ini adalah 'selesai', hapus atribut status dari update
-        if ($this->status === 'selesai' && isset($attributes['status'])) {
-            unset($attributes['status']);
-        }
-        
-        return parent::update($attributes, $options);
     }
 }

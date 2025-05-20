@@ -38,10 +38,10 @@ class CustomerProfileController extends Controller
             return redirect()->route('login')->with('error', 'Unauthorized');
         }
 
-        $customer = auth()->guard('customer')->user();
-        $instansiData = Instansi::where('id_customer', $customer->id)->get();
+        $user = Auth::user();
+        $instansiData = Instansi::where('id_user', $user->id)->get();
 
-        return Inertia::render('customer/profile/Show', [
+        return Inertia::render('customer/profile/Index', [
             'user' => $userData,
             'instansi' => $instansiData
         ]);
@@ -49,8 +49,8 @@ class CustomerProfileController extends Controller
 
     public function showInstansi(Instansi $instansi)
     {
-        $customer = auth()->guard('customer')->user();
-        $instansi->where('id_customer', $customer->id)->get();
+        $user = Auth::user();
+        $instansi->where('id_user', $user->id)->get();
 
         return Inertia::render('customer/profile/ShowInstansi', [
             'instansi' => $instansi
@@ -59,7 +59,7 @@ class CustomerProfileController extends Controller
 
     public function storeInstansi(Request $request)
     {
-        $customer = auth()->guard('customer')->user();
+        $user = Auth::user();
 
         $request->validate([
             'nama' => 'required|string|max:255',
@@ -70,7 +70,7 @@ class CustomerProfileController extends Controller
         ]);
 
         $instansi = Instansi::create(
-            ['id_customer' => $customer->id],
+            ['id_user' => $user->id],
             [
                 'nama' => $request->nama,
                 'tipe' => $request->tipe,
@@ -88,9 +88,9 @@ class CustomerProfileController extends Controller
 
     public function editInstansi(Instansi $instansi)
     {
-        $customer = auth()->guard('customer')->user();
+        $user = Auth::user();
 
-        $instansi->where('id_customer', $customer)->get();
+        $instansi->where('id_user', $user)->get();
 
         return Inertia::render('customer/profile/EditInstansi', [
             'instansi' => $instansi
@@ -99,7 +99,7 @@ class CustomerProfileController extends Controller
 
     public function updateIntansi(Instansi $instansi, Request $request)
     {
-        $customer = auth()->guard('customer')->user();
+        $user = Auth::user();
 
         $request->validate([
             'nama' => 'required|string|max:255',
@@ -110,7 +110,7 @@ class CustomerProfileController extends Controller
         ]);
 
         $instansi->update(
-            ['id_customer' => $customer->id],
+            ['id_user' => $user->id],
             [
                 'nama' => $request->nama,
                 'tipe' => $request->tipe,
@@ -123,70 +123,70 @@ class CustomerProfileController extends Controller
         return Redirect::route('customer.profile.instansi.detail')->with('message', 'Data Instansi Berhasil Diupdate!');
     }
 
-    public function edit()
-    {
-        $customer = Auth::guard('customer')->user();
-        return Inertia::render('customer/profile/edit', [
-            'customer' => $customer
-        ]);
-    }
+    // public function edit()
+    // {
+    //     $user = Auth::user();
+    //     return Inertia::render('customer/profile/edit', [
+    //         'user' => $user
+    //     ]);
+    // }
 
-    public function update(Request $request)
-    {
-        $customer = $request->user('customer');
+    // public function update(Request $request)
+    // {
+    //     $user = $request->user('');
 
-        $request->validate([
-            'nama' => 'required|string|max:255',
-            'nik' => 'required|string|max:16',
-            'jabatan' => 'required|string|max:255',
-            'no_telepon' => 'required|string|regex:/^\+[0-9]+$/',
-            'email' => 'required|email|string|lowercase|unique:customer,email,' . $customer->id,
-        ]);
+    //     $request->validate([
+    //         'nama' => 'required|string|max:255',
+    //         'nik' => 'required|string|max:16',
+    //         'jabatan' => 'required|string|max:255',
+    //         'no_telepon' => 'required|string|regex:/^\+[0-9]+$/',
+    //         'email' => 'required|email|string|lowercase|unique:customer,email,' . $customer->id,
+    //     ]);
 
-        $customer->update($request->all());
+    //     $user->update($request->all());
 
-        return redirect()->route('customer.profile.index')
-            ->with('message', 'Profil Berhasil Diubah!');
-    }
+    //     return redirect()->route('customer.profile.index')
+    //         ->with('message', 'Profil Berhasil Diubah!');
+    // }
 
-    public function updatePassword(Request $request)
-    {
-        $customer = $request->user('customer');
+    // public function updatePassword(Request $request)
+    // {
+    //     $customer = $request->user('customer');
 
-        $request->validate([
-            'password_lama' => 'required',
-            'password_baru' => 'required|confirmed',
-        ]);
+    //     $request->validate([
+    //         'password_lama' => 'required',
+    //         'password_baru' => 'required|confirmed',
+    //     ]);
 
-        if (!Hash::check($request->password_lama, $customer->password)) {
-            return Redirect::back()->withErrors(['password_lama' => 'Password saat ini salah.']);
-        }
+    //     if (!Hash::check($request->password_lama, $customer->password)) {
+    //         return Redirect::back()->withErrors(['password_lama' => 'Password saat ini salah.']);
+    //     }
 
-        $customer->password = bcrypt($request->password_baru);
-        $customer->save();
+    //     $customer->password = bcrypt($request->password_baru);
+    //     $customer->save();
 
-        return Redirect::route('customer.profile.index')->with('message', 'Password Berhasil Diubah!');
-    }
+    //     return Redirect::route('customer.profile.index')->with('message', 'Password Berhasil Diubah!');
+    // }
 
-    public function destroy(Request $request)
-    {
-        $customer = $request->user('customer');
+    // public function destroy(Request $request)
+    // {
+    //     $customer = $request->user('customer');
 
-        $request->validate([
-            'password' => ['required'],
-        ]);
+    //     $request->validate([
+    //         'password' => ['required'],
+    //     ]);
 
-        if (!Hash::check($request->password, $customer->password)) {
-            return Redirect::back()->withErrors(['password' => 'Password Yang Anda Masukkan Salah']);
-        }
+    //     if (!Hash::check($request->password, $customer->password)) {
+    //         return Redirect::back()->withErrors(['password' => 'Password Yang Anda Masukkan Salah']);
+    //     }
 
-        Auth::guard('customer')->logout();
+    //     Auth::guard('customer')->logout();
 
-        $customer->delete();
+    //     $customer->delete();
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+    //     $request->session()->invalidate();
+    //     $request->session()->regenerateToken();
 
-        return Redirect::route('/')->with('message', 'Akun Berhasil Dihapus');
-    }
+    //     return Redirect::route('/')->with('message', 'Akun Berhasil Dihapus');
+    // }
 }

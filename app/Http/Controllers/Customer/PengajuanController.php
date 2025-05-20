@@ -47,6 +47,8 @@ class PengajuanController extends Controller
     //proses daftar pengajuan uji lab customer
     public function store(Request $request)
     {
+        $user = Auth::user();
+
         $jenisCairan = JenisCairan::findOrFail($request->id_jenis_cairan);
 
         $rules = [
@@ -79,7 +81,7 @@ class PengajuanController extends Controller
         }
 
         $pengajuan = FormPengajuan::create([
-            'id_user' => Auth::id(),
+            'id_user' => $user->id,
             'id_kategori' => $validated['id_kategori'] ?? null,
             'id_jenis_cairan' => $validated['id_jenis_cairan'],
             'volume_sampel' => $validated['volume_sampel'],
@@ -94,6 +96,7 @@ class PengajuanController extends Controller
         if ($validated['metode_pengambilan'] === 'diantar') {
             Jadwal::create([
                 'id_form_pengajuan' => $pengajuan->id,
+                'id_user' => $user->id,
                 'waktu_pengambilan' => $validated['waktu_pengambilan'],
                 'keterangan' => $validated['keterangan'] ?? null,
                 'status' => 'diproses'

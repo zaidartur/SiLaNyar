@@ -82,12 +82,17 @@ class SSOController extends Controller
 
         Auth::guard('web')->login($user);
 
-        if(!$user->hasRole('customer')) 
-        {
+        if (!$user->hasAnyRole(['superadmin', 'admin', 'teknisi', 'customer'])) {
             $user->assignRole('customer');
         }
 
-        return redirect('customer/dashboard');
+        if ($user->hasAnyRole(['superadmin', 'admin', 'teknisi'])) {
+            return Redirect::route('pegawai.dashboard');
+        } elseif ($user->hasRole('customer')) {
+            return Redirect::route('customer.dashboard');
+        } else {
+            return Redirect::route('dashboard');
+        }
     }
 
     public function logout()

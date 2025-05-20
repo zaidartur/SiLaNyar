@@ -12,7 +12,7 @@ class Instansi extends Model
     protected $table = 'instansi';
 
     protected $fillable = [
-        'id_customer',
+        'id_user',
         'nama',
         'tipe',
         'alamat',
@@ -28,6 +28,6 @@ class Instansi extends Model
     
     public function user()
     {
-        $this->belongsTo(User::class, 'id_customer');
+        $this->belongsTo(User::class, 'id_user');
     }
 }

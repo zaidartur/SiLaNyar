@@ -13,7 +13,7 @@ class JenisCairanController extends Controller
     {
         $jenis_cairan = JenisCairan::all();
         return Inertia::render('pegawai/jenis_cairan/Index', [
-            'jenisCairan' => $jenis_cairan
+            'jenis_cairan' => $jenis_cairan
         ]);
     }
 
@@ -27,8 +27,16 @@ class JenisCairanController extends Controller
         $request->validate([
             'nama' => 'required|string|max:255',
             'batas_minimum' => 'required|numeric',
-            'batas_maksimum' => 'required|numeric'
+            'batas_maksimum' => 'required|numeric|after_or_equal:batas_minimum'
         ]);
+
+        if($request->batas_minimum >= $request->batas_maksimum && $request->batas_maksimum <= $request->batas_minimum)
+        {
+            return Redirect::back()->withErrors([
+                'batas_minimum' => 'Batas Minimum Tidak Boleh Kurang Dari Batas Maksimum',
+                'batas_maksimum' => 'Batas Maksimum Tidak Boleh Lebih Dari Batas Minimum'
+            ]);
+        }
 
         $jenis_cairan = JenisCairan::create($request->all());
 
