@@ -1,15 +1,8 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/vue3';
+import { Link, Head } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-    },
-];
 
 const syaratPenerimaan = ref([
     'Volume / jumlah sample minimal 2,5 liter',
@@ -62,24 +55,29 @@ const workflowSteps = ref([
 </script>
 
 <template>
+
     <Head title="Dashboard" />
 
-    <AppLayout :breadcrumbs="breadcrumbs">
+    <AppLayout>
         <!-- Remove padding and make container full width -->
         <div class="flex min-h-screen w-full flex-col">
             <!-- Hero Section -->
-            <section class="relative h-screen w-full bg-cover bg-center" style="background-image: url('/storage/assetslandingpage/hero.png')">
+            <section class="relative h-screen w-full bg-cover bg-center"
+                style="background-image: url('/storage/assetslandingpage/hero.png')">
                 <div class="absolute inset-0 flex items-center justify-center bg-black/40 text-white">
                     <div class="text-center">
-                        <h2 class="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">Sistem Laboratorium Lingkungan Terpadu</h2>
+                        <h2 class="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">Sistem Laboratorium
+                            Lingkungan Terpadu</h2>
                         <p class="mx-auto mt-6 max-w-2xl text-lg leading-8">
-                            Manajemen dan monitoring laboratorium lingkungan yang komprehensif untuk memantau kualitas lingkungan di Kabupaten
+                            Manajemen dan monitoring laboratorium lingkungan yang komprehensif untuk memantau kualitas
+                            lingkungan di Kabupaten
                             Karanganyar.
                         </p>
                         <div class="mt-10">
-                            <button class="rounded-lg bg-orange-400 px-6 py-3 text-lg font-semibold text-white transition-colors hover:bg-orange-500">
+                            <Link :href="route('customer.pengajuan.index')"
+                                class="rounded-lg bg-orange-400 px-6 py-3 text-lg font-semibold text-white transition-colors hover:bg-orange-500">
                                 Pelajari Sistem Lab
-                            </button>
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -103,10 +101,14 @@ const workflowSteps = ref([
                         </h3>
                         <div class="mt-8">
                             <ul class="space-y-6">
-                                <li v-for="(text, index) in syaratPenerimaan" :key="index" class="flex items-start gap-3">
-                                    <div class="mt-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-green-600">
-                                        <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                <li v-for="(text, index) in syaratPenerimaan" :key="index"
+                                    class="flex items-start gap-3">
+                                    <div
+                                        class="mt-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-green-600">
+                                        <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 13l4 4L19 7"></path>
                                         </svg>
                                     </div>
                                     <span class="text-xl font-medium text-black dark:text-white">
@@ -123,10 +125,14 @@ const workflowSteps = ref([
                             </h2>
                             <div class="mt-6">
                                 <ul class="space-y-6">
-                                    <li v-for="(text, index) in sampleDitolak" :key="index" class="flex items-start gap-3">
-                                        <div class="mt-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-red-500">
-                                            <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    <li v-for="(text, index) in sampleDitolak" :key="index"
+                                        class="flex items-start gap-3">
+                                        <div
+                                            class="mt-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-red-500">
+                                            <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M6 18L18 6M6 6l12 12"></path>
                                             </svg>
                                         </div>
                                         <span class="text-xl font-medium text-black dark:text-white">
@@ -142,7 +148,8 @@ const workflowSteps = ref([
                     <div class="flex flex-col space-y-8">
                         <!-- BOD Sample Table -->
                         <div class="mb-12">
-                            <h2 class="text-4xl font-extrabold text-center text-customDarkGreen dark:text-green-600 mb-5">
+                            <h2
+                                class="text-4xl font-extrabold text-center text-customDarkGreen dark:text-green-600 mb-5">
                                 Sample dengan parameter BOD
                             </h2>
 
@@ -150,7 +157,8 @@ const workflowSteps = ref([
                                 <table class="w-full border-collapse">
                                     <thead class="bg-customDarkGreen text-white">
                                         <tr>
-                                            <th class="px-6 py-3 text-3xl font-bold text-center border-r border-customDarkGreen ">
+                                            <th
+                                                class="px-6 py-3 text-3xl font-bold text-center border-r border-customDarkGreen ">
                                                 Hari</th>
                                             <th class="px-6 py-3 text-3xl font-bold text-center">Waktu</th>
                                         </tr>
@@ -160,7 +168,8 @@ const workflowSteps = ref([
                                             <td
                                                 class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white border-r border-customDarkGreen">
                                                 Rabu-Kamis</td>
-                                            <td class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white">
+                                            <td
+                                                class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white">
                                                 08.00 - 11.00</td>
                                         </tr>
                                     </tbody>
@@ -169,7 +178,8 @@ const workflowSteps = ref([
 
                             <!-- Non-BOD Sample Table -->
                             <div class="mt-8">
-                                <h2 class="text-4xl font-extrabold text-center text-customDarkGreen dark:text-green-600 mt-8 mb-5">
+                                <h2
+                                    class="text-4xl font-extrabold text-center text-customDarkGreen dark:text-green-600 mt-8 mb-5">
                                     Sample Tanpa parameter BOD
                                 </h2>
 
@@ -192,7 +202,8 @@ const workflowSteps = ref([
                                                     class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white border-r border-customDarkGreen dark:border-green-500">
                                                     Rabu-Kamis
                                                 </td>
-                                                <td class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white">
+                                                <td
+                                                    class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white">
                                                     08.00 - 11.00
                                                 </td>
                                             </tr>
@@ -201,7 +212,8 @@ const workflowSteps = ref([
                                                     class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white border-r border-customDarkGreen dark:border-green-500">
                                                     Jumat
                                                 </td>
-                                                <td class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white">
+                                                <td
+                                                    class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white">
                                                     08.00 - 10.00
                                                 </td>
                                             </tr>
@@ -214,7 +226,8 @@ const workflowSteps = ref([
                 </div>
 
                 <!-- Footer Note -->
-                <footer class="text-1xl mt-24 px-8 font-normal text-green-700 dark:text-green-500 max-md:mt-10 max-md:max-w-full">
+                <footer
+                    class="text-1xl mt-24 px-8 font-normal text-green-700 dark:text-green-500 max-md:mt-10 max-md:max-w-full">
                     <p class="text-center italic">
                         Note: Apabila ada hal-hal yang meragukan, petugas penerima sampel dapat menolak<br />
                         setelah berkonsultasi dengan pengendali teknis
@@ -224,18 +237,16 @@ const workflowSteps = ref([
 
             <!-- Section Alur Pelayanan -->
             <section>
-                <div class="flex flex-col items-center justify-center rounded-md border border-blue-300 bg-green-100 p-6">
+                <div
+                    class="flex flex-col items-center justify-center rounded-md border border-blue-300 bg-green-100 p-6">
                     <h1 class="mb-8 text-center text-3xl font-semibold text-green-700">
                         Diagram Alur Pelayanan Laboratorium Penguji Dinas Lingkungan Hidup<br />
                         Kabupaten karanganyar
                     </h1>
 
                     <div class="mx-auto mb-8 w-full max-w-4xl">
-                        <img
-                            src="/storage/assetslandingpage/alurdiagram.png"
-                            alt="Diagram Alur Pelayanan Laboratorium"
-                            class="h-auto w-full rounded-lg object-contain shadow-lg"
-                        />
+                        <img src="/storage/assetslandingpage/alurdiagram.png" alt="Diagram Alur Pelayanan Laboratorium"
+                            class="h-auto w-full rounded-lg object-contain shadow-lg" />
                     </div>
 
                     <div class="mt-6 text-sm italic text-green-700">
@@ -246,7 +257,8 @@ const workflowSteps = ref([
 
             <!-- Section Alur Kerja -->
             <section class="bg-green-50 dark:bg-black p-4 md:p-8 rounded-0">
-                <h1 class="text-2xl md:text-4xl text-customDarkGreen dark:text-green-600 font-bold text-center mb-4 md:mb-6">
+                <h1
+                    class="text-2xl md:text-4xl text-customDarkGreen dark:text-green-600 font-bold text-center mb-4 md:mb-6">
                     Alur Kerja Laboratorium
                 </h1>
                 <p class="text-center text-base md:text-lg mb-8 md:mb-16 text-black dark:text-gray-300">
@@ -264,11 +276,11 @@ const workflowSteps = ref([
                         <div class="relative z-10 flex justify-between">
                             <div v-for="step in workflowSteps" :key="step.number" class="flex flex-col items-center">
                                 <div
-                                    class=":bg-green-600 mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-700 text-xl font-bold text-white lg:h-16 lg:w-16 lg:text-2xl"
-                                >
+                                    class=":bg-green-600 mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-700 text-xl font-bold text-white lg:h-16 lg:w-16 lg:text-2xl">
                                     {{ step.number }}
                                 </div>
-                                <h3 class=":text-green-500 mb-2 text-center text-sm font-bold text-green-700 lg:text-lg">
+                                <h3
+                                    class=":text-green-500 mb-2 text-center text-sm font-bold text-green-700 lg:text-lg">
                                     {{ step.title }}
                                 </h3>
                                 <p class="text-xs lg:text-sm text-center max-w-xs text-black dark:text-gray-300">
@@ -286,13 +298,13 @@ const workflowSteps = ref([
                             <div class="mr-4 flex flex-col items-center">
                                 <!-- Circle with number -->
                                 <div
-                                    class="z-10 flex h-12 w-12 items-center justify-center rounded-full bg-green-700 text-xl font-bold text-white dark:bg-green-600"
-                                >
+                                    class="z-10 flex h-12 w-12 items-center justify-center rounded-full bg-green-700 text-xl font-bold text-white dark:bg-green-600">
                                     <!-- Added z-10 -->
                                     {{ step.number }}
                                 </div>
                                 <!-- Vertical line -->
-                                <div v-if="index !== workflowSteps.length - 1" class="mt-0 h-24 w-0.5 bg-green-700 dark:bg-green-500">
+                                <div v-if="index !== workflowSteps.length - 1"
+                                    class="mt-0 h-24 w-0.5 bg-green-700 dark:bg-green-500">
                                     <!-- Changed h-12 to h-24 and mt-2 to mt-0 -->
                                 </div>
                             </div>
@@ -321,20 +333,26 @@ const workflowSteps = ref([
 
                     <div class="space-y-4 font-normal text-gray-800">
                         <p>
-                            Dinas Lingkungan Hidup Kabupaten Karanganyar adalah instansi pemerintah yang bertugas mengelola dan menjaga kelestarian
-                            lingkungan hidup di wilayah Kabupaten Karanganyar. Kami berkomitmen untuk menciptakan lingkungan yang bersih, sehat, dan
+                            Dinas Lingkungan Hidup Kabupaten Karanganyar adalah instansi pemerintah yang bertugas
+                            mengelola dan menjaga kelestarian
+                            lingkungan hidup di wilayah Kabupaten Karanganyar. Kami berkomitmen untuk menciptakan
+                            lingkungan yang bersih, sehat, dan
                             berkelanjutan bagi seluruh masyarakat.
                         </p>
 
                         <p>
-                            Sejak didirikan pada tahun 2008, kami telah melaksanakan berbagai program pengelolaan lingkungan, termasuk pengelolaan
-                            sampah terpadu, penghijauan, konservasi sumber daya air, pemantauan kualitas udara, serta pendidikan dan kesadaran
+                            Sejak didirikan pada tahun 2008, kami telah melaksanakan berbagai program pengelolaan
+                            lingkungan, termasuk pengelolaan
+                            sampah terpadu, penghijauan, konservasi sumber daya air, pemantauan kualitas udara, serta
+                            pendidikan dan kesadaran
                             lingkungan untuk masyarakat.
                         </p>
 
                         <p>
-                            Visi kami adalah mewujudkan Kabupaten Karanganyar yang hijau, bersih, dan lestari melalui pengelolaan lingkungan yang
-                            berkelanjutan dan partisipatif. Kami mengajak seluruh lapisan masyarakat untuk berperan aktif dalam menjaga kelestarian
+                            Visi kami adalah mewujudkan Kabupaten Karanganyar yang hijau, bersih, dan lestari melalui
+                            pengelolaan lingkungan yang
+                            berkelanjutan dan partisipatif. Kami mengajak seluruh lapisan masyarakat untuk berperan
+                            aktif dalam menjaga kelestarian
                             lingkungan hidup demi masa depan yang lebih baik.
                         </p>
                     </div>
