@@ -38,14 +38,6 @@ return [
     */
 
     'guards' => [
-        'pegawai' => [
-            'driver' => 'session',
-            'provider' => 'pegawai',
-        ],
-        'customer' => [
-            'driver' => 'session',
-            'provider' => 'customer'
-        ],
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
@@ -70,14 +62,6 @@ return [
     */
 
     'providers' => [
-        'pegawai' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\Pegawai::class,
-        ],
-        'customer' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\Customer::class
-        ],
         'users' => [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,

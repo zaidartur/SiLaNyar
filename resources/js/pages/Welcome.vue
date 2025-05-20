@@ -63,7 +63,6 @@ const workflowSteps = ref([
 </script>
 
 <template>
-
     <Head title="Welcome" />
 
     <AppLayout>

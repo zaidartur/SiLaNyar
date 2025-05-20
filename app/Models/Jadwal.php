@@ -13,7 +13,7 @@ class Jadwal extends Model
 
     protected $fillable = [
         'id_form_pengajuan',
-        'id_pegawai',
+        'id_user',
         'waktu_pengambilan',
         'status',
         'keterangan'
@@ -31,6 +31,6 @@ class Jadwal extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'id_pegawai');
+        return $this->belongsTo(User::class, 'id_user');
     }
 }

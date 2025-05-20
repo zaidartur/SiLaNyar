@@ -3,24 +3,24 @@
 namespace App\Http\Controllers\Pegawai;
 
 use App\Http\Controllers\Controller;
-use App\Models\Customer;
+use App\Models\User;
 use App\Models\FormPengajuan;
 use App\Models\HasilUji;
 use App\Models\Jadwal;
-use App\Models\Pegawai;
 use App\Models\Pengujian;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class   DashboardController extends Controller
 {
     public function index()
     {
-        $pegawaiLogin = auth('pegawai')->user;
+        $pegawaiLogin = Auth::user();
 
         if ($pegawaiLogin->hasRole('superadmin')) {
-            $customer = Customer::all();
-            $pegawai = Pegawai::all();
+            $customer = User::Role('customer');
+            $pegawai = User::Role(['admin,teknisi,superadmin']);
 
             return Inertia::render('dashboard/SuperAdmin', [
                 'customer' => $customer,
@@ -29,8 +29,8 @@ class   DashboardController extends Controller
         }
 
         if ($pegawaiLogin->hasRole('teknisi')) {
-            $jadwalPengujian = Pengujian::where('id_pegawai', $pegawaiLogin)->count();
-            $jadwalPengambilan = Jadwal::where('id_pegawai', $pegawaiLogin)->count();
+            $jadwalPengujian = Pengujian::where('id_user', $pegawaiLogin->id)->count();
+            $jadwalPengambilan = Jadwal::where('id_user', $pegawaiLogin->id)->count();
 
             $pengajuan = FormPengajuan::all();
             $pengambilan = Jadwal::all();
@@ -62,10 +62,5 @@ class   DashboardController extends Controller
         }
 
         return Inertia::render('dashboard/Default');
-    }
-
-    public function indexTest()
-    {
-        return Inertia::render('pegawai/Dashboard');
     }
 }
