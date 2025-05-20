@@ -80,10 +80,6 @@ const steps = [
         step: 4,
         title: 'Pembayaran',
     },
-    {
-        step: 5,
-        title: 'Pembayaran',
-    },
 ]
 
 function onSubmit(values: any) {

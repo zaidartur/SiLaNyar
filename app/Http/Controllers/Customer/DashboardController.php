@@ -13,14 +13,14 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $customer = Auth::guard('customer')->user();
+        $user = Auth::user();
 
-        $proses = FormPengajuan::where('id_customer', $customer)->where('status_pengajuan', 'proses_validasi')->count();
-        $ditolak = FormPengajuan::where('id_customer', $customer)->where('status_pengajuan', 'ditolak')->count();
-        $diterima = FormPengajuan::where('id_customer', $customer)->where('status_pengajuan', 'diterima')->count();
+        $proses = FormPengajuan::where('id_user', $user)->where('status_pengajuan', 'proses_validasi')->count();
+        $ditolak = FormPengajuan::where('id_user', $user)->where('status_pengajuan', 'ditolak')->count();
+        $diterima = FormPengajuan::where('id_user', $user)->where('status_pengajuan', 'diterima')->count();
 
         $pengajuan = FormPengajuan::with(['jadwal', 'pembayaran', 'pengujian', 'hasil_uji'])
-            ->where('id_customer', $customer)
+            ->where('id_user', $user)
             ->orderByDesc('updated_at')
             ->get();
 
@@ -67,7 +67,7 @@ class DashboardController extends Controller
                 ]
             ];
         }
-        return Inertia::render('Dashboard', [
+        return Inertia::render('customer/dashboard/Index', [
             'statistik' => [
                 'proses' => $proses,
                 'ditolak' => $ditolak,
@@ -77,7 +77,7 @@ class DashboardController extends Controller
             'pilihPengajuan' => $pilihPengajuan,
             'statusList' => $statusList,
             'auth' => [
-                'user' => $customer,
+                'user' => $user,
             ],
         ]);
     }

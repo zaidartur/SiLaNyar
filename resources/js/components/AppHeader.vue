@@ -54,13 +54,10 @@ const auth = computed<Auth>(() => page.props.auth as Auth);
                             >
                                 <Avatar class="size-14 overflow-hidden rounded-full bg-white">
                                     <AvatarImage src="/storage/assetslandingpage/LogoUser.png" :alt="auth.user?.nama" />
-                                    <!-- <AvatarFallback class="rounded-lg bg-neutral-200 font-semibold text-black">
-                                        {{ getInitials(auth.user?.nama) }}
-                                    </AvatarFallback> -->
                                 </Avatar>
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" class="z-50 w-56">
+                        <DropdownMenuContent align="end" class="z-[50 w-56]">
                             <UserMenuContent />
                         </DropdownMenuContent>
                     </DropdownMenu>

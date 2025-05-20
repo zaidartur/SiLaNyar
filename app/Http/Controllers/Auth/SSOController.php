@@ -82,8 +82,7 @@ class SSOController extends Controller
 
         Auth::guard('web')->login($user);
 
-        if(!$user->hasRole('customer')) 
-        {
+        if (!$user->hasRole('customer')) {
             $user->assignRole('customer');
         }
 

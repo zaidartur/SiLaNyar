@@ -66,7 +66,7 @@ import { Link } from '@inertiajs/vue3';
                 </li>
             </ul>
             <div class="absolute bottom-0 left-0 w-full p-4">
-                <Link :href="route('customer.dashboard')"
+                <Link :href="route('dashboard')"
                     class="flex items-center p-2 text-white rounded-lg hover:bg-gray-700 dark:hover:bg-gray-700 group">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                     stroke="currentColor" class="w-6 h-6">
