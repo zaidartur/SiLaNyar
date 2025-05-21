@@ -19,16 +19,15 @@ class CheckRole
     {
         $user = Auth::user();
 
-        if(!$user)
-        {
+        if (!$user) {
             return Redirect::route('sso.login');
         }
 
-        if(!$user->hasAnyRole($roles))
-        {
-            abort(403, 'Tidak Dapat Mengakses Fitur Ini!');
+        if (!$user->hasAnyRole($roles)) {
+            $rolesString = implode(', ', $roles);
+            abort(403, 'Role Anda Bukan ' . $rolesString  . ' Gunakan Role Yang Tepat Atau Hubungi Super Admin Untuk Memberikan Permission Di Role Yang Anda Miliki');
         }
-        
+
         return $next($request);
     }
 }

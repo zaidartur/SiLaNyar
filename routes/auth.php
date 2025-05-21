@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
-use App\Http\Controllers\Pegawai\DashboardController;
+use App\Http\Controllers\Pegawai\DashboardController as PegawaiDashboardController;
 use App\Http\Controllers\Settings\CustomerProfileController;
 use App\Http\Controllers\Settings\PegawaiProfileController;
 use App\Http\Controllers\Auth\SSOController;
@@ -10,12 +10,10 @@ use Inertia\Inertia;
 
 Route::get('sso/login', [SSOController::class, 'redirect'])->name('sso.login');
 Route::get('sso/callback', [SSOController::class, 'callback'])->name('sso.callback');
-    Route::get('sso/logout', [SSOController::class, 'logout'])->name('sso.logout');
-
-Route::get('admin/dashboard', [DashboardController::class, 'indexTest'])->name('pegawai.dashboard');
+Route::get('sso/logout', [SSOController::class, 'logout'])->name('sso.logout');
 
 Route::prefix('pegawai')->middleware('auth:web')->group(function () {
-    Route::get('dashboard', [DashboardController::class, 'index'])->name('pegawai.dashboard');
+    Route::get('dashboard', [PegawaiDashboardController::class, 'index'])->name('pegawai.dashboard');
 
     Route::get('sso/user', [PegawaiProfileController::class, 'user']);
     Route::get('profile/show', [PegawaiProfileController::class, 'show'])->name('pegawai.profile');
@@ -33,7 +31,6 @@ Route::prefix('customer')->middleware(['auth:web'])->group(function () {
     Route::post('profile/instansi/store', [CustomerProfileController::class, 'storeInstansi']);
     Route::get('profile/instansi/edit/{instansi}', [CustomerProfileController::class, 'editInstansi']);
     Route::put('profile/instansi/{instansi}/edit', [CustomerProfileController::class, 'updateInstansi']);
-
 });
 
 Route::get('/', function () {

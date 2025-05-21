@@ -17,7 +17,7 @@ class CheckPermission
     {
         // Gunakan Auth facade untuk mengecek user dan permission
         if (!Auth::guard('web')->check() || !Auth::guard('web')->user()->hasPermissionTo($permission)) {
-            abort(403, 'Tidak Mendapatkan Akses Di Fitur Ini!');
+            abort(403, 'Role Anda Tidak Mendapatkan Izin Untuk Mengelola Fitur '.$permission.', Tolong Hubungi Super Admin Untuk Menambahkan Izin '.$permission.' Di Role Yang Anda Miliki!');
         }
 
         return $next($request);
