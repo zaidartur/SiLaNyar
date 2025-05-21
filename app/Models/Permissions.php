@@ -25,8 +25,14 @@ class Permissions extends SpatiePermission
 
         static::creating(function ($model) {
             if (!$model->kode_permission) {
-                $akhir = self::max('id') ?? 0;
-                $lanjut = $akhir + 1;
+                $akhir = self::orderBy('kode_permission', 'desc')->first();
+                $lanjut = 1;
+
+                if ($akhir) {
+                    $nomorTerakhir = (int)substr($akhir->kode_permission, -3);
+                    $lanjut = $nomorTerakhir + 1;
+                }
+
                 $model->kode_permission = 'PS-' . str_pad($lanjut, 3, '0', STR_PAD_LEFT);
             }
         });

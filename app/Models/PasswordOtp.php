@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class PasswordOtp extends Model
 {
@@ -19,4 +20,16 @@ class PasswordOtp extends Model
     ];
 
     protected $dates = ['expired_at'];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            // Set expired_at berdasarkan created_at yang akan dibuat
+            $now = Carbon::now();
+            $model->created_at = $now;
+            $model->expired_at = $now->copy()->addMinutes(15);
+        });
+    }
 }

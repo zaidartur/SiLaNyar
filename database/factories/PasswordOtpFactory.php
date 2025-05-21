@@ -18,14 +18,17 @@ class PasswordOtpFactory extends Factory
     public function definition(): array
     {
         $isEmail = fake()->boolean();
+        $now = Carbon::now();
         
         return [
             'identitas' => $isEmail 
                 ? fake()->safeEmail() 
-                : '+62' . fake()->numerify('8##########'),
+                : '+62' . fake()->numerify('8##########'), // 11 digit
             'otp' => str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT),
             'via' => $isEmail ? 'email' : 'whatsapp',
-            'expired_at' => Carbon::now()->addMinutes(15),
+            'expired_at' => $now->copy()->addMinutes(15),
+            'created_at' => $now,
+            'updated_at' => $now,
         ];
     }
 }

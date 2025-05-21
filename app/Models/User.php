@@ -36,12 +36,12 @@ class User extends Authenticatable
 
     public function form_pengajuan()
     {
-        return $this->hasMany(FormPengajuan::class);
+        return $this->hasMany(FormPengajuan::class, 'id_user');
     }
 
     public function instansi()
     {
-        return $this->hasMany(Instansi::class);
+        return $this->hasMany(Instansi::class, 'id_user');
     }
 
     public function pengujian()
@@ -57,5 +57,10 @@ class User extends Authenticatable
     public function aduan()
     {
         return $this->hasMany(Aduan::class, 'id_user');
+    }
+
+    public function getDefaultGuardName()
+    {
+        return $this->guard_name;
     }
 }
