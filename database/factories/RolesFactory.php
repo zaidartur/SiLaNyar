@@ -27,7 +27,7 @@ class RolesFactory extends Factory
                 'Petugas Sampling',
                 'Quality Control'
             ]),
-            'guard_name' => 'pegawai'
+            'guard_name' => 'web'
         ];
     }
 

@@ -15,7 +15,6 @@ class HasilUji extends Pivot
 
     protected $fillable = [
         'kode_hasil_uji',
-        'kode_hasil_uji',
         'id_parameter',
         'id_pengujian',
         'nilai',
