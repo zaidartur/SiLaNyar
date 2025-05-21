@@ -22,6 +22,12 @@ class Pembayaran extends Model
         'bukti_pembayaran',
     ];
 
+    protected $casts = [
+        'tanggal_pembayaran' => 'date',
+        'metode_pembayaran' => 'string',
+        'status_pembayaran' => 'string'
+    ];
+
     protected static function boot()
     {
         parent::boot();
@@ -35,11 +41,16 @@ class Pembayaran extends Model
                     new \Exception('Total biaya harus positif') // previous exception
                 );
             }
+
+            // Generate id_order if not set
+            if (!$pembayaran->id_order) {
+                $pembayaran->id_order = 'ORD-' . date('Ymd') . '-' . str_pad(random_int(1, 9999), 4, '0', STR_PAD_LEFT);
+            }
         });
     }
 
     public function form_pengajuan()
     {
-        return $this->belongsTo(FormPengajuan::class, 'id_form_pengajuan', 'id');    
+        return $this->belongsTo(FormPengajuan::class, 'id_form_pengajuan');    
     }
 }

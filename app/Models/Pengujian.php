@@ -14,6 +14,7 @@ class Pengujian extends Model
     protected $table = 'pengujian';
 
     protected $fillable = [
+        'kode_pengujian',
         'id_form_pengajuan',
         'id_user',
         'id_kategori',
@@ -21,6 +22,12 @@ class Pengujian extends Model
         'jam_mulai',
         'jam_selesai',
         'status'
+    ];
+
+    protected $casts = [
+        'tanggal_uji' => 'date',
+        'jam_mulai' => 'datetime:H:i',
+        'jam_selesai' => 'datetime:H:i',
     ];
 
     protected static function boot()

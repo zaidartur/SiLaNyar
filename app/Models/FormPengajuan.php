@@ -12,6 +12,7 @@ class FormPengajuan extends Model
     protected $table = 'form_pengajuan';
 
     protected $fillable = [
+        'kode_pengajuan',
         'id_user',
         'id_kategori',
         'id_jenis_cairan',

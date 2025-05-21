@@ -10,10 +10,11 @@ class Permissions extends SpatiePermission
     use HasFactory;
 
     protected $table = 'permissions';
-
+    
     protected $guard_name = 'web';
 
     protected $fillable = [
+        'kode_permission',
         'name',
         'guard_name'
     ];
@@ -23,10 +24,11 @@ class Permissions extends SpatiePermission
         parent::boot();
 
         static::creating(function ($model) {
-            $akhir = self::max('id') ?? 0;
-            $lanjut = $akhir + 1;
-
-            $model->kode_permission = 'PS-' . str_pad($lanjut, 3, '0', STR_PAD_LEFT);
+            if (!$model->kode_permission) {
+                $akhir = self::max('id') ?? 0;
+                $lanjut = $akhir + 1;
+                $model->kode_permission = 'PS-' . str_pad($lanjut, 3, '0', STR_PAD_LEFT);
+            }
         });
     }
 }

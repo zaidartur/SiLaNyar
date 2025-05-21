@@ -18,22 +18,18 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $nama = fake()->name();
         return [
-            'name' => fake()->name(),
+            'nama' => $nama,
+            'nik' => fake()->unique()->numerify('################'),
+            'tanggal_lahir' => fake()->date(),
+            'rt' => fake()->numberBetween(1, 20),
+            'rw' => fake()->numberBetween(1, 10),
+            'kode_pos' => fake()->numberBetween(10000, 99999),
+            'alamat' => fake()->address(),
+            'username' => fake()->unique()->userName(),
+            'no_telepon' => fake()->phoneNumber(),
             'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => fake()->optional()->dateTime(),
-            'password' => Hash::make('password'), // default password
-            'remember_token' => Str::random(10),
         ];
-    }
-
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
-    public function unverified(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
     }
 }

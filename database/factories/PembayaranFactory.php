@@ -17,38 +17,27 @@ class PembayaranFactory extends Factory
      */
     public function definition(): array
     {
-        $status = fake()->randomElement(['pending', 'dibayar', 'expired', 'gagal']);
-        $isPaid = $status === 'dibayar';
+        $status = fake()->randomElement(['diproses', 'selesai', 'gagal']);
+        $isComplete = $status === 'selesai';
         
         return [
-            'id_order' => 'LAB-' . date('Ymd') . '-' . fake()->unique()->numerify('####'),
-            'id_form_pengajuan' => FormPengajuan::factory()->create([
-                'status_pengajuan' => 'diterima'
-            ]),
-            'total_biaya' => fake()->randomElement([
-                150000,  // Basic package
-                300000,  // Standard package
-                500000,  // Complete package
-                750000,  // Professional package
-                1000000  // Comprehensive package
-            ]),
-            'tanggal_pembayaran' => $isPaid ? now() : null,
-            'metode_pembayaran' => $isPaid ? fake()->randomElement(['QRIS', 'Bank Transfer', 'Virtual Account']) : null,
+            'id_order' => 'ORD-' . date('Ymd') . '-' . str_pad(fake()->unique()->numberBetween(1, 9999), 4, '0', STR_PAD_LEFT),
+            'id_form_pengajuan' => FormPengajuan::factory(),
+            'total_biaya' => fake()->numberBetween(100000, 1000000),
+            'tanggal_pembayaran' => $isComplete ? now() : null,
+            'metode_pembayaran' => fake()->randomElement(['tunai', 'transfer']),
             'status_pembayaran' => $status,
-            'bukti_pembayaran' => $isPaid ? 'bukti_pembayaran/payment-'.fake()->uuid().'.jpg' : null,
-            'id_transaksi' => $isPaid ? 'TRX-'.fake()->uuid() : null,
+            'bukti_pembayaran' => $isComplete ? 'pembayaran/'.fake()->uuid().'.jpg' : null,
         ];
     }
 
-    public function dibayar(): static
+    public function selesai(): static
     {
         return $this->state(function (array $attributes) {
             return [
-                'status_pembayaran' => 'dibayar',
+                'status_pembayaran' => 'selesai',
                 'tanggal_pembayaran' => now(),
-                'metode_pembayaran' => fake()->randomElement(['QRIS', 'Bank Transfer', 'Virtual Account']),
-                'bukti_pembayaran' => 'bukti_pembayaran/payment-'.fake()->uuid().'.jpg',
-                'id_transaksi' => 'TRX-'.fake()->uuid(),
+                'bukti_pembayaran' => 'pembayaran/'.fake()->uuid().'.jpg',
             ];
         });
     }

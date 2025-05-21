@@ -12,6 +12,7 @@ class Instansi extends Model
     protected $table = 'instansi';
 
     protected $fillable = [
+        'kode_instansi',
         'id_user',
         'nama',
         'tipe',
@@ -25,9 +26,21 @@ class Instansi extends Model
         'status_verifikasi',
         'diverifikasi_oleh'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $akhir = self::max('id') ?? 0;
+            $lanjut = $akhir + 1;
+
+            $model->kode_instansi = 'IN-' . str_pad($lanjut, 3, '0', STR_PAD_LEFT);
+        });
+    }
     
     public function user()
     {
-        $this->belongsTo(User::class, 'id_user');
+        return $this->belongsTo(User::class, 'id_user');
     }
 }

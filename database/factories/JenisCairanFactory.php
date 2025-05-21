@@ -16,21 +16,22 @@ class JenisCairanFactory extends Factory
      */
     public function definition(): array
     {
-        // Common liquid volume ranges (in mL)
-        $min = fake()->randomFloat(2, 100, 500);
-        $max = fake()->randomFloat(2, $min + 500, 5000);
+        $types = [
+            'Air Limbah' => [100, 1000],
+            'Air Sumur' => [50, 500],
+            'Air Sungai' => [200, 2000],
+            'Air PDAM' => [100, 1000],
+            'Air Waduk' => [500, 5000],
+            'Air Danau' => [500, 5000],
+        ];
+        
+        $nama = fake()->randomElement(array_keys($types));
+        [$minRange, $maxRange] = $types[$nama];
         
         return [
-            'nama' => fake()->randomElement([
-                'Air Limbah',
-                'Air Sumur',
-                'Air Sungai',
-                'Air PDAM',
-                'Air Waduk',
-                'Air Danau',
-            ]),
-            'batas_minimum' => $min,
-            'batas_maksimum' => $max,
+            'nama' => $nama,
+            'batas_minimum' => fake()->randomFloat(2, $minRange, $minRange * 1.5),
+            'batas_maksimum' => fake()->randomFloat(2, $maxRange * 0.8, $maxRange)
         ];
     }
 }

@@ -23,6 +23,21 @@ class HasilUjiHistori extends Model
 
     public function hasil_uji()
     {
-        return $this->belongsTo(HasilUji::class, 'id_hasil_uji');    
+        return $this->belongsTo(HasilUji::class, 'id_hasil_uji');
+    }
+
+    public function parameter()
+    {
+        return $this->belongsTo(ParameterUji::class, 'id_parameter');
+    }
+
+    public function pengujian()
+    {
+        return $this->belongsTo(Pengujian::class, 'id_pengujian');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_user');
     }
 }

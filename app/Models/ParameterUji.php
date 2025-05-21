@@ -12,6 +12,7 @@ class ParameterUji extends Model
     protected $table = 'parameter_uji';
 
     protected $fillable = [
+        'kode_parameter',
         'nama_parameter',
         'satuan',
         'harga',

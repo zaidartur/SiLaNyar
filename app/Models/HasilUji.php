@@ -17,7 +17,8 @@ class HasilUji extends Model
         'id_pengujian',
         'nilai',
         'keterangan',
-        'status'
+        'status',
+        'file_pdf'
     ];
 
     protected static function boot()
