@@ -32,10 +32,21 @@ class Instansi extends Model
         parent::boot();
 
         static::creating(function ($model) {
-            $akhir = self::max('id') ?? 0;
-            $lanjut = $akhir + 1;
+            // Perbaiki logika pembuatan kode instansi
+            $akhir = self::orderBy('kode_instansi', 'desc')->first();
+            $lanjut = 1;
+
+            if ($akhir) {
+                $nomorTerakhir = (int)substr($akhir->kode_instansi, -3);
+                $lanjut = $nomorTerakhir + 1;
+            }
 
             $model->kode_instansi = 'IN-' . str_pad($lanjut, 3, '0', STR_PAD_LEFT);
+
+            // Pastikan status_verifikasi selalu memiliki nilai default
+            if (!$model->status_verifikasi) {
+                $model->status_verifikasi = 'diproses';
+            }
         });
     }
     

@@ -40,6 +40,11 @@ class HasilUji extends Model
             }
 
             $model->kode_hasil_uji = $prefix.'-'.str_pad($lanjut, 3, '0', STR_PAD_LEFT);
+
+            // Pastikan status selalu memiliki nilai default
+            if (!$model->status) {
+                $model->status = 'draf';
+            }
         });
     }
 
@@ -56,6 +61,6 @@ class HasilUji extends Model
 
     public function riwayat()
     {
-        return $this->hasMany(HasilUjiHistori::class);
+        return $this->hasMany(HasilUjiHistori::class, 'id_hasil_uji');
     }
 }

@@ -21,6 +21,17 @@ class HasilUjiHistori extends Model
         'status'
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (!$model->status) {
+                $model->status = 'draf';
+            }
+        });
+    }
+
     public function hasil_uji()
     {
         return $this->belongsTo(HasilUji::class, 'id_hasil_uji');

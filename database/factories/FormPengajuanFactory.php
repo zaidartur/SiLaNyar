@@ -26,7 +26,7 @@ class FormPengajuanFactory extends Factory
             'id_kategori' => Kategori::factory(),
             'id_jenis_cairan' => JenisCairan::factory(),
             'volume_sampel' => fake()->randomFloat(2, 0.1, 100),
-            'status_pengajuan' => fake()->randomElement(['proses_validasi', 'diterima', 'ditolak']),
+            'status_pengajuan' => 'proses_validasi',  // Set default value
             'metode_pengambilan' => $metode,
             'lokasi' => $metode === 'diambil' ? fake()->address() : null,
         ];
