@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Pegawai;
 
+use App\Http\Controllers\Controller;
 use App\Models\HasilUji;
 use App\Models\HasilUjiHistori;
 use App\Models\ParameterUji;
