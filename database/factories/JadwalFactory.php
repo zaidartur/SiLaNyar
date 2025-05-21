@@ -14,8 +14,15 @@ class JadwalFactory extends Factory
             'id_form_pengajuan' => FormPengajuan::factory(),
             'id_user' => User::factory(),
             'waktu_pengambilan' => fake()->dateTimeBetween('now', '+1 week')->format('Y-m-d'),
-            'status' => fake()->randomElement(['diproses', 'selesai']),
+            'status' => 'diproses',
             'keterangan' => fake()->optional()->sentence()
         ];
+    }
+
+    public function selesai()
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'selesai'
+        ]);
     }
 }

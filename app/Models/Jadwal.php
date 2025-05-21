@@ -29,10 +29,19 @@ class Jadwal extends Model
         parent::boot();
 
         static::creating(function ($model) {
-            $akhir = self::max('id') ?? 0;
-            $lanjut = $akhir + 1;
+            $akhir = self::orderBy('kode_pengambilan', 'desc')->first();
+            $lanjut = 1;
+
+            if ($akhir) {
+                $nomorTerakhir = (int)substr($akhir->kode_pengambilan, -3);
+                $lanjut = $nomorTerakhir + 1;
+            }
 
             $model->kode_pengambilan = 'JP-' . str_pad($lanjut, 3, '0', STR_PAD_LEFT);
+
+            if (!$model->status) {
+                $model->status = 'diproses';
+            }
         });
     }
 

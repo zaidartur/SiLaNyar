@@ -2,16 +2,19 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class HasilUji extends Model
+class HasilUji extends Pivot
 {
     use HasFactory;
 
     protected $table = 'hasil_uji';
+    
+    public $incrementing = true;
 
     protected $fillable = [
+        'kode_hasil_uji',
         'kode_hasil_uji',
         'id_parameter',
         'id_pengujian',
