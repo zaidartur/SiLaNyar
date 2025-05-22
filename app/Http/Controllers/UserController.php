@@ -37,11 +37,11 @@ class UserController extends Controller
     public function syncRoles(User $user, Request $request)
     {
         $request->validate([
-            'roles' => 'array',
-            'roles.*' => 'string|exists:roles,name'
+            'roles' => ['required', 'array', 'size:1'],
+            'roles.0' => 'required|string|exists:roles,name',
         ]);
 
-        $user->syncRoles($request->roles);
+        $user->syncRoles($request->roles[0]);
 
         return Redirect::back()->with('message', 'User dan Role berhasil di sinkronkan!');
     }

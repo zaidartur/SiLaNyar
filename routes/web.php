@@ -62,7 +62,7 @@ Route::get('/dashboard', function () {
 })->name('dashboard');
 
 //route superadmin
-Route::prefix('superadmin')->middleware(['auth:web', 'role:superadmin'])->group(function () {
+Route::prefix('superadmin')->middleware(['auth:web'])->group(function () {
 
     //fitur permission
     Route::middleware(['check.permission:kelola_permission'])->group(function () {

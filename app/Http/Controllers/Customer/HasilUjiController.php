@@ -15,14 +15,13 @@ class HasilUjiController extends Controller
 
     public function index()
     {
-        $hasil_uji = HasilUji::with(['parameter', 'pengujian'])
+        $hasil_uji = HasilUji::with(['parameter', 'pengujian.form_pengajuan'])
             ->where('status', 'acc')
             ->whereNotNull('file_pdf')
+            ->whereHas('pengujian.form_pengajuan', function ($query) {
+                $query->where('id_user', Auth::id());
+            })
             ->get();
-
-        if ($hasil_uji->pengujian->form_pengajuan->id_user !== Auth::id()) {
-            abort(403, 'Anda Tidak Memiliki Akses Di Halaman Ini');
-        }
 
         return Inertia::render('customer/hasil_uji/Index', [
             'hasil_uji' => $hasil_uji
