@@ -2,7 +2,7 @@
 import { Head } from '@inertiajs/vue3';
 import moment from 'moment';
 import { ref } from 'vue';
-import TambahInstansi from './TambahInstansi.vue';
+// import TambahInstansi from './TambahInstansi.vue';
 
 const formatLastLogin = (date) => {
     if (!date) return '-';
