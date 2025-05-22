@@ -31,11 +31,11 @@ class User extends Authenticatable
 
     public function form_pengajuan()
     {
-        return $this->hasMany(FormPengajuan::class);    
+        return $this->hasMany(FormPengajuan::class);
     }
 
     public function instansi()
     {
-        return $this->hasMany(Instansi::class);    
+        return $this->hasMany(Instansi::class);
     }
 }

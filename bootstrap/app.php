@@ -31,7 +31,6 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'check.permission' => CheckPermission::class,
             'role' => CheckRole::class,
-            'sso.auth' => SSOAuthenticated::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

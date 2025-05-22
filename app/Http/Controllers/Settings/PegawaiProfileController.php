@@ -3,74 +3,49 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\Customer;
+use App\Models\Instansi;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
-use App\Models\Pegawai;
+use Illuminate\Support\Facades\Http;
 
 class PegawaiProfileController extends Controller
 {
-    public function show()
+    private function user()
     {
-        $pegawai = Auth::guard('pegawai')->user();
-        return Inertia::render('pegawai/profile/show', [
-            'pegawai' => $pegawai
-        ]);
-    }
-
-    public function edit()
-    {
-        $pegawai = Auth::guard('pegawai')->user();
-        return Inertia::render('pegawai/profile/edit', [
-            'pegawai' => $pegawai
-        ]);
-    }
-
-
-    public function update(Request $request)
-    {
-        $pegawai = $request->user('pegawai');
-
-        $request->validate([
-            'nama' => 'required|string|max:255',
-            'jabatan' => 'required|in:Admin Lab,Kepala Lab,Analis Kimia,Analis Mikrobiologi,Analis Air,Manajer Teknis,Staff Lab',
-            'jenis_kelamin' => 'required|in:laki-laki,perempuan',
-            'no_telepon' => 'required|string|regex:/^\+[0-9]+$/',
-            'email' => 'required|string|lowercase|max:255|email|unique:pegawai,email,' . $pegawai->id
-        ]);
-
-        $pegawai->update($request->only([
-            'nama',
-            'jabatan',
-            'jenis_kelamin',
-            'no_telepon',
-            'email'
-        ]));
-
-        return Redirect::route('pegawai.profile')->with('message', 'Profile Berhasil Diubah!');
-    }
-
-    public function destroy(Request $request)
-    {
-        $pegawai = $request->user('pegawai');
-
-        $request->validate([
-            'password' => ['required'],
-        ]);
-
-        if (!Hash::check($request->password, $pegawai->password)) {
-            return Redirect::back()->withErrors(['password' => 'Password Yang Anda Masukkan Salah!']);
+        if (!session()->has('access_token')) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        Auth::guard('pegawai')->logout();
+        $response = Http::withoutVerifying()->withToken(session('access_token'))
+            ->withHeaders([
+                'Accept' => 'application/json',
+                'User-Agent' => 'https://example-app.com/'
+            ])
+            ->get(config('services.sso.api_user_url'));
 
-        $pegawai->delete();
+        return $response->json();
+    }
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+    public function show()
+    {
+        $userData = $this->user();
 
-        return Redirect::route('pegawai.login')->with('message', 'Akun Berhasil Dihapus');
+        if (isset($userData['error'])) {
+            return redirect()->route('login')->with('error', 'Unauthorized');
+        }
+
+        $user = Auth::user();
+
+        $userRole = User::where('id_user', $user)->get();
+
+        return Inertia::render('pegawai/profile/Index', [
+            'user' => $userData,
+            'userRole' => $userRole
+        ]);
     }
 }

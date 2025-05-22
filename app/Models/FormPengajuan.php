@@ -12,7 +12,7 @@ class FormPengajuan extends Model
     protected $table = 'form_pengajuan';
 
     protected $fillable = [
-        'id_customer',
+        'id_user',
         'id_kategori',
         'id_jenis_cairan',
         'volume_sampel',

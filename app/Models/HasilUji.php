@@ -32,13 +32,12 @@ class HasilUji extends Model
 
             $lanjut = 1;
 
-            if ($akhir)
-            {
+            if ($akhir) {
                 $akhirKode = (int)substr($akhir->kode_hasil_uji, -3);
                 $lanjut = $akhirKode + 1;
             }
 
-            $model->kode_hasil_uji = $prefix.'-'.str_pad($lanjut, 3, '0', STR_PAD_LEFT);
+            $model->kode_hasil_uji = $prefix . '-' . str_pad($lanjut, 3, '0', STR_PAD_LEFT);
         });
     }
 

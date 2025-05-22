@@ -15,7 +15,7 @@ class HasilUjiHistori extends Model
         'id_hasil_uji',
         'id_parameter',
         'id_pengujian',
-        'id_pegawai',
+        'id_user',
         'nilai',
         'keterangan',
         'status'

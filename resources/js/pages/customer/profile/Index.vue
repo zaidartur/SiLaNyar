@@ -12,21 +12,11 @@ const props = defineProps({
     type: Object,
     required: true
   },
-  lastLoginTime: {
-    type: String,
-    required: true
-  },
   instansi: {
     type: Array,
     default: () => []
   }
 })
-
-const formatLastLogin = (date) => {
-  if (!date) return '-'
-  moment.locale('id')
-  return moment(date).format('DD MMMM YYYY, HH:mm [WIB]')
-}
 
 const showModal = ref(false)
 
@@ -55,7 +45,7 @@ const deleteInstansi = (id) => {
       <!-- Header Profile -->
       <div class="mb-4 p-2 bg-white rounded-lg shadow-sm border border-gray-300">
         <h1 class="text-xl font-bold text-gray-800">Profile Pengguna</h1>
-        <p class="text-sm text-gray-500">Terakhir Login: {{ formatLastLogin(lastLoginTime) }}</p>
+        <p class="text-sm text-gray-500">Terakhir Login: {{ moment(user?.last_login).format('DD MMMM YYYY, HH:mm') }}</p>
       </div>
 
       <!-- Profile Card -->
@@ -165,12 +155,12 @@ const deleteInstansi = (id) => {
           <button class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
             Edit Profile
           </button>
-          <button class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
+          <!-- <button class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
             Ubah Sandi
-          </button>
-          <button class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+          </button> -->
+          <!-- <button class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
             Hapus Akun
-          </button>
+          </button> -->
         </div>
       </div>
     </div>

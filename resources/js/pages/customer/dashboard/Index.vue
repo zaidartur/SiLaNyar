@@ -39,47 +39,50 @@ import CustomerLayout from '@/layouts/customer/CustomerLayout.vue'
                                 </button>
                             </div>
                         </div>
-                        <table class="w-full">
-                            <thead class="bg-green-50">
-                                <tr>
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-green-700">ID</th>
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-green-700">Jenis Cairan</th>
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-green-700">Metode
-                                        Pengambilan</th>
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-green-700">Lokasi</th>
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-green-700">Status</th>
-                                    <th class="px-4 py-3 text-left text-sm font-medium text-green-700">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200">
-                                <tr>
-                                    <td class="px-4 py-3 text-sm">DP-001</td>
-                                    <td class="px-4 py-3 text-sm">Universal</td>
-                                    <td class="px-4 py-3 text-sm">Diambil</td>
-                                    <td class="px-4 py-3 text-sm">Gedung A</td>
-                                    <td class="px-4 py-3 text-sm">
-                                        <span
-                                            class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">Diterima</span>
-                                    </td>
-                                    <td class="px-4 py-3 text-sm">
-                                        <div class="flex space-x-2">
-                                            <button class="text-blue-500 hover:text-blue-700">
-                                                <span class="sr-only">View</span>
-                                                👁️
-                                            </button>
-                                            <button class="text-yellow-500 hover:text-yellow-700">
-                                                <span class="sr-only">Edit</span>
-                                                ✏️
-                                            </button>
-                                            <button class="text-red-500 hover:text-red-700">
-                                                <span class="sr-only">Delete</span>
-                                                🗑️
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div class="overflow-x-auto relative">
+                            <table class="w-full">
+                                <thead class="bg-green-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-green-700">ID</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-green-700">Jenis Cairan
+                                        </th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-green-700">Metode
+                                            Pengambilan</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-green-700">Lokasi</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-green-700">Status</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-green-700">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-4 py-3 text-sm">DP-001</td>
+                                        <td class="px-4 py-3 text-sm">Universal</td>
+                                        <td class="px-4 py-3 text-sm">Diambil</td>
+                                        <td class="px-4 py-3 text-sm">Gedung A</td>
+                                        <td class="px-4 py-3 text-sm">
+                                            <span
+                                                class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">Diterima</span>
+                                        </td>
+                                        <td class="px-4 py-3 text-sm">
+                                            <div class="flex space-x-2">
+                                                <button class="text-blue-500 hover:text-blue-700">
+                                                    <span class="sr-only">View</span>
+                                                    👁️
+                                                </button>
+                                                <button class="text-yellow-500 hover:text-yellow-700">
+                                                    <span class="sr-only">Edit</span>
+                                                    ✏️
+                                                </button>
+                                                <button class="text-red-500 hover:text-red-700">
+                                                    <span class="sr-only">Delete</span>
+                                                    🗑️
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
@@ -112,7 +115,7 @@ import CustomerLayout from '@/layouts/customer/CustomerLayout.vue'
                                 <div class="space-y-6">
                                     <div class="flex items-center">
                                         <div
-                                            class="z-10 flex h-10 w-10 items-center justify-center rounded-full bg-green-100">
+                                            class="z-10 flex h-10 w-10 items-center justify-center rounded-full bg-green-200">
                                             <div class="h-4 w-4 rounded-full bg-green-600"></div>
                                         </div>
                                         <div class="ml-4">
@@ -123,7 +126,7 @@ import CustomerLayout from '@/layouts/customer/CustomerLayout.vue'
 
                                     <div class="flex items-center">
                                         <div
-                                            class="z-10 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
+                                            class="z-10 flex h-10 w-10 items-center justify-center rounded-full bg-gray-200">
                                             <div class="h-4 w-4 rounded-full bg-gray-400"></div>
                                         </div>
                                         <div class="ml-4">
@@ -134,7 +137,7 @@ import CustomerLayout from '@/layouts/customer/CustomerLayout.vue'
 
                                     <div class="flex items-center">
                                         <div
-                                            class="z-10 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
+                                            class="z-10 flex h-10 w-10 items-center justify-center rounded-full bg-gray-200">
                                             <div class="h-4 w-4 rounded-full bg-gray-400"></div>
                                         </div>
                                         <div class="ml-4">
@@ -145,7 +148,7 @@ import CustomerLayout from '@/layouts/customer/CustomerLayout.vue'
 
                                     <div class="flex items-center">
                                         <div
-                                            class="z-10 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
+                                            class="z-10 flex h-10 w-10 items-center justify-center rounded-full bg-gray-200">
                                             <div class="h-4 w-4 rounded-full bg-gray-400"></div>
                                         </div>
                                         <div class="ml-4">
@@ -156,7 +159,7 @@ import CustomerLayout from '@/layouts/customer/CustomerLayout.vue'
 
                                     <div class="flex items-center">
                                         <div
-                                            class="z-10 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
+                                            class="z-10 flex h-10 w-10 items-center justify-center rounded-full bg-gray-200">
                                             <div class="h-4 w-4 rounded-full bg-gray-400"></div>
                                         </div>
                                         <div class="ml-4">
@@ -167,7 +170,7 @@ import CustomerLayout from '@/layouts/customer/CustomerLayout.vue'
 
                                     <div class="flex items-center">
                                         <div
-                                            class="z-10 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
+                                            class="z-10 flex h-10 w-10 items-center justify-center rounded-full bg-gray-200">
                                             <div class="h-4 w-4 rounded-full bg-gray-400"></div>
                                         </div>
                                         <div class="ml-4">
@@ -242,7 +245,8 @@ import CustomerLayout from '@/layouts/customer/CustomerLayout.vue'
                                 <span>Rp 225.000</span>
                             </div>
                         </div>
-                        <button class="w-full mt-4 bg-green-600 text-white py-2 rounded-md hover:bg-green-700 flex items-center justify-center gap-2">
+                        <button
+                            class="w-full mt-4 bg-green-600 text-white py-2 rounded-md hover:bg-green-700 flex items-center justify-center gap-2">
                             <svg width="30" height="25" viewBox="0 0 30 25" fill="none"
                                 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                                 <rect width="30" height="25" fill="url(#pattern0_741_1350)" />

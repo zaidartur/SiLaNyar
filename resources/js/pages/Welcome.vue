@@ -63,7 +63,6 @@ const workflowSteps = ref([
 </script>
 
 <template>
-
     <Head title="Welcome" />
 
     <AppLayout>
@@ -98,7 +97,7 @@ const workflowSteps = ref([
 
             <!-- Hero Section -->
             <section class=" relative h-screen w-full bg-cover bg-center"
-                style="background-image: url('/storage/assetslandingpage/hero.png')">
+                style="background-image: url('/assets/assetslandingpage/hero.png')">
                 <div class="absolute inset-0 flex items-center justify-center bg-black/40 text-white">
                     <div class="text-center">
                         <h2 class="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">Sistem
