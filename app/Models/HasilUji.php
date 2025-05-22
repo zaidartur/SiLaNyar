@@ -35,8 +35,7 @@ class HasilUji extends Pivot
 
             $lanjut = 1;
 
-            if ($akhir)
-            {
+            if ($akhir) {
                 $akhirKode = (int)substr($akhir->kode_hasil_uji, -3);
                 $lanjut = $akhirKode + 1;
             }
