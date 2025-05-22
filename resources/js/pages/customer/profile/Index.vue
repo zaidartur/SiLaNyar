@@ -1,24 +1,10 @@
 <script setup lang="ts">
 import CustomerLayout from '@/layouts/customer/CustomerLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import { ref } from 'vue'
-import { defineProps } from 'vue'
-import moment from 'moment'
+import moment from 'moment';
+import { ref } from 'vue';
 
-
-const props = defineProps({
-  user: {
-    type: Object,
-    required: true
-  },
-  instansi: {
-    type: Array,
-    default: () => []
-  }
-})
-
-const showModal = ref(false)
-
+const showModal = ref(false);
 
 const openModal = () => {
     showModal.value = true;
@@ -46,54 +32,20 @@ const deleteInstansi = (id: number) => {
             <!-- Header Profile -->
             <div class="mb-4 rounded-lg border border-gray-300 bg-white p-2 shadow-sm">
                 <h1 class="text-xl font-bold text-gray-800">Profile Pengguna</h1>
-                <p class="text-sm text-gray-500">Terakhir Login: {{ formatLastLogin(lastLoginTime) }}</p>
+                <p class="text-sm text-gray-500">Terakhir Login: {{ moment(user?.last_login).format('DD MMMM YYYY, HH:mm') }}</p>
             </div>
 
-  <Head title="Profile" />
-  <CustomerLayout>
-    <div class="max-w-4xl mx-auto">
-      <!-- Header Profile -->
-      <div class="mb-4 p-2 bg-white rounded-lg shadow-sm border border-gray-300">
-        <h1 class="text-xl font-bold text-gray-800">Profile Pengguna</h1>
-        <p class="text-sm text-gray-500">Terakhir Login: {{ moment(user?.last_login).format('DD MMMM YYYY, HH:mm') }}</p>
-      </div>
-
-      <!-- Profile Card -->
-      <div class="mb-4 p-2 bg-white rounded-lg shadow-sm border border-gray-300">
-        <!-- Avatar Section -->
-        <div class="flex flex-col items-center p-8 border-gray-100">
-          <div class="w-24 h-24 bg-customDarkGreen rounded-full flex items-center justify-center mb-4">
-            <span class="text-3xl font-bold text-white">
-              {{ user?.nama?.charAt(0).toUpperCase() || 'U' }}
-            </span>
-          </div>
-          <h2 class="text-xl font-bold text-gray-800">{{ user?.nama }}</h2>
-          <span class="inline-flex items-center px-3 py-1 mt-2 rounded-full text-sm bg-green-100 text-green-800">
-            Pengguna Aktif
-          </span>
-        </div>
-
-        <!-- Profile Details -->
-        <div class="p-6">
-          <div class="grid gap-6">
-            <!-- Personal Information -->
-            <div class="space-y-4 bg-white rounded-lg shadow-sm border border-gray-300 p-4">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="space-y-2">
-                  <p class="text-sm text-gray-500">Nama Lengkap</p>
-                  <p class="font-medium">{{ user?.nama }}</p>
-                </div>
-                <div class="space-y-2">
-                  <p class="text-sm text-gray-500">Email</p>
-                  <p class="font-medium">{{ user?.email }}</p>
-                </div>
-                <div class="space-y-2">
-                  <p class="text-sm text-gray-500">Kontak Pribadi</p>
-                  <p class="font-medium">{{ user?.no_wa }}</p>
-                </div>
-                <div class="space-y-2">
-                  <p class="text-sm text-gray-500">Alamat Pribadi</p>
-                  <p class="font-medium">{{ user?.alamat }}</p>
+            <!-- Profile Card -->
+            <div class="mb-4 rounded-lg border border-gray-300 bg-white p-2 shadow-sm">
+                <!-- Avatar Section -->
+                <div class="flex flex-col items-center border-gray-100 p-8">
+                    <div class="mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-customDarkGreen">
+                        <span class="text-3xl font-bold text-white">
+                            {{ user?.nama?.charAt(0).toUpperCase() || 'U' }}
+                        </span>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-800">{{ user?.nama }}</h2>
+                    <span class="mt-2 inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm text-green-800"> Pengguna Aktif </span>
                 </div>
 
                 <!-- Profile Details -->
@@ -196,46 +148,33 @@ const deleteInstansi = (id: number) => {
                 <!-- Action Buttons -->
                 <div class="flex justify-end gap-3 border-gray-100 p-6">
                     <button class="rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700">Edit Profile</button>
-                    <button class="rounded-lg bg-yellow-500 px-4 py-2 text-white hover:bg-yellow-600">Ubah Sandi</button>
-                    <button class="rounded-lg bg-red-500 px-4 py-2 text-white hover:bg-red-600">Hapus Akun</button>
+                    <!-- <button class="rounded-lg bg-yellow-500 px-4 py-2 text-white hover:bg-yellow-600">Ubah Sandi</button> -->
+                    <!-- <button class="rounded-lg bg-red-500 px-4 py-2 text-white hover:bg-red-600">Hapus Akun</button> -->
                 </div>
+
+                <!-- Commented Profile Section -->
+                <!-- <div class="profile p-4 border-2 border-gray-700 rounded-lg dark:border-gray-700">
+                    <h1>Profil Saya</h1>
+                    <ul>
+                        <li><strong>NIK:</strong> {{ user.nik }}</li>
+                        <li><strong>Nama:</strong> {{ user.nama }}</li>
+                        <li><strong>Tanggal Lahir:</strong> {{ user.tgl_lahir }}</li>
+                        <li><strong>Provinsi:</strong> {{ user.provinsi }}</li>
+                        <li><strong>Kab/Kota:</strong> {{ user.kab_kota }}</li>
+                        <li><strong>Kecamatan:</strong> {{ user.kecamatan }}</li>
+                        <li><strong>Kelurahan:</strong> {{ user.kelurahan }}</li>
+                        <li><strong>RT:</strong> {{ user.rt }}</li>
+                        <li><strong>RW:</strong> {{ user.rw }}</li>
+                        <li><strong>Kode Pos:</strong> {{ user.kode_pos }}</li>
+                        <li><strong>Alamat:</strong> {{ user.alamat }}</li>
+                        <li><strong>Email:</strong> {{ user.email }}</li>
+                        <li><strong>No WA:</strong> {{ user.no_wa }}</li>
+                        <li><strong>Username:</strong> {{ user.username }}</li>
+                        <li><strong>ID:</strong> {{ user.id }}</li>
+                    </ul>
+                </div> -->
             </div>
-          </div>
         </div>
-
-        <!-- Action Buttons -->
-        <div class="flex justify-end gap-3 p-6 border-gray-100">
-          <button class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-            Edit Profile
-          </button>
-          <!-- <button class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
-            Ubah Sandi
-          </button> -->
-          <!-- <button class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
-            Hapus Akun
-          </button> -->
-        </div>
-
-        <!-- <div class="profile p-4 border-2 border-gray-700 rounded-lg dark:border-gray-700">
-      <h1>Profil Saya</h1>
-      <ul>
-        <li><strong>NIK:</strong> {{ user.nik }}</li>
-        <li><strong>Nama:</strong> {{ user.nama }}</li>
-        <li><strong>Tanggal Lahir:</strong> {{ user.tgl_lahir }}</li>
-        <li><strong>Provinsi:</strong> {{ user.provinsi }}</li>
-        <li><strong>Kab/Kota:</strong> {{ user.kab_kota }}</li>
-        <li><strong>Kecamatan:</strong> {{ user.kecamatan }}</li>
-        <li><strong>Kelurahan:</strong> {{ user.kelurahan }}</li>
-        <li><strong>RT:</strong> {{ user.rt }}</li>
-        <li><strong>RW:</strong> {{ user.rw }}</li>
-        <li><strong>Kode Pos:</strong> {{ user.kode_pos }}</li>
-        <li><strong>Alamat:</strong> {{ user.alamat }}</li>
-        <li><strong>Email:</strong> {{ user.email }}</li>
-        <li><strong>No WA:</strong> {{ user.no_wa }}</li>
-        <li><strong>Username:</strong> {{ user.username }}</li>
-        <li><strong>ID:</strong> {{ user.id }}</li>
-      </ul>
-    </div> -->
     </CustomerLayout>
 </template>
 

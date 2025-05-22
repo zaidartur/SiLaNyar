@@ -24,9 +24,9 @@ class Roles extends SpatieRole
 
         static::creating(function ($model) {
             if (!$model->kode_role) {
-                $akhir = self::max('id') ?? 0;
-                $lanjut = $akhir + 1;
-                $model->kode_role = 'RL-' . str_pad($lanjut, 3, '0', STR_PAD_LEFT);
+                $jumlahRole = self::count();
+                $nomorUrut = $jumlahRole + 1;
+                $model->kode_role = 'RL-' . str_pad($nomorUrut, 3, '0', STR_PAD_LEFT);
             }
         });
     }
