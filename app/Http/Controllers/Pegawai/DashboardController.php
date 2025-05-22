@@ -19,8 +19,8 @@ class   DashboardController extends Controller
         $pegawaiLogin = Auth::user();
 
         if ($pegawaiLogin->hasRole('superadmin')) {
-            $customer = User::Role('customer');
-            $pegawai = User::Role(['admin,teknisi,superadmin']);
+            $customer = User::Role('customer')->get();
+            $pegawai = User::Role(['admin', 'teknisi', 'superadmin'])->get();
 
             return Inertia::render('dashboard/SuperAdmin', [
                 'customer' => $customer,
@@ -51,7 +51,7 @@ class   DashboardController extends Controller
             $pengujian = Pengujian::count();
             $hasil_uji = HasilUji::count();
 
-            return Inertia::render('pegawai/Dashboard', [
+            return Inertia::render('dashboard/Admin', [
                 'statistik' => [
                     'pengajuan' => $pengajuan,
                     'jadwal' => $jadwal,

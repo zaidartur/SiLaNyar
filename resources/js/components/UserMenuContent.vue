@@ -28,7 +28,7 @@ import { UserIcon, LayoutDashboard, LogOut } from 'lucide-vue-next';
     </DropdownMenuGroup>
     <DropdownMenuSeparator />
     <DropdownMenuItem :as-child="true">
-        <Link class="block w-full" method="post" :href="route('customer.logout')" as="button">
+        <Link class="block w-full" method="post" :href="route('customer.profile')" as="button">
             <LogOut class="mr-2 h-4 w-4" />
             Log out
         </Link>
