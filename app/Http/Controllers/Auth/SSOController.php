@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -96,7 +97,7 @@ class SSOController extends Controller
             case 'customer':
                 return Redirect::route('customer.dashboard');
             default:
-                return Redirect::route('customer.dashboard');
+                return Redirect::route('pegawai.dashboard');
         }
     }
 

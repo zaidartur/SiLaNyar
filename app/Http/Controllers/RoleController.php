@@ -12,7 +12,7 @@ class RoleController extends Controller
 {
     public function index()
     {
-        $role = Roles::with('permissions')->get(); // Ubah dari permission ke permissions
+        $role = Roles::with('permissions')->get();
 
         return Inertia::render('superadmin/role/Index', [
             'role' => $role
@@ -30,11 +30,11 @@ class RoleController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi dulu sebelum try-catch
         $request->validate([
-            'name' => 'required|string|max:255',  // Pisahkan unique validation
+            'name' => 'required|string|max:255',
             'permissions' => 'nullable|array',
-            'permissions.*' => 'exists:permissions,id'
+            'permissions.*' => 'exists:permissions,id',
+            'dashboard_view' => 'nullable|string|max:255',
         ], [
             'name.required' => 'The name field is required.',
             'name.string' => 'The name must be a string.',
@@ -42,7 +42,6 @@ class RoleController extends Controller
         ]);
 
         try {
-            // Cek unique setelah validasi dasar
             if (Roles::where('name', $request->name)->where('guard_name', 'web')->exists()) {
                 return back()->withErrors([
                     'name' => 'Nama Sudah Dipakai.'
@@ -51,7 +50,8 @@ class RoleController extends Controller
 
             $role = Roles::create([
                 'name' => $request->name,
-                'guard_name' => 'web'
+                'guard_name' => 'web',
+                'dashboard_view' => $request->dashboard_view ?? null
             ]);
 
             if ($request->has('permissions')) {
@@ -82,28 +82,28 @@ class RoleController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'permissions' => 'array',
-            'permissions.*' => 'exists:permissions,id' // Ubah dari permission ke permissions
+            'permissions.*' => 'exists:permissions,id',
+            'dashboard_view' => 'nullable|string|max:255',
         ]);
 
         $role->update([
-            'name' => $request->name, // Ubah dari nama ke name untuk konsistensi
-            'guard_name' => 'web'
+            'name' => $request->name,
+            'guard_name' => 'web',
+            'dashboard_view' => $request->dashboard_view
         ]);
 
         if (isset($request->permissions)) {
-            $role->syncPermissions($request->permissions); // Gunakan syncPermissions dari Spatie
+            $role->syncPermissions($request->permissions);
         }
 
         return Redirect::route('superadmin.role.index')->with('message', 'Role Berhasil Diupdate!');
     }
 
-    public function destroy($id)
+    public function destroy(Roles $id)
     {
-        $role = Roles::findOrFail($id);
+        $id->delete();
 
-        $role->delete();
-
-        if ($role) {
+        if ($id) {
             return Redirect::route('superadmin.role.index')->with('message', 'Role Berhasil Dihapus!');
         }
     }

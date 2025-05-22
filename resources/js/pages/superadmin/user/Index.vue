@@ -23,30 +23,20 @@ const props = defineProps<{
 const search = ref(props.filters.search || '')
 
 function submitSearch() {
-  router.get('/superadmin/users', { search: search.value }, {
-    preserveScroll: true,
-    preserveState: true,
-  })
+    router.get('/superadmin/users', { search: search.value }, {
+        preserveScroll: true,
+        preserveState: true,
+    })
 }
 
-function toggleRole(userId: number, roleName: string, checked: boolean) {
-    const user = props.users.find(u => u.id === userId)
-    if (!user) return
-
-    let updatedRoles = user.roles.map((r: Role) => r.name)
-
-    if (checked) {
-        if (!updatedRoles.includes(roleName)) {
-            updatedRoles.push(roleName)
-        }
-    } else {
-        updatedRoles = updatedRoles.filter(r => r !== roleName)
-    }
-
-    router.post(`/superadmin/users/${userId}/sync-roles`, { roles: updatedRoles }, {
+function toggleRole(user: number, roleName: string) {
+    router.post(`/superadmin/users/${user}/sync-roles`, { roles: [roleName] }, {
         preserveScroll: true,
         onSuccess: () => {
-            user.roles = props.roles.filter(role => updatedRoles.includes(role.name))
+            const users = props.users.find(u => u.id === user)
+            if (users) {
+                users.roles = props.roles.filter(role => role.name === roleName)
+            }
         }
     })
 }
@@ -77,8 +67,10 @@ function toggleRole(userId: number, roleName: string, checked: boolean) {
                     <td class="p-2 border">
                         <div class="flex gap-4">
                             <label v-for="role in roles" :key="role.id" class="flex items-center gap-1">
-                                <input type="checkbox" :checked="user.roles.some((r: any) => r.name === role.name)"
-                                    @change="e => toggleRole(user.id, role.name, (e.target as HTMLInputElement).checked)" />
+                                <input type="radio" :name="'role-' + user.id" :value="role.name"
+                                    :checked="user.roles.some(r => r.name === role.name)"
+                                    @change="() => toggleRole(user.id, role.name)" />
+
                                 {{ role.name }}
                             </label>
                         </div>

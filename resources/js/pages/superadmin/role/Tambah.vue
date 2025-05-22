@@ -12,6 +12,7 @@ const { permission } = defineProps<{
 
 const form = useForm({
   name: '',
+  dashboard_view: '',
   permissions: [] as number[]
 })
 
@@ -34,24 +35,28 @@ const submit = () => {
       </div>
 
       <div>
+        <label class="block mb-1">Tampilan Dashboard</label>
+        <select v-model="form.dashboard_view" class="w-full border rounded p-2">
+          <option disabled value="">Pilih Dashboard</option>
+          <option value="dashboard/SuperAdmin">Super Admin</option>
+          <option value="dashboard/Admin">Admin</option>
+          <option value="dashboard/Teknisi">Teknisi</option>
+          <option value="Dashboard">Customer</option>
+        </select>
+        <div v-if="form.errors.dashboard_view" class="text-red-500 text-sm">{{ form.errors.dashboard_view }}</div>
+      </div>
+
+      <div>
         <label class="block mb-1">Permissions</label>
         <div class="grid grid-cols-2 gap-2">
           <div v-for="perm in permission" :key="perm.id" class="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              :value="perm.id"
-              v-model="form.permissions"
-              class="form-checkbox"
-            />
+            <input type="checkbox" :value="perm.id" v-model="form.permissions" class="form-checkbox" />
             <label>{{ perm.name }}</label>
           </div>
         </div>
       </div>
 
-      <button
-        type="submit"
-        class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-      >
+      <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
         Simpan
       </button>
     </form>

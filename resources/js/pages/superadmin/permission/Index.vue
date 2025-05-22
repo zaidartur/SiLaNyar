@@ -21,7 +21,6 @@ const deletePermission = (id: number) => {
   <div class="p-6 max-w-4xl mx-auto">
     <div class="flex justify-between items-center mb-4">
       <h1 class="text-2xl font-bold">Daftar Permission</h1>
-      <a href="/superadmin/permission/create" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Tambah</a>
     </div>
 
     <table class="min-w-full border">
@@ -37,7 +36,6 @@ const deletePermission = (id: number) => {
           <td class="p-2 border">{{ index + 1 }}</td>
           <td class="p-2 border">{{ perm.name }}</td>
           <td class="p-2 border space-x-2">
-            <a :href="`/superadmin/permission/edit/${perm.id}`" class="text-blue-600 hover:underline">Edit</a>
             <button @click="deletePermission(perm.id)" class="text-red-600 hover:underline">Hapus</button>
           </td>
         </tr>

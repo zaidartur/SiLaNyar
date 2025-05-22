@@ -14,7 +14,8 @@ class Roles extends SpatieRole
     protected $fillable = [
         'kode_role',
         'name',
-        'guard_name'
+        'guard_name',
+        'dashboard_view',
     ];
 
     protected static function boot()
