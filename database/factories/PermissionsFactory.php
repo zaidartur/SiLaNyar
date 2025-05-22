@@ -6,25 +6,24 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PermissionsFactory extends Factory
 {
+    protected $actions = ['lihat', 'tambah', 'edit', 'hapus', 'detail', 'verifikasi'];
+    protected $resources = [
+        'pegawai', 'pengajuan', 'pengujian', 'pengambilan', 
+        'jenis_sampel', 'kategori', 'parameter', 'hasil_uji', 
+        'pelanggan', 'customer'
+    ];
+
     public function definition(): array
     {
-        static $permissionCounter = 1;
+        $action = fake()->randomElement($this->actions);
+        $resource = fake()->randomElement($this->resources);
         
-        $actions = ['lihat', 'tambah', 'edit', 'delete', 'detail', 'verifikasi'];
-        $resources = [
-            'pegawai', 'pengajuan', 'pengujian', 'pengambilan', 
-            'jenis_sampel', 'kategori', 'parameter', 'hasil_uji', 
-            'pelanggan', 'customer'
-        ];
-
-        // Generate unique permission name using counter
         return [
-            'name' => 'permission-' . $permissionCounter++,
-            'guard_name' => 'pegawai',
+            'name' => $action . '-' . $resource,
+            'guard_name' => 'web',
         ];
     }
 
-    // Add a state for special permissions
     public function special()
     {
         return $this->state(function (array $attributes) {
@@ -34,7 +33,8 @@ class PermissionsFactory extends Factory
                     'kelola-role',
                     'kelola-user',
                     'kelola-system'
-                ])
+                ]),
+                'guard_name' => 'web'
             ];
         });
     }

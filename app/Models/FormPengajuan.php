@@ -12,6 +12,7 @@ class FormPengajuan extends Model
     protected $table = 'form_pengajuan';
 
     protected $fillable = [
+        'kode_pengajuan',
         'id_user',
         'id_kategori',
         'id_jenis_cairan',
@@ -40,7 +41,12 @@ class FormPengajuan extends Model
                 $lanjut = $akhirKode + 1;
             }
 
-            $model->kode_pengajuan = $prefix.'-'.str_pad($lanjut, 3, '0', STR_PAD_LEFT);
+            $model->kode_pengajuan = $prefix.str_pad($lanjut, 3, '0', STR_PAD_LEFT);
+
+            // Pastikan status_pengajuan selalu memiliki nilai default
+            if (!$model->status_pengajuan) {
+                $model->status_pengajuan = 'proses_validasi';
+            }
         });
     }
 

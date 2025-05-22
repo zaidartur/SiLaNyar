@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\Customer;
+use App\Models\User;
 use App\Models\Kategori;
 use App\Models\JenisCairan;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -19,16 +19,16 @@ class FormPengajuanFactory extends Factory
      */
     public function definition(): array
     {
-        $metode = $this->faker->randomElement(['diantar', 'diambil']);
+        $metode = fake()->randomElement(['diantar', 'diambil']);
         
         return [
-            'id_customer' => Customer::factory(),
+            'id_user' => User::factory(),
             'id_kategori' => Kategori::factory(),
             'id_jenis_cairan' => JenisCairan::factory(),
-            'volume_sampel' => $this->faker->randomFloat(2, 0.1, 100),
-            'status_pengajuan' => $this->faker->randomElement(['proses_validasi', 'diterima', 'ditolak']),
+            'volume_sampel' => fake()->randomFloat(2, 0.1, 100),
+            'status_pengajuan' => 'proses_validasi',  // Set default value
             'metode_pengambilan' => $metode,
-            'lokasi' => $metode === 'diambil' ? $this->faker->address() : null,
+            'lokasi' => $metode === 'diambil' ? fake()->address() : null,
         ];
     }
 
@@ -51,6 +51,16 @@ class FormPengajuanFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'metode_pengambilan' => 'diambil',
             'lokasi' => fake()->address(),
+        ]);
+    }
+
+    /**
+     * Configure the factory for a submission in process of validation.
+     */
+    public function prosesValidasi(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status_pengajuan' => 'proses_validasi',
         ]);
     }
 

@@ -25,6 +25,8 @@ class HasilUjiFactory extends Factory
             'id_parameter' => $parameter->id,
             'nilai' => fake()->randomFloat(2, 0, $parameter->baku_mutu * 1.5), // Generate value relative to baku_mutu
             'keterangan' => fake()->randomElement(['Memenuhi baku mutu', 'Melebihi baku mutu', 'Di bawah baku mutu']),
+            'status' => fake()->randomElement(['acc', 'revisi', 'draf']),
+            'file_pdf' => fake()->boolean(70) ? 'hasil_uji/'. fake()->uuid() .'.pdf' : null
         ];
     }
 }

@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Pegawai;
 
+use App\Http\Controllers\Controller;
 use App\Models\ParameterUji;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;

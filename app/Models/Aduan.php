@@ -12,10 +12,12 @@ class Aduan extends Model
     protected $table = 'aduan';
 
     protected $fillable = [
+        'kode_aduan',
         'id_hasil_uji',
         'id_user',
         'masalah',
-        'perbaiki'
+        'perbaikan',
+        'status'
     ];
 
     protected static function boot()

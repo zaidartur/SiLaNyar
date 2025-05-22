@@ -20,7 +20,7 @@ return new class extends Migration
             $table->float('volume_sampel');
             $table->enum('status_pengajuan', ['proses_validasi', 'diterima', 'ditolak'])->default('proses_validasi')->index();
             $table->enum('metode_pengambilan', ['diantar', 'diambil']);
-            $table->string('lokasi');
+            $table->string('lokasi')->nullable();
             $table->timestamps();
         });
     }

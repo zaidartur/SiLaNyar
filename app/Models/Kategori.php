@@ -12,6 +12,7 @@ class Kategori extends Model
     protected $table = 'kategori';
 
     protected $fillable = [
+        'kode_kategori',
         'nama',
         'harga'
     ];
@@ -21,8 +22,13 @@ class Kategori extends Model
         parent::boot();
 
         static::creating(function ($model) {
-            $akhir = self::max('id') ?? 0;
-            $lanjut = $akhir + 1;
+            $akhir = self::orderBy('kode_kategori', 'desc')->first();
+            $lanjut = 1;
+
+            if ($akhir) {
+                $nomorTerakhir = (int)substr($akhir->kode_kategori, -3);
+                $lanjut = $nomorTerakhir + 1;
+            }
 
             $model->kode_kategori = 'DK-' . str_pad($lanjut, 3, '0', STR_PAD_LEFT);
         });
@@ -37,6 +43,6 @@ class Kategori extends Model
 
     public function form_pengajuan()
     {
-        return $this->belongsTo(FormPengajuan::class);
+        return $this->hasMany(FormPengajuan::class, 'id_kategori');
     }
 }

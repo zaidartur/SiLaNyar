@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
-class VerifikasiInstansi extends Controller
+class VerifikasiInstansiController extends Controller
 {
     //daftar instansi
     public function index()

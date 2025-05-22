@@ -14,6 +14,7 @@ class Pengujian extends Model
     protected $table = 'pengujian';
 
     protected $fillable = [
+        'kode_pengujian',
         'id_form_pengajuan',
         'id_user',
         'id_kategori',
@@ -23,14 +24,25 @@ class Pengujian extends Model
         'status'
     ];
 
+    protected $casts = [
+        'tanggal_uji' => 'date',
+        'jam_mulai' => 'datetime:H:i',
+        'jam_selesai' => 'datetime:H:i',
+    ];
+
     protected static function boot()
     {  
         parent::boot();
 
         static::creating(function ($model)
         {
-            $akhir = self::max('id') ?? 0;
-            $lanjut = $akhir + 1;
+            $akhir = self::orderBy('kode_pengujian', 'desc')->first();
+            $lanjut = 1;
+
+            if ($akhir) {
+                $nomorTerakhir = (int)substr($akhir->kode_pengujian, -3);
+                $lanjut = $nomorTerakhir + 1;
+            }
             
             $model->kode_pengujian = 'DJ-'.str_pad($lanjut, 3, '0', STR_PAD_LEFT);
         });
@@ -54,12 +66,12 @@ class Pengujian extends Model
     public function parameter_uji()
     {
         return $this->belongsToMany(ParameterUji::class, 'hasil_uji', 'id_pengujian', 'id_parameter')
-                    ->withPivot('nilai', 'keterangan')
+                    ->withPivot(['nilai', 'keterangan', 'kode_hasil_uji'])
                     ->withTimestamps();
     }
 
     public function hasil_uji()
     {
-        return $this->hasMany(HasilUji::class);
+        return $this->hasMany(HasilUji::class, 'id_pengujian');
     }
 }

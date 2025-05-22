@@ -13,6 +13,7 @@ class JenisCairan extends Model
     public $timestamps = false;
     
     protected $fillable = [
+        'kode_jenis_cairan',
         'nama',
         'batas_minimum',
         'batas_maksimum'
@@ -22,12 +23,18 @@ class JenisCairan extends Model
     {
         parent::boot();
         
-        static::creating(function ($model)
-        {
-            $akhir = self::max('id') ?? 0;
-            $lanjut = $akhir + 1;
+        static::creating(function ($model) {
+            if (!$model->kode_jenis_cairan) {
+                $akhir = self::orderBy('kode_jenis_cairan', 'desc')->first();
+                $lanjut = 1;
 
-            $model->kode_jenis_cairan = 'JC-'.str_pad($lanjut, 3, '0', STR_PAD_LEFT);
+                if ($akhir) {
+                    $nomorTerakhir = (int)substr($akhir->kode_jenis_cairan, -3);
+                    $lanjut = $nomorTerakhir + 1;
+                }
+
+                $model->kode_jenis_cairan = 'JC-'.str_pad($lanjut, 3, '0', STR_PAD_LEFT);
+            }
         });
     }
 }
