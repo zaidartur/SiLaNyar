@@ -7,8 +7,13 @@ const isSidebarOpen = ref(true)
 const isDaftarOpen = ref(false)
 const isKategoriOpen = ref(false)
 
-const user = computed(() => usePage().props.auth.user)
-const hasRole = (role) => user.value?.roles?.some(r => r.name === role)
+const page = usePage()
+const user = computed(() => page.props.auth.user)
+const permissions = page.props.auth.permissions as string[]
+
+const can = (permission: string): boolean => {
+    return permissions.includes(permission)
+}
 
 const toggleSidebar = () => {
     isSidebarOpen.value = !isSidebarOpen.value
@@ -36,9 +41,7 @@ const toggleKategori = () => {
         </div>
 
         <nav class="space-y-1 font-bold text-xl">
-            <!-- Menu untuk Admin -->
-            <template v-if="hasRole('admin')">
-                <a href="/pegawai/dashboard" class="flex items-center gap-3 py-3 px-3 rounded hover:bg-green-700">
+                <a v-if="can('lihat_dashboard')" href="/pegawai/dashboard" class="flex items-center gap-3 py-3 px-3 rounded hover:bg-green-700">
                     <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <mask id="mask0_1549_885" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0"
                             width="40" height="40">
@@ -53,8 +56,29 @@ const toggleKategori = () => {
                     <span>Beranda</span>
                 </a>
 
+                <!-- Menu Permission -->
+                <a v-if="can('kelola_permission')" href="/superadmin/permission"
+                    class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
+                    <img src="/storage/assetsadmin/permission.png" alt="Permission" class="w-6 h-6" />
+                    <span>Permission</span>
+                </a>
+
+                <!-- Menu Role -->
+                <a v-if="can('kelola_role')" href="/superadmin/role"
+                    class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
+                    <img src="/storage/assetsadmin/role.png" alt="Role" class="w-6 h-6" />
+                    <span>Role</span>
+                </a>
+
+                <!-- Menu User -->
+                <a v-if="can('kelola_user')" href="/superadmin/roles"
+                    class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
+                    <img src="/storage/assetsadmin/role.png" alt="Role" class="w-6 h-6" />
+                    <span>User</span>
+                </a>
+
                 <!-- Menu Daftar -->
-                <div class="space-y-1">
+                <div class="space-y-1" v-if="can('lihat_pengambilan') || can('lihat_pengajuan') || can('lihat_pengujian')">
                     <button @click="toggleDaftar"
                         class="w-full flex items-center justify-between gap-3 py-3 px-3 hover:bg-green-700 rounded">
                         <div class="flex items-center gap-3">
@@ -77,15 +101,15 @@ const toggleKategori = () => {
                         </svg>
                     </button>
                     <div v-if="isDaftarOpen" class="pl-8 space-y-1">
-                        <Link href="/pegawai/jadwal"
+                        <Link v-if="can('lihat_pengambilan')" href="/pegawai/jadwal"
                             class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
-                        <span>Jadwal Pengambilan</span>
+                        <span>Pengambilan</span>
                         </Link>
-                        <Link href="/pegawai/pengajuan"
+                        <Link v-if="can('lihat_pengajuan')" href="/pegawai/pengajuan"
                             class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                         <span>Pengajuan</span>
                         </Link>
-                        <Link :href="route('pegawai.pengujian.index')"
+                        <Link v-if="can('lihat_pengujian')" href="route('pegawai.pengujian.index')"
                             class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                         <span>Pengujian</span>
                         </Link>
@@ -93,7 +117,7 @@ const toggleKategori = () => {
                 </div>
 
                 <!-- Menu Kategori -->
-                <div class="space-y-1">
+                <div class="space-y-1" v-if="can('kelola_parameter') || can('kelola_kategori') || can('kelola_jenis_cairan')">
                     <button @click="toggleKategori"
                         class="w-full flex items-center justify-between gap-3 py-3 px-3 hover:bg-green-700 rounded">
                         <div class="flex items-center gap-3">
@@ -116,22 +140,22 @@ const toggleKategori = () => {
                         </svg>
                     </button>
                     <div v-if="isKategoriOpen" class="pl-8 space-y-1">
-                        <a href="/pegawai/parameter"
+                        <a v-if="can('kelola_parameter')" href="/pegawai/parameter"
                             class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                             <span>Parameter</span>
                         </a>
-                        <a href="/admin/detail-kategori"
+                        <a v-if="can('kelola_kategori')" href="/pegawai/kategori"
                             class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                             <span>Detail Kategori</span>
                         </a>
-                        <a href="/admin/jenis-cairan"
+                        <a v-if="can('kelola_jenis_cairan')" href="/pegawai/jenis-cairan"
                             class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                             <span>Jenis Cairan</span>
                         </a>
                     </div>
                 </div>
 
-                <a href="/admin/daftarpelanggan" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
+                <a v-if="can('kelola_instansi')" href="/admin/daftarpelanggan" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                     <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <mask id="mask0_1549_908" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0"
                             width="40" height="40">
@@ -146,7 +170,7 @@ const toggleKategori = () => {
                     <span>Daftar Pelanggan</span>
                 </a>
 
-                <a href="/admin/hasil-uji" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
+                <a v-if="can('lihat_hasil_uji')" href="/admin/hasil-uji" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                     <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <mask id="mask0_1549_913" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0"
                             width="40" height="40">
@@ -160,42 +184,7 @@ const toggleKategori = () => {
                     </svg>
                     <span>Hasil Uji</span>
                 </a>
-            </template>
-
-            <!-- Menu untuk Teknisi -->
-            <template v-if="hasRole('teknisi')">
-                <a href="/pegawai/dashboard" class="flex items-center gap-3 py-3 px-3 rounded hover:bg-green-700">
-                    <img src="/storage/assetsadmin/beranda.png" alt="Dashboard" class="w-6 h-6" />
-                    <span>Beranda</span>
-                </a>
-
-                <a href="/teknisi/hasil-uji" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
-                    <img src="/storage/assetsadmin/hasiluji.png" alt="Form Hasil Uji" class="w-6 h-6" />
-                    <span>Form Hasil Uji</span>
-                </a>
-            </template>
-
-            <!-- Menu untuk Superadmin -->
-            <template v-if="hasRole('superadmin')">
-                <a href="/pegawai/dashboard" class="flex items-center gap-3 py-3 px-3 rounded hover:bg-green-700">
-                    <img src="/storage/assetsadmin/beranda.png" alt="Dashboard" class="w-6 h-6" />
-                    <span>Beranda</span>
-                </a>
-
-                <a href="/admin/permissions" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
-                    <img src="/storage/assetsadmin/permission.png" alt="Permission" class="w-6 h-6" />
-                    <span>Permission</span>
-                </a>
-
-                <a href="/admin/roles" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
-                    <img src="/storage/assetsadmin/role.png" alt="Role" class="w-6 h-6" />
-                    <span>Role</span>
-                </a>
-            </template>
-
-            <!-- Menu umum untuk semua role -->
-            <template v-if="hasRole('admin') || hasRole('teknisi')">
-                <a href="/admin/profile" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
+                <a v-if="can('kelola_profil')" href="/admin/profile" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                     <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <mask id="mask0_1549_918" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0"
                             width="40" height="40">
@@ -209,7 +198,6 @@ const toggleKategori = () => {
                     </svg>
                     <span>Profile</span>
                 </a>
-            </template>
 
             <!-- Logout untuk semua role -->
             <a href="/logout" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">

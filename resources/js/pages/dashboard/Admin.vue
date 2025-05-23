@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AdminLayout from '@/layouts/admin/AdminLayout.vue'
+import AdminLayout from '@/layouts/admin/AdminLayout.vue';
 import { defineProps } from 'vue'
 
 defineProps<{
