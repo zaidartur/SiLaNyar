@@ -76,4 +76,16 @@ class PengajuanController extends Controller
         return redirect()->route('pegawai.pengajuan.index')
             ->with('message', 'Pengajuan Telah ' . ucfirst($request->status_pengajuan) . '!');
     }
+
+    public function destroy(FormPengajuan $pengajuan)
+    {
+        if($pengajuan->status !== 'acc')
+        {
+            return Redirect::back()->withErrors('status', 'Status Pengajuan Belum Berhasil Di Acc');
+        }
+
+        $pengajuan->delete();
+        
+        return Redirect::back()->with('message', 'Pengajuan Berhasil Dihapus');
+    }
 }

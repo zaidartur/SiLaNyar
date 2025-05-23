@@ -224,7 +224,6 @@ const toggleEditModal = () => {
         </div>
     </AdminLayout>
 </template>
-
 <style scoped>
 .profile {
     max-width: 600px;

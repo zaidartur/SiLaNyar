@@ -40,8 +40,8 @@ class PegawaiProfileController extends Controller
         }
 
         $user = Auth::user();
+        $userRole = User::where('id', $user)->get();
 
-        $userRole = User::where('id', $user->id)->get();
 
         return Inertia::render('pegawai/profile/Index', [
             'user' => $userData,

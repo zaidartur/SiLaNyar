@@ -1,5 +1,27 @@
-<script setup lang="ts">
+<template>
+    <div class="profile">
+        <h1>Profil Saya</h1>
+        <ul>
+            <li><strong>NIK:</strong> {{ props.user?.nik }}</li>
+            <li><strong>Nama:</strong> {{ props.user?.nama }}</li>
+            <li><strong>Tanggal Lahir:</strong> {{ props.user?.tgl_lahir }}</li>
+            <li><strong>Provinsi:</strong> {{ props.user?.provinsi }}</li>
+            <li><strong>Kab/Kota:</strong> {{ props.user?.kab_kota }}</li>
+            <li><strong>Kecamatan:</strong> {{ props.user?.kecamatan }}</li>
+            <li><strong>Kelurahan:</strong> {{ props.user?.kelurahan }}</li>
+            <li><strong>RT:</strong> {{ props.user?.rt }}</li>
+            <li><strong>RW:</strong> {{ props.user?.rw }}</li>
+            <li><strong>Kode Pos:</strong> {{ props.user?.kode_pos }}</li>
+            <li><strong>Alamat:</strong> {{ props.user?.alamat }}</li>
+            <li><strong>Email:</strong> {{ props.user?.email }}</li>
+            <li><strong>No WA:</strong> {{ props.user?.no_wa }}</li>
+            <li><strong>Username:</strong> {{ props.user?.username }}</li>
+            <li><strong>ID:</strong> {{ props.user?.id }}</li>
+        </ul>
+    </div>
+</template>
 
+<script setup lang="ts">
 interface User {
     id: number;
     nik: string;
@@ -22,29 +44,6 @@ const props = defineProps<{
     user?: User;
 }>();
 </script>
-
-<template>
-        <div class="profile">
-            <h1>Profil Saya</h1>
-            <ul>
-                <li><strong>NIK:</strong> {{ props.user?.nik }}</li>
-                <li><strong>Nama:</strong> {{ props.user?.nama }}</li>
-                <li><strong>Tanggal Lahir:</strong> {{ props.user?.tgl_lahir }}</li>
-                <li><strong>Provinsi:</strong> {{ props.user?.provinsi }}</li>
-                <li><strong>Kab/Kota:</strong> {{ props.user?.kab_kota }}</li>
-                <li><strong>Kecamatan:</strong> {{ props.user?.kecamatan }}</li>
-                <li><strong>Kelurahan:</strong> {{ props.user?.kelurahan }}</li>
-                <li><strong>RT:</strong> {{ props.user?.rt }}</li>
-                <li><strong>RW:</strong> {{ props.user?.rw }}</li>
-                <li><strong>Kode Pos:</strong> {{ props.user?.kode_pos }}</li>
-                <li><strong>Alamat:</strong> {{ props.user?.alamat }}</li>
-                <li><strong>Email:</strong> {{ props.user?.email }}</li>
-                <li><strong>No WA:</strong> {{ props.user?.no_wa }}</li>
-                <li><strong>Username:</strong> {{ props.user?.username }}</li>
-                <li><strong>ID:</strong> {{ props.user?.id }}</li>
-            </ul>
-        </div>
-</template>
 
 <style scoped>
 .profile {

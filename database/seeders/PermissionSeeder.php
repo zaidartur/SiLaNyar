@@ -14,20 +14,39 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         $permission = [
-            'kelola_permission',
-            'kelola_role',
-            'kelola_user',
-            'kelola_instansi',
-            'kelola_pembayaran',
-            'kelola_pengujian',
-            'kelola_jenis_cairan',
-            'kelola_kategori',
-            'kelola_parameter',
-            'kelola_aduan',
+            'kelola permission',
+            'kelola role',
+            'kelola user',
+            'kelola instansi',
+            'kelola pembayaran',
+            'kelola jenis cairan',
+            'kelola kategori',
+            'kelola parameter',
+            'kelola aduan',
+            'lihat pengajuan',
+            'tambah pengajuan',
+            'detail pengajuan',
+            'edit pengajuan',
+            'hapus pengajuan',
+            'lihat pengujian',
+            'tambah pengujian',
+            'detail pengujian',
+            'edit pengujian',
+            'hapus pengujian',
+            'lihat pengambilan',
+            'tambah pengambilan',
+            'detail pengambilan',
+            'edit pengambilan',
+            'hapus pengambilan',
+            'lihat hasil uji',
+            'tambah hasil uji',
+            'detail hasil uji',
+            'edit hasil uji',
+            'hapus hasil uji',
+            'riwayat hasil uji'
         ];
 
-        foreach ($permission as $per)
-        {
+        foreach ($permission as $per) {
             Permissions::firstOrCreate(['name' => $per], ['guard_name' => 'web']);
         }
     }
