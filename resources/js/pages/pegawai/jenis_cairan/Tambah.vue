@@ -3,12 +3,12 @@ import { useForm } from '@inertiajs/vue3'
 
 const form = useForm({
     nama: '',
-    batas_minimum: '',
-    batas_maksimum: '',
+    batas_minimum: 0,
+    batas_maksimum: 0,
 })
 
 const submit = () => {
-    form.post('/pegawai/jenis_cairan/store')
+    form.post('/pegawai/jenis-cairan/store')
 }
 </script>
 

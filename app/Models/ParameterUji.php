@@ -58,4 +58,11 @@ class ParameterUji extends Model
             ->withPivot('baku_mutu')
             ->withTimestamps();
     }
+
+    public function subkategori()
+    {
+        return $this->belongsToMany(SubKategori::class, 'parameter_subkategori', 'id_parameter', 'id_subkategori')
+                    ->withPivot('baku_mutu')
+                    ->withTimestamps();    
+    }
 }

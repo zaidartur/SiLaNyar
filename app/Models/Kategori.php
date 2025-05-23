@@ -13,6 +13,7 @@ class Kategori extends Model
 
     protected $fillable = [
         'kode_kategori',
+        'id_subkategori',
         'nama',
         'harga'
     ];
@@ -43,6 +44,11 @@ class Kategori extends Model
 
     public function form_pengajuan()
     {
-        return $this->hasMany(FormPengajuan::class, 'id_kategori');
+        return $this->hasMany(FormPengajuan::class);
+    }
+
+    public function subkategori()
+    {
+        return $this->belongsTo(SubKategori::class, 'id_subkategori');    
     }
 }

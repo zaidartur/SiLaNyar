@@ -7,7 +7,6 @@ import { Label } from '@/components/ui/label'
 const form = useForm({
     nama_parameter: '',
     satuan: '',
-    baku_mutu: '',
     harga: ''
 })
 
@@ -42,17 +41,8 @@ const submit = () => {
                     </div>
 
                     <div class="grid gap-2">
-                        <Label for="baku_mutu">Baku Mutu</Label>
-                        <Input id="baku_mutu" v-model="form.baku_mutu" type="number" step="0.01"
-                            placeholder="Contoh: 6.5 - 8.5" required />
-                        <span v-if="form.errors.baku_mutu" class="text-sm text-red-600">
-                            {{ form.errors.baku_mutu }}
-                        </span>
-                    </div>
-
-                    <div class="grid gap-2">
                         <Label for="harga">Harga</Label>
-                        <Input id="harga" v-model="form.harga" type="number" placeholder="Contoh: 100000" min="0"
+                        <Input id="harga" v-model="form.harga" type="text" inputmode="numeric" placeholder="Contoh: 100000" min="0"
                             required />
                         <span v-if="form.errors.harga" class="text-sm text-red-600">
                             {{ form.errors.harga }}

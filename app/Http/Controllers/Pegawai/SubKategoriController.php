@@ -3,53 +3,48 @@
 namespace App\Http\Controllers\Pegawai;
 
 use App\Http\Controllers\Controller;
-use App\Models\Kategori;
 use App\Models\ParameterUji;
+use App\Models\SubKategori;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
-class KategoriController extends Controller
+class SubKategoriController extends Controller
 {
-    //lihat daftar kategori
     public function index()
     {
-        $kategori = Kategori::with([
+        $subkategori = SubKategori::with([
             'parameter' => function ($query) {
                 $query->withPivot('baku_mutu');
             }
         ])
             ->get();
 
-        return Inertia::render('pegawai/kategori/Index', [
-            'kategori' => $kategori,
+        Inertia::render('pegawai/subkategori/Index', [
+            'subkategori' => $subkategori
         ]);
     }
 
-    //form tambah kategori
     public function create()
     {
         $parameter = ParameterUji::all();
 
-        return Inertia::render('pegawai/kategori/Tambah', [
+        Inertia::render('pegawai/subkategori/Tambah', [
             'parameter' => $parameter
         ]);
     }
 
-    //proses tambah kategori
     public function store(Request $request)
     {
         $request->validate([
-            'nama' => 'required|string|unique:kategori,nama',
-            'harga' => 'required|numeric|min:0',
+            'nama' => 'required|string|uniqie:kategori,nama',
             'parameter' => 'required|array',
             'parameter.*.id' => 'required|exists:parameter_uji,id',
             'parameter.*.baku_mutu' => 'required|string|max:255',
         ]);
 
-        $kategori = Kategori::create($request->only([
-            'nama',
-            'harga',
+        $subkategori = SubKategori::create($request->only([
+            'nama'
         ]));
 
         $syncData = [];
@@ -57,20 +52,19 @@ class KategoriController extends Controller
             $syncData[$param['id']] = ['baku_mutu' => $param['baku_mutu']];
         }
 
-        $kategori->parameter()->attach($syncData);
+        $subkategori->parameter()->attach($syncData);
 
-        return Redirect::route('pegawai.kategori.index')->with('message', 'Kategori Berhasil Ditambahkan!');
+        return Redirect::route('pegawai.subkategori.index')->with('message', 'SubKategori Berhasil Ditambahkan!');
     }
 
-    //form edit kategori
     public function edit($id)
     {
-        $kategori = Kategori::with(['parameter' => function ($q) {
-            $q->withPivot('baku_mutu');
+        $subkategori = SubKategori::with(['parameter' => function ($query) {
+            $query->withPivot('baku_mutu');
         }])->findOrFail($id);
 
-        $parameter = ParameterUji::all()->map(function ($param) use ($kategori) {
-            $existing = $kategori->parameter->firstWhere('id', $param->id);
+        $parameter = ParameterUji::all()->map(function ($param) use ($subkategori) {
+            $existing = $subkategori->parameter->firstWhere('id', $param->id);
 
             return [
                 'id' => $param->id,
@@ -82,31 +76,26 @@ class KategoriController extends Controller
             ];
         });
 
-        return Inertia::render('pegawai/kategori/Edit', [
-            'kategori' => [
-                'id' => $kategori->id,
-                'nama' => $kategori->nama,
-                'harga' => $kategori->harga,
+        return Inertia::render('pegawai/subkategori/Edit', [
+            'subkategori' => [
+                'id' => $subkategori->id,
+                'nama' => $subkategori->nama,
             ],
-            'parameter' => $parameter,
+            'parameter' => $parameter
         ]);
     }
 
-
-    //proses update kategori
-    public function update(Kategori $kategori, Request $request)
+    public function update(SubKategori $subkategori, Request $request)
     {
         $request->validate([
-            'nama' => 'required|string',
-            'harga' => 'required|numeric|min:0',
+            'nama' => 'required|string|uniqie:kategori,nama',
             'parameter' => 'required|array',
             'parameter.*.id' => 'required|exists:parameter_uji,id',
-            'parameter.*.baku_mutu' => 'required|string|max:255'
+            'parameter.*.baku_mutu' => 'required|string|max:255',
         ]);
 
-        $kategori->update($request->only([
-            'nama',
-            'harga'
+        $subkategori->update($request->only([
+            'nama'
         ]));
 
         $syncData = [];
@@ -114,33 +103,33 @@ class KategoriController extends Controller
             $syncData[$param['id']] = ['baku_mutu' => $param['baku_mutu']];
         }
 
-        $kategori->parameter()->sync($syncData);
+        $subkategori->parameter()->attach($syncData);
 
-        return Redirect::route('pegawai.kategori.index')->with('message', 'Kategori Berhasil Diupdate!');
+        return Redirect::route('pegawai.subkategori.index')->with('message', 'SubKategori Berhasil Ditambahkan!');
     }
 
     public function show($id)
     {
-        $kategori = Kategori::with([
+        $subkategori = SubKategori::with([
             'parameter' => function ($query) {
                 $query->withPivot('baku_mutu');
             }
-        ])->findOrFail($id)
+        ])
+            ->findOrFail($id)
             ->get();
 
-        return Inertia::render('pegawai/kategori/Detail', [
-            'kategori' => $kategori,
+        Inertia::render('pegawai/subkategori/Detail', [
+            'subkategori' => $subkategori
         ]);
     }
 
-    //proses delete kategori
     public function destroy($id)
     {
-        $kategori = Kategori::findOrFail($id);
+        $subkategori = SubKategori::findOrFail($id);
 
-        $kategori->delete();
+        $subkategori->delete();
 
-        if ($kategori) {
+        if ($subkategori) {
             return Redirect::route('pegawai.kategori.index')->with('message', 'Kategori Berhasil Didelete!');
         }
     }

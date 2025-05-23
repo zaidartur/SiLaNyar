@@ -36,7 +36,7 @@ class PegawaiProfileController extends Controller
         $userData = $this->user();
 
         if (isset($userData['error'])) {
-            return redirect()->route('login')->with('error', 'Unauthorized');
+            return redirect()->route('pegawai.dashboard')->with('error', 'Unauthorized');
         }
 
         $user = Auth::user();
