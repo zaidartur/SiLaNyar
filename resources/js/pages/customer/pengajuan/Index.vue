@@ -154,10 +154,14 @@ const handleSubmit = async (values, { resetForm }) => {
     <CustomerLayout>
         <div class="rounded-lg border border-gray-300 bg-white p-6 shadow-sm">
             <div class="mb-8">
-                <h1 class="text-2xl font-bold text-gray-900">Data Pengajuan</h1>
-                <p class="mb-10 w-56 border-b-[2px] border-gray-900 pb-2"></p>
-                <Form v-slot="{ meta, values }" @submit="handleSubmit" :validation-schema="toTypedSchema(formSchema[stepIndex - 1])">
-                    <Stepper v-slot="{ isPrevDisabled, prevStep }" v-model="stepIndex" class="block w-full">
+                <h1 class="text-2xl font-bold text-gray-900">
+                    Data Pengajuan
+                </h1>
+                <p class="pb-2 border-b-[2px] border-gray-300 mb-10 w-48"></p>
+                <Form v-slot="{ meta, values }" @submit="handleSubmit"
+                    :validation-schema="toTypedSchema(formSchema[stepIndex - 1])">
+                    <Stepper v-slot="{ isNextDisabled, isPrevDisabled, nextStep, prevStep }" v-model="stepIndex"
+                        class="block w-full">
                         <div>
                             <div class="space-y-6">
                                 <div class="flex-start flex w-full gap-2">
@@ -217,13 +221,9 @@ const handleSubmit = async (values, { resetForm }) => {
                                 <template v-if="stepIndex === 1">
                                     <div class="space-y-6">
                                         <!-- Informasi Dasar Sample -->
-                                        <div class="space-y-4">
-                                            <h3 class="flex items-center gap-2 text-lg font-medium text-green-700">
-                                                <svg
-                                                    width="33"
-                                                    height="30"
-                                                    viewBox="0 0 33 30"
-                                                    fill="none"
+                                        <div class="space-y-4 bg-gray-100 rounded-lg shadow-sm p-4">
+                                            <h3 class="text-lg font-medium text-green-700 flex items-center gap-2">
+                                                <svg width="33" height="30" viewBox="0 0 33 30" fill="none"
                                                     xmlns="http://www.w3.org/2000/svg"
                                                     xmlns:xlink="http://www.w3.org/1999/xlink"
                                                 >
@@ -248,17 +248,11 @@ const handleSubmit = async (values, { resetForm }) => {
                                                 <FormItem>
                                                     <FormLabel>Jenis Cairan</FormLabel>
                                                     <div class="grid grid-cols-3 gap-4">
-                                                        <div
-                                                            v-for="(jenis, index) in ['Universal', 'Lemak', 'Vecal coli']"
-                                                            :key="index"
-                                                            :class="[
-                                                                'cursor-pointer rounded-lg border p-4 transition-colors',
-                                                                componentField.modelValue === jenis.toLowerCase()
-                                                                    ? 'border-customDarkGreen bg-customLightGreen'
-                                                                    : 'hover:border-customDarkGreen',
-                                                            ]"
-                                                            @click="componentField.onChange(jenis.toLowerCase())"
-                                                        >
+                                                        <div v-for="(jenis, index) in ['Universal', 'Lemak', 'Vecal coli']"
+                                                            :key="index" :class="[
+                                                                'bg-white border rounded-lg p-4 cursor-pointer transition-colors',
+                                                                componentField.modelValue === jenis.toLowerCase() ? 'border-customDarkGreen bg-customLightGreen' : 'hover:border-customDarkGreen'
+                                                            ]" @click="componentField.onChange(jenis.toLowerCase())">
                                                             <div class="flex flex-col items-center gap-2">
                                                                 <svg
                                                                     v-if="jenis === 'Universal'"
@@ -373,13 +367,9 @@ const handleSubmit = async (values, { resetForm }) => {
                                         </div>
 
                                         <!-- Informasi Volume dan Pengambilan -->
-                                        <div class="space-y-4">
-                                            <h3 class="flex items-center gap-2 text-lg font-medium text-gray-700">
-                                                <svg
-                                                    width="35"
-                                                    height="26"
-                                                    viewBox="0 0 35 26"
-                                                    fill="none"
+                                        <div class="bg-gray-100 rounded-lg shadow-sm p-4 space-y-4">
+                                            <h3 class="text-lg font-medium text-gray-700 flex items-center gap-2">
+                                                <svg width="35" height="26" viewBox="0 0 35 26" fill="none"
                                                     xmlns="http://www.w3.org/2000/svg"
                                                     xmlns:xlink="http://www.w3.org/1999/xlink"
                                                 >

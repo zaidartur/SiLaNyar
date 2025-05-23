@@ -131,9 +131,9 @@ Route::prefix('pegawai')->group(function () {
     });
 
     //fitur pengajuan
-    Route::get('pengajuan', [PegawaiPengajuanController::class, 'index'])->middleware('check.permission:lihat-pengajuan')->name('pegawai.pengajuan.index');
-    Route::get('pengajuan/{id}', [PegawaiPengajuanController::class, 'show'])->middleware('check.permission:detail-pengajuan')->name('pegawai.pengajuan.detail');
-    Route::get('pengajuan/edit/{pengajuan}', [PegawaiPengajuanController::class, 'edit'])->middleware('check.permission:edit-pengajuan')->name('pegawai.pengajuan.edit');
+    Route::get('pengajuan', [PegawaiPengajuanController::class, 'index'])->name('pegawai.pengajuan.index');
+    Route::get('pengajuan/{id}', [PegawaiPengajuanController::class, 'show'])->name('pegawai.pengajuan.detail');
+    Route::get('pengajuan/edit/{pengajuan}', [PegawaiPengajuanController::class, 'edit'])->name('pegawai.pengajuan.edit');
     Route::put('pengajuan/{id}/edit', [PegawaiPengajuanController::class, 'update'])->name('pegawai.pengajuan.update');
 
     //fitur pembayaran

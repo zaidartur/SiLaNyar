@@ -19,13 +19,15 @@ const toggleSidebar = () => {
     isSidebarOpen.value = !isSidebarOpen.value
 }
 
-const toggleDaftar = () => {
-    isDaftarOpen.value = !isDaftarOpen.value
+const toggles = ref({
+    daftar: false,
+    kategori: false
+})
+
+const toggle = (key: keyof typeof toggles.value) => {
+    toggles.value[key] = !toggles.value[key]
 }
 
-const toggleKategori = () => {
-    isKategoriOpen.value = !isKategoriOpen.value
-}
 </script>
 
 <template>
@@ -33,7 +35,7 @@ const toggleKategori = () => {
         <span alt="Menu" class="w-6 h-6">≡</span>
     </button>
 
-    <aside :class="['fixed lg:static z-10 bg-green-800 text-white min-h-screen transition-all duration-300',
+    <aside :class="['fixed lg:static z-10 bg-green-800 text-white min-h-screen transition-all duration-300 ease-in-out',
         isSidebarOpen ? 'w-64 left-0' : '-left-64 lg:w-64']">
         <div class="flex items-center px-4 font-bold text-xl mt-4 mb-6">
             <img src="/assets/assetsadmin/logodlh.png" alt="Logo" class="w-12 h-12" />
@@ -100,6 +102,7 @@ const toggleKategori = () => {
                             <path d="M7 10l5 5 5-5H7z" />
                         </svg>
                     </button>
+
                     <div v-if="isDaftarOpen" class="pl-8 space-y-1">
                         <Link v-if="can('lihat_pengambilan')" href="/pegawai/jadwal"
                             class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
@@ -139,6 +142,7 @@ const toggleKategori = () => {
                             <path d="M7 10l5 5 5-5H7z" />
                         </svg>
                     </button>
+                    
                     <div v-if="isKategoriOpen" class="pl-8 space-y-1">
                         <a v-if="can('kelola_parameter')" href="/pegawai/parameter"
                             class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
@@ -151,8 +155,9 @@ const toggleKategori = () => {
                         <a v-if="can('kelola_jenis_cairan')" href="/pegawai/jenis-cairan"
                             class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                             <span>Jenis Cairan</span>
-                        </a>
-                    </div>
+                            </Link>
+                        </div>
+                    </Transition>
                 </div>
 
                 <a v-if="can('kelola_instansi')" href="/admin/daftarpelanggan" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
@@ -202,20 +207,55 @@ const toggleKategori = () => {
             <!-- Logout untuk semua role -->
             <a href="/logout" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <mask id="mask0_1549_923" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="40"
+                    <mask id="mask0_1549_918" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="40"
                         height="40">
                         <rect y="0.326172" width="40" height="39.3477" fill="#D9D9D9" />
                     </mask>
-                    <g mask="url(#mask0_1549_923)">
+                    <g mask="url(#mask0_1549_918)">
                         <path
-                            d="M33.5833 21.6395H13.3333V18.3605H33.5833L31 15.8193L33.3333 13.4421L40 20L33.3333 26.558L31 24.1807L33.5833 21.6395ZM25 15.0816V8.52361H8.33333V31.4764H25V24.9185H28.3333V31.4764C28.3333 32.3782 28.0069 33.1501 27.3542 33.7922C26.7014 34.4344 25.9167 34.7554 25 34.7554H8.33333C7.41667 34.7554 6.63194 34.4344 5.97917 33.7922C5.32639 33.1501 5 32.3782 5 31.4764V8.52361C5 7.62189 5.32639 6.84996 5.97917 6.20783C6.63194 5.5657 7.41667 5.24463 8.33333 5.24463H25C25.9167 5.24463 26.7014 5.5657 27.3542 6.20783C28.0069 6.84996 28.3333 7.62189 28.3333 8.52361V15.0816H25Z"
+                            d="M20 21.6395C21.6111 21.6395 22.9861 21.0794 24.125 19.959C25.2639 18.8387 25.8333 17.4861 25.8333 15.9013C25.8333 14.3165 25.2639 12.9639 24.125 11.8436C22.9861 10.7233 21.6111 10.1631 20 10.1631C18.3889 10.1631 17.0139 10.7233 15.875 11.8436C14.7361 12.9639 14.1667 14.3165 14.1667 15.9013C14.1667 17.4861 14.7361 18.8387 15.875 19.959C17.0139 21.0794 18.3889 21.6395 20 21.6395ZM8.33333 34.7554C7.41667 34.7554 6.63194 34.4344 5.97917 33.7922C5.32639 33.1501 5 32.3782 5 31.4764V8.52361C5 7.62189 5.32639 6.84996 5.97917 6.20783C6.63194 5.5657 7.41667 5.24463 8.33333 5.24463H31.6667C32.5833 5.24463 33.3681 5.5657 34.0208 6.20783C34.6736 6.84996 35 7.62189 35 8.52361V31.4764C35 32.3782 34.6736 33.1501 34.0208 33.7922C33.3681 34.4344 32.5833 34.7554 31.6667 34.7554H8.33333ZM8.33333 31.4764H31.6667V29.591C30.1667 28.1428 28.4236 27.002 26.4375 26.1686C24.4514 25.3352 22.3056 24.9185 20 24.9185C17.6944 24.9185 15.5486 25.3352 13.5625 26.1686C11.5764 27.002 9.83333 28.1428 8.33333 29.591V31.4764Z"
                             fill="white" />
                     </g>
                 </svg>
-                <span>LogOut</span>
-            </a>
+                <span>Profile</span>
+                </Link>
+            </template>
+
+            <!-- Logout untuk semua role -->
+            <Link href="/logout" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <mask id="mask0_1549_923" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="40"
+                    height="40">
+                    <rect y="0.326172" width="40" height="39.3477" fill="#D9D9D9" />
+                </mask>
+                <g mask="url(#mask0_1549_923)">
+                    <path
+                        d="M33.5833 21.6395H13.3333V18.3605H33.5833L31 15.8193L33.3333 13.4421L40 20L33.3333 26.558L31 24.1807L33.5833 21.6395ZM25 15.0816V8.52361H8.33333V31.4764H25V24.9185H28.3333V31.4764C28.3333 32.3782 28.0069 33.1501 27.3542 33.7922C26.7014 34.4344 25.9167 34.7554 25 34.7554H8.33333C7.41667 34.7554 6.63194 34.4344 5.97917 33.7922C5.32639 33.1501 5 32.3782 5 31.4764V8.52361C5 7.62189 5.32639 6.84996 5.97917 6.20783C6.63194 5.5657 7.41667 5.24463 8.33333 5.24463H25C25.9167 5.24463 26.7014 5.5657 27.3542 6.20783C28.0069 6.84996 28.3333 7.62189 28.3333 8.52361V15.0816H25Z"
+                        fill="white" />
+                </g>
+            </svg>
+            <span>LogOut</span>
+            </Link>
         </nav>
     </aside>
-
     <div v-if="isSidebarOpen" @click="toggleSidebar" class="fixed inset-0 bg-black bg-opacity-50 z-0 lg:hidden"></div>
 </template>
+
+<style>
+.slide-enter-active,
+.slide-leave-active {
+    transition: all 0.3s ease;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+    max-height: 0;
+    opacity: 0;
+}
+
+.slide-enter-to,
+.slide-leave-from {
+    max-height: 500px;
+    opacity: 1;
+}
+</style>

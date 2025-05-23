@@ -14,7 +14,7 @@ class DashboardController extends Controller
     
     public function __construct(DashboardManager $dashboardManager)
     {
-        $this->dashboardManager = $dashboardManager;    
+        $this->dashboardManager = $dashboardManager;
     }
     
     public function index()
