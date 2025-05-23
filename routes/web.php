@@ -1,4 +1,5 @@
 <?php
+
 use App\Http\Controllers\Customer\AduanController;
 use App\Http\Controllers\Customer\HasilUjiController as CustomerHasilUjiController;
 use App\Http\Controllers\Customer\JadwalController as CustomerJadwalController;
@@ -64,7 +65,7 @@ Route::get('/dashboard', function () {
 Route::prefix('superadmin')->middleware(['auth:web'])->group(function () {
 
     //fitur permission
-    Route::middleware(['check.permission:kelola_permission'])->group(function () {
+    Route::middleware(['check.permission:kelola permission'])->group(function () {
         Route::get('permission', [PermissionController::class, 'index'])->name('superadmin.permission.index');
         Route::get('permission/create', [PermissionController::class, 'create']);
         Route::post('permission/store', [PermissionController::class, 'store']);
@@ -74,7 +75,7 @@ Route::prefix('superadmin')->middleware(['auth:web'])->group(function () {
     });
 
     //fitur role
-    Route::middleware(['check.permission:kelola_role'])->group(function () {
+    Route::middleware(['check.permission:kelola role'])->group(function () {
         Route::get('role', [RoleController::class, 'index'])->name('superadmin.role.index');
         Route::get('role/create', [RoleController::class, 'create']);
         Route::post('role/store', [RoleController::class, 'store']);
@@ -84,7 +85,7 @@ Route::prefix('superadmin')->middleware(['auth:web'])->group(function () {
     });
 
     //fitur user
-    Route::middleware(['check.permission:kelola_user'])->group(function () {
+    Route::middleware(['check.permission:kelola user'])->group(function () {
         Route::get('users', [UserController::class, 'index'])->name('pegawai.index');
         Route::post('users/{user}/sync-roles', [UserController::class, 'syncRoles'])->name('superadmin.users.syncRoles');
     });
@@ -123,7 +124,7 @@ Route::prefix('customer')->middleware(['auth:web', 'role:customer'])->group(func
 //route pegawai
 Route::prefix('pegawai')->group(function () {
     //fitur instansi
-    Route::middleware('check.permission:kelola_instansi')->group(function () {
+    Route::middleware('check.permission:kelola instansi')->group(function () {
         Route::get('instansi', [VerifikasiInstansiController::class, 'index'])->name('pegawai.instansi.index');
         Route::get('instansi/edit/{instansi}', [VerifikasiInstansiController::class, 'edit']);
         Route::put('instansi/{id}/edit', [VerifikasiInstansiController::class, 'verifikasi']);
@@ -131,13 +132,16 @@ Route::prefix('pegawai')->group(function () {
     });
 
     //fitur pengajuan
-    Route::get('pengajuan', [PegawaiPengajuanController::class, 'index'])->middleware('check.permission:lihat-pengajuan')->name('pegawai.pengajuan.index');
-    Route::get('pengajuan/{id}', [PegawaiPengajuanController::class, 'show'])->middleware('check.permission:detail-pengajuan')->name('pegawai.pengajuan.detail');
-    Route::get('pengajuan/edit/{pengajuan}', [PegawaiPengajuanController::class, 'edit'])->middleware('check.permission:edit-pengajuan')->name('pegawai.pengajuan.edit');
-    Route::put('pengajuan/{id}/edit', [PegawaiPengajuanController::class, 'update'])->name('pegawai.pengajuan.update');
+    Route::get('pengajuan', [PegawaiPengajuanController::class, 'index'])->middleware('check.permission:lihat pengajuan')->name('pegawai.pengajuan.index');
+    Route::get('pengajuan/create', [PegawaiPengajuanController::class, 'index'])->middleware('check.permission:tambah pengajuan')->name('pegawai.pengajuan.index');
+    Route::get('pengajuan/store', [PegawaiPengajuanController::class, 'index'])->middleware('check.permission:tambah pengajuan')->name('pegawai.pengajuan.index');
+    Route::get('pengajuan/{id}', [PegawaiPengajuanController::class, 'show'])->middleware('check.permission:detail pengajuan')->name('pegawai.pengajuan.detail');
+    Route::get('pengajuan/edit/{pengajuan}', [PegawaiPengajuanController::class, 'edit'])->middleware('check.permission:edit pengajuan')->name('pegawai.pengajuan.edit');
+    Route::put('pengajuan/{id}/edit', [PegawaiPengajuanController::class, 'update'])->middleware('check.permission:edit pengajuan')->name('pegawai.pengajuan.update');
+    Route::delete('pengajuan/{pengajuan}', [PegawaiPengajuanController::class, 'destroy'])->middleware('check.permission:hapus pengajuan');
 
     //fitur pembayaran
-    Route::middleware('check.permission:kelola_pembayaran')->group(function () {
+    Route::middleware('check.permission:kelola pembayaran')->group(function () {
         Route::get('pembayaran', [PegawaiPembayaranController::class, 'index'])->name('pegawai.pembayaran.index');
         Route::get('pembayaran/{id}', [PegawaiPembayaranController::class, 'show'])->name('pegawai.pembayaran.detail');
         Route::get('pembayaran/edit/{id}', [PegawaiPembayaranController::class, 'edit'])->name('pegawai.pembayaran.edit');
@@ -145,27 +149,25 @@ Route::prefix('pegawai')->group(function () {
     });
 
     //fitur pengujian
-    Route::middleware('check.permission:kelola_pengujian')->group(function () {
-        Route::get('pengujian/', [PengujianController::class, 'index'])->name('pegawai.pengujian.index');
-        Route::get('pengujian/create', [PengujianController::class, 'create']);
-        Route::post('pengujian/store', [PengujianController::class, 'store']);
-        Route::get('pengujian/edit/{pengujian}', [PengujianController::class, 'edit']);
-        Route::put('pengujian/{pengujian}/edit', [PengujianController::class, 'update']);
-        Route::get('pengujian/{pengujian}', [PengujianController::class, 'show']);
-        Route::delete('pengujian/{id}', [PengujianController::class, 'destroy']);
-    });
+    Route::get('pengujian/', [PengujianController::class, 'index'])->middleware('check.permission:lihat pengujian')->name('pegawai.pengujian.index');
+    Route::get('pengujian/create', [PengujianController::class, 'create'])->middleware('check.permission:tambah pengujian');
+    Route::post('pengujian/store', [PengujianController::class, 'store'])->middleware('check.permission:tambah pengujian');
+    Route::get('pengujian/edit/{pengujian}', [PengujianController::class, 'edit'])->middleware('check.permission:edit pengujian');
+    Route::put('pengujian/{pengujian}/edit', [PengujianController::class, 'update'])->middleware('check.permission:edit pengujian');
+    Route::get('pengujian/{pengujian}', [PengujianController::class, 'show'])->middleware('check.permission:detail pengujian');
+    Route::delete('pengujian/{id}', [PengujianController::class, 'destroy'])->middleware('check.permission:hapus pengujian');
 
     //fitur pengambilan
-    Route::get('pengambilan/', [PegawaiJadwalController::class, 'index'])->middleware('check.permission:lihat-pengambilan')->name('pegawai.pengambilan.index');
-    Route::get('pengambilan/create', [PegawaiJadwalController::class, 'create'])->middleware('check.permission:tambah-pengambilan');
-    Route::post('pengambilan/store', [PegawaiJadwalController::class, 'store']);
-    Route::get('pengambilan/{jadwal}/edit', [PegawaiJadwalController::class, 'edit'])->middleware('check.permission:edit-pengambilan');
-    Route::put('pengambilan/edit/{jadwal}', [PegawaiJadwalController::class, 'update']);
-    Route::get('pengambilan/{jadwal}', [PegawaiJadwalController::class, 'show'])->middleware('check.permission:detail-pengambilan');
-    Route::delete('pengambilan/{id}', [PegawaiJadwalController::class, 'destroy'])->middleware('check.permission:delete-pengambilan');
+    Route::get('pengambilan/', [PegawaiJadwalController::class, 'index'])->middleware('check.permission:lihat pengambilan')->name('pegawai.pengambilan.index');
+    Route::get('pengambilan/create', [PegawaiJadwalController::class, 'create'])->middleware('check.permission:tambah pengambilan');
+    Route::post('pengambilan/store', [PegawaiJadwalController::class, 'store'])->middleware('check.permission:tambah pengambilan');
+    Route::get('pengambilan/{jadwal}/edit', [PegawaiJadwalController::class, 'edit'])->middleware('check.permission:edit pengambilan');
+    Route::put('pengambilan/edit/{jadwal}', [PegawaiJadwalController::class, 'update'])->middleware('check.permission:edit pengambilan');
+    Route::get('pengambilan/{jadwal}', [PegawaiJadwalController::class, 'show'])->middleware('check.permission:detail pengambilan');
+    Route::delete('pengambilan/{id}', [PegawaiJadwalController::class, 'destroy'])->middleware('check.permission:hapus pengambilan');
 
     //fitur jenis cairan
-    Route::middleware('check.permission:kelola_jenis_cairan')->group(function () {
+    Route::middleware('check.permission:kelola jenis cairan')->group(function () {
         Route::get('jenis_cairan', [JenisCairanController::class, 'index'])->name('pegawai.jenis_cairan.index');
         Route::get('jenis_cairan/create', [JenisCairanController::class, 'create']);
         Route::post('jenis_cairan/store', [JenisCairanController::class, 'store']);
@@ -175,7 +177,7 @@ Route::prefix('pegawai')->group(function () {
     });
 
     //fitur kategori
-    Route::middleware('check.permission:kelola_kategori')->group(function () {
+    Route::middleware('check.permission:kelola kategori')->group(function () {
         Route::get('kategori/', [KategoriController::class, 'index'])->name('pegawai.kategori.index');
         Route::get('kategori/create', [KategoriController::class, 'create']);
         Route::post('kategori/store', [KategoriController::class, 'store']);
@@ -185,7 +187,7 @@ Route::prefix('pegawai')->group(function () {
     });
 
     //fitur parameter
-    Route::middleware('check.permission:kelola_parameter')->group(function () {
+    Route::middleware('check.permission:kelola parameter')->group(function () {
         Route::get('parameter/', [ParameterController::class, 'index'])->name('pegawai.parameter.index');
         Route::get('parameter/create', [ParameterController::class, 'create'])->name('pegawai.parameter.tambah');
         Route::post('parameter/store', [ParameterController::class, 'store']);
@@ -195,17 +197,17 @@ Route::prefix('pegawai')->group(function () {
     });
 
     //fitur hasil uji
-    Route::get('hasiluji/', [PegawaiHasilUjiController::class, 'index'])->middleware('check.permission:lihat-hasil_uji')->name('pegawai.hasil_uji.index');
-    Route::get('hasiluji/create', [PegawaiHasilUjiController::class, 'create'])->middleware('check.permission:tambah-hasil_uji');
-    Route::post('hasiluji/store', [PegawaiHasilUjiController::class, 'store']);
-    Route::get('hasiluji/edit/{hasil_uji}', [PegawaiHasilUjiController::class, 'edit'])->middleware('check.permission:edit-hasil_uji');
-    Route::put('hasiluji/{hasil_uji}/edit', [PegawaiHasilUjiController::class, 'update']);
-    Route::get('hasiluji/{hasil_uji}', [PegawaiHasilUjiController::class, 'show'])->middleware('check.permission:detail-hasil_uji');
-    Route::get('hasiluji/riwayat/{id}', [PegawaiHasilUjiController::class, 'riwayat'])->middleware('check.permission:riwayat-hasil_uji');
-    Route::delete('hasiluji/{id}', [PegawaiHasilUjiController::class, 'destroy'])->middleware('check.permission:delete-hasil_uji');
+    Route::get('hasiluji/', [PegawaiHasilUjiController::class, 'index'])->middleware('check.permission:lihat hasil uji')->name('pegawai.hasil_uji.index');
+    Route::get('hasiluji/create', [PegawaiHasilUjiController::class, 'create'])->middleware('check.permission:tambah hasil uji');
+    Route::post('hasiluji/store', [PegawaiHasilUjiController::class, 'store'])->middleware('check.permission:tambah hasil uji');
+    Route::get('hasiluji/edit/{hasil_uji}', [PegawaiHasilUjiController::class, 'edit'])->middleware('check.permission:edit hasil uji');
+    Route::put('hasiluji/{hasil_uji}/edit', [PegawaiHasilUjiController::class, 'update'])->middleware('check.permission:edit hasil uji');
+    Route::get('hasiluji/{hasil_uji}', [PegawaiHasilUjiController::class, 'show'])->middleware('check.permission:detail hasil uji');
+    Route::get('hasiluji/riwayat/{id}', [PegawaiHasilUjiController::class, 'riwayat'])->middleware('check.permission:riwayat hasil uji');
+    Route::delete('hasiluji/{id}', [PegawaiHasilUjiController::class, 'destroy'])->middleware('check.permission:hapus hasil uji');
 
     //fitur Aduan
-    Route::middleware('check.permission:kelola_aduan')->group(function () {
+    Route::middleware('check.permission:kelola aduan')->group(function () {
         Route::get('aduan/', [VerifikasiAduanController::class, 'index'])->name('pegawai.aduan.index');
         Route::get('aduan/{aduan}', [VerifikasiAduanController::class, 'show'])->name('pegawai.aduan.detail');
         Route::put('aduan/verifikasi/{id}', [VerifikasiAduanController::class, 'verifikasi']);

@@ -41,7 +41,7 @@ const toggleKategori = () => {
         </div>
 
         <nav class="space-y-1 font-bold text-xl">
-                <a v-if="can('lihat_dashboard')" href="/pegawai/dashboard" class="flex items-center gap-3 py-3 px-3 rounded hover:bg-green-700">
+                <a href="/pegawai/dashboard" class="flex items-center gap-3 py-3 px-3 rounded hover:bg-green-700">
                     <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <mask id="mask0_1549_885" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0"
                             width="40" height="40">
@@ -57,28 +57,28 @@ const toggleKategori = () => {
                 </a>
 
                 <!-- Menu Permission -->
-                <a v-if="can('kelola_permission')" href="/superadmin/permission"
+                <a v-if="can('kelola permission')" href="/superadmin/permission"
                     class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                     <img src="/storage/assetsadmin/permission.png" alt="Permission" class="w-6 h-6" />
                     <span>Permission</span>
                 </a>
 
                 <!-- Menu Role -->
-                <a v-if="can('kelola_role')" href="/superadmin/role"
+                <a v-if="can('kelola role')" href="/superadmin/role"
                     class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                     <img src="/storage/assetsadmin/role.png" alt="Role" class="w-6 h-6" />
                     <span>Role</span>
                 </a>
 
                 <!-- Menu User -->
-                <a v-if="can('kelola_user')" href="/superadmin/roles"
+                <a v-if="can('kelola user')" href="/superadmin/roles"
                     class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                     <img src="/storage/assetsadmin/role.png" alt="Role" class="w-6 h-6" />
                     <span>User</span>
                 </a>
 
                 <!-- Menu Daftar -->
-                <div class="space-y-1" v-if="can('lihat_pengambilan') || can('lihat_pengajuan') || can('lihat_pengujian')">
+                <div class="space-y-1" v-if="can('lihat pengambilan') || can('lihat pengajuan') || can('lihat pengujian')">
                     <button @click="toggleDaftar"
                         class="w-full flex items-center justify-between gap-3 py-3 px-3 hover:bg-green-700 rounded">
                         <div class="flex items-center gap-3">
@@ -101,15 +101,15 @@ const toggleKategori = () => {
                         </svg>
                     </button>
                     <div v-if="isDaftarOpen" class="pl-8 space-y-1">
-                        <Link v-if="can('lihat_pengambilan')" href="/pegawai/jadwal"
+                        <Link v-if="can('lihat pengambilan')" href="/pegawai/jadwal"
                             class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                         <span>Pengambilan</span>
                         </Link>
-                        <Link v-if="can('lihat_pengajuan')" href="/pegawai/pengajuan"
+                        <Link v-if="can('lihat pengajuan')" href="/pegawai/pengajuan"
                             class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                         <span>Pengajuan</span>
                         </Link>
-                        <Link v-if="can('lihat_pengujian')" href="route('pegawai.pengujian.index')"
+                        <Link v-if="can('lihat pengujian')" href="/pegawai/pengujian')"
                             class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                         <span>Pengujian</span>
                         </Link>
@@ -117,7 +117,7 @@ const toggleKategori = () => {
                 </div>
 
                 <!-- Menu Kategori -->
-                <div class="space-y-1" v-if="can('kelola_parameter') || can('kelola_kategori') || can('kelola_jenis_cairan')">
+                <div class="space-y-1" v-if="can('kelola parameter') || can('kelola kategori') || can('kelola jenis cairan')">
                     <button @click="toggleKategori"
                         class="w-full flex items-center justify-between gap-3 py-3 px-3 hover:bg-green-700 rounded">
                         <div class="flex items-center gap-3">
@@ -140,22 +140,22 @@ const toggleKategori = () => {
                         </svg>
                     </button>
                     <div v-if="isKategoriOpen" class="pl-8 space-y-1">
-                        <a v-if="can('kelola_parameter')" href="/pegawai/parameter"
+                        <a v-if="can('kelola parameter')" href="/pegawai/parameter"
                             class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                             <span>Parameter</span>
                         </a>
-                        <a v-if="can('kelola_kategori')" href="/pegawai/kategori"
+                        <a v-if="can('kelola kategori')" href="/pegawai/kategori"
                             class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                             <span>Detail Kategori</span>
                         </a>
-                        <a v-if="can('kelola_jenis_cairan')" href="/pegawai/jenis-cairan"
+                        <a v-if="can('kelola jenis cairan')" href="/pegawai/jenis-cairan"
                             class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                             <span>Jenis Cairan</span>
                         </a>
                     </div>
                 </div>
 
-                <a v-if="can('kelola_instansi')" href="/admin/daftarpelanggan" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
+                <a v-if="can('kelola instansi')" href="/pegawai/instansi" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                     <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <mask id="mask0_1549_908" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0"
                             width="40" height="40">
@@ -170,7 +170,7 @@ const toggleKategori = () => {
                     <span>Daftar Pelanggan</span>
                 </a>
 
-                <a v-if="can('lihat_hasil_uji')" href="/admin/hasil-uji" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
+                <a v-if="can('lihat hasil uji')" href="/pegawai/hasiluji" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                     <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <mask id="mask0_1549_913" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0"
                             width="40" height="40">
@@ -184,7 +184,7 @@ const toggleKategori = () => {
                     </svg>
                     <span>Hasil Uji</span>
                 </a>
-                <a v-if="can('kelola_profil')" href="/admin/profile" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
+                <a href="/pegawai/profile/show" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                     <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <mask id="mask0_1549_918" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0"
                             width="40" height="40">
@@ -200,7 +200,7 @@ const toggleKategori = () => {
                 </a>
 
             <!-- Logout untuk semua role -->
-            <a href="/logout" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
+            <a href="sso/logout" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <mask id="mask0_1549_923" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="40"
                         height="40">

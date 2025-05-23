@@ -1,5 +1,4 @@
 <template>
-    <AdminLayout>
     <div class="profile">
         <h1>Profil Saya</h1>
         <ul>
@@ -20,11 +19,9 @@
             <li><strong>ID:</strong> {{ props.user?.id }}</li>
         </ul>
     </div>
-    </AdminLayout>
 </template>
 
 <script setup lang="ts">
-import AdminLayout from '@/layouts/admin/AdminLayout.vue';
 interface User {
     id: number;
     nik: string;
