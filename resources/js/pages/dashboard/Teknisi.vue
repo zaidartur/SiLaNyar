@@ -1,4 +1,5 @@
 <template>
+  <AdminLayout>
   <div>
     <h1 class="text-xl font-bold mb-4">Dashboard Teknisi</h1>
     <div class="grid grid-cols-2 gap-4">
@@ -20,10 +21,12 @@
       </li>
     </ul>
   </div>
+  </AdminLayout>
 </template>
 
 <script lang="ts" setup>
 import { defineProps } from 'vue';
+import AdminLayout from '@/layouts/admin/AdminLayout.vue';
 
 defineProps<{ 
   statistik: { jadwalPengujian: number, jadwalPengambilan: number },
