@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue'
-import { Link } from '@inertiajs/vue3'
+import { Link, Head } from '@inertiajs/vue3'
 
 const props = defineProps<{
     parameter: any[];
@@ -12,6 +12,7 @@ const props = defineProps<{
 </script>
 
 <template>
+    <Head title="Parameter" />
     <AdminLayout>
         <div class="p-6">
             <div class="mb-6 flex items-center justify-between">
