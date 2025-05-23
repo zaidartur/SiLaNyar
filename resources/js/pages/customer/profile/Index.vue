@@ -20,6 +20,7 @@ const props = defineProps({
 
 const showModal = ref(false)
 
+const showModal = ref(false);
 
 const openModal = () => {
   showModal.value = true;
@@ -140,7 +141,6 @@ const toggleEditModal = () => {
                     </div>
                   </div>
                 </div>
-
                 <!-- Empty State -->
                 <div v-else class="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-6 text-center">
                   <p class="text-gray-500">Belum ada instansi yang terdaftar</p>

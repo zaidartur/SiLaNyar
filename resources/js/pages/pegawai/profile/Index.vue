@@ -36,22 +36,21 @@ const toggleEditModal = () => {
 </script>
 
 <template>
-
     <Head title="Profile" />
     <AdminLayout>
         <div class="max-w-4xl mx-auto">
             <!-- Header Profile -->
-            <div class="mb-4 p-2 bg-white rounded-lg shadow-sm border border-gray-300">
+            <div class="mb-4 rounded-lg border border-gray-300 bg-white p-2 shadow-sm">
                 <h1 class="text-xl font-bold text-gray-800">Profile Pengguna</h1>
                 <p class="text-sm text-gray-500">
                     Terakhir Login: {{ moment(props.user.last_login).format('DD MMMM YYYY, HH:mm') }}</p>
             </div>
 
             <!-- Profile Card -->
-            <div class="mb-4 p-2 bg-white rounded-lg shadow-sm border border-gray-300">
+            <div class="mb-4 rounded-lg border border-gray-300 bg-white p-2 shadow-sm">
                 <!-- Avatar Section -->
-                <div class="flex flex-col items-center p-8 border-gray-100">
-                    <div class="w-24 h-24 bg-customDarkGreen rounded-full flex items-center justify-center mb-4">
+                <div class="flex flex-col items-center border-gray-100 p-8">
+                    <div class="mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-customDarkGreen">
                         <span class="text-3xl font-bold text-white">
                             {{ props.user?.nama.charAt(0).toUpperCase() || 'U' }}
                         </span>
@@ -67,8 +66,8 @@ const toggleEditModal = () => {
                 <div class="p-6">
                     <div class="grid gap-6">
                         <!-- Personal Information -->
-                        <div class="space-y-4 bg-white rounded-lg shadow-sm border border-gray-300 p-4">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-4 rounded-lg border border-gray-300 bg-white p-4 shadow-sm">
+                            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                                 <div class="space-y-2">
                                     <p class="text-sm text-gray-500">Nama Lengkap</p>
                                     <p class="font-medium">{{ props.user?.nama }}</p>
@@ -85,6 +84,76 @@ const toggleEditModal = () => {
                                     <p class="text-sm text-gray-500">Alamat Pribadi</p>
                                     <p class="font-medium">{{ props.user?.alamat }}</p>
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Related Institutions -->
+                        <div>
+                            <h3 class="mb-4 text-lg font-semibold">Instansi Terkait</h3>
+                            <div class="grid gap-3">
+                                <!-- List Instansi -->
+                                <div v-if="instansi.length > 0">
+                                    <div v-for="item in instansi" :key="item.id" class="rounded-lg border border-gray-200 bg-white shadow-sm">
+                                        <div class="flex items-center justify-between p-3">
+                                            <div>
+                                                <p class="font-medium">{{ item.nama }}</p>
+                                                <p class="text-sm text-gray-500">{{ item.tipe }}</p>
+                                                <div class="mt-1">
+                                                    <span
+                                                        :class="{
+                                                            'rounded-full px-2 py-1 text-xs': true,
+                                                            'bg-yellow-100 text-yellow-800': item.status_verifikasi === 'pending',
+                                                            'bg-green-100 text-green-800': item.status_verifikasi === 'terverifikasi',
+                                                            'bg-red-100 text-red-800': item.status_verifikasi === 'ditolak',
+                                                        }"
+                                                    >
+                                                        {{ item.status_verifikasi }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="flex gap-2">
+                                                <button class="p-1 text-gray-400 hover:text-gray-600" @click="editInstansi(item.id)">
+                                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path
+                                                            stroke-linecap="round"
+                                                            stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                                                        />
+                                                    </svg>
+                                                </button>
+                                                <button class="p-1 text-red-400 hover:text-red-600" @click="deleteInstansi(item.id)">
+                                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path
+                                                            stroke-linecap="round"
+                                                            stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M6 18L18 6M6 6l12 12"
+                                                        />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Empty State -->
+                                <div v-else class="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-6 text-center">
+                                    <p class="text-gray-500">Belum ada instansi yang terdaftar</p>
+                                </div>
+
+                                <!-- Tombol Tambah Instansi -->
+                                <button
+                                    @click="openModal"
+                                    class="flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 p-3 hover:border-customDarkGreen hover:text-customDarkGreen"
+                                >
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                    </svg>
+                                    <span>Tambah Instansi</span>
+                                </button>
+
+                                <TambahInstansi v-if="showModal" @close="closeModal" />
                             </div>
                         </div>
                     </div>
