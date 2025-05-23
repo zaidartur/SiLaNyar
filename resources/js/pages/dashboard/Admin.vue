@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue'
 import { defineProps } from 'vue'
+import { Head } from '@inertiajs/vue3'
 
 defineProps<{
     statistik: {
@@ -14,6 +15,7 @@ defineProps<{
 </script>
 
 <template>
+    <Head title="Dashboard" />
     <AdminLayout>
         <div class="bg-[#D9D9D9] h-full p-6 rounded-xl">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8">

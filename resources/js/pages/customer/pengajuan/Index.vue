@@ -154,7 +154,7 @@ const handleSubmit = async (values, { resetForm }) => {
                 <h1 class="text-2xl font-bold text-gray-900">
                     Data Pengajuan
                 </h1>
-                <p class="pb-2 border-b-[2px] border-gray-900 mb-10 w-56"></p>
+                <p class="pb-2 border-b-[2px] border-gray-300 mb-10 w-48"></p>
                 <Form v-slot="{ meta, values }" @submit="handleSubmit"
                     :validation-schema="toTypedSchema(formSchema[stepIndex - 1])">
                     <Stepper v-slot="{ isNextDisabled, isPrevDisabled, nextStep, prevStep }" v-model="stepIndex"
@@ -201,7 +201,7 @@ const handleSubmit = async (values, { resetForm }) => {
                                 <template v-if="stepIndex === 1">
                                     <div class="space-y-6">
                                         <!-- Informasi Dasar Sample -->
-                                        <div class="space-y-4">
+                                        <div class="space-y-4 bg-gray-100 rounded-lg shadow-sm p-4">
                                             <h3 class="text-lg font-medium text-green-700 flex items-center gap-2">
                                                 <svg width="33" height="30" viewBox="0 0 33 30" fill="none"
                                                     xmlns="http://www.w3.org/2000/svg"
@@ -228,7 +228,7 @@ const handleSubmit = async (values, { resetForm }) => {
                                                     <div class="grid grid-cols-3 gap-4">
                                                         <div v-for="(jenis, index) in ['Universal', 'Lemak', 'Vecal coli']"
                                                             :key="index" :class="[
-                                                                'border rounded-lg p-4 cursor-pointer transition-colors',
+                                                                'bg-white border rounded-lg p-4 cursor-pointer transition-colors',
                                                                 componentField.modelValue === jenis.toLowerCase() ? 'border-customDarkGreen bg-customLightGreen' : 'hover:border-customDarkGreen'
                                                             ]" @click="componentField.onChange(jenis.toLowerCase())">
                                                             <div class="flex flex-col items-center gap-2">
@@ -303,7 +303,7 @@ const handleSubmit = async (values, { resetForm }) => {
                                         </div>
 
                                         <!-- Informasi Volume dan Pengambilan -->
-                                        <div class="space-y-4">
+                                        <div class="bg-gray-100 rounded-lg shadow-sm p-4 space-y-4">
                                             <h3 class="text-lg font-medium text-gray-700 flex items-center gap-2">
                                                 <svg width="35" height="26" viewBox="0 0 35 26" fill="none"
                                                     xmlns="http://www.w3.org/2000/svg"
