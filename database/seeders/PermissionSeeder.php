@@ -21,6 +21,7 @@ class PermissionSeeder extends Seeder
             'kelola pembayaran',
             'kelola jenis cairan',
             'kelola kategori',
+            'kelola subkategori',
             'kelola parameter',
             'kelola aduan',
             'lihat pengajuan',

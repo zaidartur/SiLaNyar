@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('subkategori', function (Blueprint $table)
+        Schema::create('kategori_subkategori', function (Blueprint $table)
         {
             $table->id();
-            $table->string('kode_subkategori')->unique();
-            $table->string('nama');
+            $table->foreignId('id_kategori')->constrained('kategori')->onDelete('cascade');
+            $table->foreignId('id_subkategori')->constrained('subkategori')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 

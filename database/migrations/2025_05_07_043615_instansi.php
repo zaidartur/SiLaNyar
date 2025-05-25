@@ -19,13 +19,13 @@ return new class extends Migration
             $table->enum('tipe', ['swasta', 'pemerintahan', 'pribadi']);
             $table->string('alamat');
             $table->string('wilayah');
-            $table->string('desa/kelurahan');
-            $table->string('email')->unique();  
+            $table->string('desa_kelurahan');
+            $table->string('email')->unique();
             $table->string('no_telepon');
-            $table->string('posisi/jabatan');
-            $table->string('departemen/divisi');
+            $table->string('posisi_jabatan');
+            $table->string('departemen_divisi');
             $table->enum('status_verifikasi', ['diproses', 'diterima', 'ditolak'])->default('diproses');
-            $table->string('diverifikasi_oleh');
+            $table->string('diverifikasi_oleh')->nullable();
             $table->timestamps();
         });
     }
@@ -35,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('instansi');
     }
 };

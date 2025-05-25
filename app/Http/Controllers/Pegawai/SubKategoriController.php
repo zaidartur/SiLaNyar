@@ -20,7 +20,7 @@ class SubKategoriController extends Controller
         ])
             ->get();
 
-        Inertia::render('pegawai/subkategori/Index', [
+        return Inertia::render('pegawai/subkategori/Index', [
             'subkategori' => $subkategori
         ]);
     }
@@ -29,7 +29,7 @@ class SubKategoriController extends Controller
     {
         $parameter = ParameterUji::all();
 
-        Inertia::render('pegawai/subkategori/Tambah', [
+        return Inertia::render('pegawai/subkategori/Tambah', [
             'parameter' => $parameter
         ]);
     }
@@ -37,7 +37,7 @@ class SubKategoriController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama' => 'required|string|uniqie:kategori,nama',
+            'nama' => 'required|string|unique:subkategori,nama,',
             'parameter' => 'required|array',
             'parameter.*.id' => 'required|exists:parameter_uji,id',
             'parameter.*.baku_mutu' => 'required|string|max:255',
@@ -52,7 +52,7 @@ class SubKategoriController extends Controller
             $syncData[$param['id']] = ['baku_mutu' => $param['baku_mutu']];
         }
 
-        $subkategori->parameter()->attach($syncData);
+        $subkategori->parameter()->sync($syncData);
 
         return Redirect::route('pegawai.subkategori.index')->with('message', 'SubKategori Berhasil Ditambahkan!');
     }
@@ -88,7 +88,7 @@ class SubKategoriController extends Controller
     public function update(SubKategori $subkategori, Request $request)
     {
         $request->validate([
-            'nama' => 'required|string|uniqie:kategori,nama',
+            'nama' => 'required|string',
             'parameter' => 'required|array',
             'parameter.*.id' => 'required|exists:parameter_uji,id',
             'parameter.*.baku_mutu' => 'required|string|max:255',
@@ -103,7 +103,7 @@ class SubKategoriController extends Controller
             $syncData[$param['id']] = ['baku_mutu' => $param['baku_mutu']];
         }
 
-        $subkategori->parameter()->attach($syncData);
+        $subkategori->parameter()->sync($syncData);
 
         return Redirect::route('pegawai.subkategori.index')->with('message', 'SubKategori Berhasil Ditambahkan!');
     }
@@ -118,7 +118,7 @@ class SubKategoriController extends Controller
             ->findOrFail($id)
             ->get();
 
-        Inertia::render('pegawai/subkategori/Detail', [
+        return Inertia::render('pegawai/subkategori/Detail', [
             'subkategori' => $subkategori
         ]);
     }
@@ -130,7 +130,7 @@ class SubKategoriController extends Controller
         $subkategori->delete();
 
         if ($subkategori) {
-            return Redirect::route('pegawai.kategori.index')->with('message', 'Kategori Berhasil Didelete!');
+            return Redirect::route('pegawai.subkategori.index')->with('message', 'Kategori Berhasil Didelete!');
         }
     }
 }

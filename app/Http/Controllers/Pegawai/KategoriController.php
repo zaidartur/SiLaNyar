@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Pegawai;
 use App\Http\Controllers\Controller;
 use App\Models\Kategori;
 use App\Models\ParameterUji;
+use App\Models\SubKategori;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -15,11 +16,47 @@ class KategoriController extends Controller
     public function index()
     {
         $kategori = Kategori::with([
+            'subkategori.parameter' => function ($query) {
+                $query->withPivot('baku_mutu');
+            },
             'parameter' => function ($query) {
                 $query->withPivot('baku_mutu');
             }
         ])
             ->get();
+
+        $kategori = $kategori->map(function ($item) {
+            if ($item->subkategori->isNotEmpty()) {
+                $finalParameters = collect();
+                foreach ($item->subkategori as $sub) {
+                    foreach ($sub->parameter as $param) {
+                        $finalParameters->push([
+                            'id' => $param->id,
+                            'nama_parameter' => $param->nama_parameter,
+                            'baku_mutu' => $param->pivot->baku_mutu,
+                        ]);
+                    }
+                }
+            } else {
+                $finalParameters = $item->parameter->map(function ($param) {
+                    return [
+                        'id' => $param->id,
+                        'nama_parameter' => $param->nama_parameter,
+                        'baku_mutu' => $param->pivot->baku_mutu,
+                    ];
+                });
+            }
+
+            // Return kategori + tambahkan final_parameter
+            return [
+                'id' => $item->id,
+                'kode_kategori' => $item->kode_kategori,
+                'nama' => $item->nama,
+                'harga' => $item->harga,
+                'subkategori' => $item->subkategori,
+                'parameter' => $finalParameters, // gunakan di frontend
+            ];
+        });
 
         return Inertia::render('pegawai/kategori/Index', [
             'kategori' => $kategori,
@@ -29,10 +66,12 @@ class KategoriController extends Controller
     //form tambah kategori
     public function create()
     {
+        $subkategori = SubKategori::all();
         $parameter = ParameterUji::all();
 
         return Inertia::render('pegawai/kategori/Tambah', [
-            'parameter' => $parameter
+            'parameter' => $parameter,
+            'subkategori' => $subkategori
         ]);
     }
 
@@ -42,22 +81,36 @@ class KategoriController extends Controller
         $request->validate([
             'nama' => 'required|string|unique:kategori,nama',
             'harga' => 'required|numeric|min:0',
-            'parameter' => 'required|array',
+            'subkategori' => 'nullable|array',
+            'subkategori.*' => 'required|exists:subkategori,id',
+            'parameter' => 'nullable|array',
             'parameter.*.id' => 'required|exists:parameter_uji,id',
-            'parameter.*.baku_mutu' => 'required|string|max:255',
+            'parameter.*.baku_mutu' => 'required_with:parameter.*.id|string|max:255',
         ]);
+
+        if (
+            empty($request->subkategori) && empty($request->parameter)
+        ) {
+            return Redirect::back()
+                ->withErrors(['subkategori' => 'Pilih Minimal Satu Sub Kategori atau Parameter']);
+        }
 
         $kategori = Kategori::create($request->only([
             'nama',
             'harga',
         ]));
 
-        $syncData = [];
-        foreach ($request->parameter as $param) {
-            $syncData[$param['id']] = ['baku_mutu' => $param['baku_mutu']];
-        }
+        $kategori->subkategori()->sync($request->subkategori ?? []);
 
-        $kategori->parameter()->attach($syncData);
+        if (is_array($request->parameter)) {
+            $syncData = [];
+            foreach ($request->parameter as $param) {
+                $syncData[$param['id']] = ['baku_mutu' => $param['baku_mutu']];
+            }
+            $kategori->parameter()->sync($syncData);
+        } else {
+            $kategori->parameter()->sync([]);
+        }
 
         return Redirect::route('pegawai.kategori.index')->with('message', 'Kategori Berhasil Ditambahkan!');
     }
@@ -65,9 +118,11 @@ class KategoriController extends Controller
     //form edit kategori
     public function edit($id)
     {
-        $kategori = Kategori::with(['parameter' => function ($q) {
+        $kategori = Kategori::with(['subkategori', 'parameter' => function ($q) {
             $q->withPivot('baku_mutu');
         }])->findOrFail($id);
+
+        $subkategori = SubKategori::all();
 
         $parameter = ParameterUji::all()->map(function ($param) use ($kategori) {
             $existing = $kategori->parameter->firstWhere('id', $param->id);
@@ -87,11 +142,12 @@ class KategoriController extends Controller
                 'id' => $kategori->id,
                 'nama' => $kategori->nama,
                 'harga' => $kategori->harga,
+                'subkategori' => $kategori->subkategori
             ],
+            'subkategori' => $subkategori,
             'parameter' => $parameter,
         ]);
     }
-
 
     //proses update kategori
     public function update(Kategori $kategori, Request $request)
@@ -99,22 +155,36 @@ class KategoriController extends Controller
         $request->validate([
             'nama' => 'required|string',
             'harga' => 'required|numeric|min:0',
-            'parameter' => 'required|array',
+            'subkategori' => 'nullable|array',
+            'subkategori.*' => 'required|exists:subkategori,id',
+            'parameter' => 'nullable|array',
             'parameter.*.id' => 'required|exists:parameter_uji,id',
-            'parameter.*.baku_mutu' => 'required|string|max:255'
+            'parameter.*.baku_mutu' => 'required_with:parameter.*.id|string|max:255'
         ]);
+
+        if (
+            empty($request->subkategori) && empty($request->parameter)
+        ) {
+            return Redirect::back()
+                ->withErrors(['subkategori' => 'Pilih Minimal Satu Sub Kategori atau Parameter']);
+        }
 
         $kategori->update($request->only([
             'nama',
             'harga'
         ]));
 
-        $syncData = [];
-        foreach ($request->parameter as $param) {
-            $syncData[$param['id']] = ['baku_mutu' => $param['baku_mutu']];
-        }
+        $kategori->subkategori()->sync($request->subkategori ?? []);
 
-        $kategori->parameter()->sync($syncData);
+        if (is_array($request->parameter)) {
+            $syncData = [];
+            foreach ($request->parameter as $param) {
+                $syncData[$param['id']] = ['baku_mutu' => $param['baku_mutu']];
+            }
+            $kategori->parameter()->sync($syncData);
+        } else {
+            $kategori->parameter()->sync([]);
+        }
 
         return Redirect::route('pegawai.kategori.index')->with('message', 'Kategori Berhasil Diupdate!');
     }
@@ -122,6 +192,7 @@ class KategoriController extends Controller
     public function show($id)
     {
         $kategori = Kategori::with([
+            'subkategori',
             'parameter' => function ($query) {
                 $query->withPivot('baku_mutu');
             }

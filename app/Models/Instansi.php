@@ -18,11 +18,11 @@ class Instansi extends Model
         'tipe',
         'alamat',
         'wilayah',
-        'desa/kelurahan',
+        'desa_kelurahan',
         'email',
         'no_telepon',
-        'posisi/jabatan',
-        'departemen/divisi',
+        'posisi_jabatan',
+        'departemen_divisi',
         'status_verifikasi',
         'diverifikasi_oleh'
     ];
