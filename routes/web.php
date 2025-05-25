@@ -10,6 +10,7 @@ use App\Http\Controllers\Pegawai\JadwalController as PegawaiJadwalController;
 use App\Http\Controllers\Pegawai\JenisCairanController;
 use App\Http\Controllers\Pegawai\KategoriController;
 use App\Http\Controllers\Pegawai\ParameterController;
+use App\Http\Controllers\Pegawai\SubKategoriController;
 use App\Http\Controllers\Pegawai\PengajuanController as PegawaiPengajuanController;
 use App\Http\Controllers\Pegawai\PembayaranController as PegawaiPembayaranController;
 use App\Http\Controllers\Pegawai\VerifikasiAduanController;
@@ -150,7 +151,7 @@ Route::prefix('pegawai')->group(function () {
 
     //fitur pengujian
     Route::get('pengujian/', [PengujianController::class, 'index'])->middleware('check.permission:lihat pengujian')->name('pegawai.pengujian.index');
-    Route::get('pengujian/create', [PengujianController::class, 'create'])->middleware('check.permission:tambah pengujian');
+    Route::get('pengujian/create', [PengujianController::class, 'create'])->middleware('check.permission:tambah pengujian')->name('pegawai.pengujian.create');
     Route::post('pengujian/store', [PengujianController::class, 'store'])->middleware('check.permission:tambah pengujian');
     Route::get('pengujian/edit/{pengujian}', [PengujianController::class, 'edit'])->middleware('check.permission:edit pengujian');
     Route::put('pengujian/{pengujian}/edit', [PengujianController::class, 'update'])->middleware('check.permission:edit pengujian');
@@ -168,22 +169,34 @@ Route::prefix('pegawai')->group(function () {
 
     //fitur jenis cairan
     Route::middleware('check.permission:kelola jenis cairan')->group(function () {
-        Route::get('jenis_cairan', [JenisCairanController::class, 'index'])->name('pegawai.jenis_cairan.index');
-        Route::get('jenis_cairan/create', [JenisCairanController::class, 'create']);
-        Route::post('jenis_cairan/store', [JenisCairanController::class, 'store']);
-        Route::get('jenis_cairan/edit/{jenis_cairan}', [JenisCairanController::class, 'edit']);
-        Route::put('jenis_cairan/{jenis_cairan}/edit', [JenisCairanController::class, 'update']);
-        Route::delete('jenis_cairan/{id}', [JenisCairanController::class, 'destroy']);
+        Route::get('jenis-cairan', [JenisCairanController::class, 'index'])->name('pegawai.jenis_cairan.index');
+        Route::get('jenis-cairan/create', [JenisCairanController::class, 'create']);
+        Route::post('jenis-cairan/store', [JenisCairanController::class, 'store']);
+        Route::get('jenis-cairan/edit/{jenis_cairan}', [JenisCairanController::class, 'edit']);
+        Route::put('jenis-cairan/{jenis_cairan}/edit', [JenisCairanController::class, 'update']);
+        Route::delete('jenis-cairan/{id}', [JenisCairanController::class, 'destroy']);
     });
 
     //fitur kategori
     Route::middleware('check.permission:kelola kategori')->group(function () {
         Route::get('kategori/', [KategoriController::class, 'index'])->name('pegawai.kategori.index');
-        Route::get('kategori/create', [KategoriController::class, 'create']);
+        Route::get('kategori/create', [KategoriController::class, 'create'])->name('pegawai.kategori.tambah');
         Route::post('kategori/store', [KategoriController::class, 'store']);
-        Route::get('kategori/{kategori}/edit', [KategoriController::class, 'edit']);
-        Route::put('kategori/edit/{kategori}', [KategoriController::class, 'update']);
-        Route::delete('kategori/{id}', [KategoriController::class, 'destroy']);
+        Route::get('kategori/edit/{id}', [KategoriController::class, 'edit'])->name('pegawai.kategori.edit');
+        Route::put('kategori/{kategori}/edit', [KategoriController::class, 'update']);
+        Route::get('kategori/{id}', [KategoriController::class, 'show'])->name('pegawai.kategori.detail');
+        Route::delete('kategori/{id}', [KategoriController::class, 'destroy'])->name('pegawai.kategori.destroy');
+    });
+
+    //fitur subkategori
+    Route::middleware('check.permission:kelola subkategori')->group(function () {
+        Route::get('subkategori/', [SubKategoriController::class, 'index'])->name('pegawai.subkategori.index');
+        Route::get('subkategori/create', [SubKategoriController::class, 'create'])->name('pegawai.subkategori.tambah');
+        Route::post('subkategori/store', [SubKategoriController::class, 'store']);
+        Route::get('subkategori/edit/{id}', [SubKategoriController::class, 'edit'])->name('pegawai.subkategori.edit');
+        Route::put('subkategori/{subkategori}/edit', [SubKategoriController::class, 'update']);
+        Route::get('subkategori/{id}', [SubKategoriController::class, 'show'])->name('pegawai.subkategori.detail');
+        Route::delete('subkategori/{id}', [SubKategoriController::class, 'destroy'])->name('pegawai.subkategori.destroy');
     });
 
     //fitur parameter

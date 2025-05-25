@@ -63,27 +63,35 @@ class CustomerProfileController extends Controller
 
         $request->validate([
             'nama' => 'required|string|max:255',
-            'tipe' => 'required|in:swasta,pemerintahan',
+            'tipe' => 'required|in:swasta,pemerintahan,pribadi',
             'alamat' => 'required|string|max:255',
-            'no_telepon' => 'required|regex:/^\+[0-9]+$/|string',
-            'email' => 'required|string|lowercase|email|max:255|unique' . Instansi::class,
+            'wilayah' => 'required|string|max:255',
+            'desa_kelurahan' => 'required|string|max:255',
+            'email' => 'required|string|lowercase|email|max:255|unique:instansi,email',
+            'no_telepon' => ['required', 'string', 'regex:/^(08|\+62|62)[0-9]{7,13}$/'],
+            'posisi_jabatan' => 'required|string|max:255',
+            'departemen_divisi' => 'required|string|max:255',
         ]);
 
-        $instansi = Instansi::create(
-            ['id_user' => $user->id],
-            [
-                'nama' => $request->nama,
-                'tipe' => $request->tipe,
-                'alamat' => $request->alamat,
-                'no_telepon' => $request->no_telepon,
-                'email' => $request->email
-            ]
-        );
+        $instansi = Instansi::create([
+            'id_user' => $user->id,
+            'nama' => $request->nama,
+            'tipe' => $request->tipe,
+            'alamat' => $request->alamat,
+            'wilayah' => $request->wilayah,
+            'desa_kelurahan' => $request->desa_kelurahan,
+            'email' => $request->email,
+            'no_telepon' => $request->no_telepon,
+            'posisi_jabatan' => $request->posisi_jabatan,
+            'departemen_divisi' => $request->departemen_divisi,
+            'status_verifikasi' => 'diproses',
+        ]);
 
         if (!$instansi) {
-            return Redirect::back()->withError('Validasi Salah');
+            return Redirect::back()->withError('Mohon Isi Form Instansi Dengan Benar!');
         }
-        return Redirect::back()->with('message', 'Instansi Berhasil Ditambah!');
+
+        return Redirect::route('customer.profile')->with('message', 'Instansi Berhasil Ditambah!');
     }
 
     public function editInstansi(Instansi $instansi)
@@ -122,71 +130,4 @@ class CustomerProfileController extends Controller
 
         return Redirect::route('customer.profile.instansi.detail')->with('message', 'Data Instansi Berhasil Diupdate!');
     }
-
-    // public function edit()
-    // {
-    //     $user = Auth::user();
-    //     return Inertia::render('customer/profile/edit', [
-    //         'user' => $user
-    //     ]);
-    // }
-
-    // public function update(Request $request)
-    // {
-    //     $user = $request->user('');
-
-    //     $request->validate([
-    //         'nama' => 'required|string|max:255',
-    //         'nik' => 'required|string|max:16',
-    //         'jabatan' => 'required|string|max:255',
-    //         'no_telepon' => 'required|string|regex:/^\+[0-9]+$/',
-    //         'email' => 'required|email|string|lowercase|unique:customer,email,' . $customer->id,
-    //     ]);
-
-    //     $user->update($request->all());
-
-    //     return redirect()->route('customer.profile.index')
-    //         ->with('message', 'Profil Berhasil Diubah!');
-    // }
-
-    // public function updatePassword(Request $request)
-    // {
-    //     $customer = $request->user('customer');
-
-    //     $request->validate([
-    //         'password_lama' => 'required',
-    //         'password_baru' => 'required|confirmed',
-    //     ]);
-
-    //     if (!Hash::check($request->password_lama, $customer->password)) {
-    //         return Redirect::back()->withErrors(['password_lama' => 'Password saat ini salah.']);
-    //     }
-
-    //     $customer->password = bcrypt($request->password_baru);
-    //     $customer->save();
-
-    //     return Redirect::route('customer.profile.index')->with('message', 'Password Berhasil Diubah!');
-    // }
-
-    // public function destroy(Request $request)
-    // {
-    //     $customer = $request->user('customer');
-
-    //     $request->validate([
-    //         'password' => ['required'],
-    //     ]);
-
-    //     if (!Hash::check($request->password, $customer->password)) {
-    //         return Redirect::back()->withErrors(['password' => 'Password Yang Anda Masukkan Salah']);
-    //     }
-
-    //     Auth::guard('customer')->logout();
-
-    //     $customer->delete();
-
-    //     $request->session()->invalidate();
-    //     $request->session()->regenerateToken();
-
-    //     return Redirect::route('/')->with('message', 'Akun Berhasil Dihapus');
-    // }
 }

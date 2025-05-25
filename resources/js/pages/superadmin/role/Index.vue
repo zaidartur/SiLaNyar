@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { router } from '@inertiajs/vue3'
+import AdminLayout from '@/layouts/admin/AdminLayout.vue'
 
 interface Permission {
   id: number
@@ -24,6 +25,7 @@ const deleteRole = (id: number) => {
 </script>
 
 <template>
+  <AdminLayout>
   <div class="p-6">
     <h1 class="text-2xl font-bold mb-4">Daftar Role</h1>
     <div class="mb-4">
@@ -52,4 +54,5 @@ const deleteRole = (id: number) => {
       </div>
     </div>
   </div>
+  </AdminLayout>
 </template>

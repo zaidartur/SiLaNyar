@@ -31,8 +31,7 @@ class JenisCairanController extends Controller
             'batas_maksimum' => 'required|numeric|after_or_equal:batas_minimum'
         ]);
 
-        if($request->batas_minimum >= $request->batas_maksimum && $request->batas_maksimum <= $request->batas_minimum)
-        {
+        if ($request->batas_minimum >= $request->batas_maksimum && $request->batas_maksimum <= $request->batas_minimum) {
             return Redirect::back()->withErrors([
                 'batas_minimum' => 'Batas Minimum Tidak Boleh Kurang Dari Batas Maksimum',
                 'batas_maksimum' => 'Batas Maksimum Tidak Boleh Lebih Dari Batas Minimum'
@@ -60,6 +59,13 @@ class JenisCairanController extends Controller
             'batas_minimum' => 'required|numeric',
             'batas_maksimum' => 'required|numeric'
         ]);
+
+        if ($request->batas_minimum >= $request->batas_maksimum && $request->batas_maksimum <= $request->batas_minimum) {
+            return Redirect::back()->withErrors([
+                'batas_minimum' => 'Batas Minimum Tidak Boleh Kurang Dari Batas Maksimum',
+                'batas_maksimum' => 'Batas Maksimum Tidak Boleh Lebih Dari Batas Minimum'
+            ]);
+        }
 
         $jenis_cairan->update($request->all());
 

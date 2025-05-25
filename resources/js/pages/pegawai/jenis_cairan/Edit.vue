@@ -1,62 +1,52 @@
-<script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
+<script lang="ts" setup>
+import { useForm } from '@inertiajs/vue3'
 
-const props = defineProps({
-    jenisCairan: {
-        type: Object,
-        required: true,
-    },
-});
+interface JenisCairan {
+    id: number
+    nama: string
+    batas_minimum: number
+    batas_maksimum: number
+}
+
+const props = defineProps<{
+    jenis_cairan: JenisCairan
+}>()
 
 const form = useForm({
-    nama: props.jenisCairan.nama,
-    deskripsi: props.jenisCairan.deskripsi,
-});
+    nama: props.jenis_cairan.nama,
+    batas_minimum: props.jenis_cairan.batas_minimum,
+    batas_maksimum: props.jenis_cairan.batas_maksimum,
+})
 
 const submit = () => {
-    form.put(route('pegawai.jenis-cairan.update', props.jenisCairan.id), {
-        preserveScroll: true,
-    });
-};
+    form.put(`/pegawai/jenis-cairan/${props.jenis_cairan.id}/edit`)
+}
 </script>
 
 <template>
-    <Head title="Edit Jenis Cairan" />
+    <div class="p-6 max-w-md mx-auto">
+        <h1 class="text-xl font-bold mb-4">Tambah Jenis Cairan</h1>
 
-    <div class="mx-auto max-w-2xl p-4">
-        <div class="rounded-lg bg-white p-6 shadow">
-            <h1 class="mb-6 text-2xl font-bold">Edit Jenis Cairan</h1>
+        <form @submit.prevent="submit" class="space-y-4">
+            <div>
+                <label class="block mb-1">Nama Jenis Cairan</label>
+                <input v-model="form.nama" type="text" class="border rounded px-3 py-2 w-full" />
+                <div v-if="form.errors.nama" class="text-red-500 text-sm">{{ form.errors.nama }}</div>
+            </div>
 
-            <form @submit.prevent="submit">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Nama</label>
-                        <input
-                            v-model="form.nama"
-                            type="text"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                        />
-                    </div>
+            <div>
+                <label class="block mb-1">Batas Minimum</label>
+                <input v-model="form.batas_minimum" type="text" inputmode="numeric" class="border rounded px-3 py-2 w-full" />
+                <div v-if="form.errors.batas_minimum" class="text-red-500 text-sm">{{ form.errors.batas_minimum }}</div>
+            </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Deskripsi</label>
-                        <textarea
-                            v-model="form.deskripsi"
-                            rows="4"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                        ></textarea>
-                    </div>
+            <div>
+                <label class="block mb-1">Batas Maksimum</label>
+                <input v-model="form.batas_maksimum" type="text" inputmode="numeric" class="border rounded px-3 py-2 w-full" />
+                <div v-if="form.errors.batas_maksimum" class="text-red-500 text-sm">{{ form.errors.batas_maksimum }}</div>
+            </div>
 
-                    <div class="flex justify-end gap-3">
-                        <a :href="route('pegawai.jenis-cairan.index')" class="rounded-lg bg-gray-200 px-4 py-2 text-gray-800 hover:bg-gray-300">
-                            Batal
-                        </a>
-                        <button type="submit" class="rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700" :disabled="form.processing">
-                            Simpan
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Update</button>
+        </form>
     </div>
 </template>

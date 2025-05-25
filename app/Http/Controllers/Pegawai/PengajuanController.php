@@ -14,7 +14,7 @@ class PengajuanController extends Controller
     //lihat daftar pengajuan dari pegawai
     public function index()
     {
-        $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'user', 'jenis_cairan'])
+        $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'user.instansi', 'jenis_cairan'])
             ->orderByDesc('updated_at')
             ->get();
 

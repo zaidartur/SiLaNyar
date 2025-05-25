@@ -43,6 +43,11 @@ class Kategori extends Model
 
     public function form_pengajuan()
     {
-        return $this->hasMany(FormPengajuan::class, 'id_kategori');
+        return $this->hasMany(FormPengajuan::class);
+    }
+
+    public function subkategori()
+    {
+        return $this->belongsToMany(SubKategori::class, 'kategori_subkategori', 'id_kategori', 'id_subkategori');    
     }
 }
