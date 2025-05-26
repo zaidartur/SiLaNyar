@@ -34,6 +34,7 @@ class VerifikasiInstansiController extends Controller
     //proses verifikasi instansi
     public function verifikasi($id, Request $request)
     {
+        $user = Auth::user();
         $instansi = Instansi::findOrFail($id);
 
         if ($instansi->status_verifikasi !== 'diproses') {
@@ -48,7 +49,7 @@ class VerifikasiInstansiController extends Controller
 
         $instansi->update([
             'status_verifikasi' => $request->status_verifikasi,
-            'diverifikasi_oleh' => auth()->guard('pegawai')->id()
+            'diverifikasi_oleh' => $user->nama
         ]);
 
         return Redirect::route('pegawai.instansi.index')->with('message', 'Verifikasi Berhasil Diupdate');
@@ -57,7 +58,7 @@ class VerifikasiInstansiController extends Controller
     //detail instansi
     public function show(Instansi $instansi)
     {
-        $instansi->with(['user'])->get();
+        $instansi->load('user');
 
         return Inertia::render('pegawai/instansi/Detail', [
             'instansi' => $instansi
