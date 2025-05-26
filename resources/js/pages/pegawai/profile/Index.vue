@@ -86,76 +86,6 @@ const toggleEditModal = () => {
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Related Institutions -->
-                        <div>
-                            <h3 class="mb-4 text-lg font-semibold">Instansi Terkait</h3>
-                            <div class="grid gap-3">
-                                <!-- List Instansi -->
-                                <div v-if="instansi.length > 0">
-                                    <div v-for="item in instansi" :key="item.id" class="rounded-lg border border-gray-200 bg-white shadow-sm">
-                                        <div class="flex items-center justify-between p-3">
-                                            <div>
-                                                <p class="font-medium">{{ item.nama }}</p>
-                                                <p class="text-sm text-gray-500">{{ item.tipe }}</p>
-                                                <div class="mt-1">
-                                                    <span
-                                                        :class="{
-                                                            'rounded-full px-2 py-1 text-xs': true,
-                                                            'bg-yellow-100 text-yellow-800': item.status_verifikasi === 'pending',
-                                                            'bg-green-100 text-green-800': item.status_verifikasi === 'terverifikasi',
-                                                            'bg-red-100 text-red-800': item.status_verifikasi === 'ditolak',
-                                                        }"
-                                                    >
-                                                        {{ item.status_verifikasi }}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div class="flex gap-2">
-                                                <button class="p-1 text-gray-400 hover:text-gray-600" @click="editInstansi(item.id)">
-                                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path
-                                                            stroke-linecap="round"
-                                                            stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                                                        />
-                                                    </svg>
-                                                </button>
-                                                <button class="p-1 text-red-400 hover:text-red-600" @click="deleteInstansi(item.id)">
-                                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path
-                                                            stroke-linecap="round"
-                                                            stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M6 18L18 6M6 6l12 12"
-                                                        />
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Empty State -->
-                                <div v-else class="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-6 text-center">
-                                    <p class="text-gray-500">Belum ada instansi yang terdaftar</p>
-                                </div>
-
-                                <!-- Tombol Tambah Instansi -->
-                                <button
-                                    @click="openModal"
-                                    class="flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 p-3 hover:border-customDarkGreen hover:text-customDarkGreen"
-                                >
-                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                    </svg>
-                                    <span>Tambah Instansi</span>
-                                </button>
-
-                                <TambahInstansi v-if="showModal" @close="closeModal" />
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -201,26 +131,6 @@ const toggleEditModal = () => {
                     </DialogContent>
                 </Dialog>
             </div>
-        </div>
-        <div class="profile">
-            <h1>Profil Saya</h1>
-            <ul>
-                <li><strong>NIK:</strong> {{ props.user?.nik }}</li>
-                <li><strong>Nama:</strong> {{ props.user?.nama }}</li>
-                <li><strong>Tanggal Lahir:</strong> {{ props.user?.tgl_lahir }}</li>
-                <li><strong>Provinsi:</strong> {{ props.user?.provinsi }}</li>
-                <li><strong>Kab/Kota:</strong> {{ props.user?.kab_kota }}</li>
-                <li><strong>Kecamatan:</strong> {{ props.user?.kecamatan }}</li>
-                <li><strong>Kelurahan:</strong> {{ props.user?.kelurahan }}</li>
-                <li><strong>RT:</strong> {{ props.user?.rt }}</li>
-                <li><strong>RW:</strong> {{ props.user?.rw }}</li>
-                <li><strong>Kode Pos:</strong> {{ props.user?.kode_pos }}</li>
-                <li><strong>Alamat:</strong> {{ props.user?.alamat }}</li>
-                <li><strong>Email:</strong> {{ props.user?.email }}</li>
-                <li><strong>No WA:</strong> {{ props.user?.no_wa }}</li>
-                <li><strong>Username:</strong> {{ props.user?.username }}</li>
-                <li><strong>ID:</strong> {{ props.user?.id }}</li>
-            </ul>
         </div>
     </AdminLayout>
 </template>

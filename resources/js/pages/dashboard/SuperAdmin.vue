@@ -1,4 +1,5 @@
 <template>
+  <Head title="Dashboard" />
   <AdminLayout>
     <div>
       <h1 class="text-xl font-bold mb-4">Dashboard Superadmin</h1>
@@ -22,9 +23,10 @@
 
 <script lang="ts" setup>
 import { defineProps } from 'vue';
+import { Head } from '@inertiajs/vue3';
 import AdminLayout from '@/layouts/admin/AdminLayout.vue';
 
-defineProps<{ 
+defineProps<{
   customer: Array<{ id: number, nama: string, email: string }>, 
   pegawai: Array<{ id: number, nama: string, email: string }> 
 }>()

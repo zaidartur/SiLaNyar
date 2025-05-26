@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import CustomerLayout from '@/layouts/customer/CustomerLayout.vue';
-import TambahInstansi from '@/components/TambahInstansi.vue';
+import TambahInstansi from '@/components/form/customer/profile/TambahInstansi.vue';
+import AppearanceTabs from '@/components/AppearanceTabs.vue';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Head } from '@inertiajs/vue3';
 import { ref } from 'vue'
@@ -19,8 +20,6 @@ const props = defineProps({
 })
 
 const showModal = ref(false)
-
-const showModal = ref(false);
 
 const openModal = () => {
   showModal.value = true;
@@ -56,9 +55,17 @@ const toggleEditModal = () => {
     <div class="max-w-4xl mx-auto">
       <!-- Header Profile -->
       <div class="mb-4 p-2 bg-white rounded-lg shadow-sm border border-gray-300">
-        <h1 class="text-xl font-bold text-gray-800">Profile Pengguna</h1>
-        <p class="text-sm text-gray-500">Terakhir Login: {{ moment(user?.last_login).format('DD MMMM YYYY, HH:mm') }}
-        </p>
+        <div class="flex justify-between items-start">
+          <div>
+            <h1 class="text-xl font-bold text-gray-800">Profile Pengguna</h1>
+            <p class="text-sm text-gray-500">
+              Terakhir Login: {{ moment(user?.last_login).format('DD MMMM YYYY, HH:mm') }}
+            </p>
+          </div>
+          <div>
+            <AppearanceTabs />
+          </div>
+        </div>
       </div>
 
       <!-- Profile Card -->
@@ -84,26 +91,26 @@ const toggleEditModal = () => {
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="space-y-2">
                   <p class="text-sm text-gray-500">Nama Lengkap</p>
-                  <p class="font-medium">{{ user?.nama }}</p>
+                  <p class="font-medium dark:text-black">{{ user?.nama }}</p>
                 </div>
                 <div class="space-y-2">
                   <p class="text-sm text-gray-500">Email</p>
-                  <p class="font-medium">{{ user?.email }}</p>
+                  <p class="font-medium dark:text-black">{{ user?.email }}</p>
                 </div>
                 <div class="space-y-2">
                   <p class="text-sm text-gray-500">Kontak Pribadi</p>
-                  <p class="font-medium">{{ user?.no_wa }}</p>
+                  <p class="font-medium dark:text-black">{{ user?.no_wa }}</p>
                 </div>
                 <div class="space-y-2">
                   <p class="text-sm text-gray-500">Alamat Pribadi</p>
-                  <p class="font-medium">{{ user?.alamat }}</p>
+                  <p class="font-medium dark:text-black">{{ user?.alamat }}</p>
                 </div>
               </div>
             </div>
 
             <!-- Related Institutions -->
             <div>
-              <h3 class="mb-4 text-lg font-semibold">Instansi Terkait</h3>
+              <h3 class="mb-4 text-lg font-semibold dark:text-black">Instansi Terkait</h3>
               <div class="grid gap-3">
                 <!-- List Instansi -->
                 <div v-if="instansi.length > 0">
@@ -150,10 +157,10 @@ const toggleEditModal = () => {
                 <button @click="openModal"
                   class="flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 p-3 hover:border-customDarkGreen hover:text-customDarkGreen">
                   <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    <path class="dark:text-customDarkGreen" stroke-linecap="round" stroke-linejoin="round"
+                      stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
-                  <span>Tambah Instansi</span>
+                  <span class="dark:text-customDarkGreen">Tambah Instansi</span>
                 </button>
 
                 <TambahInstansi v-if="showModal" @close="closeModal" />

@@ -24,7 +24,7 @@ const handleFilter = () => {
         <div class="p-6">
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-2xl text-black font-bold">Daftar Jadwal Pengambilan</h1>
-                <Link :href="route('pegawai.jadwal.create')" class="bg-green-600 text-white px-4 py-2 rounded">
+                <Link :href="route('pegawai.jadwal.create')" class="bg-customDarkGreen text-white px-4 py-2 rounded">
                 Tambah Jadwal
                 </Link>
             </div>
@@ -54,7 +54,7 @@ const handleFilter = () => {
             <div class="overflow-x-auto">
                 <table class="min-w-full bg-white rounded-lg">
                     <thead>
-                        <tr class="bg-gray-500">
+                        <tr class="bg-gray-500 text-white">
                             <th class="px-6 py-3 rounded-tl-lg">ID Jadwal</th>
                             <th class="px-6 py-3">ID Form Pengajuan</th>
                             <th class="px-6 py-3">Tanggal</th>
