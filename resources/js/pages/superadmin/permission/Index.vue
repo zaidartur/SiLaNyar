@@ -1,6 +1,6 @@
-<script lang="ts" setup>
-import { router } from '@inertiajs/vue3'
+<script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue'
+import { router, Head } from '@inertiajs/vue3'
 
 interface Permission {
   id: number
@@ -19,6 +19,8 @@ const deletePermission = (id: number) => {
 </script>
 
 <template>
+
+  <Head title="Permission" />
   <AdminLayout>
     <div class="p-6 max-w-4xl mx-auto">
       <div class="flex justify-between items-center mb-4">

@@ -160,7 +160,7 @@ Route::prefix('pegawai')->group(function () {
 
     //fitur pengambilan
     Route::get('pengambilan/', [PegawaiJadwalController::class, 'index'])->middleware('check.permission:lihat pengambilan')->name('pegawai.pengambilan.index');
-    Route::get('pengambilan/create', [PegawaiJadwalController::class, 'create'])->middleware('check.permission:tambah pengambilan');
+    Route::get('pengambilan/create', [PegawaiJadwalController::class, 'create'])->middleware('check.permission:tambah pengambilan')->name('pegawai.jadwal.create');
     Route::post('pengambilan/store', [PegawaiJadwalController::class, 'store'])->middleware('check.permission:tambah pengambilan');
     Route::get('pengambilan/{jadwal}/edit', [PegawaiJadwalController::class, 'edit'])->middleware('check.permission:edit pengambilan');
     Route::put('pengambilan/edit/{jadwal}', [PegawaiJadwalController::class, 'update'])->middleware('check.permission:edit pengambilan');
