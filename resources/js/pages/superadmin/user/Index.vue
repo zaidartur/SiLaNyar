@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { router } from '@inertiajs/vue3'
+import AdminLayout from '@/layouts/admin/AdminLayout.vue'
+import { router, Head } from '@inertiajs/vue3'
 import { ref } from 'vue'
-import AdminLayout from '@/layouts/admin/AdminLayout.vue';
-
 type Role = {
     id: number
     name: string
@@ -45,6 +44,7 @@ function toggleRole(user: number, roleName: string) {
 </script>
 
 <template>
+    <Head title="Manajemen Pengguna" />
     <AdminLayout>
         <div>
             <h1 class="text-2xl font-bold mb-6">Manajemen Pengguna</h1>

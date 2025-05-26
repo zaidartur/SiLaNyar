@@ -17,7 +17,7 @@ Route::prefix('pegawai')->middleware('auth:web')->group(function () {
 
     Route::get('sso/user', [PegawaiProfileController::class, 'user']);
     Route::get('profile/show', [PegawaiProfileController::class, 'show'])->name('pegawai.profile');
-}); 
+});
 
 Route::prefix('customer')->middleware(['auth:web'])->group(function () {
     Route::get('dashboard', [CustomerDashboardController::class, 'index'])->name('customer.dashboard');
