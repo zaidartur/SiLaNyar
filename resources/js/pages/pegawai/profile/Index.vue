@@ -87,12 +87,8 @@ const toggleEditModal = () => {
                                 </div>
                             </div>
                         </div>
-
-
                     </div>
                 </div>
-            </div>
-        </div>
 
         <!-- Action Buttons -->
         <div class="flex justify-end gap-3 p-6 border-gray-100">
@@ -125,15 +121,17 @@ const toggleEditModal = () => {
                         </p>
                     </div>
 
-                    <div class="flex gap-4">
-                        <a href="https://sakti.karanganyarkab.go.id/profile"
-                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                            Lanjutkan
-                        </a>
-                    </div>
-                </div>
-            </DialogContent>
-        </Dialog>
+                            <div class="flex gap-4">
+                                <a href="https://sakti.karanganyarkab.go.id/profile"
+                                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                    Lanjutkan
+                                </a>
+                            </div>
+                        </div>
+                    </DialogContent>
+                </Dialog>
+            </div>
+        </div>
     </AdminLayout>
 </template>
 <style scoped>
