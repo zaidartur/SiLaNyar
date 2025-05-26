@@ -54,4 +54,9 @@ class Instansi extends Model
     {
         return $this->belongsTo(User::class, 'id_user');
     }
+
+    public function form_pengajuan()
+    {
+        return $this->hasMany(FormPengajuan::class, 'id_instansi');
+    }
 }

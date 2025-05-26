@@ -34,11 +34,6 @@ class User extends Authenticatable
         'kode_pos' => 'integer'
     ];
 
-    public function form_pengajuan()
-    {
-        return $this->hasMany(FormPengajuan::class, 'id_user');
-    }
-
     public function instansi()
     {
         return $this->hasMany(Instansi::class, 'id_user');

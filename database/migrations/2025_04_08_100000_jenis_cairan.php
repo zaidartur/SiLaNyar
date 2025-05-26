@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('kode_jenis_cairan')->unique();
             $table->string('nama');
             $table->float('batas_minimum');
-            $table->float('batas_maksimum');
+            $table->float('batas_maksimum')->nullable();
         });
     }
 

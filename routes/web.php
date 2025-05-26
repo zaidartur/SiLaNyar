@@ -101,9 +101,11 @@ Route::prefix('customer')->middleware(['auth:web', 'role:customer'])->group(func
 
     //fitur pengajuan
     Route::get('pengajuan', [CustomerPengajuanController::class, 'index'])->name('customer.pengajuan.index');
-    Route::get('pengajuan/daftar', [CustomerPengajuanController::class, 'daftar'])->name('customer.pengajuan.daftar');
+    Route::get('pengajuan/create', [CustomerPengajuanController::class, 'daftar'])->name('customer.pengajuan.daftar');
     Route::post('pengajuan/store', [CustomerPengajuanController::class, 'store'])->name('customer.pengajuan.store');
     Route::get('pengajuan/{id}', [CustomerPengajuanController::class, 'show'])->name('customer.pengajuan.detail');
+    Route::get('pengajuan/edit/{pengajuan}', [CustomerPengajuanController::class, 'edit'])->name('customer.pengajuan.edit');
+    Route::put('pengajuan/{id}/edit', [CustomerPengajuanController::class, 'update']);
 
     //fitur pembayaran
     Route::get('pembayaran', [CustomerPembayaranController::class, 'index'])->name('customer.pembayaran.index');
@@ -127,9 +129,9 @@ Route::prefix('pegawai')->group(function () {
     //fitur instansi
     Route::middleware('check.permission:kelola instansi')->group(function () {
         Route::get('instansi', [VerifikasiInstansiController::class, 'index'])->name('pegawai.instansi.index');
-        Route::get('instansi/edit/{instansi}', [VerifikasiInstansiController::class, 'edit']);
+        Route::get('instansi/edit/{instansi}', [VerifikasiInstansiController::class, 'edit'])->name('pegawai.instansi.edit');
         Route::put('instansi/{id}/edit', [VerifikasiInstansiController::class, 'verifikasi']);
-        Route::get('instansi/{instansi}', [VerifikasiInstansiController::class, 'show']);
+        Route::get('instansi/{instansi}', [VerifikasiInstansiController::class, 'show'])->name('pegawai.instansi.detail');
     });
 
     //fitur pengajuan
@@ -139,7 +141,7 @@ Route::prefix('pegawai')->group(function () {
     Route::get('pengajuan/{id}', [PegawaiPengajuanController::class, 'show'])->middleware('check.permission:detail pengajuan')->name('pegawai.pengajuan.detail');
     Route::get('pengajuan/edit/{pengajuan}', [PegawaiPengajuanController::class, 'edit'])->middleware('check.permission:edit pengajuan')->name('pegawai.pengajuan.edit');
     Route::put('pengajuan/{id}/edit', [PegawaiPengajuanController::class, 'update'])->middleware('check.permission:edit pengajuan')->name('pegawai.pengajuan.update');
-    Route::delete('pengajuan/{pengajuan}', [PegawaiPengajuanController::class, 'destroy'])->middleware('check.permission:hapus pengajuan');
+    Route::delete('pengajuan/{pengajuan}', [PegawaiPengajuanController::class, 'destroy'])->middleware('check.permission:hapus pengajuan')->name('pegawai.pengajuan.destroy');
 
     //fitur pembayaran
     Route::middleware('check.permission:kelola pembayaran')->group(function () {
@@ -160,12 +162,12 @@ Route::prefix('pegawai')->group(function () {
 
     //fitur pengambilan
     Route::get('pengambilan/', [PegawaiJadwalController::class, 'index'])->middleware('check.permission:lihat pengambilan')->name('pegawai.pengambilan.index');
-    Route::get('pengambilan/create', [PegawaiJadwalController::class, 'create'])->middleware('check.permission:tambah pengambilan');
+    Route::get('pengambilan/create', [PegawaiJadwalController::class, 'create'])->middleware('check.permission:tambah pengambilan')->name('pegawai.pengambilan.create');
     Route::post('pengambilan/store', [PegawaiJadwalController::class, 'store'])->middleware('check.permission:tambah pengambilan');
-    Route::get('pengambilan/{jadwal}/edit', [PegawaiJadwalController::class, 'edit'])->middleware('check.permission:edit pengambilan');
-    Route::put('pengambilan/edit/{jadwal}', [PegawaiJadwalController::class, 'update'])->middleware('check.permission:edit pengambilan');
-    Route::get('pengambilan/{jadwal}', [PegawaiJadwalController::class, 'show'])->middleware('check.permission:detail pengambilan');
-    Route::delete('pengambilan/{id}', [PegawaiJadwalController::class, 'destroy'])->middleware('check.permission:hapus pengambilan');
+    Route::get('pengambilan/edit/{jadwal}', [PegawaiJadwalController::class, 'edit'])->middleware('check.permission:edit pengambilan')->name('pegawai.pengambilan.edit');
+    Route::put('pengambilan/{jadwal}/edit', [PegawaiJadwalController::class, 'update'])->middleware('check.permission:edit pengambilan');
+    Route::get('pengambilan/{jadwal}', [PegawaiJadwalController::class, 'show'])->middleware('check.permission:detail pengambilan')->name('pegawai.pengambilan.detail');
+    Route::delete('pengambilan/{id}', [PegawaiJadwalController::class, 'destroy'])->middleware('check.permission:hapus pengambilan')->name('pegawai.pengambilan.destroy');
 
     //fitur jenis cairan
     Route::middleware('check.permission:kelola jenis cairan')->group(function () {

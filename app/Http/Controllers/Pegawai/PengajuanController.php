@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Pegawai;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\FormPengajuan;
+use App\Models\Kategori;
+use App\Models\ParameterUji;
 use App\Models\Pembayaran;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -14,7 +16,7 @@ class PengajuanController extends Controller
     //lihat daftar pengajuan dari pegawai
     public function index()
     {
-        $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'user.instansi', 'jenis_cairan'])
+        $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'instansi.user', 'jenis_cairan'])
             ->orderByDesc('updated_at')
             ->get();
 
@@ -27,7 +29,7 @@ class PengajuanController extends Controller
     //lihat detail pengajuan dari pegawai
     public function show($id)
     {
-        $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'user', 'jenis_cairan'])
+        $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'instansi.user', 'jenis_cairan'])
             ->where('id', $id)
             ->firstOrFail();
 
@@ -39,17 +41,22 @@ class PengajuanController extends Controller
     //edit pengajuan dari pegawai
     public function edit(FormPengajuan $pengajuan)
     {
-        $pengajuan->load(['kategori', 'parameter', 'user']);
-        
+        $pengajuan->load(['kategori', 'parameter', 'instansi.user', 'jenis_cairan']);
+
+        $kategoriList = Kategori::with('parameter', 'subkategori.parameter')->select('id', 'nama')->get();
+        $parameterList = ParameterUji::select('id', 'nama_parameter')->get();
+
         return Inertia::render('pegawai/pengajuan/Edit', [
-            'pengajuan' => $pengajuan
+            'pengajuan' => $pengajuan,
+            'kategoriList' => $kategoriList,
+            'parameterList' => $parameterList
         ]);
     }
 
     //update pengajuan dari pegawai
     public function update($id, Request $request)
     {
-        $pengajuan = FormPengajuan::with(['kategori', 'parameter'])->findOrFail($id);
+        $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'instansi.user'])->findOrFail($id);
 
         $rules = [
             'status_pengajuan' => 'required|in:diterima,ditolak'
@@ -79,13 +86,12 @@ class PengajuanController extends Controller
 
     public function destroy(FormPengajuan $pengajuan)
     {
-        if($pengajuan->status !== 'acc')
-        {
-            return Redirect::back()->withErrors('status', 'Status Pengajuan Belum Berhasil Di Acc');
+        if ($pengajuan->status === 'diproses') {
+            return Redirect::back()->withErrors('status', 'Status Pengajuan Belum Berhasil Di Terima atau Di Tolak');
         }
 
         $pengajuan->delete();
-        
+
         return Redirect::back()->with('message', 'Pengajuan Berhasil Dihapus');
     }
 }
