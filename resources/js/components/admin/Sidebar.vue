@@ -147,8 +147,6 @@ const toggleKategori = () => {
                     </div>
                 </Transition>
             </div>
-            </Transition>
-            </div>
 
             <!-- Menu Kategori -->
             <div class="space-y-1"
@@ -191,11 +189,6 @@ const toggleKategori = () => {
                         </Link>
                     </div>
                 </Transition>
-            </div>
-            <span>Jenis Cairan</span>
-            </Link>
-            </div>
-            </Transition>
             </div>
 
             <a v-if="can('kelola instansi')" href="/pegawai/instansi"
