@@ -43,7 +43,7 @@ const submit = () => {
     }
 
     form.parameter = filterParam
-    form.put(route('pegawai.subkategori.update', props.subkategori.id))
+    form.put(`/pegawai/subkategori/${props.subkategori.id}/edit`)
 }
 </script>
 

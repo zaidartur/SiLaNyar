@@ -13,7 +13,7 @@ class FormPengajuan extends Model
 
     protected $fillable = [
         'kode_pengajuan',
-        'id_user',
+        'id_instansi',
         'id_kategori',
         'id_jenis_cairan',
         'volume_sampel',
@@ -50,9 +50,14 @@ class FormPengajuan extends Model
         });
     }
 
-    public function user()
+    public function instansi()
     {
-        return $this->belongsTo(User::class, 'id_user');  
+        return $this->belongsTo(Instansi::class, 'id_instansi');  
+    }
+
+    public function jadwal()
+    {
+        return $this->hasOne(Jadwal::class, 'id_form_pengajuan');    
     }
 
     public function kategori()
@@ -68,5 +73,15 @@ class FormPengajuan extends Model
     public function parameter()
     {
         return $this->belongsToMany(ParameterUji::class, 'parameter_pengajuan', 'id_pengajuan', 'id_parameter');
+    }
+
+    public function pembayaran()
+    {
+        return $this->hasOne(Pembayaran::class, 'id_form_pengajuan');    
+    }
+
+    public function pengujian()
+    {
+        return $this->hasMany(Pengujian::class, 'id_form_pengajuan');    
     }
 }

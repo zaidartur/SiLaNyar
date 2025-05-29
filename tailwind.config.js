@@ -2,7 +2,6 @@ import defaultTheme from 'tailwindcss/defaultTheme';
 
 /** @type {import('tailwindcss').Config} */
 export default {
-    darkMode: ['class'],
     content: [
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './storage/framework/views/*.php',
@@ -71,7 +70,6 @@ export default {
                     ring: 'hsl(var(--sidebar-ring))',
                 },
                 customGreen: '#2E7D32',
-                customDarkGreen: '#2E7D32',
                 customLightGreen: '#81C784',
                 customGray: '#3A3A3A',
             },

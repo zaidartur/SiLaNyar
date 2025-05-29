@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
+
+defineProps<{
+  breadcrumbs?: any
+}>()
 </script>
 
 <template>
@@ -46,7 +50,7 @@ import { Link } from '@inertiajs/vue3';
                     </Link>
                 </li>
                 <li>
-                    <Link :href="route('customer.pengajuan.index')"
+                    <Link :href="route('customer.pengajuan.daftar')"
                         class="flex items-center p-2 text-white rounded-lg dark:text-white hover:bg-green-500">
                     <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center">
                         <svg width="49" height="42" viewBox="0 0 49 42" fill="none" xmlns="http://www.w3.org/2000/svg"

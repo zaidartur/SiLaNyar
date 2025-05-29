@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('id_form_pengajuan')->constrained('form_pengajuan')->onDelete('cascade');
             $table->unsignedInteger('total_biaya');
             $table->date('tanggal_pembayaran')->nullable();
-            $table->enum('metode_pembayaran', ['tunai', 'transfer']);
+            $table->enum('metode_pembayaran', ['tunai', 'transfer'])->nullable();
             $table->enum('status_pembayaran', ['diproses', 'selesai', 'gagal']);
             $table->string('bukti_pembayaran')->nullable();
             $table->timestamps();

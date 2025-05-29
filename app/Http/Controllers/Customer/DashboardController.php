@@ -13,20 +13,30 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        $proses = FormPengajuan::where('id_user', $user)->where('status_pengajuan', 'proses_validasi')->count();
-        $ditolak = FormPengajuan::where('id_user', $user)->where('status_pengajuan', 'ditolak')->count();
-        $diterima = FormPengajuan::where('id_user', $user)->where('status_pengajuan', 'diterima')->count();
+        $instansiUser = $user->instansi()->pluck('id')->toArray();
 
-        $pengajuan = FormPengajuan::with(['jadwal', 'pembayaran', 'pengujian', 'hasil_uji'])
-            ->where('id_user', $user)
+        if (empty($instansiUser)) {
+            return redirect()->back()->with('error', 'Tidak ada instansi yang tersedia');
+        }
+
+        $proses = FormPengajuan::whereIn('id_instansi', $instansiUser)->where('status_pengajuan', 'proses_validasi')->count();
+        $ditolak = FormPengajuan::whereIn('id_instansi', $instansiUser)->where('status_pengajuan', 'ditolak')->count();
+        $diterima = FormPengajuan::whereIn('id_instansi', $instansiUser)->where('status_pengajuan', 'diterima')->count();
+
+        $pengajuan = FormPengajuan::with(['jadwal', 'pembayaran', 'pengujian', 'pengujian.hasil_uji', 'jenis_cairan', 'kategori'])
+            ->whereIn('id_instansi', $instansiUser)
             ->orderByDesc('updated_at')
             ->get();
 
         $pilihPengajuan = null;
         if ($request->has('id')) {
             $pilihPengajuan = $pengajuan->firstWhere('id', $request->id);
+            if ($pilihPengajuan && !in_array($pilihPengajuan->id_instansi, $instansiUser)) {
+                $pilihPengajuan = null;
+            }
         } else {
             $pilihPengajuan = $pengajuan->first();
         }
@@ -34,39 +44,44 @@ class DashboardController extends Controller
         $statusList = [];
 
         if ($pilihPengajuan) {
+            $pengujian = $pilihPengajuan->pengujian->last();
+            $hasiluji = $pengujian?->hasil_uji;
             $statusList = [
                 [
                     'label' => 'Pengajuan Diterima',
-                    'status' => $pengajuan->status_pengajuan === 'diterima',
-                    'tanggal' => $pengajuan->status_pengajuan === 'diterima' ? $pengajuan->updated_at->format('d-m-Y') : 'menunggu',
+                    'status' => $pilihPengajuan->status_pengajuan === 'diterima',
+                    'tanggal' => $pilihPengajuan->status_pengajuan === 'diterima' ? $pilihPengajuan->updated_at->format('d-m-Y') : 'menunggu',
                 ],
                 [
                     'label' => 'Pembayaran',
-                    'status' => $pengajuan->pembayaran && $pengajuan->pembayaran->status === 'lunas',
-                    'tanggal' => $pengajuan->pembayaran && $pengajuan->pembayaran->status === 'lunas' ? $pengajuan->pembayaran->updated_at->format('d-m-Y') : 'menunggu',
+                    'status' => $pilihPengajuan->pembayaran && $pilihPengajuan->pembayaran->status === 'lunas',
+                    'tanggal' => $pilihPengajuan->pembayaran && $pilihPengajuan->pembayaran->status === 'lunas' ? $pilihPengajuan->pembayaran->updated_at->format('d-m-Y') : 'menunggu',
                 ],
                 [
                     'label' => 'Proses Pengantaran/pengambilan',
-                    'status' => $pengajuan->status_pengajuan === 'diterima' && $pengajuan->jadwal && $pengajuan->jadwal->status === 'diproses',
-                    'tanggal' => $pengajuan->jadwal && $pengajuan->jadwal->status === 'diproses' ? $pengajuan->jadwal->created_at->format('d-m-Y') : 'menunggu'
+                    'status' => $pilihPengajuan->status_pengajuan === 'diterima' && $pilihPengajuan->jadwal && $pilihPengajuan->jadwal->status === 'diproses',
+                    'tanggal' => $pilihPengajuan->jadwal && $pilihPengajuan->jadwal->status === 'diproses' ? $pilihPengajuan->jadwal->created_at->format('d-m-Y') : 'menunggu'
                 ],
                 [
                     'label' => 'Sampel Diterima Lab',
-                    'status' => $pengajuan->jadwal && $pengajuan->jadwal->status === 'selesai',
-                    'tanggal' => $pengajuan->jadwal && $pengajuan->jadwal->status === 'selesai' ? $pengajuan->jadwal->updated_at->format('d-m-Y') : 'menunggu',
+                    'status' => $pilihPengajuan->jadwal && $pilihPengajuan->jadwal->status === 'selesai',
+                    'tanggal' => $pilihPengajuan->jadwal && $pilihPengajuan->jadwal->status === 'selesai' ? $pilihPengajuan->jadwal->updated_at->format('d-m-Y') : 'menunggu',
                 ],
                 [
                     'label' => 'Pengujian Berjalan',
-                    'status' => $pengajuan->pengujian && $pengajuan->pengujian->status === 'diproses',
-                    'tanggal' => $pengajuan->pengujian && $pengajuan->pengujian->status === 'diproses' ? $pengajuan->pengujian->created_at->format('d-m-Y') : 'menunggu',
+                    'status' => $pengujian && $pengujian->status === 'diproses',
+                    'tanggal' => $pengujian && $pengujian->status === 'diproses' ? $pengujian->created_at->format('d-m-Y') : 'menunggu',
                 ],
                 [
                     'label' => 'Hasil Tersedia',
-                    'status' => $pengajuan->hasil_uji && $pengajuan->hasil_uji->status === 'selesai',
-                    'tanggal' => $pengajuan->hasil_uji && $pengajuan->hasil_uji->status === 'selesai' ? $pengajuan->hasil_uji->updated_at->format('d-m-Y') : 'menunggu'
+                    'status' => $hasiluji && $hasiluji->status === 'selesai',
+                    'tanggal' => $hasiluji && $hasiluji->status === 'selesai' ? $hasiluji->updated_at->format('d-m-Y') : 'menunggu'
                 ]
             ];
         }
+        
+        $pembayaran = $pengajuan->pluck('pembayaran')->filter()->values();
+
         return Inertia::render('customer/dashboard/Index', [
             'statistik' => [
                 'proses' => $proses,
@@ -76,6 +91,7 @@ class DashboardController extends Controller
             'pengajuan' => $pengajuan,
             'pilihPengajuan' => $pilihPengajuan,
             'statusList' => $statusList,
+            'pembayaran' => $pembayaran,
             'auth' => [
                 'user' => $user,
             ],

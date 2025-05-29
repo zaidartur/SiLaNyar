@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Pegawai;
 use App\Http\Controllers\Controller;
 use App\Models\FormPengajuan;
 use App\Models\Jadwal;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -18,7 +20,7 @@ class JadwalController extends Controller
         $filterByTanggal = $request->input('waktu_pengambilan');
         $filterByMetode = $request->input('metode_pengambilan');
 
-        $jadwal = Jadwal::with('form_pengajuan')
+        $jadwal = Jadwal::with('form_pengajuan.instansi.user', 'user')
             ->when($filterByTanggal, function ($query) use ($filterByTanggal) {
                 $query->whereDate('waktu_pengambilan', $filterByTanggal);
             })
@@ -42,10 +44,14 @@ class JadwalController extends Controller
     //form tambah jadwal
     public function create()
     {
-        $form_pengajuan = FormPengajuan::where('status_pengambilan', 'diambil')->get();
+        $form_pengajuan = FormPengajuan::with('instansi')->where('metode_pengambilan', 'diambil')->get();
+        $user = User::whereDoesntHave('roles', function ($query) {
+            $query->where('name', 'customer');
+        })->get();
 
         return Inertia::render('pegawai/pengambilan/Tambah', [
-            'form_pengajuan' => $form_pengajuan
+            'form_pengajuan' => $form_pengajuan,
+            'user' => $user
         ]);
     }
 
@@ -59,7 +65,6 @@ class JadwalController extends Controller
                 'unique:jadwal,id_form_pengajuan'
             ],
             'waktu_pengambilan' => 'required|date|after_or_equal:today',
-            'status' => 'required|in:diproses,selesai',
             'keterangan' => 'required|string|max:255'
         ]);
 
@@ -81,6 +86,14 @@ class JadwalController extends Controller
     //form edit jadwal
     public function edit(Jadwal $jadwal)
     {
+        $jadwal->load('form_pengajuan', 'user');
+
+        $pengajuan = FormPengajuan::findOrFail($jadwal->id_form_pengajuan);
+
+        if ($pengajuan->metode_pengambilan === 'diantar') {
+            return Redirect::back()->withErrors(['status' => 'Jadwal Yang Sudah Selesai Tidak Dapat Diubah!']);
+        }
+
         $form_pengajuan = FormPengajuan::where('metode_pengambilan', 'diambil')->latest()->get();
 
         return Inertia::render('pegawai/pengambilan/Edit', [
@@ -89,7 +102,7 @@ class JadwalController extends Controller
         ]);
     }
 
-    //proses update jadwal
+    // Proses update jadwal
     public function update(Jadwal $jadwal, Request $request)
     {
         if ($jadwal->status === 'selesai') {
@@ -98,41 +111,66 @@ class JadwalController extends Controller
             ]);
         }
 
-        $batasEditTanggal = $jadwal->waktu_pengambilan->copy()->subDay();
-
-        if (now()->greaterThan($batasEditTanggal)) {
-            return Redirect::back()->withErrors([
-                'waktu_pengambilan' => 'Jadwal Tidak Dapat Diganti Karena Sudah Melewati Batas Reschedule!'
-            ]);
-        }
-
         $pengajuan = FormPengajuan::findOrFail($jadwal->id_form_pengajuan);
-
         if ($pengajuan->metode_pengambilan !== 'diambil') {
-            return Redirect::back()->withErrors([
-                'metode_pengambilan' => 'Jadwal Hanya Bisa Dibuat Ketika Customer Memilih Diambil'
+            return Redirect::route('pegawia.pengambilan.index')->withErrors([
+                'metode_pengajuan' => 'Jadwal Hanya Bisa Dibuat Ketika Customer Memilih Diambil'
             ]);
         }
 
-        $request->validate([
-            'id_form_pengajuan' => 'required',
-            'waktu_pengambilan' => 'required|date',
+        $tanggalBaru = $request->waktu_pengambilan;
+        $tanggalLama = $jadwal->waktu_pengambilan->toDateString();
+        $isWaktuBerubah = $tanggalBaru !== $tanggalLama;
+
+        $rules = [
             'status' => 'required|in:diproses,selesai',
-            'keterangan' => 'required|string|max:255'
+            'keterangan' => 'nullable|string|max:255'
+        ];
+
+        if ($isWaktuBerubah) {
+            $rules['waktu_pengambilan'] = 'required|date|after:today';
+        } else {
+            $rules['waktu_pengambilan'] = 'required|date';
+        }
+
+        $request->validate($rules);
+
+        if ($isWaktuBerubah) {
+            $jadwalLama = Carbon::parse($jadwal->waktu_pengambilan)->startOfDay();
+            $sekarang = Carbon::now()->startOfDay();
+
+            if ($jadwalLama->lessThanOrEqualTo($sekarang)) {
+                return Redirect::back()->withErrors([
+                    'waktu_pengambilan' => 'Jadwal Tidak Dapat Diganti Karena Sudah Melewati Batas Reschedule!'
+                ]);
+            }
+        }
+
+        $updated = $jadwal->update([
+            'waktu_pengambilan' => $request->waktu_pengambilan,
+            'status' => $request->status,
+            'keterangan' => $request->keterangan,
         ]);
 
-        $updated = $jadwal->update($request->all());
-
         if ($updated) {
-            return Redirect::route('pegawai.pengambilan.index')->with('message', 'Jadwal Berhasil Diupdate!');
+            return Redirect::route('pegawai.pengambilan.index')
+                ->with('message', 'Jadwal Berhasil Diupdate!');
         }
+
+        return Redirect::back()->withErrors([
+            'error' => 'Gagal mengupdate jadwal!'
+        ]);
     }
+
 
     //proses hapus jadwal
     public function destroy($id)
     {
         $jadwal = Jadwal::findOrFail($id);
 
+        if ($jadwal->status === 'diproses') {
+            return Redirect::back()->withErrors('Jadwal Tidak Dapat Dihapus, Jika Status Masih Proses');
+        }
         $jadwal->delete();
 
         if ($jadwal) {
@@ -140,11 +178,12 @@ class JadwalController extends Controller
         }
     }
 
+    //lihat detail jadwal
     public function show(Jadwal $jadwal)
     {
-        $jadwal->load(['form_pengajuan', 'pegawai']);
+        $jadwal->load(['form_pengajuan.instansi.user', 'user']);
 
-        return Inertia::render('pengambilan/Show', [
+        return Inertia::render('pegawai/pengambilan/Detail', [
             'jadwal' => $jadwal
         ]);
     }

@@ -26,7 +26,7 @@ interface Kategori {
     nama: string
     harga: number
     parameter: Parameter[]
-    sub_kategori: SubKategori[]
+    subkategori: SubKategori[]
 }
 
 

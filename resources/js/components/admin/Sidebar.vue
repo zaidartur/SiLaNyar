@@ -153,8 +153,13 @@ const toggle = (menu: 'daftar' | 'kategori') => {
                 </button>
 
                 <Transition name="slide">
+<<<<<<< HEAD
                     <div v-if="toggles.daftar" class="pl-8 space-y-1">
                         <Link v-if="can('lihat pengambilan')" :href="route('pegawai.pengambilan.index')"
+=======
+                    <div v-if="isDaftarOpen" class="pl-8 space-y-1">
+                        <Link v-if="can('lihat pengambilan')" href="/pegawai/pengambilan"
+>>>>>>> 6bb41a2 (Update Controllers, Models, Database, Routes, Page)
                             class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                         <span>Pengambilan</span>
                         </Link>

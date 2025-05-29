@@ -5,21 +5,30 @@ import AppearanceTabs from '@/components/AppearanceTabs.vue';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Head } from '@inertiajs/vue3';
 import { ref } from 'vue'
-import { defineProps } from 'vue'
 import moment from 'moment'
 
-const props = defineProps({
-  user: {
-    type: Object,
-    required: true
-  },
-  instansi: {
-    type: Array,
-    default: () => []
-  }
-})
+interface Instansi {
+  id: number
+  nama: string
+  jabatan: string
+  tipe?: 'swasta' | 'pemerintahan' | 'pribadi'
+  status_verifikasi?: 'diproses' | 'diterima' | 'ditolak'
+}
 
-const showModal = ref(false)
+interface User {
+  id: number
+  nama: string
+  email: string
+  no_wa: string
+  alamat: string
+  instansi: Instansi
+  last_login?: string
+}
+
+const props = defineProps<{
+  user: User,
+  instansi: Instansi[]
+}>()
 
 const openModal = () => {
   showModal.value = true;
@@ -29,19 +38,8 @@ const closeModal = () => {
   showModal.value = false;
 };
 
-const editInstansi = (id: number) => {
-  console.log('Editing instansi with id:', id);
-  // TODO: Implement edit functionality
-};
-
-const deleteInstansi = (id: number) => {
-  console.log('Deleting instansi with id:', id);
-  // TODO: Implement delete functionality
-};
-
 const showEditModal = ref(false);
 
-// Add function to toggle modal
 const toggleEditModal = () => {
   showEditModal.value = !showEditModal.value;
 }
@@ -55,6 +53,7 @@ const toggleEditModal = () => {
     <div class="max-w-4xl mx-auto">
       <!-- Header Profile -->
       <div class="mb-4 p-2 bg-white rounded-lg shadow-sm border border-gray-300">
+<<<<<<< HEAD
         <div class="flex justify-between items-start">
           <div>
             <h1 class="text-xl font-bold text-gray-800">Profile Pengguna</h1>
@@ -66,6 +65,11 @@ const toggleEditModal = () => {
             <AppearanceTabs />
           </div>
         </div>
+=======
+        <h1 class="text-xl font-bold text-gray-800">Profile Pengguna</h1>
+        <p class="text-sm text-gray-500">Terakhir Login: {{ moment(props.user.last_login).format('DD MMMM YYYY, HH:mm') }}
+        </p>
+>>>>>>> 6bb41a2 (Update Controllers, Models, Database, Routes, Page)
       </div>
 
       <!-- Profile Card -->
@@ -77,7 +81,7 @@ const toggleEditModal = () => {
               {{ user?.nama?.charAt(0).toUpperCase() || 'U' }}
             </span>
           </div>
-          <h2 class="text-xl font-bold text-gray-800">{{ user?.nama }}</h2>
+          <h2 class="text-xl font-bold text-gray-800">{{ props.user.nama }}</h2>
           <span class="inline-flex items-center px-3 py-1 mt-2 rounded-full text-sm bg-green-100 text-green-800">
             Pengguna Aktif
           </span>
@@ -91,6 +95,7 @@ const toggleEditModal = () => {
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="space-y-2">
                   <p class="text-sm text-gray-500">Nama Lengkap</p>
+<<<<<<< HEAD
                   <p class="font-medium dark:text-black">{{ user?.nama }}</p>
                 </div>
                 <div class="space-y-2">
@@ -104,6 +109,21 @@ const toggleEditModal = () => {
                 <div class="space-y-2">
                   <p class="text-sm text-gray-500">Alamat Pribadi</p>
                   <p class="font-medium dark:text-black">{{ user?.alamat }}</p>
+=======
+                  <p class="font-medium">{{ props.user.nama }}</p>
+                </div>
+                <div class="space-y-2">
+                  <p class="text-sm text-gray-500">Email</p>
+                  <p class="font-medium">{{ props.user.email }}</p>
+                </div>
+                <div class="space-y-2">
+                  <p class="text-sm text-gray-500">Kontak Pribadi</p>
+                  <p class="font-medium">{{ props.user.no_wa }}</p>
+                </div>
+                <div class="space-y-2">
+                  <p class="text-sm text-gray-500">Alamat Pribadi</p>
+                  <p class="font-medium">{{ props.user.alamat }}</p>
+>>>>>>> 6bb41a2 (Update Controllers, Models, Database, Routes, Page)
                 </div>
               </div>
             </div>
@@ -113,8 +133,8 @@ const toggleEditModal = () => {
               <h3 class="mb-4 text-lg font-semibold dark:text-black">Instansi Terkait</h3>
               <div class="grid gap-3">
                 <!-- List Instansi -->
-                <div v-if="instansi.length > 0">
-                  <div v-for="item in instansi" :key="item.id"
+                <div v-if="props.instansi.length > 0">
+                  <div v-for="item in props.instansi" :key="item.id"
                     class="rounded-lg border border-gray-200 bg-white shadow-sm">
                     <div class="flex items-center justify-between p-3">
                       <div>
@@ -123,8 +143,8 @@ const toggleEditModal = () => {
                         <div class="mt-1">
                           <span :class="{
                             'rounded-full px-2 py-1 text-xs': true,
-                            'bg-yellow-100 text-yellow-800': item.status_verifikasi === 'pending',
-                            'bg-green-100 text-green-800': item.status_verifikasi === 'terverifikasi',
+                            'bg-yellow-100 text-yellow-800': item.status_verifikasi === 'diproses',
+                            'bg-green-100 text-green-800': item.status_verifikasi === 'diterima',
                             'bg-red-100 text-red-800': item.status_verifikasi === 'ditolak',
                           }">
                             {{ item.status_verifikasi }}
@@ -214,10 +234,3 @@ const toggleEditModal = () => {
     </div>
   </CustomerLayout>
 </template>
-
-<style scoped>
-.profile {
-  max-width: 600px;
-  margin: 0 auto;
-}
-</style>

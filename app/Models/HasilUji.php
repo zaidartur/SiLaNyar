@@ -20,7 +20,8 @@ class HasilUji extends Pivot
         'nilai',
         'keterangan',
         'status',
-        'file_pdf'
+        'file_pdf',
+        'diverifikasi_oleh',
     ];
 
     protected static function boot()

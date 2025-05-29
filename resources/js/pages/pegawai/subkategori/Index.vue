@@ -26,7 +26,6 @@ const props = defineProps<{
 </script>
 
 <template>
-
     <Head title="SubKategori" />
     <AdminLayout>
         <div class="p-6">
@@ -64,11 +63,11 @@ const props = defineProps<{
                             <td class="px-6 py-4">
                                 <div class="flex gap-2">
                                     <Link :href="route('pegawai.subkategori.edit', item.id)" class="text-yellow-500">
-                                    <span>✏</span>
+                                    <span>✏️</span>
                                     </Link>
                                     <Link :href="route('pegawai.subkategori.destroy', item.id)" method="delete"
                                         class="text-red-500" as="button" type="button">
-                                    <span>🗑</span>
+                                    <span>🗑️</span>
                                     </Link>
                                 </div>
                             </td>

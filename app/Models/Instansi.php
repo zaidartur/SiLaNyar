@@ -23,7 +23,6 @@ class Instansi extends Model
         'no_telepon',
         'posisi_jabatan',
         'departemen_divisi',
-        'status_verifikasi',
         'diverifikasi_oleh'
     ];
 
@@ -53,5 +52,10 @@ class Instansi extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'id_user');
+    }
+
+    public function form_pengajuan()
+    {
+        return $this->hasMany(FormPengajuan::class, 'id_instansi');
     }
 }

@@ -4,7 +4,7 @@ import { useForm } from '@inertiajs/vue3'
 const form = useForm({
     nama: '',
     batas_minimum: 0,
-    batas_maksimum: 0,
+    batas_maksimum: null,
 })
 
 const submit = () => {

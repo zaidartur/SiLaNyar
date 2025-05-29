@@ -12,6 +12,7 @@ class SubKategori extends Model
     protected $table = 'subkategori';
 
     protected $fillable = [
+        'kode_subkategori',
         'nama'
     ];
 

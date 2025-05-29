@@ -84,7 +84,6 @@ class CustomerProfileController extends Controller
             'no_telepon' => $request->no_telepon,
             'posisi_jabatan' => $request->posisi_jabatan,
             'departemen_divisi' => $request->departemen_divisi,
-            'status_verifikasi' => 'diproses',
         ]);
 
         if (!$instansi) {

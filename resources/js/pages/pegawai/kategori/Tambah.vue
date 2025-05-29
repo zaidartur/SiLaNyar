@@ -13,7 +13,14 @@ interface Parameter {
     harga: number
 }
 
+interface SubKategori {
+    id: number
+    kode_subkategori: string
+    nama: string
+}
+
 const props = defineProps<{
+    subkategori: SubKategori[]
     parameter: Parameter[]
 }>()
 
@@ -21,12 +28,13 @@ const displayValue = ref('')
 
 const form = useForm({
     nama: '',
-    harga: '',
-    parameter: (props.parameter || []).map(param => ({
+    harga: 0,
+    subkategori: [],
+    parameter: props.parameter.map(param => ({
         id: param.id,
         checked: false,
         baku_mutu: ''
-    }))
+    })),
 })
 
 const formatCurrency = (value) => {
@@ -48,11 +56,11 @@ const formatOnBlur = () => {
 }
 
 const submit = () => {
-    const filterParam = form.parameter.filter(p => p.checked)
+    const filterParam = form.parameter.filter(s => s.checked)
 
-    if (filterParam.length === 0) {
-        alert('Pilih minimal satu parameter!')
-        return
+    if (form.subkategori.length === 0 && filterParam.length === 0) {
+        alert('Pilih minimal satu subkategori atau parameter!');
+        return;
     }
 
     form.parameter = filterParam
@@ -97,42 +105,24 @@ const closeModal = () => {
                             </span>
                         </div>
 
-                        <!-- Harga -->
-                        <div class="grid gap-2">
-                            <Label for="harga">Harga</Label>
-                            <Input id="harga" v-model="displayValue" @input="handleInput" @blur="formatOnBlur"
-                                type="text" placeholder="Contoh: 100.000" required />
-                            <span v-if="form.errors.harga" class="text-sm text-red-600">
-                                {{ form.errors.harga }}
-                            </span>
-                        </div>
+            <div>
+                <label class="block mb-1">Subkategori</label>
+                <div v-for="sub in props.subkategori" :key="sub.id" class="mb-2">
+                    <input type="checkbox" :value="sub.id" v-model="form.subkategori" :id="'sub-' + sub.id" />
+                    <label class="block text-sm font-semibold">{{ sub.nama }}</label>
+                </div>
+                <div class="text-red-500 text-sm">{{ form.errors.subkategori }}</div>
+            </div>
 
-                        <!-- Parameter List -->
-                        <div class="grid gap-2">
-                            <Label>Parameter dan Baku Mutu</Label>
-                            <div class="space-y-2 max-h-60 overflow-y-auto p-4 border rounded">
-                                <div v-for="(param, index) in form.parameter" :key="param.id" 
-                                    class="flex items-center gap-4 p-2 hover:bg-gray-50">
-                                    <input type="checkbox" v-model="param.checked" :id="'param-' + param.id"
-                                        class="rounded border-gray-300" />
-                                    <Label :for="'param-' + param.id" class="flex-1">
-                                        {{ props.parameter[index].nama_parameter }}
-                                    </Label>
-                                    <Input v-model="param.baku_mutu" type="text" 
-                                        :disabled="!param.checked"
-                                        placeholder="Baku Mutu"
-                                        class="w-48" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Submit Button -->
-                        <div class="flex justify-end mt-4">
-                            <Button type="submit" class="bg-customDarkGreen hover:bg-green-600 w-32"
-                                :disabled="form.processing">
-                                Simpan
-                            </Button>
-                        </div>
+            <div>
+                <label class="block mb-1">Parameter dan baku Mutu</label>
+                <div v-for="(param, index) in form.parameter" :key="param.id" class="mb-2">
+                    <input type="checkbox" v-model="param.checked" :id="'param-' + param.id" />
+                    <label class="block text-sm font-semibold">{{ props.parameter[index].nama_parameter }}</label>
+                    <input v-model="param.baku_mutu" type="text" class="w-48 rounded border px-3 py-2"
+                        :disabled="!param.checked" placeholder="Baku Mutu" />
+                    <div class="text-red-500 text-sm">
+                        {{ param.checked ? (form.errors as any)[`parameter.${index}.baku_mutu`] : '' }}
                     </div>
                 </form>
             </div>
