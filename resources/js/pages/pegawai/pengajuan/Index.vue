@@ -3,8 +3,47 @@ import AdminLayout from '@/layouts/admin/AdminLayout.vue'
 import { Link } from '@inertiajs/vue3'
 import { ref } from 'vue'
 
+interface User {
+    id: number
+    nama: string
+}
+
+interface Instansi {
+    id: number
+    nama: string
+    user: User
+}
+
+interface JenisCairan {
+    id: number
+    nama: string
+}
+
+interface Parameter {
+    id: number
+    nama_parameter: string
+}
+
+interface Kategori {
+    id: number
+    nama: string
+}
+
+interface Pengajuan {
+    id: number
+    kode_pengajuan: string
+    volume_sampel: number
+    status_pengajuan: string
+    metode_pengambilan: string
+    lokasi: string
+    instansi: Instansi
+    kategori: Kategori
+    jenis_cairan: JenisCairan
+    parameter: Parameter[]
+}
+
 const props = defineProps<{
-    pengajuan: any[],
+    pengajuan: Pengajuan[],
     filter: {
         status: string,
         tanggal: string
@@ -32,10 +71,18 @@ const handleFilter = () => {
                 <div class="flex flex-col w-40">
                     <label for="status" class="mb-1 text-sm font-medium text-gray-700">Pilih Status:</label>
                     <select id="status" v-model="status"
+<<<<<<< HEAD
                         class="rounded bg-customDarkGreen text-white border-gray-300 px-2 py-1" @change="handleFilter">
                         <option value="diproses">Diproses</option>
                         <option value="selesai">Selesai</option>
                         <option value="verifikasi">Proses Verifikasi</option>
+=======
+                        class="rounded bg-green-600 text-white border-gray-300 px-2 py-1" @change="handleFilter">
+                        <option disabled value="">Pilih Status</option>
+                        <option value="proses_validasi">Proses Validasi</option>
+                        <option value="diterima">Di Terima</option>
+                        <option value="ditolak">Di Tolak</option>
+>>>>>>> 6bb41a2 (Update Controllers, Models, Database, Routes, Page)
                     </select>
                 </div>
 
@@ -53,15 +100,19 @@ const handleFilter = () => {
                     <thead>
                         <tr class="bg-gray-500 text-white">
                             <th class="px-6 py-3">ID Pengajuan</th>
-                            <th class="px-6 py-3">Nama Pelanggan</th>
+                            <th class="px-6 py-3">Nama Pemohon</th>
+                            <th class="px-6 py-3">Nama Instansi</th>
+                            <th class="px-6 py-3">Jenis Cairan</th>
                             <th class="px-6 py-3">Kategori</th>
+                            <th class="px-6 py-3">Parameter</th>
+                            <th class="px-6 py-3">Volume Sampel</th>
                             <th class="px-6 py-3">Metode Pengambilan</th>
-                            <th class="px-6 py-3">Volume</th>
-                            <th class="px-6 py-3">Status</th>
+                            <th class="px-6 py-3">Status Pengajuan</th>
                             <th class="px-6 py-3">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
+<<<<<<< HEAD
                         <tr v-for="(item, index) in pengajuan" :key="item.id"
                             :class="{ 'bg-gray-200': index % 2 !== 0 }">
                             <td class="px-6 py-4">DP-001</td>
@@ -77,10 +128,28 @@ const handleFilter = () => {
                                 }">
                                     {{ item.status === 'verifikasi' ? 'Proses Verifikasi' : item.status }}
                                 </span>
+=======
+                        <tr v-for="(item, index) in props.pengajuan" :key="item.id"
+                            :class="{ 'bg-gray-200': index % 2 !== 0 }">
+                            <td class="px-6 py-4">{{ item.kode_pengajuan }}</td>
+                            <td class="px-6 py-4">{{ item.instansi.user.nama }}</td>
+                            <td class="px-6 py-4">{{ item.instansi?.nama ?? '-' }}</td>
+                            <td class="px-6 py-4">{{ item.jenis_cairan.nama }}</td>
+                            <td class="px-6 py-4">{{ item.kategori?.nama }}</td>
+                            <td class="px-4 py-3 text-black">
+                                <ul class="list-disc ml-4">
+                                    <li v-for="param in item.parameter" :key="param.id">
+                                        {{ param.nama_parameter }}
+                                    </li>
+                                </ul>
+>>>>>>> 6bb41a2 (Update Controllers, Models, Database, Routes, Page)
                             </td>
+                            <td class="px-6 py-4">{{ item.volume_sampel }}</td>
+                            <td class="px-6 py-4">{{ item.metode_pengambilan }}</td>
+                            <td class="px-6 py-4">{{ item.status_pengajuan }}</td>
                             <td class="px-6 py-4">
                                 <div class="flex gap-2">
-                                    <Link :href="route('pegawai.pengajuan.show', item.id)" class="text-blue-500">
+                                    <Link :href="route('pegawai.pengajuan.detail', item.id)" class="text-blue-500">
                                     <span>👁️</span>
                                     </Link>
                                     <Link :href="route('pegawai.pengajuan.edit', item.id)" class="text-yellow-500">

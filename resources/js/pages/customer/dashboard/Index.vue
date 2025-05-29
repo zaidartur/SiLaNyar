@@ -1,5 +1,81 @@
 <script setup lang="ts">
 import CustomerLayout from '@/layouts/customer/CustomerLayout.vue'
+import { Link } from '@inertiajs/vue3';
+import { defineProps } from 'vue';
+
+interface StatusItem {
+    label: string
+    status: boolean
+    tanggal: string
+}
+
+interface Statistik {
+    proses: number
+    ditolak: number
+    diterima: number
+}
+
+interface Kategori {
+    id: number
+    nama: string
+}
+
+interface JenisCairan {
+    id: number
+    nama: string
+}
+
+interface Pengajuan {
+    id: number
+    kode_pengajuan: string
+    kategori: Kategori
+    jenis_cairan: JenisCairan
+    volume_sampel: number
+    status_pengajuan: 'proses_validasi' | 'diterima' | 'ditolak'
+    metode_pengambilan: 'diantar' | 'diambil'
+    lokasi: string
+}
+
+interface Pembayaran {
+    id: number
+    id_order: string
+    form_pengajuan: Pengajuan
+    total_biaya: number
+    tanggal_pembayaran: string
+    metode_pembayaran: 'transfer' | 'tunai'
+    status_pembayaran: 'diproses' | 'selesai' | 'gagal'
+    updated_at: string
+}
+
+interface PilihPengajuan {
+    id: number | string
+    status_pengajuan?: string
+    pembayaran?: {
+        status?: string
+        updated_at?: string
+    }
+    jadwal?: {
+        status?: string
+        created_at?: string
+        updated_at?: string
+    }
+    pengujian?: {
+        status?: string
+        created_at?: string
+    }
+    hasil_uji?: {
+        status?: string
+        updated_at?: string
+    }
+}
+
+const props = defineProps<{
+    statusList: StatusItem[]
+    statistik: Statistik
+    pengajuan: Pengajuan[]
+    pembayaran: Pembayaran[]
+    pilihPengajuan: PilihPengajuan | null
+}>()
 </script>
 
 <template>
@@ -11,21 +87,20 @@ import CustomerLayout from '@/layouts/customer/CustomerLayout.vue'
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                <!-- Left Section -->
                 <div class="lg:col-span-3 space-y-6">
                     <!-- Status Cards -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                             <h3 class="text-yellow-500 font-medium">Belum Terverifikasi</h3>
-                            <p class="text-3xl font-bold mt-2">4</p>
+                            <p class="text-3xl font-bold mt-2">{{ props.statistik?.proses ?? 0 }}</p>
                         </div>
                         <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                             <h3 class="text-red-500 font-medium">Ditolak</h3>
-                            <p class="text-3xl font-bold mt-2">3</p>
+                            <p class="text-3xl font-bold mt-2">{{ props.statistik?.ditolak ?? 0 }}</p>
                         </div>
                         <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                             <h3 class="text-green-500 font-medium">Diterima</h3>
-                            <p class="text-3xl font-bold mt-2">3</p>
+                            <p class="text-3xl font-bold mt-2">{{ props.statistik?.diterima ?? 0 }}</p>
                         </div>
                     </div>
 
@@ -46,6 +121,9 @@ import CustomerLayout from '@/layouts/customer/CustomerLayout.vue'
                                         <th class="px-4 py-3 text-left text-sm font-medium text-green-700">ID</th>
                                         <th class="px-4 py-3 text-left text-sm font-medium text-green-700">Jenis Cairan
                                         </th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-green-700">Volume Sampel
+                                        </th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-green-700">Kategori</th>
                                         <th class="px-4 py-3 text-left text-sm font-medium text-green-700">Metode
                                             Pengambilan</th>
                                         <th class="px-4 py-3 text-left text-sm font-medium text-green-700">Lokasi</th>
@@ -54,29 +132,37 @@ import CustomerLayout from '@/layouts/customer/CustomerLayout.vue'
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200">
-                                    <tr>
-                                        <td class="px-4 py-3 text-sm">DP-001</td>
-                                        <td class="px-4 py-3 text-sm">Universal</td>
-                                        <td class="px-4 py-3 text-sm">Diambil</td>
-                                        <td class="px-4 py-3 text-sm">Gedung A</td>
+                                    <tr v-for="item in props.pengajuan" :key="item.id">
+                                        <td class="px-6 py-4 text-black">
+                                            <Link :href="route('customer.dashboard', { id: item.id })"
+                                                class="text-blue-600 hover:underline" preserve-scroll>
+                                            {{ item.kode_pengajuan }}
+                                            </Link>
+                                        </td>
+                                        <td class="px-4 py-3 text-sm">{{ item.jenis_cairan?.nama }}</td>
+                                        <td class="px-4 py-3 text-sm">{{ item.volume_sampel }}</td>
+                                        <td class="px-4 py-3 text-sm">{{ item.kategori?.nama }}</td>
+                                        <td class="px-4 py-3 text-sm">{{ item.metode_pengambilan }}</td>
+                                        <td class="px-4 py-3 text-sm">{{ item.lokasi }}</td>
                                         <td class="px-4 py-3 text-sm">
-                                            <span
-                                                class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">Diterima</span>
+                                            <span :class="{
+                                                'bg-yellow-100 text-yellow-700': item.status_pengajuan === 'proses_validasi',
+                                                'bg-red-100 text-red-700': item.status_pengajuan === 'ditolak',
+                                                'bg-green-100 text-green-700': item.status_pengajuan === 'diterima',
+                                            }" class="px-2 py-1 text-xs rounded-full">
+                                                {{ item.status_pengajuan }}
+                                            </span>
                                         </td>
                                         <td class="px-4 py-3 text-sm">
                                             <div class="flex space-x-2">
-                                                <button class="text-blue-500 hover:text-blue-700">
-                                                    <span class="sr-only">View</span>
-                                                    👁️
-                                                </button>
-                                                <button class="text-yellow-500 hover:text-yellow-700">
-                                                    <span class="sr-only">Edit</span>
-                                                    ✏️
-                                                </button>
-                                                <button class="text-red-500 hover:text-red-700">
-                                                    <span class="sr-only">Delete</span>
-                                                    🗑️
-                                                </button>
+                                                <Link :href="route('customer.pengajuan.detail', item.id)"
+                                                    class="text-blue-500">
+                                                <span>👁️</span>
+                                                </Link>
+                                                <Link :href="route('customer.pengajuan.edit', item.id)"
+                                                    class="text-yellow-500">
+                                                <span>✏️</span>
+                                                </Link>
                                             </div>
                                         </td>
                                     </tr>
@@ -85,138 +171,89 @@ import CustomerLayout from '@/layouts/customer/CustomerLayout.vue'
                         </div>
                     </div>
                     <!-- Ringkasan Pembayaran Card -->
-                    <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
-                        <div class="border-b-2 border-gray-200 pb-2 mb-4">
+                    <div class="bg-white shadow rounded p-4">
+                        <h2 class="text-lg font-semibold mb-4">Rincian Pembayaran</h2>
+
+                        <div v-if="props.pembayaran.length > 0">
+                            <table class="table-auto w-full border">
+                                <thead class="bg-gray-100 text-left">
+                                    <tr>
+                                        <th class="p-2 border">Kode</th>
+                                        <th class="p-2 border">Total Bayar</th>
+                                        <th class="p-2 border">Status</th>
+                                        <th class="p-2 border">Metode</th>
+                                        <th class="p-2 border">Tanggal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="p in props.pembayaran" :key="p.id" class="hover:bg-gray-50">
+                                        <td class="p-2 border">#{{ p.id_order }}</td>
+                                        <td class="p-2 border">Rp {{ p.total_biaya.toLocaleString() }}</td>
+                                        <td class="p-2 border capitalize"
+                                            :class="p.status_pembayaran === 'selesai' ? 'text-green-600' : 'text-red-600'">
+                                            {{ p.status_pembayaran }}
+                                        </td>
+                                        <td class="p-2 border">{{ p.metode_pembayaran ?? '-' }}</td>
+                                        <td class="p-2 border">{{ new Date(p.updated_at).toLocaleDateString('id-ID') }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div v-else class="text-gray-500">Belum ada pembayaran.</div>
+                    </div>
+                    </div>
+
+                    <!-- Right Section - Status Pengujian -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white rounded-lg border border-gray-200 shadow-lg p-4 sticky top-4">
                             <h2 class="text-lg font-semibold mb-4 flex items-center">
-                                <svg width="30" height="27" viewBox="0 0 30 27" fill="none"
+                                <svg width="27" height="28" viewBox="0 0 27 28" fill="none"
                                     xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                                    <rect width="30" height="27" fill="url(#pattern0_741_1336)" />
+                                    <rect width="27" height="28" fill="url(#pattern0_741_1283)" />
                                     <defs>
-                                        <pattern id="pattern0_741_1336" patternContentUnits="objectBoundingBox"
+                                        <pattern id="pattern0_741_1283" patternContentUnits="objectBoundingBox"
                                             width="1" height="1">
-                                            <use xlink:href="#image0_741_1336"
-                                                transform="matrix(0.009 0 0 0.01 0.05 0)" />
+                                            <use xlink:href="#image0_741_1283"
+                                                transform="matrix(0.01 0 0 0.00964286 0 0.0178571)" />
                                         </pattern>
-                                        <image id="image0_741_1336" width="100" height="100" preserveAspectRatio="none"
-                                            xlink:href="data:image/png;base64,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" />
+                                        <image id="image0_741_1283" width="100" height="100" preserveAspectRatio="none"
+                                            xlink:href="data:image/png;base64,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" />
                                     </defs>
                                 </svg>
-                                Ringkasan Pembayaran
+                                Status Pengujian
                             </h2>
-                        </div>
-                        <div class="space-y-2">
-                            <div class="flex justify-between">
-                                <span>Hg (Hydrargyrum / Merkuri)</span>
-                                <span>Rp 75.000</span>
-                            </div>
-                            <div class="border-t pt-2 mt-2">
-                                <div class="flex justify-between font-semibold">
-                                    <span>Total Pembayaran</span>
-                                    <span>Rp 225.000</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                            <div class="space-y-6">
+                                <div class="relative">
+                                    <div class="absolute left-5 top-5 w-0.5 bg-gray-200"
+                                        :style="{ height: `calc(100% - 2rem)` }"></div>
 
-                <!-- Right Section - Status Pengujian -->
-                <div class="lg:col-span-1">
-                    <div class="bg-white rounded-lg border border-gray-200 shadow-lg p-4 sticky top-4">
-                        <h2 class="text-lg font-semibold mb-4 flex items-center">
-                            <svg width="27" height="28" viewBox="0 0 27 28" fill="none"
-                                xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                                <rect width="27" height="28" fill="url(#pattern0_741_1283)" />
-                                <defs>
-                                    <pattern id="pattern0_741_1283" patternContentUnits="objectBoundingBox" width="1"
-                                        height="1">
-                                        <use xlink:href="#image0_741_1283"
-                                            transform="matrix(0.01 0 0 0.00964286 0 0.0178571)" />
-                                    </pattern>
-                                    <image id="image0_741_1283" width="100" height="100" preserveAspectRatio="none"
-                                        xlink:href="data:image/png;base64,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" />
-                                </defs>
-                            </svg>
-                            Status Pengujian
-                        </h2>
-                        <div class="space-y-6">
-                            <!-- Timeline line -->
-                            <div class="relative">
-                                <div class="absolute left-5 top-5 w-0.5 bg-gray-200" style="height: calc(100% - 2rem);">
-                                </div>
-
-                                <!-- Timeline items -->
-                                <div class="space-y-6">
-                                    <div class="flex items-center">
-                                        <div
-                                            class="z-10 flex h-10 w-10 items-center justify-center rounded-full bg-green-200">
-                                            <div class="h-4 w-4 rounded-full bg-green-600"></div>
-                                        </div>
-                                        <div class="ml-4">
-                                            <p class="font-medium text-green-600">Pengajuan Diterima</p>
-                                            <p class="text-sm text-gray-500">20 Apr 2022</p>
-                                        </div>
-                                    </div>
-
-                                    <div class="flex items-center">
-                                        <div
-                                            class="z-10 flex h-10 w-10 items-center justify-center rounded-full bg-gray-200">
-                                            <div class="h-4 w-4 rounded-full bg-gray-400"></div>
-                                        </div>
-                                        <div class="ml-4">
-                                            <p class="font-medium text-gray-600">Pembayaran</p>
-                                            <p class="text-sm text-gray-500">Menunggu</p>
-                                        </div>
-                                    </div>
-
-                                    <div class="flex items-center">
-                                        <div
-                                            class="z-10 flex h-10 w-10 items-center justify-center rounded-full bg-gray-200">
-                                            <div class="h-4 w-4 rounded-full bg-gray-400"></div>
-                                        </div>
-                                        <div class="ml-4">
-                                            <p class="font-medium text-gray-600">Pengantaran/Pengambilan</p>
-                                            <p class="text-sm text-gray-500">Menunggu</p>
-                                        </div>
-                                    </div>
-
-                                    <div class="flex items-center">
-                                        <div
-                                            class="z-10 flex h-10 w-10 items-center justify-center rounded-full bg-gray-200">
-                                            <div class="h-4 w-4 rounded-full bg-gray-400"></div>
-                                        </div>
-                                        <div class="ml-4">
-                                            <p class="font-medium text-gray-600">Sampel Diterima</p>
-                                            <p class="text-sm text-gray-500">Menunggu</p>
-                                        </div>
-                                    </div>
-
-                                    <div class="flex items-center">
-                                        <div
-                                            class="z-10 flex h-10 w-10 items-center justify-center rounded-full bg-gray-200">
-                                            <div class="h-4 w-4 rounded-full bg-gray-400"></div>
-                                        </div>
-                                        <div class="ml-4">
-                                            <p class="font-medium text-gray-600">Pengujian Berjalan</p>
-                                            <p class="text-sm text-gray-500">Menunggu</p>
-                                        </div>
-                                    </div>
-
-                                    <div class="flex items-center">
-                                        <div
-                                            class="z-10 flex h-10 w-10 items-center justify-center rounded-full bg-gray-200">
-                                            <div class="h-4 w-4 rounded-full bg-gray-400"></div>
-                                        </div>
-                                        <div class="ml-4">
-                                            <p class="font-medium text-gray-600">Hasil Tersedia</p>
-                                            <p class="text-sm text-gray-500">Menunggu</p>
+                                    <div class="space-y-6">
+                                        <div v-for="(item, index) in props.statusList" :key="index"
+                                            class="flex items-center">
+                                            <div :class="[
+                                                'z-10 flex h-10 w-10 items-center justify-center rounded-full',
+                                                item.status ? 'bg-green-200' : 'bg-gray-200'
+                                            ]">
+                                                <div :class="[
+                                                    'h-4 w-4 rounded-full',
+                                                    item.status ? 'bg-green-600' : 'bg-gray-400'
+                                                ]"></div>
+                                            </div>
+                                            <div class="ml-4">
+                                                <p
+                                                    :class="['font-medium', item.status ? 'text-green-600' : 'text-gray-600']">
+                                                    {{ item.label }}</p>
+                                                <p class="text-sm text-gray-500">{{ item.tanggal }}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
     </CustomerLayout>
 </template>

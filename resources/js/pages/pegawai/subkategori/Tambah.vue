@@ -9,65 +9,41 @@ interface Parameter {
     harga: number
 }
 
-interface SubKategori {
-    id: number
-    kode_subkategori: string
-    nama: string
-}
-
 const props = defineProps<{
-    subkategori: SubKategori[]
     parameter: Parameter[]
 }>()
 
 const form = useForm({
     nama: '',
-    harga: 0,
-    subkategori: [],
     parameter: props.parameter.map(param => ({
         id: param.id,
         checked: false,
         baku_mutu: ''
-    })),
+    }))
 })
 
 const submit = () => {
-    const filterParam = form.parameter.filter(s => s.checked)
+    const filterParam = form.parameter.filter(p => p.checked)
 
-    if (form.subkategori.length === 0 && filterParam.length === 0) {
-        alert('Pilih minimal satu subkategori atau parameter!');
+    if (filterParam.length === 0) {
+        alert('Pilih minimal satu parameter!');
         return;
     }
 
     form.parameter = filterParam
-    form.post('/pegawai/kategori/store')
+    form.post('/pegawai/subkategori/store')
 }
 </script>
 
 <template>
     <div class="p-6 max-w-md mx-auto">
-        <h1 class="text-xl font-bold mb-4">Tambah Kategori</h1>
+        <h1 class="text-xl font-bold mb-4">Tambah Sub Kategori</h1>
 
         <form @submit.prevent="submit" class="space-y-4">
             <div>
-                <label class="block mb-1">Nama Kategori</label>
+                <label class="block mb-1">Nama Sub Kategori</label>
                 <input v-model="form.nama" type="text" class="border rounded px-3 py-2 w-full" />
                 <div v-if="form.errors.nama" class="text-red-500 text-sm">{{ form.errors.nama }}</div>
-            </div>
-
-            <div>
-                <label class="block mb-1">Harga</label>
-                <input v-model="form.harga" type="text" inputmode="numeric" class="border rounded px-3 py-2 w-full" />
-                <div v-if="form.errors.harga" class="text-red-500 text-sm">{{ form.errors.harga }}</div>
-            </div>
-
-            <div>
-                <label class="block mb-1">Subkategori</label>
-                <div v-for="sub in props.subkategori" :key="sub.id" class="mb-2">
-                    <input type="checkbox" :value="sub.id" v-model="form.subkategori" :id="'sub-' + sub.id" />
-                    <label class="block text-sm font-semibold">{{ sub.nama }}</label>
-                </div>
-                <div class="text-red-500 text-sm">{{ form.errors.subkategori }}</div>
             </div>
 
             <div>
