@@ -38,7 +38,7 @@ class SSOController extends Controller
             return redirect('/')->withErrors(['SSO state mismatch']);
         }
 
-        $response = Http::timeout(60)->withoutVerifying()->asForm()->post(config('services.sso.token_url'), [
+        $response = Http::withoutVerifying()->asForm()->post(config('services.sso.token_url'), [
             'grant_type' => 'authorization_code',
             'client_id' => config('services.sso.client_id'),
             'client_secret' => config('services.sso.client_secret'),

@@ -23,7 +23,6 @@ class Instansi extends Model
         'no_telepon',
         'posisi_jabatan',
         'departemen_divisi',
-        'status_verifikasi',
         'diverifikasi_oleh'
     ];
 

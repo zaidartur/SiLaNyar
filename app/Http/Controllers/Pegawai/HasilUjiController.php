@@ -20,6 +20,16 @@ class HasilUjiController extends Controller
     {
         $hasil_uji = HasilUji::with('parameter', 'pengujian', 'kategori');
 
+        foreach ($hasil_uji as $item) {
+            if($item->status === 'proses_review')
+            {
+                if(now()->diffInDays($item->proses_review_at >= 2))
+                {
+                    $item->update(['status' => 'proses_peresmian']);
+                }
+            }
+        }
+        
         return Inertia::render('pegawai/hasil_uji/Index', [
             'hasil_uji' => $hasil_uji
         ]);
@@ -83,7 +93,7 @@ class HasilUjiController extends Controller
             'id_pengujian' => 'required|exists:pengujian,id',
             'nilai' => 'required|numeric',
             'keterangan' => 'required|string|max:255',
-            'status' => 'required|in:acc,revisi,draft'
+            'status' => 'required|in:draf,acc,revisi,proses_review,proses_peresmian,selesai',
         ]);
 
         if ($hasil_uji->status !== 'acc') {
@@ -108,6 +118,29 @@ class HasilUjiController extends Controller
         if ($hasil_uji) {
             return Redirect::route('pegawai.hasil_uji.index')->with('message', 'Hasil Uji Berhasil Diupdate!');
         }
+    }
+
+    public function verifikasi($id, Request $request)
+    {
+        $user = Auth::user();
+
+        $hasil_uji = HasilUji::findOrFail($id);
+
+        $request->validate([
+            'status' => 'required|in:draf,acc,revisi,proses_review,proses_peresmian,selesai',
+            'diupdate_oleh' => $user->nama
+        ]);
+
+        $data = ['status' => $request->status];
+
+        if ($hasil_uji->status === 'proses_review')
+        {
+            $data['proses_review_at'] = now();
+        }
+
+        $hasil_uji->update($data);
+
+        return Redirect::route('pegawai.hasil_uji.index')->with('message', 'Hasil Uji Berhasil Diupdate');
     }
 
     //lihat detail hasil uji

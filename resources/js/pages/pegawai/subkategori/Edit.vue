@@ -7,74 +7,63 @@ interface Parameter {
     nama_parameter: string
     satuan: string
     harga: number
+    pivot?: {
+        baku_mutu: string
+    }
 }
 
 interface SubKategori {
     id: number
     kode_subkategori: string
     nama: string
+    parameter: Parameter[]
 }
 
 const props = defineProps<{
-    subkategori: SubKategori[]
+    subkategori: SubKategori
     parameter: Parameter[]
 }>()
 
 const form = useForm({
-    nama: '',
-    harga: 0,
-    subkategori: [],
+    nama: props.subkategori.nama,
     parameter: props.parameter.map(param => ({
         id: param.id,
-        checked: false,
-        baku_mutu: ''
-    })),
+        nama_parameter: param.nama_parameter,
+        checked: !!param.pivot,
+        baku_mutu: param.pivot?.baku_mutu ?? ''
+    }))
 })
 
 const submit = () => {
-    const filterParam = form.parameter.filter(s => s.checked)
+    const filterParam = form.parameter.filter(p => p.checked)
 
-    if (form.subkategori.length === 0 && filterParam.length === 0) {
-        alert('Pilih minimal satu subkategori atau parameter!');
+    if (filterParam.length === 0) {
+        alert('Pilih minimal satu parameter!');
         return;
     }
 
     form.parameter = filterParam
-    form.post('/pegawai/kategori/store')
+    form.put(`/pegawai/subkategori/${props.subkategori.id}/edit`)
 }
 </script>
 
+
 <template>
     <div class="p-6 max-w-md mx-auto">
-        <h1 class="text-xl font-bold mb-4">Tambah Kategori</h1>
+        <h1 class="text-xl font-bold mb-4">Edit Sub Kategori</h1>
 
         <form @submit.prevent="submit" class="space-y-4">
             <div>
-                <label class="block mb-1">Nama Kategori</label>
+                <label class="block mb-1">Nama Sub Kategori</label>
                 <input v-model="form.nama" type="text" class="border rounded px-3 py-2 w-full" />
                 <div v-if="form.errors.nama" class="text-red-500 text-sm">{{ form.errors.nama }}</div>
-            </div>
-
-            <div>
-                <label class="block mb-1">Harga</label>
-                <input v-model="form.harga" type="text" inputmode="numeric" class="border rounded px-3 py-2 w-full" />
-                <div v-if="form.errors.harga" class="text-red-500 text-sm">{{ form.errors.harga }}</div>
-            </div>
-
-            <div>
-                <label class="block mb-1">Subkategori</label>
-                <div v-for="sub in props.subkategori" :key="sub.id" class="mb-2">
-                    <input type="checkbox" :value="sub.id" v-model="form.subkategori" :id="'sub-' + sub.id" />
-                    <label class="block text-sm font-semibold">{{ sub.nama }}</label>
-                </div>
-                <div class="text-red-500 text-sm">{{ form.errors.subkategori }}</div>
             </div>
 
             <div>
                 <label class="block mb-1">Parameter dan baku Mutu</label>
                 <div v-for="(param, index) in form.parameter" :key="param.id" class="mb-2">
                     <input type="checkbox" v-model="param.checked" :id="'param-' + param.id" />
-                    <label class="block text-sm font-semibold">{{ props.parameter[index].nama_parameter }}</label>
+                    <label class="block text-sm font-semibold">{{ param.nama_parameter }}</label>
                     <input v-model="param.baku_mutu" type="text" class="w-48 rounded border px-3 py-2"
                         :disabled="!param.checked" placeholder="Baku Mutu" />
                     <div class="text-red-500 text-sm">
