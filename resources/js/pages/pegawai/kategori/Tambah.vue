@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { useForm } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { ref } from 'vue'
 
 interface Parameter {
     id: number
@@ -20,6 +24,8 @@ const props = defineProps<{
     parameter: Parameter[]
 }>()
 
+const displayValue = ref('')
+
 const form = useForm({
     nama: '',
     harga: 0,
@@ -31,6 +37,24 @@ const form = useForm({
     })),
 })
 
+const formatCurrency = (value) => {
+    if (!value) return ''
+    const num = parseInt(value.toString().replace(/[^\d]/g, ''), 10)
+    if (isNaN(num)) return ''
+    
+    form.harga = num.toString()
+    return 'Rp ' + num.toLocaleString('id-ID')
+}
+
+const handleInput = (e) => {
+    const formatted = formatCurrency(e.target.value)
+    displayValue.value = formatted
+}
+
+const formatOnBlur = () => {
+    displayValue.value = formatCurrency(form.harga)
+}
+
 const submit = () => {
     const filterParam = form.parameter.filter(s => s.checked)
 
@@ -40,26 +64,46 @@ const submit = () => {
     }
 
     form.parameter = filterParam
-    form.post('/pegawai/kategori/store')
+    form.post('/pegawai/kategori/store', {
+        onSuccess: () => emit('close')
+    })
+}
+
+const emit = defineEmits(['close'])
+
+const closeModal = () => {
+    emit('close')
 }
 </script>
 
 <template>
-    <div class="p-6 max-w-md mx-auto">
-        <h1 class="text-xl font-bold mb-4">Tambah Kategori</h1>
-
-        <form @submit.prevent="submit" class="space-y-4">
-            <div>
-                <label class="block mb-1">Nama Kategori</label>
-                <input v-model="form.nama" type="text" class="border rounded px-3 py-2 w-full" />
-                <div v-if="form.errors.nama" class="text-red-500 text-sm">{{ form.errors.nama }}</div>
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4" @click.self="closeModal">
+        <div class="w-full max-w-4xl mx-auto overflow-hidden rounded-2xl shadow-lg lg:grid lg:min-h-[600px] lg:grid-cols-3 bg-white">
+            <!-- Left Side - Logo Section -->
+            <div class="hidden bg-customDarkGreen lg:col-span-1 lg:flex lg:items-center lg:justify-center flex-col">
+                <img src="/assets/assetsadmin/logodlh.png" alt="Logo DLH" class="w-auto h-48 object-contain mx-auto" />
+                <div class="text-center text-white mt-6">
+                    <h2 class="text-2xl font-bold mb-2 border-b border-white pb-2">SiLanYar</h2>
+                    <p class="text-sm">Sistem Laboratoruim Karanganyar</p>
+                </div>
             </div>
 
-            <div>
-                <label class="block mb-1">Harga</label>
-                <input v-model="form.harga" type="text" inputmode="numeric" class="border rounded px-3 py-2 w-full" />
-                <div v-if="form.errors.harga" class="text-red-500 text-sm">{{ form.errors.harga }}</div>
-            </div>
+            <!-- Right Side - Form Section -->
+            <div class="flex items-center justify-center p-12 lg:col-span-2 bg-white">
+                <form @submit.prevent="submit" class="mx-auto grid w-full mx-w-sm gap-6">
+                    <div class="grid gap-2 text-center">
+                        <h1 class="text-3xl font-bold">Tambah Kategori</h1>
+                    </div>
+
+                    <div class="grid gap-4">
+                        <!-- Nama Kategori -->
+                        <div class="grid gap-2">
+                            <Label for="nama">Nama Kategori</Label>
+                            <Input id="nama" v-model="form.nama" type="text" placeholder="Masukkan nama kategori" required />
+                            <span v-if="form.errors.nama" class="text-sm text-red-600">
+                                {{ form.errors.nama }}
+                            </span>
+                        </div>
 
             <div>
                 <label class="block mb-1">Subkategori</label>
@@ -80,10 +124,8 @@ const submit = () => {
                     <div class="text-red-500 text-sm">
                         {{ param.checked ? (form.errors as any)[`parameter.${index}.baku_mutu`] : '' }}
                     </div>
-                </div>
+                </form>
             </div>
-
-            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Simpan</button>
-        </form>
+        </div>
     </div>
 </template>

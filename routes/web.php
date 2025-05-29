@@ -188,7 +188,7 @@ Route::prefix('pegawai')->group(function () {
         Route::get('subkategori/create', [SubKategoriController::class, 'create'])->name('pegawai.subkategori.tambah');
         Route::post('subkategori/store', [SubKategoriController::class, 'store']);
         Route::get('subkategori/edit/{id}', [SubKategoriController::class, 'edit'])->name('pegawai.subkategori.edit');
-        Route::put('subkategori/{subkategori}/edit', [SubKategoriController::class, 'update']);
+        Route::put('subkategori/{subkategori}/edit', [SubKategoriController::class, 'update'])->name('pegawai.subkategori.update');
         Route::get('subkategori/{id}', [SubKategoriController::class, 'show'])->name('pegawai.subkategori.detail');
         Route::delete('subkategori/{id}', [SubKategoriController::class, 'destroy'])->name('pegawai.subkategori.destroy');
     });

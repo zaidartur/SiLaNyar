@@ -92,7 +92,7 @@ const handleFilter = () => {
                 <div class="flex flex-col">
                     <label for="status" class="mb-1 text-sm font-medium text-gray-700">Status</label>
                     <select id="status" v-model="status"
-                        class="rounded bg-green-600 text-white border-gray-300 px-2 py-1" @change="handleFilter">
+                        class="rounded bg-customDarkGreen text-white border-gray-300 px-2 py-1" @change="handleFilter">
                         <option disabled value="">Pilih Status</option>
 <<<<<<< HEAD
                         <option value="diproses">Diproses</option>
@@ -107,7 +107,7 @@ const handleFilter = () => {
                 <div class="flex flex-col">
                     <label for="tanggal" class="mb-1 text-sm font-medium text-gray-700">Tanggal</label>
                     <input id="tanggal" type="date" v-model="tanggal"
-                        class="rounded bg-green-600 text-white border-gray-300 px-2 py-1" @change="handleFilter">
+                        class="rounded bg-customDarkGreen text-white border-gray-300 px-2 py-1" @change="handleFilter">
                 </div>
             </div>
 

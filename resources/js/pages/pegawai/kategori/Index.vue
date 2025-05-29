@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue'
+import TambahKategori from '@/components/form/admin/kategori/Tambah.vue'
 import { Link, Head } from '@inertiajs/vue3'
+import { ref } from 'vue'
 
 interface Parameter {
     id: number
@@ -27,6 +29,7 @@ interface Kategori {
     subkategori: SubKategori[]
 }
 
+
 const props = defineProps<{
     kategori: Kategori[]
 }>()
@@ -46,21 +49,24 @@ const props = defineProps<{
             </div>
 
             <!-- Table -->
-            <div class="overflow-x-auto">
-                <table class="min-w-full rounded-lg bg-white">
+            <div class="overflow-x-auto rounded-lg shadow-md">
+                <table class="min-w-full bg-white divide-y divide-gray-300">
                     <thead>
-                        <tr class="bg-gray-500 text-white">
+                        <tr class="bg-gray-500 text-white text-left text-sm font-semibold uppercase tracking-wider">
                             <th class="px-6 py-3">ID Kategori</th>
                             <th class="px-6 py-3">Nama Kategori</th>
-                            <th class="px-6 py-3">Nama Sub Kategori</th>
+                            <th class="px-6 py-3">Sub Kategori</th>
                             <th class="px-6 py-3">Harga</th>
                             <th class="px-6 py-3">Nama Parameter (Baku Mutu)</th>
                             <th class="px-6 py-3">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="divide-y divide-gray-200">
                         <tr v-for="(item, index) in props.kategori" :key="item.id"
-                            :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-200'">
+                        :class="[
+                            index % 2 === 0 ? 'bg-white' : 'bg-gray-50',
+                            'hover:bg-gray-100 transition-colors'
+                        ]">
                             <td class="px-6 py-4 text-black">{{ item.kode_kategori }}</td>
                             <td class="px-6 py-4 text-black">{{ item.nama }}</td>
                             <td class="px-6 py-4 text-black">
@@ -82,11 +88,11 @@ const props = defineProps<{
                             <td class="px-6 py-4">
                                 <div class="flex gap-2">
                                     <Link :href="route('pegawai.kategori.edit', item.id)" class="text-yellow-500">
-                                    <span>✏️</span>
+                                    <span>✏</span>
                                     </Link>
                                     <Link :href="route('pegawai.kategori.destroy', item.id)" method="delete"
                                         class="text-red-500" as="button" type="button">
-                                    <span>🗑️</span>
+                                    <span>🗑</span>
                                     </Link>
                                 </div>
                             </td>
