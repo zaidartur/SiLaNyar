@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useForm } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 const props = defineProps<{
     parameter: {
@@ -19,6 +20,28 @@ const form = useForm({
     harga: props.parameter.harga,
 });
 
+const displayValue = ref('')
+
+const formatCurrency = (value) => {
+    if (!value) return ''
+    const num = parseInt(value.toString().replace(/[^\d]/g, ''), 10)
+    if (isNaN(num)) {
+        return ''
+    }
+    // Update both display and form value
+    form.harga = num.toString()
+    return 'Rp ' + num.toLocaleString('id-ID')
+}
+
+const handleInput = (e) => {
+    const formatted = formatCurrency(e.target.value)
+    displayValue.value = formatted
+}
+
+const formatOnBlur = () => {
+    displayValue.value = formatCurrency(form.harga)
+}
+
 const emit = defineEmits(['close'])
 
 const closeModal = () => {
@@ -32,6 +55,8 @@ const submit = () => {
         }
     })
 }
+
+displayValue.value = formatCurrency(props.parameter.harga)
 </script>
 
 <template>
@@ -70,14 +95,16 @@ const submit = () => {
 
                         <div class="grid gap-2">
                             <Label for="harga">Harga</Label>
-                            <Input id="harga" v-model="form.harga" type="number" min="0" required />
+                            <Input id="harga" v-model="displayValue" @input="handleInput" @blur="formatOnBlur"
+                                type="text" min="0" required />
                             <span v-if="form.errors.harga" class="text-sm text-red-600">
                                 {{ form.errors.harga }}
                             </span>
                         </div>
 
                         <div class="flex justify-end mt-4">
-                            <Button type="submit" class="bg-customDarkGreen hover:bg-green-600 w-32" :disabled="form.processing"> Simpan Perubahan </Button>
+                            <Button type="submit" class="bg-customDarkGreen hover:bg-green-600 w-32"
+                                :disabled="form.processing"> Simpan Perubahan </Button>
                         </div>
                     </div>
                 </form>

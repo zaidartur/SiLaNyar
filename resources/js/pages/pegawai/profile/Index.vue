@@ -90,36 +90,38 @@ const toggleEditModal = () => {
                     </div>
                 </div>
 
-        <!-- Action Buttons -->
-        <div class="flex justify-end gap-3 p-6 border-gray-100">
-            <button @click="toggleEditModal" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                Edit Profile
-            </button>
-        </div>
-        <Dialog :open="showEditModal" @update:open="showEditModal = false">
-            <DialogContent
-                class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-gradient-to-br from-lime-500 to-green-900 rounded-lg shadow-xl">
-                <DialogHeader>
-                    <DialogTitle class="text-center text-2xl font-bold text-gray-300">Edit Profile
-                    </DialogTitle>
-                    <button @click="toggleEditModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-500">
-                        <span class="sr-only">Close</span>
+                <!-- Action Buttons -->
+                <div class="flex justify-end gap-3 p-6 border-gray-100">
+                    <button @click="toggleEditModal"
+                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                        Edit Profile
                     </button>
-                </DialogHeader>
+                </div>
+                <Dialog :open="showEditModal" @update:open="showEditModal = false">
+                    <DialogContent
+                        class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-gradient-to-br from-lime-500 to-green-900 rounded-lg shadow-xl">
+                        <DialogHeader>
+                            <DialogTitle class="text-center text-2xl font-bold text-gray-300">Edit Profile
+                            </DialogTitle>
+                            <button @click="toggleEditModal"
+                                class="absolute top-4 right-4 text-gray-400 hover:text-gray-500">
+                                <span class="sr-only">Close</span>
+                            </button>
+                        </DialogHeader>
 
-                <div class="flex flex-col items-center space-y-6 p-4">
-                    <div class="text-center">
-                        <p class="text-xl font-bold text-gray-300 mb-2">
-                            Anda akan di arahkan ke portal
-                            <br />SAKTI Karanganyar
-                        </p>
-                        <p class="text-sm font-semibold text-gray-300 mb-2">
-                            Fitur edit profil tersedia melalui portal SAKTI Karanganyar.
-                        </p>
-                        <p class="text-sm italic text-gray-300">
-                            Note:Klik "lanjutkan" untuk melanjutkan ke portal SAKTI Karanganyar.
-                        </p>
-                    </div>
+                        <div class="flex flex-col items-center space-y-6 p-4">
+                            <div class="text-center">
+                                <p class="text-xl font-bold text-gray-300 mb-2">
+                                    Anda akan di arahkan ke portal
+                                    <br />SAKTI Karanganyar
+                                </p>
+                                <p class="text-sm font-semibold text-gray-300 mb-2">
+                                    Fitur edit profil tersedia melalui portal SAKTI Karanganyar.
+                                </p>
+                                <p class="text-sm italic text-gray-300">
+                                    Note:Klik "lanjutkan" untuk melanjutkan ke portal SAKTI Karanganyar.
+                                </p>
+                            </div>
 
                             <div class="flex gap-4">
                                 <a href="https://sakti.karanganyarkab.go.id/profile"
