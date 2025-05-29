@@ -18,8 +18,10 @@ return new class extends Migration
             $table->foreignId('id_pengujian')->constrained('pengujian')->onDelete('cascade');
             $table->float('nilai');
             $table->string('keterangan');
-            $table->enum('status', ['acc', 'revisi', 'draf'])->default('draf');
+            $table->enum('status', ['draf', 'acc', 'revisi', 'proses_review', 'proses_peresmian', 'selesai'])->default('draf');
+            $table->timestamp('proses_review_at')->nullable();
             $table->string('file_pdf')->nullable();
+            $table->string('diupdate_oleh')->nullable();
             $table->timestamps();
         });
     }

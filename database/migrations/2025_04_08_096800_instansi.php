@@ -24,8 +24,6 @@ return new class extends Migration
             $table->string('no_telepon');
             $table->string('posisi_jabatan');
             $table->string('departemen_divisi');
-            $table->enum('status_verifikasi', ['diproses', 'diterima', 'ditolak'])->default('diproses');
-            $table->string('diverifikasi_oleh')->nullable();
             $table->timestamps();
         });
     }

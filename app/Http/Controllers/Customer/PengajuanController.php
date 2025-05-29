@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Models\FormPengajuan;
+use App\Models\Instansi;
 use App\Models\Jadwal;
 use App\Models\JenisCairan;
 use App\Models\Kategori;
@@ -13,16 +14,33 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
+use Illuminate\Support\Str;
 
 class PengajuanController extends Controller
 {
+    private function hitungTotalBiaya(FormPengajuan $pengajuan)
+    {
+        $kategori = $pengajuan->kategori;
+        $parameterDipilih = $pengajuan->parameter;
+        $parameterKategori = $kategori->parameter;
+
+        if ($parameterDipilih->count() == $parameterKategori->count() && $parameterDipilih->pluck('id')->diff($parameterKategori->pluck('id')->isEmpty())) {
+            return $kategori->harga;
+        } else {
+            return $parameterDipilih->sum('harga');
+        }
+    }
+
     //list pengajuan dari customer
     public function index()
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
+        $idInstansi = $user->instansi()->pluck('id')->toArray();
+
         $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'jenis_cairan'])
-            ->where('id_user', $user->id)
+            ->where('id_instansi', $idInstansi)
             ->get();
 
         return Inertia::render('customer/pengajuan/Index', [
@@ -33,37 +51,44 @@ class PengajuanController extends Controller
     //daftar pengajuan uji lab customer
     public function daftar()
     {
+        $user = Auth::user();
+
+        $instansi = Instansi::where('id_user', $user->id)
+            ->get();
+
         $jenis_cairan = JenisCairan::all();
-        $kategori = Kategori::all();
+        $kategori = Kategori::with('parameter', 'subkategori.parameter')->get();
         $parameter = ParameterUji::all();
 
         return Inertia::render('customer/pengajuan/Tambah', [
             'kategori' => $kategori,
             'jenis_cairan' => $jenis_cairan,
-            'parameter' => $parameter
+            'parameter' => $parameter,
+            'instansi' => $instansi
         ]);
     }
 
     //proses daftar pengajuan uji lab customer
     public function store(Request $request)
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         $jenisCairan = JenisCairan::findOrFail($request->id_jenis_cairan);
 
         $rules = [
+            'id_instansi' => 'required|exists:instansi,id',
             'id_jenis_cairan' => 'required|exists:jenis_cairan,id',
-            'volume_sampel' => [
-                'required',
-                'numeric',
-                'min:' . $jenisCairan->batas_minimum,
-                'max:' . $jenisCairan->batas_maksimum
-            ],
+            'volume_sampel' => ['required', 'numeric', "min:{$jenisCairan->batas_minimum}"],
             'metode_pengambilan' => 'required|in:diantar,diambil',
             'lokasi' => 'required_if:metode_pengambilan,diambil|string',
-            'waktu_pengambilan' => 'required_if:metode_pengambilan,diantar|date|after_or_equal:today',
+            'waktu_pengambilan' => 'nullable|date|after_or_equal:today',
             'keterangan' => 'nullable|string|max:255',
         ];
+
+        if (!is_null($jenisCairan->batas_maksimum)) {
+            $rules['volume_sampel'][] = "max:{$jenisCairan->batas_maksimum}";
+        }
 
         if ($request->metode_pengambilan === 'diambil') {
             $rules['id_kategori'] = 'required|exists:kategori,id';
@@ -77,17 +102,41 @@ class PengajuanController extends Controller
         ]);
 
         if ($validated['metode_pengambilan'] === 'diantar') {
-            $validated['lokasi'] = 'Jl. Lawu No.204, Tegalasri, Bejen, Kec. Karanganyar, Kabupaten Karanganyar, Jawa Tengah 57716 (DLH Kabupaten Karanganyar)';
+            $rules['waktu_pengambilan'] = 'required|date|after_or_equal:today';
+            $rules['lokasi'] = 'Jl. Lawu No.204, Tegalasri, Bejen, Kec. Karanganyar, Kabupaten Karanganyar, Jawa Tengah 57716 (DLH Kabupaten Karanganyar)';
+        }
+
+        $pengajuanAktif = FormPengajuan::where('id_instansi', $validated['id_instansi'] ?? null)
+            ->whereHas('instansi', function ($query) use ($user) {
+                $query->whereIn('id', $user->instansi()->pluck('id')->toArray());
+            })
+            ->where('status_pengajuan', '!=', 'selesai')
+            ->first();
+
+        if ($pengajuanAktif) {
+            return redirect()->back()->withErrors([
+                'Status' => 'Anda Tidak Diperbolehkan Menambah Pengajuan Jika Pengajuan Di Instansi Sebelumnya Belum Selesai'
+            ]);
         }
 
         $pengajuan = FormPengajuan::create([
-            'id_user' => $user->id,
+            'id_instansi' => $validated['id_instansi'] ?? null,
             'id_kategori' => $validated['id_kategori'] ?? null,
             'id_jenis_cairan' => $validated['id_jenis_cairan'],
             'volume_sampel' => $validated['volume_sampel'],
             'metode_pengambilan' => $validated['metode_pengambilan'],
             'lokasi' => $validated['lokasi'],
         ]);
+
+        if ($pengajuan->metode_pengambilan === 'diambil') {
+            Pembayaran::create([
+                'id_order' => Str::upper(Str::random(10)),
+                'id_form_pengajuan' => $pengajuan->id,
+                'total_biaya' => $this->hitungTotalBiaya($pengajuan),
+                'metode_pembayaran' => 'transfer',
+                'status_pembayaran' => 'diproses',
+            ]);
+        }
 
         if ($validated['metode_pengambilan'] === 'diambil' && !empty($validated['parameter'])) {
             $pengajuan->parameter()->attach($validated['parameter']);
@@ -106,22 +155,168 @@ class PengajuanController extends Controller
         if (!$pengajuan) {
             return redirect()->back()->withErrors(['error' => 'Gagal membuat pengajuan']);
         }
-        return redirect()->route('customer.pengajuan.index')
+
+        return redirect()->route('customer.dashboard')
             ->with('message', 'Pengajuan Berhasil Ditambahkan');
     }
 
     //lihat detail pengajuan dari user
     public function show($id)
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'jenis_cairan'])
+        $idInstansi = $user->instansi()->pluck('id')->toArray();
+
+        $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'jenis_cairan', 'instansi.user'])
             ->where('id', $id)
-            ->where('id_user', $user->id)
+            ->whereIn('id_instansi', $idInstansi)
             ->firstOrFail();
 
         return Inertia::render('customer/pengajuan/Detail', [
             'pengajuan' => $pengajuan
         ]);
+    }
+
+    public function edit(FormPengajuan $pengajuan)
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        $idInstansi = $user->instansi()->pluck('id')->toArray();
+
+        $pengajuan->load(['kategori', 'parameter', 'instansi.user', 'jenis_cairan']);
+
+        if (!in_array($pengajuan->id_instansi, $idInstansi)) {
+            abort(403, 'Anda tidak memiliki akses ke pengajuan ini.');
+        }
+
+        if ($pengajuan->status_pengajuan !== 'proses_validasi') {
+            abort(403);
+            return Redirect::back()->withErrors('Proses Status Anda Sudah Tidak Diproses Harap Mengajukan Kembali!');
+        }
+
+        $jenis_cairan = JenisCairan::all();
+        $kategori = Kategori::with('parameter', 'subkategori.parameter')->get();
+        $parameter = ParameterUji::all();
+
+        return Inertia::render('pegawai/pengajuan/Edit', [
+            'pengajuan' => $pengajuan,
+            'kategori' => $kategori,
+            'jenis_cairan' => $jenis_cairan,
+            'parameter' => $parameter
+        ]);
+    }
+
+    //proses update pengajuan uji lab customer
+    public function update(Request $request, FormPengajuan $pengajuan)
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        $idInstansi = $user->instansi()->pluck('id')->toArray();
+
+        $pengajuanAktif = FormPengajuan::where('id_instansi', $idInstansi)
+            ->where('status_pengajuan', 'selesai')
+            ->where('id', '!=', $pengajuan->id)
+            ->first();
+
+        if ($pengajuanAktif) {
+            return Redirect::back()->withErrors(['Status' => 'Anda Tidak Diperbolehkan Mengubah Pengajuan Jika Pengajuan Sudah Di Verifikasi']);
+        }
+
+        $jenisCairan = JenisCairan::findOrFail($request->id_jenis_cairan);
+
+        $rules = [
+            'id_instansi' => 'required|exists:instansi,id',
+            'id_jenis_cairan' => 'required|exists:jenis_cairan,id',
+            'volume_sampel' => ['required', 'numeric', "min:{$jenisCairan->batas_minimum}"],
+            'metode_pengambilan' => 'required|in:diantar,diambil',
+            'lokasi' => 'required_if:metode_pengambilan,diambil|string',
+            'waktu_pengambilan' => 'nullable|date|after_or_equal:today',
+            'keterangan' => 'nullable|string|max:255',
+        ];
+
+        if (!is_null($jenisCairan->batas_maksimum)) {
+            $rules['volume_sampel'][] = "max:{$jenisCairan->batas_maksimum}";
+        }
+
+        if ($request->metode_pengambilan === 'diambil') {
+            $rules['id_kategori'] = 'required|exists:kategori,id';
+            $rules['parameter'] = 'required|array';
+            $rules['parameter.*'] = 'exists:parameter_uji,id';
+        }
+
+        $validated = $request->validate($rules, [
+            'volume_sampel.min' => "Volume Sampel Harus Diantara {$jenisCairan->batas_minimum} atau {$jenisCairan->batas_maksimum} Untuk Jenis Cairan",
+            'volume_sampel.max' => "Volume Sampel Harus Diantara {$jenisCairan->batas_minimum} atau {$jenisCairan->batas_maksimum} Untuk Jenis Cairan"
+        ]);
+
+        if ($validated['metode_pengambilan'] === 'diantar') {
+            $rules['waktu_pengambilan'] = 'required|date|after_or_equal:today';
+            $validated['lokasi'] = 'Jl. Lawu No.204, Tegalasri, Bejen, Kec. Karanganyar, Kabupaten Karanganyar, Jawa Tengah 57716 (DLH Kabupaten Karanganyar)';
+        }
+
+        // Update data pengajuan
+        $pengajuan->update([
+            'id_instansi' => $validated['id_instansi'] ?? null,
+            'id_kategori' => $validated['id_kategori'] ?? null,
+            'id_jenis_cairan' => $validated['id_jenis_cairan'],
+            'volume_sampel' => $validated['volume_sampel'],
+            'metode_pengambilan' => $validated['metode_pengambilan'],
+            'lokasi' => $validated['lokasi'],
+        ]);
+
+        // Update pembayaran jika metode pengambilan adalah 'diambil'
+        if ($pengajuan->metode_pengambilan === 'diambil') {
+            $pembayaran = $pengajuan->pembayaran;
+            if (!$pembayaran) {
+                Pembayaran::create([
+                    'id_order' => Str::upper(Str::random(10)),
+                    'id_form_pengajuan' => $pengajuan->id,
+                    'total_biaya' => $this->hitungTotalBiaya($pengajuan),
+                    'metode_pembayaran' => 'transfer',
+                    'status_pembayaran' => 'diproses',
+                ]);
+            } else {
+                $pembayaran->update([
+                    'total_biaya' => $this->hitungTotalBiaya($pengajuan),
+                ]);
+            }
+        } else {
+            $pengajuan->pembayaran()->delete();
+        }
+
+        if ($validated['metode_pengambilan'] === 'diambil' && !empty($validated['parameter'])) {
+            $pengajuan->parameter()->sync($validated['parameter']);
+        } else {
+            $pengajuan->parameter()->detach();
+        }
+
+        if ($validated['metode_pengambilan'] === 'diantar') {
+            $jadwal = $pengajuan->jadwal;
+            if ($jadwal) {
+                $jadwal->update([
+                    'id_user' => $user->id,
+                    'waktu_pengambilan' => $validated['waktu_pengambilan'],
+                    'keterangan' => $validated['keterangan'] ?? null,
+                    'status' => 'selesai'
+                ]);
+            } else {
+                Jadwal::create([
+                    'id_form_pengajuan' => $pengajuan->id,
+                    'id_user' => $user->id,
+                    'waktu_pengambilan' => $validated['waktu_pengambilan'],
+                    'keterangan' => $validated['keterangan'] ?? null,
+                    'status' => 'selesai'
+                ]);
+            }
+        } else {
+            // Jika metode bukan diantar, hapus jadwal jika ada
+            $pengajuan->jadwal()->delete();
+        }
+
+        return redirect()->route('customer.dashboard')
+            ->with('message', 'Pengajuan Berhasil Diupdate');
     }
 }

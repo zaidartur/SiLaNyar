@@ -16,20 +16,27 @@ class DashboardController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        $idInstansi = $user->instansi()->pluck('id')->toArray();
-        
-        $proses = FormPengajuan::where('id_instansi', $idInstansi)->where('status_pengajuan', 'proses_validasi')->count();
-        $ditolak = FormPengajuan::where('id_instansi', $idInstansi)->where('status_pengajuan', 'ditolak')->count();
-        $diterima = FormPengajuan::where('id_instansi', $idInstansi)->where('status_pengajuan', 'diterima')->count();
+        $instansiUser = $user->instansi()->pluck('id')->toArray();
+
+        if (empty($instansiUser)) {
+            return redirect()->back()->with('error', 'Tidak ada instansi yang tersedia');
+        }
+
+        $proses = FormPengajuan::whereIn('id_instansi', $instansiUser)->where('status_pengajuan', 'proses_validasi')->count();
+        $ditolak = FormPengajuan::whereIn('id_instansi', $instansiUser)->where('status_pengajuan', 'ditolak')->count();
+        $diterima = FormPengajuan::whereIn('id_instansi', $instansiUser)->where('status_pengajuan', 'diterima')->count();
 
         $pengajuan = FormPengajuan::with(['jadwal', 'pembayaran', 'pengujian', 'pengujian.hasil_uji', 'jenis_cairan', 'kategori'])
-            ->where('id_instansi', $idInstansi)
+            ->whereIn('id_instansi', $instansiUser)
             ->orderByDesc('updated_at')
             ->get();
 
         $pilihPengajuan = null;
         if ($request->has('id')) {
             $pilihPengajuan = $pengajuan->firstWhere('id', $request->id);
+            if ($pilihPengajuan && !in_array($pilihPengajuan->id_instansi, $instansiUser)) {
+                $pilihPengajuan = null;
+            }
         } else {
             $pilihPengajuan = $pengajuan->first();
         }
@@ -72,6 +79,9 @@ class DashboardController extends Controller
                 ]
             ];
         }
+        
+        $pembayaran = $pengajuan->pluck('pembayaran')->filter()->values();
+
         return Inertia::render('customer/dashboard/Index', [
             'statistik' => [
                 'proses' => $proses,
@@ -81,6 +91,7 @@ class DashboardController extends Controller
             'pengajuan' => $pengajuan,
             'pilihPengajuan' => $pilihPengajuan,
             'statusList' => $statusList,
+            'pembayaran' => $pembayaran,
             'auth' => [
                 'user' => $user,
             ],

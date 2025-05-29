@@ -126,18 +126,10 @@ Route::prefix('customer')->middleware(['auth:web', 'role:customer'])->group(func
 
 //route pegawai
 Route::prefix('pegawai')->group(function () {
-    //fitur instansi
-    Route::middleware('check.permission:kelola instansi')->group(function () {
-        Route::get('instansi', [VerifikasiInstansiController::class, 'index'])->name('pegawai.instansi.index');
-        Route::get('instansi/edit/{instansi}', [VerifikasiInstansiController::class, 'edit'])->name('pegawai.instansi.edit');
-        Route::put('instansi/{id}/edit', [VerifikasiInstansiController::class, 'verifikasi']);
-        Route::get('instansi/{instansi}', [VerifikasiInstansiController::class, 'show'])->name('pegawai.instansi.detail');
-    });
-
     //fitur pengajuan
     Route::get('pengajuan', [PegawaiPengajuanController::class, 'index'])->middleware('check.permission:lihat pengajuan')->name('pegawai.pengajuan.index');
-    Route::get('pengajuan/create', [PegawaiPengajuanController::class, 'index'])->middleware('check.permission:tambah pengajuan')->name('pegawai.pengajuan.index');
-    Route::get('pengajuan/store', [PegawaiPengajuanController::class, 'index'])->middleware('check.permission:tambah pengajuan')->name('pegawai.pengajuan.index');
+    Route::get('pengajuan/create', [PegawaiPengajuanController::class, 'create'])->middleware('check.permission:tambah pengajuan')->name('pegawai.pengajuan.create');
+    Route::get('pengajuan/store', [PegawaiPengajuanController::class, 'store'])->middleware('check.permission:tambah pengajuan');
     Route::get('pengajuan/{id}', [PegawaiPengajuanController::class, 'show'])->middleware('check.permission:detail pengajuan')->name('pegawai.pengajuan.detail');
     Route::get('pengajuan/edit/{pengajuan}', [PegawaiPengajuanController::class, 'edit'])->middleware('check.permission:edit pengajuan')->name('pegawai.pengajuan.edit');
     Route::put('pengajuan/{id}/edit', [PegawaiPengajuanController::class, 'update'])->middleware('check.permission:edit pengajuan')->name('pegawai.pengajuan.update');
