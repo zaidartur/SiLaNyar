@@ -30,13 +30,13 @@ class VerifikasiAduanController extends Controller
         ]);
     }
 
-    public function verifikasiAdministrasi($id, Request $request)
+    public function verifikasi($id, Request $request)
     {
         $user = Auth::user();
         $aduan = Aduan::with(['hasil_uji.pengujian.form_pengajuan'])->findOrFail($id);
 
         $request->validate([
-            'status' => 'required|in:proses_review,diterima_administrasi,diterima_pengujian,ditolak',
+            'status' => 'required|in:diterima_administrasi,diterima_pengujian,ditolak',
             'diverifikasi_oleh' => $user->nama,
         ]);
 

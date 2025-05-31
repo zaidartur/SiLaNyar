@@ -16,7 +16,7 @@ class HasilUjiController extends Controller
     public function index()
     {
         $hasil_uji = HasilUji::with(['parameter', 'pengujian.form_pengajuan'])
-            ->where('status', 'acc')
+            ->where('status', ['acc', 'proses_review', 'proses_peresmian', 'selesai'])
             ->whereNotNull('file_pdf')
             ->whereHas('pengujian.form_pengajuan', function ($query) {
                 $query->where('id_user', Auth::id());
@@ -34,7 +34,7 @@ class HasilUjiController extends Controller
             abort(403, 'Anda Tidak Memiliki Akses Di Halaman Ini');
         }
 
-        if (!$hasil_uji->status === 'acc' || !$hasil_uji->file_pdf) {
+        if (!$hasil_uji->status === ['acc', 'proses_review', 'proses_peresmian', 'selesai'] || !$hasil_uji->file_pdf) {
             abort(433, 'Hasil Uji Belum Tersedia!');
         }
 
@@ -52,25 +52,6 @@ class HasilUjiController extends Controller
             abort(403, 'Anda Tidak Memiliki Akses Di Halaman Ini');
         }
 
-        if (!$hasil_uji->status === 'acc' || !$hasil_uji->file_pdf) {
-            abort(433, 'File Hasil Uji Belum Tersedia!');
-        }
-
-        $pdfPath = public_path('uploads/hasil_uji/' . $hasil_uji->file_pdf);
-
-        if (!file_exists($pdfPath)) {
-            abort(433, 'File PDF Tidak Ditemukan!');
-        }
-
-        return response()->file($pdfPath);
-    }
-
-    public function convertTandaTanganBasah(HasilUji $hasil_uji)
-    {
-        if ($hasil_uji->pengujian->form_pengajuan->id_user !== Auth::id()) {
-            abort(403, 'Anda Tidak Memiliki Akses Di Halaman Ini');
-        }
-
         if (!$hasil_uji->status === 'acc') {
             abort(433, 'File Hasil Uji Belum Tersedia!');
         }
@@ -83,5 +64,25 @@ class HasilUjiController extends Controller
         ]);
 
         return $pdf->download('Hasil_Uji_' . $hasil_uji->id . '.pdf');
+    }
+
+    public function verifikasi(HasilUji $hasil_uji, Request $request)
+    {
+        $request->validate([
+            'status' => 'required|in:proses_peresmian'
+        ]);
+
+        if($hasil_uji->status !== 'proses_review')
+        {
+            return Redirect::back()->withErrors([
+                'status' => 'Status Hasil Uji Anda Saat Ini Adalah '.$hasil_uji->status.'. Status Tersebut Tidak Dapat Dirubah Oleh Customer!'
+            ]);
+        }
+
+        $hasil_uji->update([
+            'status' => $request->status
+        ]);
+
+        return Redirect::route('customer.hasil_uji.index')->with('message', 'Anda Telah Memasuki Fase Proses Peresmian');
     }
 }
