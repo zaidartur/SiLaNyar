@@ -16,6 +16,15 @@ use Inertia\Inertia;
 
 class AduanController extends Controller
 {
+    public function index()
+    {
+        $aduan = Aduan::with('hasil_uji.pengujian.form_pengajuan.user')->get();
+        
+        return Inertia::render('customer/aduan/Index', [
+            'aduan' => $aduan
+        ]);
+    }
+
     public function create(HasilUji $hasil_uji)
     {
         $user = Auth::user();
@@ -42,18 +51,12 @@ class AduanController extends Controller
             'perbaikan' => 'required|string',
         ]);
 
-        $aduan = Aduan::create([
+        Aduan::create([
             'id_hasil_uji' => $hasil_uji->id,
             'id_user' => $user->id,
             'masalah' => $request->masalah,
             'perbaikan' => $request->perbaikan
         ]);
-
-        $adminData = User::role('admin')->get();
-
-        foreach ($adminData as $admin) {
-            Mail::to($admin->email)->send(new AduanMasukNotification($aduan));
-        }
 
         return Redirect::route('customer.hasil_uji.index')->with('message', 'Aduan Berhasil Terkirim');
     }

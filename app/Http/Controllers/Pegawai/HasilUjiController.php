@@ -20,16 +20,6 @@ class HasilUjiController extends Controller
     {
         $hasil_uji = HasilUji::with('parameter', 'pengujian', 'kategori');
 
-        foreach ($hasil_uji as $item) {
-            if($item->status === 'proses_review')
-            {
-                if(now()->diffInDays($item->proses_review_at >= 2))
-                {
-                    $item->update(['status' => 'proses_peresmian']);
-                }
-            }
-        }
-        
         return Inertia::render('pegawai/hasil_uji/Index', [
             'hasil_uji' => $hasil_uji
         ]);
@@ -88,36 +78,29 @@ class HasilUjiController extends Controller
     //proses update hasil uji
     public function update(HasilUji $hasil_uji, Request $request)
     {
+        $user = Auth::user();
+
         $request->validate([
             'id_parameter' => 'required|exists:parameter_uji,id',
             'id_pengujian' => 'required|exists:pengujian,id',
             'nilai' => 'required|numeric',
-            'keterangan' => 'required|string|max:255',
-            'status' => 'required|in:draf,acc,revisi,proses_review,proses_peresmian,selesai',
+            'keterangan' => 'nullable|string|max:255',
+            'status' => 'required|in:draf,revisi,proses_review',
         ]);
-
-        if ($hasil_uji->status !== 'acc') {
-            HasilUjiHistori::create([
-                'id_hasil_uji' => $hasil_uji->id,
-                'id_parameter' => $request->id_parameter,
-                'id_pengujian' => $request->id_pengujian,
-                'nilai' => $request->nilai,
-                'keterangan' => $request->keterangan,
-                'status' => $request->status,
-                'id_user' => Auth::id()
-            ]);
-        }
 
         $hasil_uji->update($request->all());
 
-        if ($hasil_uji->status === 'acc') {
-            $customer = $hasil_uji->pengujian->form_pengajuan->customer;
-            $customer->notify(new HasilUjiNotification($hasil_uji));
-        }
+        HasilUjiHistori::create([
+            'id_hasil_uji' => $hasil_uji->id,
+            'id_parameter' => $request->id_parameter,
+            'id_pengujian' => $request->id_pengujian,
+            'nilai' => $request->nilai,
+            'keterangan' => $request->keterangan,
+            'status' => $request->status,
+            'diupdate_oleh' => $user->nama
+        ]);
 
-        if ($hasil_uji) {
-            return Redirect::route('pegawai.hasil_uji.index')->with('message', 'Hasil Uji Berhasil Diupdate!');
-        }
+        return Redirect::route('pegawai.hasil_uji.index')->with('message', 'Hasil Uji Berhasil Diupdate!');
     }
 
     public function verifikasi($id, Request $request)
@@ -128,17 +111,20 @@ class HasilUjiController extends Controller
 
         $request->validate([
             'status' => 'required|in:draf,acc,revisi,proses_review,proses_peresmian,selesai',
-            'diupdate_oleh' => $user->nama
         ]);
 
-        $data = ['status' => $request->status];
+        $data = ['status' => $request->status, 'dirubah_oleh' => $user->nama];
 
-        if ($hasil_uji->status === 'proses_review')
-        {
+        if ($hasil_uji->status === 'proses_review') {
             $data['proses_review_at'] = now();
         }
 
         $hasil_uji->update($data);
+
+        HasilUjiHistori::create([
+            'status' => $request->status,
+            'diupdate_oleh' => $user->nama
+        ]);
 
         return Redirect::route('pegawai.hasil_uji.index')->with('message', 'Hasil Uji Berhasil Diupdate');
     }

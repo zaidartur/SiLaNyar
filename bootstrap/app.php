@@ -1,10 +1,10 @@
 <?php
 
+use App\Console\Commands\UpdateHasilUjiStatus;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\CheckPermission;
 use App\Http\Middleware\CheckRole;
-use App\Http\Middleware\CheckVerifiedCustomer;
-use App\Http\Middleware\CheckVerifiedPegawai;
+use Illuminate\Console\Scheduling\Schedule;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SSOAuthenticated;
@@ -32,6 +32,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'check.permission' => CheckPermission::class,
             'role' => CheckRole::class,
         ]);
+    })
+    ->withCommands([
+        UpdateHasilUjiStatus::class,
+    ])
+    ->withSchedule(function (Schedule $schedule)
+    {
+        $schedule->command('app:update-hasil-uji-status')->everyMinute();    
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
