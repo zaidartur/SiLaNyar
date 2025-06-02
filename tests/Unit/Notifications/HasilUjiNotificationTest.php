@@ -77,4 +77,28 @@ class HasilUjiNotificationTest extends TestCase
         
         $this->assertEmpty($array);
     }
+    
+    #[Test]
+    public function konstruktor_menetapkan_properti_hasil_uji()
+    {
+        $reflection = new \ReflectionClass($this->notification);
+        $property = $reflection->getProperty('HasilUji');
+        $property->setAccessible(true);
+        
+        $this->assertEquals($this->mockHasilUji, $property->getValue($this->notification));
+    }
+
+    #[Test]
+    public function trait_queueable_digunakan()
+    {
+        $this->assertContains(
+            'Illuminate\Bus\Queueable',
+            array_map(
+                function ($trait) {
+                    return $trait->getName();
+                },
+                (new \ReflectionClass($this->notification))->getTraits()
+            )
+        );
+    }
 }

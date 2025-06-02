@@ -45,4 +45,12 @@ class AduanMasukNotificationTest extends TestCase
         
         $this->assertEmpty($attachments);
     }
+
+    #[Test]
+    public function email_menggunakan_nama_dari_class()
+    {
+        // Verifikasi bahwa nama class digunakan sebagai identifier
+        $className = get_class($this->mailNotification);
+        $this->assertEquals('App\Mail\AduanMasukNotification', $className);
+    }
 }

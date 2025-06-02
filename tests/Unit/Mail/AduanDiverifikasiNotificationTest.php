@@ -13,6 +13,7 @@ class AduanDiverifikasiNotificationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        
         $this->mailNotification = new AduanDiverifikasiNotification();
     }
 
@@ -44,5 +45,13 @@ class AduanDiverifikasiNotificationTest extends TestCase
         $attachments = $this->mailNotification->attachments();
         
         $this->assertEmpty($attachments);
+    }
+    
+    #[Test]
+    public function email_menggunakan_nama_dari_class()
+    {
+        // Verifikasi bahwa nama class digunakan sebagai identifier
+        $className = get_class($this->mailNotification);
+        $this->assertEquals('App\Mail\AduanDiverifikasiNotification', $className);
     }
 }

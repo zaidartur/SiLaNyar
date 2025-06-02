@@ -33,6 +33,16 @@ class PembayaranSuksesTest extends TestCase
     }
 
     #[Test]
+    public function konstruktor_menyimpan_data_pembayaran()
+    {
+        $reflection = new \ReflectionClass($this->notification);
+        $property = $reflection->getProperty('pembayaran');
+        $property->setAccessible(true);
+        
+        $this->assertEquals($this->mockPembayaran, $property->getValue($this->notification));
+    }
+
+    #[Test]
     public function notifikasi_dikirim_melalui_channel_email()
     {
         $channels = $this->notification->via($this->mockNotifiable);
@@ -82,5 +92,16 @@ class PembayaranSuksesTest extends TestCase
         $array = $this->notification->toArray($this->mockNotifiable);
         
         $this->assertEmpty($array);
+    }
+
+    #[Test]
+    public function format_tanggal_pembayaran_sesuai_dengan_yang_diharapkan()
+    {
+        $mailMessage = $this->notification->toMail($this->mockNotifiable);
+        $viewData = $mailMessage->viewData;
+        
+        $expectedFormat = $this->mockPembayaran->updated_at->format('d-m-Y H:i');
+        
+        $this->assertEquals($expectedFormat, $viewData['tanggal_pembayaran']);
     }
 }
