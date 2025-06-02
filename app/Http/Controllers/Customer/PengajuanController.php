@@ -83,17 +83,14 @@ class PengajuanController extends Controller
             'metode_pengambilan' => 'required|in:diantar,diambil',
             'lokasi' => 'required_if:metode_pengambilan,diambil|string',
             'waktu_pengambilan' => 'nullable|date|after_or_equal:today',
+            'id_kategori' => 'required|exists:kategori,id',
+            'parameter' => 'required|array',
+            'parameter.*' => 'exists:parameter_uji,id',
             'keterangan' => 'nullable|string|max:255',
         ];
 
         if (!is_null($jenisCairan->batas_maksimum)) {
             $rules['volume_sampel'][] = "max:{$jenisCairan->batas_maksimum}";
-        }
-
-        if ($request->metode_pengambilan === 'diambil') {
-            $rules['id_kategori'] = 'required|exists:kategori,id';
-            $rules['parameter'] = 'required|array';
-            $rules['parameter.*'] = 'exists:parameter_uji,id';
         }
 
         $validated = $request->validate($rules, [
@@ -128,7 +125,7 @@ class PengajuanController extends Controller
             'lokasi' => $validated['lokasi'],
         ]);
 
-        if ($pengajuan->metode_pengambilan === 'diambil') {
+        if (!empty($validated['parameter'] && !empty($validated['id_kategori']))) {
             Pembayaran::create([
                 'id_order' => Str::upper(Str::random(10)),
                 'id_form_pengajuan' => $pengajuan->id,
@@ -138,7 +135,7 @@ class PengajuanController extends Controller
             ]);
         }
 
-        if ($validated['metode_pengambilan'] === 'diambil' && !empty($validated['parameter'])) {
+        if (!empty($validated['parameter'])) {
             $pengajuan->parameter()->attach($validated['parameter']);
         }
 
@@ -234,17 +231,14 @@ class PengajuanController extends Controller
             'metode_pengambilan' => 'required|in:diantar,diambil',
             'lokasi' => 'required_if:metode_pengambilan,diambil|string',
             'waktu_pengambilan' => 'nullable|date|after_or_equal:today',
+            'id_kategori' => 'required|exists:kategori,id',
+            'parameter' => 'required|array',
+            'parameter.*' => 'exists:parameter_uji,id',
             'keterangan' => 'nullable|string|max:255',
         ];
 
         if (!is_null($jenisCairan->batas_maksimum)) {
             $rules['volume_sampel'][] = "max:{$jenisCairan->batas_maksimum}";
-        }
-
-        if ($request->metode_pengambilan === 'diambil') {
-            $rules['id_kategori'] = 'required|exists:kategori,id';
-            $rules['parameter'] = 'required|array';
-            $rules['parameter.*'] = 'exists:parameter_uji,id';
         }
 
         $validated = $request->validate($rules, [
@@ -267,24 +261,14 @@ class PengajuanController extends Controller
             'lokasi' => $validated['lokasi'],
         ]);
 
-        // Update pembayaran jika metode pengambilan adalah 'diambil'
-        if ($pengajuan->metode_pengambilan === 'diambil') {
-            $pembayaran = $pengajuan->pembayaran;
-            if (!$pembayaran) {
-                Pembayaran::create([
-                    'id_order' => Str::upper(Str::random(10)),
-                    'id_form_pengajuan' => $pengajuan->id,
-                    'total_biaya' => $this->hitungTotalBiaya($pengajuan),
-                    'metode_pembayaran' => 'transfer',
-                    'status_pembayaran' => 'diproses',
-                ]);
-            } else {
-                $pembayaran->update([
-                    'total_biaya' => $this->hitungTotalBiaya($pengajuan),
-                ]);
-            }
-        } else {
-            $pengajuan->pembayaran()->delete();
+        if (!empty($validated['parameter'] && !empty($validated['id_kategori']))) {
+            Pembayaran::update([
+                'id_order' => Str::upper(Str::random(10)),
+                'id_form_pengajuan' => $pengajuan->id,
+                'total_biaya' => $this->hitungTotalBiaya($pengajuan),
+                'metode_pembayaran' => 'transfer',
+                'status_pembayaran' => 'diproses',
+            ]);
         }
 
         if ($validated['metode_pengambilan'] === 'diambil' && !empty($validated['parameter'])) {
@@ -312,7 +296,6 @@ class PengajuanController extends Controller
                 ]);
             }
         } else {
-            // Jika metode bukan diantar, hapus jadwal jika ada
             $pengajuan->jadwal()->delete();
         }
 

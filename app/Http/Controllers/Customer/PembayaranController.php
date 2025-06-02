@@ -31,10 +31,13 @@ class PembayaranController extends Controller
 
     public function index()
     {
+        /** @var \App\Models\User */
         $user = Auth::user();
 
+        $idInstansi = $user->instansi()->pluck('id')->toArray();
+
         $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'user'])
-            ->where('id_user', $user->id)
+            ->where('id_instansi', $idInstansi)
             ->get();
 
         $totalBiaya = $this->hitungTotalBiaya($pengajuan->id);
@@ -51,11 +54,14 @@ class PembayaranController extends Controller
 
     public function show($id)
     {
+        /** @var \App\Models\User */
         $user = Auth::user();
+
+        $idInstansi = $user->instansi()->pluck('id')->toArray();
 
         $pengajuan = FormPengajuan::with(['kategori', 'parameter'])
             ->where('id', $id)
-            ->where('id_user', $user->id)
+            ->where('id_instansi', $idInstansi)
             ->where('status_pengajuan', 'diterima')
             ->firstOrFail();
 
@@ -86,9 +92,12 @@ class PembayaranController extends Controller
 
     public function upload($id)
     {
+        /** @var \App\Models\User */
         $user = Auth::user();
+        $idInstansi = $user->instansi()->pluck('id')->toArray();
+
         $pengajuan = FormPengajuan::with(['pembayaran', 'kategori', 'parameter'])
-            ->where('id_user', $user->id)
+            ->where('id_instansi', $idInstansi)
             ->findOrFail($id);
 
         if (!$pengajuan->pembayaran || $pengajuan->pembayaran->metode_pembayaran !== 'transfer') {
@@ -103,9 +112,12 @@ class PembayaranController extends Controller
 
     public function process($id, Request $request)
     {
+        /** @var \App\Models\User */
         $user = Auth::user();
 
-        $pengajuan = FormPengajuan::where('id_user', $user->id)
+        $idInstansi = $user->instansi()->pluck('id')->toArray();
+
+        $pengajuan = FormPengajuan::where('id_instansi', $idInstansi)
             ->findOrFail($id);
 
         if ($pengajuan->status_pengajuan !== 'diterima') {
@@ -147,6 +159,12 @@ class PembayaranController extends Controller
             $data
         ]);
 
+        if (!$pembayaran) {
+            return Redirect::back()->withErrors([
+                'id_order' => 'Order Gagal!, Silahkan ulangi kembali atau hubungi admin.'
+            ]);
+        }
+
         return Redirect::route('customer.pembayaran.sukses')->with('message', 'Pembayaran Berhasil.');
     }
 
@@ -154,7 +172,7 @@ class PembayaranController extends Controller
     {
         $pembayaran = Pembayaran::with(['form_pengajuan'])->findOrFail($id);
 
-        if ($pembayaran->form_pengajuan->id_user !== Auth::id()) {
+        if ($pembayaran->form_pengajuan->instansi->id_user !== Auth::id()) {
             abort(403, 'Pastikan Anda Autentikasi Dengan User Yang Sama Dengan Akun User Yang Anda Ajukan!');
         }
         return Inertia::render('customer/pembayaran/Sukses', [

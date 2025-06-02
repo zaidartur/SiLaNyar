@@ -11,17 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('hasil_uji', function(Blueprint $table) {
+        Schema::create('parameter_pengujian', function(Blueprint $table) {
             $table->id();
-            $table->string('kode_hasil_uji')->unique();
             $table->foreignId('id_parameter')->constrained('parameter_uji')->onDelete('cascade');
             $table->foreignId('id_pengujian')->constrained('pengujian')->onDelete('cascade');
             $table->float('nilai');
-            $table->string('keterangan');
-            $table->enum('status', ['draf', 'revisi', 'proses_review', 'proses_peresmian', 'selesai'])->default('draf');
-            $table->timestamp('proses_review_at')->nullable();
-            $table->string('file_pdf')->nullable();
-            $table->string('diupdate_oleh')->nullable();
+            $table->string('keterangan')->nullable();
             $table->timestamps();
         });
     }
