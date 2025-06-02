@@ -15,12 +15,18 @@ class HasilUjiController extends Controller
 
     public function index()
     {
-        $hasil_uji = HasilUji::with(['parameter', 'pengujian.form_pengajuan'])
-            ->where('status', ['acc', 'proses_review', 'proses_peresmian', 'selesai'])
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        $idInstansi = $user->instansi()->pluck('id')->toArray();
+
+        $hasil_uji = HasilUji::with(['parameter', 'pengujian.form_pengajuan', 'aduan'])
+            ->whereIn('status', ['acc', 'proses_review', 'proses_peresmian', 'selesai'])
             ->whereNotNull('file_pdf')
-            ->whereHas('pengujian.form_pengajuan', function ($query) {
-                $query->where('id_user', Auth::id());
+            ->whereHas('pengujian.form_pengajuan', function ($query) use ($idInstansi) {
+                $query->whereIn('id_instansi', $idInstansi);
             })
+            ->has('aduan')
             ->get();
 
         return Inertia::render('customer/hasil_uji/Index', [
@@ -30,7 +36,10 @@ class HasilUjiController extends Controller
 
     public function show(HasilUji $hasil_uji)
     {
-        if ($hasil_uji->pengujian->form_pengajuan->id_user !== Auth::id()) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($hasil_uji->pengujian->form_pengajuan->instansi->id_user !== $user->id) {
             abort(403, 'Anda Tidak Memiliki Akses Di Halaman Ini');
         }
 
@@ -38,7 +47,10 @@ class HasilUjiController extends Controller
             abort(433, 'Hasil Uji Belum Tersedia!');
         }
 
-        $hasil_uji->load('parameter', 'pengujian');
+        $hasil_uji->load('parameter', 'pengujian')
+            ->whereIn('status', ['acc', 'proses_review', 'proses_peresmian', 'selesai'])
+            ->whereNotNull('file_pdf')
+            ->has('aduan');
 
 
         return Inertia::render('customer/hasil_uji/Show', [
@@ -48,7 +60,10 @@ class HasilUjiController extends Controller
 
     public function convert(HasilUji $hasil_uji)
     {
-        if ($hasil_uji->pengujian->form_pengajuan->id_user !== Auth::id()) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($hasil_uji->pengujian->form_pengajuan->instansi->id_user !== $user->id) {
             abort(403, 'Anda Tidak Memiliki Akses Di Halaman Ini');
         }
 
@@ -56,7 +71,7 @@ class HasilUjiController extends Controller
             abort(433, 'File Hasil Uji Belum Tersedia!');
         }
 
-        $hasil_uji->load('parameter', 'pengujian.form_pengajuan.customer');
+        $hasil_uji->load(['parameter', 'pengujian.form_pengajuan.instansi.user', 'pengujian.user']);
 
         $pdf = PDF::loadView('hasil_uji.show', [
             'hasil_uji' => $hasil_uji,
@@ -72,10 +87,9 @@ class HasilUjiController extends Controller
             'status' => 'required|in:proses_peresmian'
         ]);
 
-        if($hasil_uji->status !== 'proses_review')
-        {
+        if ($hasil_uji->status !== 'proses_review') {
             return Redirect::back()->withErrors([
-                'status' => 'Status Hasil Uji Anda Saat Ini Adalah '.$hasil_uji->status.'. Status Tersebut Tidak Dapat Dirubah Oleh Customer!'
+                'status' => 'Status Hasil Uji Anda Saat Ini Adalah ' . $hasil_uji->status . '. Status Tersebut Tidak Dapat Dirubah Oleh Customer!'
             ]);
         }
 

@@ -2,23 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
-class HasilUji extends Pivot
+class HasilUji extends Model
 {
     use HasFactory;
 
     protected $table = 'hasil_uji';
-    
+
     public $incrementing = true;
 
     protected $fillable = [
         'kode_hasil_uji',
-        'id_parameter',
         'id_pengujian',
-        'nilai',
-        'keterangan',
         'status',
         'file_pdf',
         'diverifikasi_oleh',
@@ -41,19 +38,13 @@ class HasilUji extends Pivot
                 $lanjut = $akhirKode + 1;
             }
 
-            $model->kode_hasil_uji = $prefix.'-'.str_pad($lanjut, 3, '0', STR_PAD_LEFT);
+            $model->kode_hasil_uji = $prefix . '-' . str_pad($lanjut, 3, '0', STR_PAD_LEFT);
 
             // Pastikan status selalu memiliki nilai default
             if (!$model->status) {
                 $model->status = 'draf';
             }
         });
-    }
-
-
-    public function parameter()
-    {
-        return $this->belongsTo(ParameterUji::class, 'id_parameter');
     }
 
     public function pengujian()
@@ -64,5 +55,15 @@ class HasilUji extends Pivot
     public function riwayat()
     {
         return $this->hasMany(HasilUjiHistori::class, 'id_hasil_uji');
+    }
+
+    public function aduan()
+    {
+        return $this->hasOne(Aduan::class, 'id_hasil_uji');
+    }
+
+    public function getStatusAduan()
+    {
+        return $this->aduan?->status ?? $this->status;
     }
 }

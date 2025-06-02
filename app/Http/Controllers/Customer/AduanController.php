@@ -18,7 +18,7 @@ class AduanController extends Controller
 {
     public function index()
     {
-        $aduan = Aduan::with('hasil_uji.pengujian.form_pengajuan.user')->get();
+        $aduan = Aduan::with('hasil_uji.pengujian.form_pengajuan.instansi.user')->get();
         
         return Inertia::render('customer/aduan/Index', [
             'aduan' => $aduan
@@ -29,7 +29,7 @@ class AduanController extends Controller
     {
         $user = Auth::user();
 
-        if (!$hasil_uji->pengujian->form_pengajuan->id_user !== $user->id) {
+        if (!$hasil_uji->pengujian->form_pengajuan->instansi->id_user !== $user->id) {
             abort(403, 'Anda Tidak Memiliki Akses Di Halaman Ini!');
         }
 
@@ -42,7 +42,7 @@ class AduanController extends Controller
     {
         $user = Auth::user();
 
-        if (!$hasil_uji->pengujian->form_pengajuan->id_user !== $user->id) {
+        if (!$hasil_uji->pengujian->form_pengajuan->instansi->id_user !== $user->id) {
             abort(403, 'Anda Tidak Memiliki Akses Di Aduan Ini!');
         }
 

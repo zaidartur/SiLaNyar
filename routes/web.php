@@ -6,6 +6,7 @@ use App\Http\Controllers\Customer\JadwalController as CustomerJadwalController;
 use App\Http\Controllers\Customer\PembayaranController as CustomerPembayaranController;
 use App\Http\Controllers\Customer\PengajuanController as CustomerPengajuanController;
 use App\Http\Controllers\Pegawai\HasilUjiController as PegawaiHasilUjiController;
+use App\Http\Controllers\Pegawai\HasilUjiHistoriController;
 use App\Http\Controllers\Pegawai\JadwalController as PegawaiJadwalController;
 use App\Http\Controllers\Pegawai\JenisCairanController;
 use App\Http\Controllers\Pegawai\KategoriController;
@@ -14,45 +15,12 @@ use App\Http\Controllers\Pegawai\SubKategoriController;
 use App\Http\Controllers\Pegawai\PengajuanController as PegawaiPengajuanController;
 use App\Http\Controllers\Pegawai\PembayaranController as PegawaiPembayaranController;
 use App\Http\Controllers\Pegawai\VerifikasiAduanController;
-use App\Http\Controllers\Pegawai\VerifikasiInstansiController;
 use App\Http\Controllers\Pegawai\PengujianController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-
-Route::get('/test-hasiluji', function () {
-    $customer = new \App\Models\User(['nama' => 'Budi']);
-    $kategori = new \App\Models\Kategori(['nama' => 'Air Limbah']);
-    $form = new \App\Models\FormPengajuan(['jenis_cairan' => 'Air Sungai']);
-    $form->setRelation('customer', $customer);
-    $form->setRelation('kategori', $kategori);
-
-    $pegawai = new \App\Models\User(['nama' => 'Teknisi A']);
-    $pengujian = new \App\Models\Pengujian([
-        'tanggal_uji' => now(),
-        'jam_mulai' => '08:00',
-        'jam_selesai' => '10:00',
-    ]);
-    $pengujian->setRelation('form_pengajuan', $form);
-    $pengujian->setRelation('pegawai', $pegawai);
-
-    $hasilUji = new \App\Models\HasilUji(['id' => 1]);
-    $hasilUji->id = 1;
-    $hasilUji->setRelation('pengujian', $pengujian);
-
-    return view('email.hasiluji', [
-        'hasil_uji' => $hasilUji
-    ]);
-});
-
-Route::get('/test-otp', function () {
-    $otp = rand(100000, 999999);
-    $nama = 'Aji';
-
-    return view('email.otp', ['otp' => $otp, 'nama' => $nama]);
-});
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -207,10 +175,12 @@ Route::prefix('pegawai')->group(function () {
     Route::get('hasiluji/', [PegawaiHasilUjiController::class, 'index'])->middleware('check.permission:lihat hasil uji')->name('pegawai.hasil_uji.index');
     Route::get('hasiluji/create', [PegawaiHasilUjiController::class, 'create'])->middleware('check.permission:tambah hasil uji');
     Route::post('hasiluji/store', [PegawaiHasilUjiController::class, 'store'])->middleware('check.permission:tambah hasil uji');
-    Route::get('hasiluji/edit/{hasil_uji}', [PegawaiHasilUjiController::class, 'edit'])->middleware('check.permission:edit hasil uji');
+    Route::get('hasiluji/edit/{id}', [PegawaiHasilUjiController::class, 'edit'])->middleware('check.permission:edit hasil uji');
     Route::put('hasiluji/{hasil_uji}/edit', [PegawaiHasilUjiController::class, 'update'])->middleware('check.permission:edit hasil uji');
-    Route::get('hasiluji/{hasil_uji}', [PegawaiHasilUjiController::class, 'show'])->middleware('check.permission:detail hasil uji');
-    Route::get('hasiluji/riwayat/{id}', [PegawaiHasilUjiController::class, 'riwayat'])->middleware('check.permission:riwayat hasil uji');
+    Route::put('hasiluji/verifikasi/{id}', [PegawaiHasilUjiController::class, 'verifikasi'])->middleware('check.permission:verifikasi hasil uji');
+    Route::get('hasiluji/{id}', [PegawaiHasilUjiController::class, 'show'])->middleware('check.permission:detail hasil uji');
+    Route::get('hasiluji/riwayat/{id}', [HasilUjiHistoriController::class, 'index'])->middleware('check.permission:riwayat hasil uji');
+    Route::get('hasiluji/riwayat/show/{id}', [HasilUjiHistoriController::class, 'show'])->middleware('check.permission:detail riwayat hasil uji');
     Route::delete('hasiluji/{id}', [PegawaiHasilUjiController::class, 'destroy'])->middleware('check.permission:hapus hasil uji');
 
     //fitur Aduan

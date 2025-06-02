@@ -37,14 +37,9 @@ class ParameterUji extends Model
 
     public function pengujian()
     {
-        return $this->belongsToMany(Pengujian::class, 'hasil_uji', 'id_parameter', 'id_pengujian')
-            ->withPivot(['nilai', 'keterangan', 'kode_hasil_uji'])
+        return $this->belongsToMany(Pengujian::class, 'parameter_pengujian', 'id_parameter', 'id_pengujian')
+            ->withPivot(['nilai', 'keterangan'])
             ->withTimestamps();
-    }
-
-    public function hasil_uji()
-    {
-        return $this->hasMany(HasilUji::class, 'id_parameter');
     }
 
     public function form_pengajuan()
