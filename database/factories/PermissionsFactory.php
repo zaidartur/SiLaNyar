@@ -17,8 +17,10 @@ class PermissionsFactory extends Factory
     {
         $action = fake()->randomElement($this->actions);
         $resource = fake()->randomElement($this->resources);
+        static $counter = 1;
         
         return [
+            'kode_permission' => 'PS-' . str_pad($counter++, 3, '0', STR_PAD_LEFT),
             'name' => $action . '-' . $resource,
             'guard_name' => 'web',
         ];

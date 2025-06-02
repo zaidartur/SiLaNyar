@@ -17,8 +17,10 @@ class PengujianFactory extends Factory
         $jamSelesai = Carbon::createFromFormat('H:i', $jamMulai)
             ->addHours(fake()->numberBetween(2, 4))
             ->format('H:i');
+        static $counter = 1;
 
         return [
+            'kode_pengujian' => 'DJ-' . str_pad($counter++, 3, '0', STR_PAD_LEFT),
             'id_form_pengajuan' => $formPengajuan,
             'id_user' => User::factory(),
             'id_kategori' => Kategori::factory(),

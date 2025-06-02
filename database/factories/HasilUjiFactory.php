@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\ParameterUji;
 use App\Models\Pengujian;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,15 +17,13 @@ class HasilUjiFactory extends Factory
      */
     public function definition(): array
     {
-        $parameter = ParameterUji::inRandomOrder()->first() ?? ParameterUji::factory()->create();
-        
         return [
+            'kode_hasil_uji' => 'HU-' . date('my') . '-' . str_pad(fake()->unique()->numberBetween(1, 999), 3, '0', STR_PAD_LEFT),
             'id_pengujian' => Pengujian::factory(),
-            'id_parameter' => $parameter->id,
-            'nilai' => fake()->randomFloat(2, 0, $parameter->baku_mutu * 1.5), // Generate value relative to baku_mutu
-            'keterangan' => fake()->randomElement(['Memenuhi baku mutu', 'Melebihi baku mutu', 'Di bawah baku mutu']),
-            'status' => fake()->randomElement(['acc', 'revisi', 'draf']),
-            'file_pdf' => fake()->boolean(70) ? 'hasil_uji/'. fake()->uuid() .'.pdf' : null
+            'status' => fake()->randomElement(['draf', 'revisi', 'proses_review', 'proses_peresmian', 'selesai']),
+            'proses_review_at' => fake()->optional()->dateTimeThisMonth(),
+            'file_pdf' => fake()->boolean(70) ? 'hasil_uji/'. fake()->uuid() .'.pdf' : null,
+            'diverifikasi_oleh' => fake()->optional()->name()
         ];
     }
 }

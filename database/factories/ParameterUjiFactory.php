@@ -34,8 +34,10 @@ class ParameterUjiFactory extends Factory
         ];
 
         $parameter = fake()->unique()->randomElement($parameters);
+        static $counter = 1;
 
         return [
+            'kode_parameter' => 'PR-' . str_pad($counter++, 3, '0', STR_PAD_LEFT),
             'nama_parameter' => $parameter[0],
             'satuan' => $parameter[1],
             'harga' => $parameter[2],

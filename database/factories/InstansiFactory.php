@@ -10,18 +10,17 @@ class InstansiFactory extends Factory
     public function definition(): array
     {
         return [
+            'kode_instansi' => 'IN-' . str_pad(fake()->unique()->numberBetween(1, 999), 3, '0', STR_PAD_LEFT),
             'id_user' => User::factory(),
             'nama' => fake()->company(),
             'tipe' => fake()->randomElement(['swasta', 'pemerintahan', 'pribadi']),
             'alamat' => fake()->address(),
             'wilayah' => fake()->city(),
-            'desa/kelurahan' => fake()->city(),
+            'desa_kelurahan' => fake()->city(),
             'email' => fake()->unique()->companyEmail(),
             'no_telepon' => fake()->phoneNumber(),
-            'posisi/jabatan' => fake()->jobTitle(),
-            'departemen/divisi' => fake()->word(),
-            'status_verifikasi' => fake()->randomElement(['diproses', 'diterima', 'ditolak']),
-            'diverifikasi_oleh' => fake()->name()
+            'posisi_jabatan' => fake()->jobTitle(),
+            'departemen_divisi' => fake()->word(),
         ];
     }
 }
