@@ -15,7 +15,7 @@ defineProps<{
 </script>
 
 <template>
-    <Head title="Dashboard" />
+    <Head title="Admin" />
     <AdminLayout>
         <div class="bg-[#D9D9D9] h-full p-6 rounded-xl">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8">
@@ -32,7 +32,7 @@ defineProps<{
                     </div>
                     <div>
                         <p class="font-bold text-2xl text-gray-500">Pengajuan</p>
-                        <h2 class="text-6xl font-bold text-green-700">{{ statistik.pengajuan }}</h2>
+                        <h2 class="text-6xl font-bold text-customDarkGreen">{{ statistik.pengajuan }}</h2>
                         <p class="text-sm text-gray-400 mt-2">Total Pengajuan Masuk</p>
                     </div>
                 </div>
@@ -55,7 +55,7 @@ defineProps<{
                     </div>
                     <div>
                         <p class="font-bold text-2xl text-gray-500">Jadwal</p>
-                        <h2 class="text-6xl font-bold text-green-700">{{ statistik.jadwal }}</h2>
+                        <h2 class="text-6xl font-bold text-customDarkGreen">{{ statistik.jadwal }}</h2>
                         <p class="text-sm text-gray-400 mt-2">Jadwal Aktif</p>
                     </div>
                 </div>
@@ -78,7 +78,7 @@ defineProps<{
                     </div>
                     <div>
                         <p class="font-bold text-2xl text-gray-500">Pengujian</p>
-                        <h2 class="text-6xl font-bold text-green-700">{{ statistik.pengujian }}</h2>
+                        <h2 class="text-6xl font-bold text-customDarkGreen">{{ statistik.pengujian }}</h2>
                         <p class="text-sm text-gray-400 mt-2">Total Pengujian Masuk</p>
                     </div>
                 </div>
@@ -101,7 +101,7 @@ defineProps<{
                     </div>
                     <div>
                         <p class="font-bold text-2xl text-gray-500">Hasil Uji</p>
-                        <h2 class="text-6xl font-bold text-green-700">{{ statistik.hasil_uji }}</h2>
+                        <h2 class="text-6xl font-bold text-customDarkGreen">{{ statistik.hasil_uji }}</h2>
                         <p class="text-sm text-gray-400 mt-2">Laporan Hasil Uji</p>
                     </div>
                 </div>
