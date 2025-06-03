@@ -18,7 +18,8 @@ return new class extends Migration
             $table->enum('status', ['draf', 'revisi', 'proses_review', 'proses_peresmian', 'selesai'])->default('draf');
             $table->timestamp('proses_review_at')->nullable();
             $table->string('file_pdf')->nullable();
-            $table->string('diupdate_oleh')->nullable();
+            $table->string('diverifikasi_oleh')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('hasil_uji');
     }
 };

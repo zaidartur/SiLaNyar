@@ -23,7 +23,9 @@ class HasilUjiFactory extends Factory
             'status' => fake()->randomElement(['draf', 'revisi', 'proses_review', 'proses_peresmian', 'selesai']),
             'proses_review_at' => fake()->optional()->dateTimeThisMonth(),
             'file_pdf' => fake()->boolean(70) ? 'hasil_uji/'. fake()->uuid() .'.pdf' : null,
-            'diverifikasi_oleh' => fake()->optional()->name()
+            'diverifikasi_oleh' => fake()->optional()->name(),
+            'created_at' => fake()->dateTime(),
+            'updated_at' => fake()->dateTime()
         ];
     }
 }

@@ -18,7 +18,9 @@ return new class extends Migration
             $table->foreignId('id_kategori')->nullable()->constrained('kategori')->onDelete('cascade');
             $table->foreignId('id_jenis_cairan')->constrained('jenis_cairan')->onDelete('cascade');
             $table->float('volume_sampel');
-            $table->enum('status_pengajuan', ['proses_validasi', 'diterima', 'ditolak'])->default('proses_validasi')->index();
+            $table->enum('status_pengajuan', ['proses_validasi', 'diterima', 'ditolak'])
+                  ->default('proses_validasi')
+                  ->index();
             $table->enum('metode_pengambilan', ['diantar', 'diambil']);
             $table->string('lokasi')->nullable();
             $table->timestamps();
@@ -30,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('form_pengajuan');
     }
 };

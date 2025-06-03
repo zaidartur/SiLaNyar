@@ -27,7 +27,7 @@ class PengujianFactory extends Factory
             'tanggal_uji' => fake()->dateTimeBetween('now', '+2 weeks')->format('Y-m-d'),
             'jam_mulai' => $jamMulai,
             'jam_selesai' => $jamSelesai,
-            'status' => fake()->randomElement(['diproses', 'selesai'])
+            'status' => 'diproses' // Set default value sesuai migration
         ];
     }
 

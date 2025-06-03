@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('hasil_uji_histori', function (Blueprint $table) {
             $table->id();
             $table->foreignId('id_hasil_uji')->constrained('hasil_uji')->onDelete('cascade');
+            $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
             $table->json('data_parameterdanpengujian');
             $table->enum('status', ['draf', 'revisi', 'proses_review', 'proses_peresmian', 'selesai'])->default('draf');
             $table->string('diupdate_oleh');
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('hasil_uji_histori');
     }
 };

@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('nama');
             $table->string('nik')->unique();
-            $table->date('tanggal_lahir');
-            $table->integer('rt');
-            $table->integer('rw');
-            $table->integer('kode_pos');
+            $table->date('tanggal_lahir');  // Ubah ke date sesuai cast
+            $table->unsignedInteger('rt');   // // Ubah ke unsignedInteger biar gabisa minus
+            $table->unsignedInteger('rw');   // // Ubah ke unsignedInteger biar gabisa minus
+            $table->unsignedInteger('kode_pos');  // Ubah ke unsignedInteger biar gabisa minus
             $table->string('alamat');
             $table->string('username')->unique();
             $table->string('no_telepon');

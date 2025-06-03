@@ -17,7 +17,8 @@ class Aduan extends Model
         'id_user',
         'masalah',
         'perbaikan',
-        'status'
+        'status',
+        'diverifikasi_oleh'
     ];
 
     protected static function boot()
@@ -39,6 +40,6 @@ class Aduan extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'id_user');    
+        return $this->belongsTo(User::class, 'id_user');
     }
 }

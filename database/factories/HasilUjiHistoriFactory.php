@@ -37,9 +37,12 @@ class HasilUjiHistoriFactory extends Factory
 
         return [
             'id_hasil_uji' => HasilUji::factory(),
+            'id_user' => User::factory(),
             'data_parameterdanpengujian' => $sampleData,
             'status' => fake()->randomElement(['draf', 'revisi', 'proses_review', 'proses_peresmian', 'selesai']),
-            'diupdate_oleh' => fake()->name()
+            'diupdate_oleh' => fake()->name(),
+            'created_at' => fake()->dateTime(),
+            'updated_at' => fake()->dateTime()
         ];
     }
 }

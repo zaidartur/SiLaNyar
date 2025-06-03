@@ -24,10 +24,10 @@ class FormPengajuanFactory extends Factory
         return [
             'kode_pengajuan' => 'DP-' . date('my') . str_pad(fake()->unique()->numberBetween(1, 999), 3, '0', STR_PAD_LEFT),
             'id_instansi' => Instansi::factory(),
-            'id_kategori' => Kategori::factory(),
+            'id_kategori' => fake()->boolean(80) ? Kategori::factory() : null,
             'id_jenis_cairan' => JenisCairan::factory(),
             'volume_sampel' => fake()->randomFloat(2, 0.1, 100),
-            'status_pengajuan' => 'proses_validasi',  // Set default value
+            'status_pengajuan' => fake()->randomElement(['proses_validasi', 'diterima', 'ditolak']),
             'metode_pengambilan' => $metode,
             'lokasi' => $metode === 'diambil' ? fake()->address() : null,
         ];

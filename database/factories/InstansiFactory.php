@@ -20,7 +20,7 @@ class InstansiFactory extends Factory
             'email' => fake()->unique()->companyEmail(),
             'no_telepon' => fake()->phoneNumber(),
             'posisi_jabatan' => fake()->jobTitle(),
-            'departemen_divisi' => fake()->word(),
+            'departemen_divisi' => fake()->word()
         ];
     }
 }
