@@ -19,7 +19,7 @@ Route::prefix('pegawai')->middleware('auth:web')->group(function () {
     Route::get('profile/show', [PegawaiProfileController::class, 'show'])->name('pegawai.profile');
 });
 
-Route::prefix('customer')->middleware(['auth:web'])->group(function () {
+Route::prefix('customer')->middleware(['auth:web', 'role:customer'])->group(function () {
     Route::get('dashboard', [CustomerDashboardController::class, 'index'])->name('customer.dashboard');
 
     //Fitur Profil

@@ -71,18 +71,11 @@ const handleFilter = () => {
                 <div class="flex flex-col w-40">
                     <label for="status" class="mb-1 text-sm font-medium text-gray-700">Pilih Status:</label>
                     <select id="status" v-model="status"
-<<<<<<< HEAD
-                        class="rounded bg-customDarkGreen text-white border-gray-300 px-2 py-1" @change="handleFilter">
-                        <option value="diproses">Diproses</option>
-                        <option value="selesai">Selesai</option>
-                        <option value="verifikasi">Proses Verifikasi</option>
-=======
                         class="rounded bg-green-600 text-white border-gray-300 px-2 py-1" @change="handleFilter">
                         <option disabled value="">Pilih Status</option>
                         <option value="proses_validasi">Proses Validasi</option>
                         <option value="diterima">Di Terima</option>
                         <option value="ditolak">Di Tolak</option>
->>>>>>> 6bb41a2 (Update Controllers, Models, Database, Routes, Page)
                     </select>
                 </div>
 
@@ -112,23 +105,6 @@ const handleFilter = () => {
                         </tr>
                     </thead>
                     <tbody>
-<<<<<<< HEAD
-                        <tr v-for="(item, index) in pengajuan" :key="item.id"
-                            :class="{ 'bg-gray-200': index % 2 !== 0 }">
-                            <td class="px-6 py-4">DP-001</td>
-                            <td class="px-6 py-4">PT Sejahtra Abadi</td>
-                            <td class="px-6 py-4">Industri Cat/Tinta</td>
-                            <td class="px-6 py-4">Diambil</td>
-                            <td class="px-6 py-4">100 mL</td>
-                            <td class="px-6 py-4">
-                                <span :class="{
-                                    'px-2 py-1 rounded text-gray-800': true,
-                                    'bg-green-200': item.status === 'diproses',
-                                    'bg-yellow-200': item.status === 'verifikasi'
-                                }">
-                                    {{ item.status === 'verifikasi' ? 'Proses Verifikasi' : item.status }}
-                                </span>
-=======
                         <tr v-for="(item, index) in props.pengajuan" :key="item.id"
                             :class="{ 'bg-gray-200': index % 2 !== 0 }">
                             <td class="px-6 py-4">{{ item.kode_pengajuan }}</td>
@@ -142,7 +118,6 @@ const handleFilter = () => {
                                         {{ param.nama_parameter }}
                                     </li>
                                 </ul>
->>>>>>> 6bb41a2 (Update Controllers, Models, Database, Routes, Page)
                             </td>
                             <td class="px-6 py-4">{{ item.volume_sampel }}</td>
                             <td class="px-6 py-4">{{ item.metode_pengambilan }}</td>

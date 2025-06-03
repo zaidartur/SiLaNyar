@@ -19,7 +19,21 @@ class DashboardController extends Controller
         $instansiUser = $user->instansi()->pluck('id')->toArray();
 
         if (empty($instansiUser)) {
-            return redirect()->back()->with('error', 'Tidak ada instansi yang tersedia');
+            return Inertia::render('customer/dashboard/Index', [
+                'statistik' => [
+                    'proses' => 0,
+                    'ditolak' => 0,
+                    'diterima' => 0,
+                ],
+                'pengajuan' => [],
+                'pilihPengajuan' => null,
+                'statusList' => [],
+                'pembayaran' => [],
+                'auth' => [
+                    'user' => $user,
+                ],
+                'error' => 'Tidak ada instansi yang tersedia',
+            ]);
         }
 
         $proses = FormPengajuan::whereIn('id_instansi', $instansiUser)->where('status_pengajuan', 'proses_validasi')->count();
@@ -38,7 +52,7 @@ class DashboardController extends Controller
                 $pilihPengajuan = null;
             }
         } else {
-            $pilihPengajuan = $pengajuan->first();
+            $pilihPengajuan = $pengajuan->first() ?: null;
         }
 
         $statusList = [];
@@ -78,8 +92,10 @@ class DashboardController extends Controller
                     'tanggal' => $hasiluji && $hasiluji->status === 'selesai' ? $hasiluji->updated_at->format('d-m-Y') : 'menunggu'
                 ]
             ];
+        } else {
+            $statusList = [];
         }
-        
+
         $pembayaran = $pengajuan->pluck('pembayaran')->filter()->values();
 
         return Inertia::render('customer/dashboard/Index', [

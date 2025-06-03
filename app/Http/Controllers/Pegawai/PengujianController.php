@@ -17,7 +17,7 @@ class PengujianController extends Controller
     //lihat daftar jadwal pengujian
     public function index()
     {
-        $pengujian = Pengujian::with('form_pengajuan', 'user', 'kategori')->get();
+        $pengujian = Pengujian::with('form_pengajuan.instansi.user', 'user', 'kategori')->get();
 
         return Inertia::render('pegawai/pengujian/Index', [
             'pengujian' => $pengujian,
@@ -28,14 +28,37 @@ class PengujianController extends Controller
     //form tambah jadwal pengujian
     public function create()
     {
-        $form_pengajuan = FormPengajuan::all();
-        $user = User::role('teknisi');
-        $kategori = Kategori::all();
+        $form_pengajuan = FormPengajuan::with('kategori.parameter_uji', 'kategori.subkategori.parameter_uji', 'instansi.user')->get();
+        $user = User::role('teknisi')->select('id', 'nama')->get();
+
+        $kategori = $form_pengajuan->kategori;
+
+        $parameterKategori = $kategori->parameter->map(function ($param) {
+            return [
+                'id' => $param->id,
+                'nama' => $param->nama_parameter,
+                'satuan' => $param->satuan,
+                'baku_mutu' => $param->pivot->baku_mutu ?? null,
+            ];
+        });
+
+        $parameterSubKategori = $kategori->subkategori->flatMap(function ($sub) {
+            return $sub->parameter->map(function ($param) {
+                return [
+                    'id' => $param->id,
+                    'nama' => $param->nama_parameter,
+                    'satuan' => $param->satuan,
+                    'baku_mutu' => $param->pivot->baku_mutu ?? null,
+                ];
+            });
+        });
+
+        $semuaParameter = $parameterKategori->merge($parameterSubKategori)->unique('id')->values();
 
         return Inertia::render('pegawai/pengujian/Tambah', [
             'form_pengajuan' => $form_pengajuan,
             'user' => $user,
-            'kategori' => $kategori
+            'parameter' => $semuaParameter
         ]);
     }
 
@@ -87,11 +110,12 @@ class PengujianController extends Controller
     //form edit jadwal pengujian
     public function edit(Pengujian $pengujian)
     {
-        $pengujian->load(['form_pengajuan.kategori', 'form_pengajuan.parameter', 'form_pengajuan.user']);
+        $pengujian->load(['form_pengajuan.kategori.parameter', 'form_pengajuan.kategori.subkategori.parameter', 'form_pengajuan.instansi.user', 'user']);
 
-        $form_pengajuan = FormPengajuan::select('id', 'kode_pengajuan', 'id_user', 'id_kategori')
+        $form_pengajuan = FormPengajuan::select('id', 'kode_pengajuan', 'id_instansi', 'id_kategori')
             ->with('kategori:id,nama')
-            ->with('user:id,nama')
+            ->with('instansi:id,nama')
+            ->with('instansi.user:id,nama')
             ->get();
 
         $user = User::role('teknisi')->select('id', 'nama')->get();
@@ -134,10 +158,34 @@ class PengujianController extends Controller
     //lihat detail daftar pengujian
     public function show(Pengujian $pengujian)
     {
-        $pengujian->load(['form_pengajuan', 'form_pengajuan.kategori', 'form_pengajuan.parameter', 'form_pengajuan.user', 'user']);
+        $pengujian->load(['form_pengajuan.kategori.parameter', 'form_pengajuan.kategori.subkategori.parameter', 'form_pengajuan.instansi.user', 'user']);
 
+        $kategori = $pengujian->form_pengajuan->kategori;
+
+        $parameterKategori = $kategori->parameter->map(function ($param) {
+            return [
+                'id' => $param->id,
+                'nama' => $param->nama_parameter,
+                'satuan' => $param->satuan,
+                'baku_mutu' => $param->pivot->baku_mutu ?? null,
+            ];
+        });
+
+        $parameterSubKategori = $kategori->subkategori->flatMap(function ($sub) {
+            return $sub->parameter->map(function ($param) {
+                return [
+                    'id' => $param->id,
+                    'nama' => $param->nama_parameter,
+                    'satuan' => $param->satuan,
+                    'baku_mutu' => $param->pivot->baku_mutu ?? null,
+                ];
+            });
+        });
+
+        $semuaParameter = $parameterKategori->merge($parameterSubKategori)->unique('id')->values();
         return Inertia::render('pegawai/pengujian/Detail', [
-            'pengujian' => $pengujian
+            'pengujian' => $pengujian,
+            'parameter' => $semuaParameter,
         ]);
     }
 
