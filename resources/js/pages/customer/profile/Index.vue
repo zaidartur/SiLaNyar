@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import CustomerLayout from '@/layouts/customer/CustomerLayout.vue';
 import TambahInstansi from '@/components/form/customer/profile/TambahInstansi.vue';
-import AppearanceTabs from '@/components/AppearanceTabs.vue';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Head } from '@inertiajs/vue3';
 import { ref } from 'vue'
@@ -30,6 +29,8 @@ const props = defineProps<{
   instansi: Instansi[]
 }>()
 
+const showModal = ref(false);
+
 const openModal = () => {
   showModal.value = true;
 };
@@ -53,7 +54,6 @@ const toggleEditModal = () => {
     <div class="max-w-4xl mx-auto">
       <!-- Header Profile -->
       <div class="mb-4 p-2 bg-white rounded-lg shadow-sm border border-gray-300">
-<<<<<<< HEAD
         <div class="flex justify-between items-start">
           <div>
             <h1 class="text-xl font-bold text-gray-800">Profile Pengguna</h1>
@@ -61,15 +61,7 @@ const toggleEditModal = () => {
               Terakhir Login: {{ moment(user?.last_login).format('DD MMMM YYYY, HH:mm') }}
             </p>
           </div>
-          <div>
-            <AppearanceTabs />
-          </div>
         </div>
-=======
-        <h1 class="text-xl font-bold text-gray-800">Profile Pengguna</h1>
-        <p class="text-sm text-gray-500">Terakhir Login: {{ moment(props.user.last_login).format('DD MMMM YYYY, HH:mm') }}
-        </p>
->>>>>>> 6bb41a2 (Update Controllers, Models, Database, Routes, Page)
       </div>
 
       <!-- Profile Card -->
@@ -95,7 +87,6 @@ const toggleEditModal = () => {
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="space-y-2">
                   <p class="text-sm text-gray-500">Nama Lengkap</p>
-<<<<<<< HEAD
                   <p class="font-medium dark:text-black">{{ user?.nama }}</p>
                 </div>
                 <div class="space-y-2">
@@ -109,21 +100,6 @@ const toggleEditModal = () => {
                 <div class="space-y-2">
                   <p class="text-sm text-gray-500">Alamat Pribadi</p>
                   <p class="font-medium dark:text-black">{{ user?.alamat }}</p>
-=======
-                  <p class="font-medium">{{ props.user.nama }}</p>
-                </div>
-                <div class="space-y-2">
-                  <p class="text-sm text-gray-500">Email</p>
-                  <p class="font-medium">{{ props.user.email }}</p>
-                </div>
-                <div class="space-y-2">
-                  <p class="text-sm text-gray-500">Kontak Pribadi</p>
-                  <p class="font-medium">{{ props.user.no_wa }}</p>
-                </div>
-                <div class="space-y-2">
-                  <p class="text-sm text-gray-500">Alamat Pribadi</p>
-                  <p class="font-medium">{{ props.user.alamat }}</p>
->>>>>>> 6bb41a2 (Update Controllers, Models, Database, Routes, Page)
                 </div>
               </div>
             </div>

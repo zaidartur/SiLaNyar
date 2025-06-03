@@ -53,7 +53,7 @@ const auth = computed<Auth>(() => page.props.auth as Auth);
                                 class="relative size-16 w-auto rounded-full p-1 focus-within:ring-2 focus-within:ring-primary"
                             >
                                 <Avatar class="size-14 overflow-hidden rounded-full bg-white">
-                                    <AvatarImage src="/storage/assetslandingpage/LogoUser.png" :alt="auth.user?.nama" />
+                                    <AvatarImage src="/assets/assetslandingpage/LogoUser.png" :alt="auth.user?.nama" />
                                 </Avatar>
                             </Button>
                         </DropdownMenuTrigger>

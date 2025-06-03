@@ -10,7 +10,7 @@ interface Parameter {
     kode_parameter: string
     nama_parameter: string
     satuan: string
-    harga: number
+    harga: ''
 }
 
 interface SubKategori {
@@ -28,7 +28,7 @@ const displayValue = ref('')
 
 const form = useForm({
     nama: '',
-    harga: 0,
+    harga: '',
     subkategori: [],
     parameter: props.parameter.map(param => ({
         id: param.id,
@@ -65,67 +65,82 @@ const submit = () => {
 
     form.parameter = filterParam
     form.post('/pegawai/kategori/store', {
-        onSuccess: () => emit('close')
     })
-}
-
-const emit = defineEmits(['close'])
-
-const closeModal = () => {
-    emit('close')
 }
 </script>
 
 <template>
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4" @click.self="closeModal">
-        <div class="w-full max-w-4xl mx-auto overflow-hidden rounded-2xl shadow-lg lg:grid lg:min-h-[600px] lg:grid-cols-3 bg-white">
-            <!-- Left Side - Logo Section -->
-            <div class="hidden bg-customDarkGreen lg:col-span-1 lg:flex lg:items-center lg:justify-center flex-col">
-                <img src="/assets/assetsadmin/logodlh.png" alt="Logo DLH" class="w-auto h-48 object-contain mx-auto" />
-                <div class="text-center text-white mt-6">
-                    <h2 class="text-2xl font-bold mb-2 border-b border-white pb-2">SiLanYar</h2>
-                    <p class="text-sm">Sistem Laboratoruim Karanganyar</p>
-                </div>
+    <div class="w-full h-screen lg:grid lg:grid-cols-3 bg-white">
+        <!-- Left Side - Logo Section -->
+        <div class="hidden bg-customDarkGreen lg:col-span-1 lg:flex lg:items-center lg:justify-center flex-col h-screen">
+            <img src="/assets/assetsadmin/logodlh.png" alt="Logo DLH" class="w-auto h-48 object-contain mx-auto" />
+            <div class="text-center text-white mt-6">
+                <h2 class="text-2xl font-bold mb-2 border-b border-white pb-2">SiLanYar</h2>
+                <p class="text-sm">Sistem Laboratoruim Karanganyar</p>
             </div>
+        </div>
 
-            <!-- Right Side - Form Section -->
-            <div class="flex items-center justify-center p-12 lg:col-span-2 bg-white">
-                <form @submit.prevent="submit" class="mx-auto grid w-full mx-w-sm gap-6">
-                    <div class="grid gap-2 text-center">
-                        <h1 class="text-3xl font-bold">Tambah Kategori</h1>
+        <!-- Right Side - Form Section -->
+        <div class="flex items-start justify-center lg:col-span-2 overflow-y-auto bg-white h-screen">
+            <form @submit.prevent="submit" class="w-full max-w-xl mx-auto grid gap-6 p-6 md:p-12">
+                <div class="grid gap-2 text-center">
+                    <h1 class="text-3xl font-bold">Tambah Kategori</h1>
+                </div>
+
+                <div class="grid gap-4">
+                    <!-- Nama Kategori -->
+                    <div class="grid gap-2">
+                        <Label for="nama">Nama Kategori</Label>
+                        <Input id="nama" v-model="form.nama" type="text" placeholder="Masukkan nama kategori"
+                            required />
+                        <span v-if="form.errors.nama" class="text-sm text-red-600">
+                            {{ form.errors.nama }}
+                        </span>
                     </div>
 
-                    <div class="grid gap-4">
-                        <!-- Nama Kategori -->
-                        <div class="grid gap-2">
-                            <Label for="nama">Nama Kategori</Label>
-                            <Input id="nama" v-model="form.nama" type="text" placeholder="Masukkan nama kategori" required />
-                            <span v-if="form.errors.nama" class="text-sm text-red-600">
-                                {{ form.errors.nama }}
-                            </span>
+                    <!-- Harga -->
+                    <div class="grid gap-2">
+                        <Label for="harga">Harga</Label>
+                        <input id="harga" v-model="displayValue" @input="handleInput" @blur="formatOnBlur" type="text"
+                            placeholder="Harga" required class="border rounded px-3 py-2 w-full" />
+                        <div v-if="form.errors.harga" class="text-red-500 text-sm">
+                            {{ form.errors.harga }}
                         </div>
-
-            <div>
-                <label class="block mb-1">Subkategori</label>
-                <div v-for="sub in props.subkategori" :key="sub.id" class="mb-2">
-                    <input type="checkbox" :value="sub.id" v-model="form.subkategori" :id="'sub-' + sub.id" />
-                    <label class="block text-sm font-semibold">{{ sub.nama }}</label>
-                </div>
-                <div class="text-red-500 text-sm">{{ form.errors.subkategori }}</div>
-            </div>
-
-            <div>
-                <label class="block mb-1">Parameter dan baku Mutu</label>
-                <div v-for="(param, index) in form.parameter" :key="param.id" class="mb-2">
-                    <input type="checkbox" v-model="param.checked" :id="'param-' + param.id" />
-                    <label class="block text-sm font-semibold">{{ props.parameter[index].nama_parameter }}</label>
-                    <input v-model="param.baku_mutu" type="text" class="w-48 rounded border px-3 py-2"
-                        :disabled="!param.checked" placeholder="Baku Mutu" />
-                    <div class="text-red-500 text-sm">
-                        {{ param.checked ? (form.errors as any)[`parameter.${index}.baku_mutu`] : '' }}
                     </div>
-                </form>
-            </div>
+
+                    <!-- Subkategori -->
+                    <div class="grid gap-2">
+                        <Label>Subkategori</Label>
+                        <div v-for="sub in props.subkategori" :key="sub.id" class="flex items-center mb-2 gap-2">
+                            <input type="checkbox" :value="sub.id" v-model="form.subkategori" :id="'sub-' + sub.id" />
+                            <label :for="'sub-' + sub.id" class="text-sm font-semibold">{{ sub.nama }}</label>
+                        </div>
+                        <div class="text-red-500 text-sm">{{ form.errors.subkategori }}</div>
+                    </div>
+
+                    <!-- Parameter dan Baku Mutu -->
+                    <div class="grid gap-2">
+                        <Label>Parameter dan Baku Mutu</Label>
+                        <div v-for="(param, index) in form.parameter" :key="param.id"
+                            class="flex items-center mb-2 gap-2">
+                            <input type="checkbox" v-model="param.checked" :id="'param-' + param.id" />
+                            <label :for="'param-' + param.id" class="text-sm font-semibold">
+                                {{ props.parameter[index].nama_parameter }}
+                            </label>
+                            <input v-model="param.baku_mutu" type="text" class="w-48 rounded border px-3 py-2"
+                                :disabled="!param.checked" placeholder="Baku Mutu" />
+                            <div class="text-red-500 text-sm">
+                                {{ param.checked ? (form.errors as any)[`parameter.${index}.baku_mutu`] : '' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit"
+                    class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors mb-8">
+                    Simpan
+                </button>
+            </form>
         </div>
     </div>
 </template>

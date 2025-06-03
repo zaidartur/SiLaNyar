@@ -125,7 +125,7 @@ const toggleEditModal = () => {
 
                             <div class="flex gap-4">
                                 <a href="https://sakti.karanganyarkab.go.id/profile"
-                                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                    class="px-6 py-2 bg-lime-600 text-white rounded-lg hover:bg-lime-500 transition-colors">
                                     Lanjutkan
                                 </a>
                             </div>

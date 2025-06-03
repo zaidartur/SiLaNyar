@@ -28,7 +28,7 @@ class JenisCairanController extends Controller
         $request->validate([
             'nama' => 'required|string|max:255',
             'batas_minimum' => 'required|numeric',
-            'batas_maksimum' => 'nullable|numeric|after_or_equal:batas_minimum'
+            'batas_maksimum' => 'numeric|after_or_equal:batas_minimum'
         ]);
 
         if (!is_null($request->batas_maksimum) && $request->batas_minimum >= $request->batas_maksimum) {

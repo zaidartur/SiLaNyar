@@ -9,7 +9,7 @@ defineProps<{
 <template>
     <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar"
         type="button"
-        class="inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
+        class="inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
         <span class="sr-only">Open sidebar</span>
         <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
             xmlns="http://www.w3.org/2000/svg">
@@ -22,7 +22,7 @@ defineProps<{
     <aside id="logo-sidebar"
         class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0"
         aria-label="Sidebar">
-        <div class="h-full px-3 py-4 overflow-y-auto bg-customDarkGreen dark:bg-gray-800">
+        <div class="h-full px-3 py-4 overflow-y-auto bg-customDarkGreen">
             <Link :href="route('dashboard')" class="flex items-center ps-2.5 mb-5">
             <img src="/assets/assetslandingpage/LogoDlh.png" class="h-10 me-3 sm:h-9" alt="Logo" />
             <span class="self-center text-2xl font-bold whitespace-nowrap text-white">SiLaNyar</span>
@@ -30,7 +30,7 @@ defineProps<{
             <ul class="space-y-4 font-medium">
                 <li>
                     <Link :href="route('customer.dashboard')"
-                        class="flex items-center p-2 text-white rounded-lg dark:text-white hover:bg-green-500">
+                        class="flex items-center p-2 text-white rounded-lg hover:bg-green-500">
                     <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center">
                         <svg width="35" height="26" viewBox="0 0 35 26" fill="none" xmlns="http://www.w3.org/2000/svg"
                             xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -50,8 +50,8 @@ defineProps<{
                     </Link>
                 </li>
                 <li>
-                    <Link :href="route('customer.pengajuan.daftar')"
-                        class="flex items-center p-2 text-white rounded-lg dark:text-white hover:bg-green-500">
+                    <Link :href="route('customer.pengajuan.index')"
+                        class="flex items-center p-2 text-white rounded-lg hover:bg-green-500">
                     <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center">
                         <svg width="49" height="42" viewBox="0 0 49 42" fill="none" xmlns="http://www.w3.org/2000/svg"
                             xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -72,7 +72,7 @@ defineProps<{
                 </li>
                 <li>
                     <Link :href="route('customer.hasil_uji.index')"
-                        class="flex items-center p-2 text-white rounded-lg dark:text-white hover:bg-green-500">
+                        class="flex items-center p-2 text-white rounded-lg hover:bg-green-500">
                     <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center">
                         <svg width="44" height="42" viewBox="0 0 44 42" fill="none" xmlns="http://www.w3.org/2000/svg"
                             xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -93,7 +93,7 @@ defineProps<{
                 </li>
                 <li>
                     <Link :href="route('customer.jadwal.index')"
-                        class="flex items-center p-2 text-white rounded-lg dark:text-white hover:bg-green-500">
+                        class="flex items-center p-2 text-white rounded-lg hover:bg-green-500">
                     <div clas="flex-shrink-0 w-8 h-8 flex items-center justify-center">
                         <svg width="34" height="35" viewBox="0 0 27 28" fill="none" xmlns="http://www.w3.org/2000/svg"
                             xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -114,7 +114,7 @@ defineProps<{
                 </li>
                 <li>
                     <Link :href="route('customer.profile')"
-                        class="flex items-center p-2 text-white rounded-lg dark:text-white hover:bg-green-500">
+                        class="flex items-center p-2 text-white rounded-lg hover:bg-green-500">
                     <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center">
                         <svg width="35" height="35" viewBox="0 0 100 100" fill="none"
                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -135,7 +135,7 @@ defineProps<{
             </ul>
             <div class="absolute bottom-0 left-0 w-full p-4">
                 <Link :href="route('dashboard')"
-                    class="flex items-center p-2 text-white rounded-lg hover:bg-green-500 dark:text-white">
+                    class="flex items-center p-2 text-white rounded-lg hover:bg-green-500">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                     stroke="currentColor" class="w-6 h-6">
                     <path stroke-linecap="round" stroke-linejoin="round"

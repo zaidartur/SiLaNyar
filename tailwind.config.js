@@ -1,4 +1,5 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
+import colors from 'tailwindcss/colors';
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -19,6 +20,7 @@ export default {
                 sm: 'calc(var(--radius) - 4px)',
             },
             colors: {
+                ...colors,
                 background: 'hsl(var(--background))',
                 foreground: 'hsl(var(--foreground))',
                 card: {
@@ -70,6 +72,7 @@ export default {
                     ring: 'hsl(var(--sidebar-ring))',
                 },
                 customGreen: '#2E7D32',
+                customDarkGreen: '#2E7D32',
                 customLightGreen: '#81C784',
                 customGray: '#3A3A3A',
             },

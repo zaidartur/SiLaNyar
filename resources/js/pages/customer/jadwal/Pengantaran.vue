@@ -4,7 +4,7 @@ import ScrollArea from '@/components/ui/scroll-area/ScrollArea.vue'
 import { DropdownMenu, DropdownMenuUserDashboard, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { ref } from 'vue'
-import { Head } from '@inertiajs/vue3'
+import { Head, Link } from '@inertiajs/vue3'
 
 const filterOptions = ref([
     { label: 'Belum Dijadwalkan', value: 'belum dijadwalkan' },
@@ -18,25 +18,17 @@ const handleFilterChange = (value: string) => {
     selectedFilter.value = value
 }
 
-// Data untuk informasi pengantaran dan penjemputan
+// Data untuk informasi pengantaran
 const sampelInfo = ref({
     pengantaran: {
         tanggal: 'Selasa, 22 April 2025',
         idPengajuan: 'SMPOL-25042201',
         jenisSampel: 'Universal',
         status: 'Terkonfirmasi'
-    },
-    penjemputan: {
-        tanggal: 'Selasa, 22 April 2025',
-        idPengajuan: 'Selasa, 22 April 2025',
-        jenisSampel: 'Selasa, 22 April 2025',
-        status: 'Belum Terjadwalkan',
-        lokasi: 'Selasa, 22 April 2025',
-        instansi: 'Perusahaan - PT. Tirta Murni'
     }
 })
 
-// Data untuk tabel jadwal
+// Data untuk tabel jadwal pengantaran
 const scheduleData = ref([
     {
         tanggal: '22 APR',
@@ -45,89 +37,28 @@ const scheduleData = ref([
         kegiatan: 'Pengantaran Sampel ke DLH',
         lokasi: 'Gedung A',
         status: 'Terkonfirmasi'
-    },
-    {
-        tanggal: '23 APR',
-        hari: 'Selasa',
-        waktu: '13:30 WIB',
-        kegiatan: 'Penjemputan Sampel oleh Teknisi',
-        lokasi: 'Jl. Kenanga No. 45',
-        status: 'Terjadwalkan'
-    },
-    {
-        tanggal: '24 APR',
-        hari: 'Selasa',
-        waktu: '10:30 WIB',
-        kegiatan: 'Lab Pengujian',
-        lokasi: 'Gedung A',
-        status: 'Diproses'
-    },
-    {
-        tanggal: '24 APR',
-        hari: 'Selasa',
-        waktu: '10:30 WIB',
-        kegiatan: 'Lab Pengujian',
-        lokasi: 'Gedung A',
-        status: 'Diproses'
-    },
-    {
-        tanggal: '24 APR',
-        hari: 'Selasa',
-        waktu: '10:30 WIB',
-        kegiatan: 'Lab Pengujian',
-        lokasi: 'Gedung A',
-        status: 'Diproses'
-    },
-    {
-        tanggal: '24 APR',
-        hari: 'Selasa',
-        waktu: '10:30 WIB',
-        kegiatan: 'Lab Pengujian',
-        lokasi: 'Gedung A',
-        status: 'Diproses'
-    },
-    {
-        tanggal: '24 APR',
-        hari: 'Selasa',
-        waktu: '10:30 WIB',
-        kegiatan: 'Lab Pengujian',
-        lokasi: 'Gedung A',
-        status: 'Diproses'
-    },
-    {
-        tanggal: '24 APR',
-        hari: 'Selasa',
-        waktu: '10:30 WIB',
-        kegiatan: 'Lab Pengujian',
-        lokasi: 'Gedung A',
-        status: 'Diproses'
-    },
-    {
-        tanggal: '24 APR',
-        hari: 'Selasa',
-        waktu: '10:30 WIB',
-        kegiatan: 'Lab Pengujian',
-        lokasi: 'Gedung A',
-        status: 'Diproses'
-    },
-    {
-        tanggal: '24 APR',
-        hari: 'Selasa',
-        waktu: '10:30 WIB',
-        kegiatan: 'Lab Pengujian',
-        lokasi: 'Gedung A',
-        status: 'Diproses'
-    },
+    }
 ])
 </script>
 
 <template>
-    <Head title="Jadwal" />
+
+    <Head title="Jadwal Pengantaran" />
     <CustomerLayout>
         <div class="max-w-6xl mx-auto p-4">
+            <!-- Navigasi Antar/Jemput -->
+            <div class="flex gap-2 mb-4">
+                <Link href="/customer/jadwal/pengantaran" class="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200">
+                Pengantaran
+                </Link>
+                <Link href="/customer/jadwal/penjemputan" class="px-4 py-2 rounded-lg"
+                    :class="{ 'bg-customDarkGreen text-white': true }">
+                Penjemputan
+                </Link>
+            </div>
             <!-- Header -->
             <div class="flex justify-between items-center mb-4">
-                <h1 class="text-2xl font-bold">Jadwal</h1>
+                <h1 class="text-2xl font-bold">Jadwal Pengantaran</h1>
                 <DropdownMenu>
                     <DropdownMenuTrigger :as-child="true">
                         <Button variant="ghost"
@@ -176,39 +107,6 @@ const scheduleData = ref([
                 </div>
             </div>
 
-            <!-- Informasi Penjemputan -->
-            <div class="bg-purple-50 border-l-8 border-purple-600 rounded-lg p-4 mb-4">
-                <h2 class="text-lg font-semibold text-purple-600 mb-4">Informasi Penjemputan Sampel oleh Teknisi</h2>
-                <div class="grid grid-cols-4 gap-4">
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-blue-100">
-                        <p class="text-sm text-gray-600">Tanggal Penjemputan</p>
-                        <p class="font-medium">{{ sampelInfo.penjemputan.tanggal }}</p>
-                    </div>
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-blue-100">
-                        <p class="text-sm text-gray-600">ID Pengajuan</p>
-                        <p class="font-medium">{{ sampelInfo.penjemputan.idPengajuan }}</p>
-                    </div>
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-blue-100">
-                        <p class="text-sm text-gray-600">Jenis Sample</p>
-                        <p class="font-medium">{{ sampelInfo.penjemputan.idPengajuan }}</p>
-                    </div>
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-blue-100">
-                        <p class="text-sm text-gray-600">Status</p>
-                        <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm">
-                            {{ sampelInfo.penjemputan.status }}
-                        </span>
-                    </div>
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-blue-100">
-                        <p class="text-sm text-gray-600">Lokasi Pengambilan</p>
-                        <p class="font-medium">{{ sampelInfo.penjemputan.idPengajuan }}</p>
-                    </div>
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-blue-100">
-                        <p class="text-sm text-gray-600">Instansi</p>
-                        <p class="font-medium">{{ sampelInfo.penjemputan.instansi }}</p>
-                    </div>
-                </div>
-            </div>
-
             <!-- Penting Notice -->
             <div class="bg-yellow-50 border-l-8 border-yellow-400 p-4 mb-4 rounded-lg">
                 <p class="text-sm text-yellow-700">
@@ -244,9 +142,7 @@ const scheduleData = ref([
                                 <td class="px-6 py-4">
                                     <span :class="{
                                         'px-3 py-1 rounded-full text-sm': true,
-                                        'bg-green-100 text-green-700': item.status === 'Terkonfirmasi',
-                                        'bg-purple-100 text-purple-700': item.status === 'Terjadwalkan',
-                                        'bg-yellow-100 text-yellow-700': item.status === 'Diproses'
+                                        'bg-green-100 text-green-700': item.status === 'Terkonfirmasi'
                                     }">
                                         {{ item.status }}
                                     </span>
@@ -264,25 +160,3 @@ const scheduleData = ref([
         </div>
     </CustomerLayout>
 </template>
-
-<style>
-.ScrollAreaRoot {
-    width: 100%;
-    height: 100%;
-}
-
-.ScrollAreaViewport {
-    width: 100%;
-    height: 100%;
-}
-
-.ScrollAreaScrollbar {
-    width: 4px;
-    padding: 5px 2px;
-}
-
-.ScrollAreaThumb {
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 3px;
-}
-</style>
