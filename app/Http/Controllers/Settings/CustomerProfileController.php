@@ -83,7 +83,7 @@ class CustomerProfileController extends Controller
             'email' => $request->email,
             'no_telepon' => $request->no_telepon,
             'posisi_jabatan' => $request->posisi_jabatan,
-            'departemen_divisi' => $request->departemen_divisi,
+            'departemen_divisi' => $request->departemen_divisi
         ]);
 
         if (!$instansi) {
