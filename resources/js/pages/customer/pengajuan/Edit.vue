@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import CustomerLayout from '@/layouts/customer/CustomerLayout.vue';
 import { useForm, usePage, router } from '@inertiajs/vue3'
+import { ref, watch } from 'vue'
 
 interface Parameter {
     id: number;
@@ -118,105 +119,108 @@ function verifikasi(status: 'diterima' | 'ditolak') {
 </script>
 
 <template>
-    <div class="p-6 space-y-4">
-        <h1 class="text-2xl font-bold">Edit Pengajuan</h1>
+    <CustomerLayout>
+        <div class="p-6 space-y-4">
+            <h1 class="text-2xl font-bold">Edit Pengajuan</h1>
 
-        <form @submit.prevent="submit" class="space-y-4">
-            <!-- Instansi -->
-            <div>
-                <label>Instansi</label>
-                <select v-model="form.id_instansi" class="w-full border rounded" disabled>
-                    <option v-for="ins in instansiList" :key="ins.id" :value="ins.id">
-                        {{ ins.nama }}
-                    </option>
-                </select>
-            </div>
+            <form @submit.prevent="submit" class="space-y-4">
+                <!-- Instansi -->
+                <div>
+                    <label>Instansi</label>
+                    <select v-model="form.id_instansi" class="w-full border rounded" disabled>
+                        <option v-for="ins in instansiList" :key="ins.id" :value="ins.id">
+                            {{ ins.nama }}
+                        </option>
+                    </select>
+                </div>
 
-            <!-- Jenis Cairan -->
-            <div>
-                <label>Jenis Cairan</label>
-                <select v-model="form.id_jenis_cairan" class="w-full border rounded" disabled>
-                    <option v-for="jenis in jenisCairanList" :key="jenis.id" :value="jenis.id">{{ jenis.nama }}</option>
-                </select>
-            </div>
+                <!-- Jenis Cairan -->
+                <div>
+                    <label>Jenis Cairan</label>
+                    <select v-model="form.id_jenis_cairan" class="w-full border rounded" disabled>
+                        <option v-for="jenis in jenisCairanList" :key="jenis.id" :value="jenis.id">{{ jenis.nama }}
+                        </option>
+                    </select>
+                </div>
 
-            <!-- Volume -->
-            <div>
-                <label>Volume Sampel</label>
-                <input type="number" v-model="form.volume_sampel" class="w-full border rounded" disabled />
-            </div>
+                <!-- Volume -->
+                <div>
+                    <label>Volume Sampel</label>
+                    <input type="number" v-model="form.volume_sampel" class="w-full border rounded" disabled />
+                </div>
 
-            <!-- Metode Pengambilan -->
-            <div>
-                <label>Metode Pengambilan</label>
-                <select v-model="form.metode_pengambilan" class="w-full border rounded" disabled>
-                    <option value="diantar">Diantar</option>
-                    <option value="diambil">Diambil</option>
-                </select>
-            </div>
+                <!-- Metode Pengambilan -->
+                <div>
+                    <label>Metode Pengambilan</label>
+                    <select v-model="form.metode_pengambilan" class="w-full border rounded" disabled>
+                        <option value="diantar">Diantar</option>
+                        <option value="diambil">Diambil</option>
+                    </select>
+                </div>
 
-            <!-- Lokasi -->
-            <div v-if="form.metode_pengambilan === 'diambil'">
-                <label>Lokasi</label>
-                <input type="text" v-model="form.lokasi" class="w-full border rounded" disabled />
-            </div>
+                <!-- Lokasi -->
+                <div v-if="form.metode_pengambilan === 'diambil'">
+                    <label>Lokasi</label>
+                    <input type="text" v-model="form.lokasi" class="w-full border rounded" disabled />
+                </div>
 
-            <!-- Waktu -->
-            <div v-if="form.metode_pengambilan === 'diantar'">
-                <label>Waktu Pengambilan</label>
-                <input type="date" v-model="form.waktu_pengambilan" class="w-full border rounded" disabled />
-            </div>
+                <!-- Waktu -->
+                <div v-if="form.metode_pengambilan === 'diantar'">
+                    <label>Waktu Pengambilan</label>
+                    <input type="date" v-model="form.waktu_pengambilan" class="w-full border rounded" disabled />
+                </div>
 
-            <!-- Kategori -->
-            <div v-if="form.metode_pengambilan === 'diambil'">
-                <label for="kategori">Kategori</label>
-                <select v-model="form.id_kategori" class="w-full border rounded" id="kategori">
-                    <option :value="null" disabled selected>Pilih kategori</option>
-                    <option v-for="kat in kategoriList" :key="kat.id" :value="kat.id">
-                        {{ kat.nama }}
-                    </option>
-                </select>
-            </div>
+                <!-- Kategori -->
+                <div v-if="form.metode_pengambilan === 'diambil'">
+                    <label for="kategori">Kategori</label>
+                    <select v-model="form.id_kategori" class="w-full border rounded" id="kategori">
+                        <option :value="null" disabled selected>Pilih kategori</option>
+                        <option v-for="kat in kategoriList" :key="kat.id" :value="kat.id">
+                            {{ kat.nama }}
+                        </option>
+                    </select>
+                </div>
 
-            <!-- Parameter -->
-            <div v-if="form.metode_pengambilan === 'diambil'">
-                <label>Parameter</label>
-                <div class="grid grid-cols-2 gap-2 text-sm">
-                    <div v-for="param in parameterList" :key="param.id" class="flex items-center">
-                        <input type="checkbox" :value="param.id" v-model="form.parameter"
-                            :disabled="form.id_kategori && !parameterIsInKategori(param.id)" />
-                        <span class="ml-2" :class="{
+                <!-- Parameter -->
+                <div v-if="form.metode_pengambilan === 'diambil'">
+                    <label>Parameter</label>
+                    <div class="grid grid-cols-2 gap-2 text-sm">
+                        <div v-for="param in parameterList" :key="param.id" class="flex items-center">
+                            <input type="checkbox" :value="param.id" v-model="form.parameter"
+                                :disabled="form.id_kategori && !parameterIsInKategori(param.id)" />
+                            <span class="ml-2" :class="{
                             'text-gray-400': form.id_kategori && !parameterIsInKategori(param.id),
                         }">
-                            {{ param.nama_parameter }}
-                        </span>
+                                {{ param.nama_parameter }}
+                            </span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Keterangan -->
-            <div>
-                <label>Keterangan</label>
-                <textarea v-model="form.keterangan" class="w-full border rounded" rows="3" disabled></textarea>
-            </div>
+                <!-- Keterangan -->
+                <div>
+                    <label>Keterangan</label>
+                    <textarea v-model="form.keterangan" class="w-full border rounded" rows="3" disabled></textarea>
+                </div>
 
-            <!-- Submit -->
-            <div class="space-x-4">
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded"
-                    :disabled="form.processing || form.metode_pengambilan !== 'diambil'">
-                    Simpan Perubahan
-                </button>
+                <!-- Submit -->
+                <div class="space-x-4">
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded"
+                        :disabled="form.processing || form.metode_pengambilan !== 'diambil'">
+                        Simpan Perubahan
+                    </button>
 
-                <!-- Verifikasi -->
-                <button v-if="!verifikasiSelesai" type="button" class="px-4 py-2 bg-green-600 text-white rounded"
-                    @click="verifikasi('diterima')">
-                    ✅ Terima
-                </button>
-                <button v-if="!verifikasiSelesai" type="button" class="px-4 py-2 bg-red-600 text-white rounded"
-                    @click="verifikasi('ditolak')">
-                    ❌ Tolak
-                </button>
-            </div>
-        </form>
-    </div>
+                    <!-- Verifikasi -->
+                    <button v-if="!verifikasiSelesai" type="button" class="px-4 py-2 bg-green-600 text-white rounded"
+                        @click="verifikasi('diterima')">
+                        ✅ Terima
+                    </button>
+                    <button v-if="!verifikasiSelesai" type="button" class="px-4 py-2 bg-red-600 text-white rounded"
+                        @click="verifikasi('ditolak')">
+                        ❌ Tolak
+                    </button>
+                </div>
+            </form>
+        </div>
+    </CustomerLayout>
 </template>

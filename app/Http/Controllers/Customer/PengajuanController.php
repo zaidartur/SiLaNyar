@@ -37,14 +37,18 @@ class PengajuanController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        $idInstansi = $user->instansi()->pluck('id')->toArray();
-
-        $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'jenis_cairan'])
-            ->where('id_instansi', $idInstansi)
+        $instansi = Instansi::where('id_user', $user->id)
             ->get();
 
+        $jenis_cairan = JenisCairan::all();
+        $kategori = Kategori::with('parameter', 'subkategori.parameter')->get();
+        $parameter = ParameterUji::all();
+
         return Inertia::render('customer/pengajuan/Index', [
-            'pengajuan' => $pengajuan
+            'kategori' => $kategori,
+            'jenis_cairan' => $jenis_cairan,
+            'parameter' => $parameter,
+            'instansi' => $instansi
         ]);
     }
 

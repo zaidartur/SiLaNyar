@@ -64,7 +64,7 @@ watch(() => form.metode_pengambilan, (val) => {
 
 function parameterIsInKategori(id: number): boolean {
     const kat = kategori.find(k => k.id === form.id_kategori);
-    if (!kat) return true; 
+    if (!kat) return true;
 
     const allowedParamIds = kat.subkategori.length > 0
         ? kat.subkategori.flatMap(s => s.parameter.map(p => p.id))
@@ -147,7 +147,7 @@ function submit() {
             </div>
 
             <!-- Kategori -->
-            <div v-if="form.metode_pengambilan === 'diambil'">
+            <div>
                 <label>Kategori</label>
                 <select v-model="form.id_kategori" class="w-full border rounded">
                     <option value="">Pilih Kategori</option>
@@ -155,7 +155,7 @@ function submit() {
                 </select>
             </div>
 
-            <div v-if="form.metode_pengambilan === 'diambil'">
+            <div>
                 <label>Pilih Parameter</label>
                 <div class="grid grid-cols-2 gap-2 text-sm">
                     <div v-for="param in semuaParameter" :key="param.id" class="flex items-center">

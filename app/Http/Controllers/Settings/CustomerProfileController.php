@@ -104,29 +104,36 @@ class CustomerProfileController extends Controller
         ]);
     }
 
-    public function updateIntansi(Instansi $instansi, Request $request)
+    public function updateInstansi(Instansi $instansi, Request $request)
     {
         $user = Auth::user();
 
         $request->validate([
             'nama' => 'required|string|max:255',
-            'tipe' => 'required|in:swasta,pemerintahan',
+            'tipe' => 'required|in:swasta,pemerintahan,pribadi',
             'alamat' => 'required|string|max:255',
-            'no_telepon' => 'required|regex:/^\+[0-9]+$/|string',
-            'email' => 'required|string|lowercase|email|max:255|unique' . Instansi::class,
+            'wilayah' => 'required|string|max:255',
+            'desa_kelurahan' => 'required|string|max:255',
+            'email' => 'required|string|lowercase|email|max:255|unique:instansi,email,' .$instansi->id,
+            'no_telepon' => ['required', 'string', 'regex:/^(08|\+62|62)[0-9]{7,13}$/'],
+            'posisi_jabatan' => 'required|string|max:255',
+            'departemen_divisi' => 'required|string|max:255',
         ]);
 
-        $instansi->update(
-            ['id_user' => $user->id],
-            [
+        $instansi->update([
+            'id_user' => $user->id,
                 'nama' => $request->nama,
                 'tipe' => $request->tipe,
                 'alamat' => $request->alamat,
+                'wilayah' => $request->wilayah,
+                'desa_kelurahan' => $request->desa_kelurahan,
+                'email' => $request->email,
                 'no_telepon' => $request->no_telepon,
-                'email' => $request->email
+                'posisi_jabatan' => $request->posisi_jabatan,
+                'departemen_divisi' => $request->departemen_divisi,
             ]
         );
 
-        return Redirect::route('customer.profile.instansi.detail')->with('message', 'Data Instansi Berhasil Diupdate!');
+        return Redirect::route('customer.profile')->with('message', 'Data Instansi Berhasil Diupdate!');
     }
 }
