@@ -29,7 +29,7 @@ Route::prefix('customer')->middleware(['auth:web', 'role:customer'])->group(func
     //fitur Instansi
     Route::get('profile/instansi/{instansi}', [CustomerProfileController::class, 'showInstansi'])->name('customer.profile.instansi.detail');
     Route::post('profile/instansi/store', [CustomerProfileController::class, 'storeInstansi']);
-    Route::get('profile/instansi/edit/{instansi}', [CustomerProfileController::class, 'editInstansi']);
+    Route::get('profile/instansi/edit/{instansi}', [CustomerProfileController::class, 'editInstansi'])->name('customer.profile.instansi.edit');
     Route::put('profile/instansi/{instansi}/edit', [CustomerProfileController::class, 'updateInstansi']);
 });
 

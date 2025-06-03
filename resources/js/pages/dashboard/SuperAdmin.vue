@@ -15,11 +15,11 @@ defineProps<{
   <AdminLayout>
     <div>
       <div class="mb-4 flex gap-4">
-        <a href="/pegawai/dashboard" class="text-customGreen hover:text-green-700 hover:underline transition">
+        <a href="/pegawai/dashboard" class="font-bold text-customGreen hover:text-green-700 hover:underline transition">
           Daftar User & Pegawai
         </a>
         <a href="/superadmin/users"
-          class="text-customGreen hover:text-green-700 hover:underline transition">
+          class="font-bold text-customGreen hover:text-green-700 hover:underline transition">
           Ke Manajemen Pengguna
         </a>
       </div>

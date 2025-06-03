@@ -64,7 +64,7 @@ watch(() => form.metode_pengambilan, (val) => {
 
 function parameterIsInKategori(id: number): boolean {
     const kat = kategori.find(k => k.id === form.id_kategori);
-    if (!kat) return true; 
+    if (!kat) return true;
 
     const allowedParamIds = kat.subkategori.length > 0
         ? kat.subkategori.flatMap(s => s.parameter.map(p => p.id))
