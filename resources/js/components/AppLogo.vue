@@ -8,7 +8,7 @@ import AppLogoIcon from '@/components/AppLogoIcon.vue';
     </div>
     <div class="ml-1 grid flex-1 text-left">
         <span class="text-2xl mb-1.5 font-bold leading-none text-customGreen">SiLanYar</span>
-        <span class="text-sm leading-none text-black dark:text-white">Sistem Informasi Laboratorium
+        <span class="text-sm leading-none text-black">Sistem Informasi Laboratorium
             Karanganyar</span>
     </div>
 </template>

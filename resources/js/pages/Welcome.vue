@@ -69,7 +69,7 @@ const workflowSteps = ref([
         <!-- Remove padding and make container full width -->
         <div class="flex min-h-screen w-full flex-col">
             <!-- Navigation Bar -->
-            <nav class="fixed top-0 z-50 w-full bg-white dark:bg-black backdrop-blur-md shadow-sm">
+            <nav class="fixed top-0 z-50 w-full bg-white backdrop-blur-md shadow-sm">
                 <div class="flex h-20 items-center justify-between">
                     <div
                         class="flex aspect-square size-16 items-center justify-center rounded-md ml-4 text-sidebar-primary-foreground">
@@ -77,7 +77,7 @@ const workflowSteps = ref([
                     </div>
                     <div class="ml-3 grid flex-1 text-left">
                         <span class="text-2xl mb-1.5 font-bold leading-none text-customGreen">SiLanYar</span>
-                        <span class="text-sm leading-none text-black dark:text-white">Sistem Informasi Laboratorium
+                        <span class="text-sm leading-none text-black">Sistem Informasi Laboratorium
                             Karanganyar</span>
                     </div>
 
@@ -160,8 +160,8 @@ const workflowSteps = ref([
             </Dialog>
 
             <!-- Main Content -->
-            <section id="informasi" class="flex flex-col w-full bg-white dark:bg-black p-12">
-                <h1 class="self-center text-4xl font-bold text-green-700 dark:text-green-500 max-md:max-w-full mb-12">
+            <section id="informasi" class="flex flex-col w-full bg-white p-12">
+                <h1 class="self-center text-4xl font-bold text-green-700 max-md:max-w-full mb-12">
                     Jadwal Pelayanan dan Syarat Penerimaan Sample
                 </h1>
 
@@ -169,10 +169,10 @@ const workflowSteps = ref([
                 <div class="mt-8 grid w-full grid-cols-2 gap-12 px-8 max-md:grid-cols-1">
                     <!-- Syarat Penerimaan Sample -->
                     <div class="space-y-8">
-                        <h2 class="text-4xl font-bold text-green-700 dark:text-green-600 mb-6">
+                        <h2 class="text-4xl font-bold text-green-700 mb-6">
                             Syarat Penerimaan Sample
                         </h2>
-                        <h3 class="mt-6 text-xl text-black dark:text-white ">
+                        <h3 class="mt-6 text-xl text-black">
                             Syarat Kelengkapan dan Kelayakan Sample :
                         </h3>
                         <div class="mt-8">
@@ -187,7 +187,7 @@ const workflowSteps = ref([
                                                 d="M5 13l4 4L19 7"></path>
                                         </svg>
                                     </div>
-                                    <span class="text-xl font-medium text-black dark:text-white">
+                                    <span class="text-xl font-medium text-black">
                                         {{ text }}
                                     </span>
                                 </li>
@@ -196,7 +196,7 @@ const workflowSteps = ref([
 
                         <!-- Sample Ditolak -->
                         <div class="mt-16 mb-8">
-                            <h2 class="text-4xl mb-8 font-bold text-green-700 dark:text-green-600">
+                            <h2 class="text-4xl mb-8 font-bold text-green-700">
                                 Sample dapat ditolak apabila
                             </h2>
                             <div class="mt-6">
@@ -211,7 +211,7 @@ const workflowSteps = ref([
                                                     d="M6 18L18 6M6 6l12 12"></path>
                                             </svg>
                                         </div>
-                                        <span class="text-xl font-medium text-black dark:text-white">
+                                        <span class="text-xl font-medium text-black">
                                             {{ text }}
                                         </span>
                                     </li>
@@ -225,7 +225,7 @@ const workflowSteps = ref([
                         <!-- BOD Sample Table -->
                         <div class="mb-12">
                             <h2
-                                class="text-4xl font-extrabold text-center text-customDarkGreen dark:text-green-600 mb-5">
+                                class="text-4xl font-extrabold text-center text-customDarkGreen mb-5">
                                 Sample dengan parameter BOD
                             </h2>
 
@@ -240,13 +240,13 @@ const workflowSteps = ref([
                                             </th>
                                         </tr>
                                     </thead>
-                                    <tbody class="bg-white dark:bg-black divide-y divide-green-700 ">
+                                    <tbody class="bg-white divide-y divide-green-700 ">
                                         <tr>
                                             <td
-                                                class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white border-r border-customDarkGreen">
+                                                class="px-6 py-4 text-3xl font-bold text-center text-black border-r border-customDarkGreen">
                                                 Rabu-Kamis</td>
                                             <td
-                                                class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white">
+                                                class="px-6 py-4 text-3xl font-bold text-center text-black">
                                                 08.00 - 11.00</td>
                                         </tr>
                                     </tbody>
@@ -256,7 +256,7 @@ const workflowSteps = ref([
                             <!-- Non-BOD Sample Table -->
                             <div class="mt-8">
                                 <h2
-                                    class="text-4xl font-extrabold text-center text-customDarkGreen dark:text-green-600 mt-8 mb-5">
+                                    class="text-4xl font-extrabold text-center text-customDarkGreen mt-8 mb-5">
                                     Sample Tanpa parameter BOD
                                 </h2>
 
@@ -273,24 +273,24 @@ const workflowSteps = ref([
                                                 </th>
                                             </tr>
                                         </thead>
-                                        <tbody class="bg-white dark:bg-black divide-y divide-green-700 ">
+                                        <tbody class="bg-white divide-y divide-green-700 ">
                                             <tr>
                                                 <td
-                                                    class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white border-r border-customDarkGreen dark:border-green-500">
+                                                    class="px-6 py-4 text-3xl font-bold text-center text-black border-r border-customDarkGreen">
                                                     Rabu-Kamis
                                                 </td>
                                                 <td
-                                                    class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white">
+                                                    class="px-6 py-4 text-3xl font-bold text-center text-black">
                                                     08.00 - 11.00
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td
-                                                    class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white border-r border-customDarkGreen dark:border-green-500">
+                                                    class="px-6 py-4 text-3xl font-bold text-center text-black border-r border-customDarkGreen">
                                                     Jumat
                                                 </td>
                                                 <td
-                                                    class="px-6 py-4 text-3xl font-bold text-center text-black dark:text-white">
+                                                    class="px-6 py-4 text-3xl font-bold text-center text-black">
                                                     08.00 - 10.00
                                                 </td>
                                             </tr>
@@ -304,7 +304,7 @@ const workflowSteps = ref([
 
                 <!-- Footer Note -->
                 <footer
-                    class="text-1xl mt-24 px-8 font-normal text-green-700 dark:text-green-500 max-md:mt-10 max-md:max-w-full">
+                    class="text-1xl mt-24 px-8 font-normal text-green-700 max-md:mt-10 max-md:max-w-full">
                     <p class="text-center italic">
                         Note: Apabila ada hal-hal yang meragukan, petugas penerima sampel dapat
                         menolak<br />
@@ -323,7 +323,7 @@ const workflowSteps = ref([
                     </h1>
 
                     <div class="mx-auto mb-8 w-full max-w-4xl">
-                        <img src="/storage/assetslandingpage/alurdiagram.png" alt="Diagram Alur Pelayanan Laboratorium"
+                        <img src="/assets/assetslandingpage/alurdiagram.png" alt="Diagram Alur Pelayanan Laboratorium"
                             class="h-auto w-full rounded-lg object-contain shadow-lg" />
                     </div>
 
@@ -334,12 +334,12 @@ const workflowSteps = ref([
             </section>
 
             <!-- Section Alur Kerja -->
-            <section class="bg-green-50 dark:bg-black p-4 md:p-8 rounded-0">
+            <section class="bg-green-50 p-4 md:p-8 rounded-0">
                 <h1
-                    class="text-2xl md:text-4xl text-customDarkGreen dark:text-green-600 font-bold text-center mb-4 md:mb-6">
+                    class="text-2xl md:text-4xl text-customDarkGreen font-bold text-center mb-4 md:mb-6">
                     Alur Kerja Laboratorium
                 </h1>
-                <p class="text-center text-base md:text-lg mb-8 md:mb-16 text-black dark:text-gray-300">
+                <p class="text-center text-base md:text-lg mb-8 md:mb-16 text-black">
                     SiLanyar mengotomatisasi dan mengintegrasikan seluruh alur kerja laboratorium
                     lingkungan
                 </p>
@@ -349,7 +349,7 @@ const workflowSteps = ref([
                     <!-- Desktop workflow -->
                     <div class="relative hidden md:block">
                         <!-- Connecting line -->
-                        <div class="absolute h-0.5 bg-green-700 dark:bg-green-500 w-[80%] left-[10%] top-8 z-0">
+                        <div class="absolute h-0.5 bg-green-700 w-[80%] left-[10%] top-8 z-0">
                         </div>
 
                         <!-- Steps with circles -->
@@ -363,7 +363,7 @@ const workflowSteps = ref([
                                     class=":text-green-500 mb-2 text-center text-sm font-bold text-green-700 lg:text-lg">
                                     {{ step.title }}
                                 </h3>
-                                <p class="text-xs lg:text-sm text-center max-w-xs text-black dark:text-gray-300">
+                                <p class="text-xs lg:text-sm text-center max-w-xs text-black">
                                     {{ step.description }}
                                 </p>
                             </div>
@@ -378,23 +378,23 @@ const workflowSteps = ref([
                             <div class="mr-4 flex flex-col items-center">
                                 <!-- Circle with number -->
                                 <div
-                                    class="z-10 flex h-12 w-12 items-center justify-center rounded-full bg-green-700 text-xl font-bold text-white dark:bg-green-600">
+                                    class="z-10 flex h-12 w-12 items-center justify-center rounded-full bg-green-700 text-xl font-bold text-white">
                                     <!-- Added z-10 -->
                                     {{ step.number }}
                                 </div>
                                 <!-- Vertical line -->
                                 <div v-if="index !== workflowSteps.length - 1"
-                                    class="mt-0 h-24 w-0.5 bg-green-700 dark:bg-green-500">
+                                    class="mt-0 h-24 w-0.5 bg-green-700">
                                     <!-- Changed h-12 to h-24 and mt-2 to mt-0 -->
                                 </div>
                             </div>
                             <!-- Content -->
                             <div class="pb-8">
                                 <!-- Added padding bottom -->
-                                <h3 class="mb-1 text-lg font-bold text-green-700 dark:text-green-500">
+                                <h3 class="mb-1 text-lg font-bold text-green-700">
                                     {{ step.title }}
                                 </h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-300">
+                                <p class="text-sm text-gray-600">
                                     {{ step.description }}
                                 </p>
                             </div>

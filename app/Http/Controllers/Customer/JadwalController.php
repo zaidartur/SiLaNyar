@@ -49,7 +49,7 @@ class JadwalController extends Controller
 
         $idJadwalAmbilTerbaru = $jadwalAmbilTerbaru?->id;
 
-        return Inertia::render('customer/jadwal/Index', [
+        return Inertia::render('customer/jadwal/Penjemputan', [
             'jadwal' => $jadwal,
             'jadwalAntarTerbaru' => $idJadwalAntarTerbaru,
             'jadwalAmbilTerbaru' => $idJadwalAmbilTerbaru,

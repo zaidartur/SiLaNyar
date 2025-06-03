@@ -166,7 +166,7 @@ Route::prefix('pegawai')->group(function () {
         Route::get('jenis-cairan', [JenisCairanController::class, 'index'])->name('pegawai.jenis_cairan.index');
         Route::get('jenis-cairan/create', [JenisCairanController::class, 'create']);
         Route::post('jenis-cairan/store', [JenisCairanController::class, 'store']);
-        Route::get('jenis-cairan/edit/{jenis_cairan}', [JenisCairanController::class, 'edit']);
+        Route::get('jenis-cairan/edit/{jenis_cairan}', [JenisCairanController::class, 'edit'])->name('pegawai.jenis_cairan.edit');
         Route::put('jenis-cairan/{jenis_cairan}/edit', [JenisCairanController::class, 'update']);
         Route::delete('jenis-cairan/{id}', [JenisCairanController::class, 'destroy']);
     });
@@ -188,7 +188,7 @@ Route::prefix('pegawai')->group(function () {
         Route::get('subkategori/create', [SubKategoriController::class, 'create'])->name('pegawai.subkategori.tambah');
         Route::post('subkategori/store', [SubKategoriController::class, 'store']);
         Route::get('subkategori/edit/{id}', [SubKategoriController::class, 'edit'])->name('pegawai.subkategori.edit');
-        Route::put('subkategori/{subkategori}/edit', [SubKategoriController::class, 'update'])->name('pegawai.subkategori.update');
+        Route::put('subkategori/{subkategori}/edit', [SubKategoriController::class, 'update']);
         Route::get('subkategori/{id}', [SubKategoriController::class, 'show'])->name('pegawai.subkategori.detail');
         Route::delete('subkategori/{id}', [SubKategoriController::class, 'destroy'])->name('pegawai.subkategori.destroy');
     });
