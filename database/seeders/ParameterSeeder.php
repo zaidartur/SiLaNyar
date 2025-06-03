@@ -93,6 +93,16 @@ class ParameterSeeder extends Seeder
                 'harga' => 100000
             ],
             [
+                'nama_parameter' => 'Minyak Nabati',
+                'satuan' => 'mg/L',
+                'harga' => 100000
+            ],
+            [
+                'nama_parameter' => 'Minyak Mineral',
+                'satuan' => 'mg/L',
+                'harga' => 100000
+            ],
+            [
                 'nama_parameter' => 'Fenol',
                 'satuan' => 'mg/L',
                 'harga' => 150000
@@ -133,32 +143,32 @@ class ParameterSeeder extends Seeder
                 'harga' => 75000
             ],
             [
-                'nama_parameter' => 'Mn(Mangan)',
+                'nama_parameter' => 'Mn (Mangan)',
                 'satuan' => 'mg/L',
                 'harga' => 75000
             ],
             [
-                'nama_parameter' => 'Cu(Tembaga)',
+                'nama_parameter' => 'Cu (Tembaga)',
                 'satuan' => 'mg/L',
                 'harga' => 75000
             ],
             [
-                'nama_parameter' => 'Cr(Krom Total)',
+                'nama_parameter' => 'Cr (Krom Total)',
                 'satuan' => 'mg/L',
                 'harga' => 75000
             ],
             [
-                'nama_parameter' => 'Cd(Kadmium)',
+                'nama_parameter' => 'Cd (Kadmium)',
                 'satuan' => 'mg/L',
                 'harga' => 75000
             ],
             [
-                'nama_parameter' => 'Pb(Timbal)',
+                'nama_parameter' => 'Pb (Timbal)',
                 'satuan' => 'mg/L',
                 'harga' => 75000
             ],
             [
-                'nama_parameter' => 'Zn(seng)',
+                'nama_parameter' => 'Zn (seng)',
                 'satuan' => 'mg/L',
                 'harga' => 75000
             ],
@@ -193,7 +203,47 @@ class ParameterSeeder extends Seeder
                 'harga' => 75000
             ],
             [
-                'nama_parameter' => 'Logan Lainnya',
+                'nama_parameter' => 'Ba (Barium)',
+                'satuan' => 'mg/L',
+                'harga' => 75000
+            ],
+            [
+                'nama_parameter' => 'Se (Selenium)',
+                'satuan' => 'mg/L',
+                'harga' => 75000
+            ],
+            [
+                'nama_parameter' => 'Co (Kobalt)',
+                'satuan' => 'mg/L',
+                'harga' => 75000
+            ],
+            [
+                'nama_parameter' => 'Sn (Timah)',
+                'satuan' => 'mg/L',
+                'harga' => 75000
+            ],
+            [
+                'nama_parameter' => 'Cn (Sianida)',
+                'satuan' => 'mg/L',
+                'harga' => 75000
+            ],
+            [
+                'nama_parameter' => 'H2s (Sulfida)',
+                'satuan' => 'mg/L',
+                'harga' => 75000
+            ],
+            [
+                'nama_parameter' => 'F (Flourida)',
+                'satuan' => 'mg/L',
+                'harga' => 75000
+            ],
+            [
+                'nama_parameter' => 'Cl2 (Klorin Bebas)',
+                'satuan' => 'mg/L',
+                'harga' => 75000
+            ],
+            [
+                'nama_parameter' => 'Logam Lainnya',
                 'satuan' => 'mg/L',
                 'harga' => 75000
             ],
@@ -208,6 +258,16 @@ class ParameterSeeder extends Seeder
                 'nama_parameter' => 'Fecal Coliform',
                 'satuan' => 'CFU/100mL',
                 'harga' => 75000
+            ],
+            [
+                'nama_parameter' => 'Debit Maksimum',
+                'satuan' => 'm³/ton',
+                'harga' => 0
+            ],
+            [
+                'nama_parameter' => 'Radio Aktifitas',
+                'satuan' => '-',
+                'harga' => 0
             ]
         ];
 

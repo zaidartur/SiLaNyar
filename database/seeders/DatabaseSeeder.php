@@ -18,7 +18,8 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             GivePermissionToRoleSeeder::class,
             ParameterSeeder::class,
-            JenisCairanSeeder::class
+            SubKategoriSeeder::class,
+            JenisCairanSeeder::class,
         ]);        
     }
 }

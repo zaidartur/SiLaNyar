@@ -48,7 +48,7 @@ class DashboardManager
             }
         }
 
-        return 'customer/Dashboard';
+        return 'customer/dashboard/Index';
     }
 
     protected function getDashboardData(string $view, User $user): array

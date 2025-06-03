@@ -76,7 +76,7 @@ class SSOController extends Controller
                 'rw'             => $userData['rw'],
                 'kode_pos'       => $userData['kode_pos'],
                 'alamat'         => $userData['alamat'],
-                'username'       => $userData['username'],
+                'username'       => $userData['username'] ?? $userData['email'],
                 'no_telepon'     => $userData['no_wa'],
             ]
         );
