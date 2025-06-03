@@ -4,10 +4,14 @@ namespace Tests\Unit\Models;
 
 use Tests\TestCase;
 use App\Models\User;
+use App\Models\Instansi;
 use App\Models\Kategori;
 use App\Models\JenisCairan;
 use App\Models\ParameterUji;
 use App\Models\FormPengajuan;
+use App\Models\Jadwal;
+use App\Models\Pembayaran;
+use App\Models\Pengujian;
 use PHPUnit\Framework\Attributes\Test;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -38,13 +42,13 @@ class FormPengajuanUnitTest extends TestCase
     }
 
     #[Test]
-    public function memastikan_relasi_dengan_user_berfungsi()
+    public function memastikan_relasi_dengan_isntansi_berfungsi()
     {
         $formPengajuan = FormPengajuan::factory()
-            ->for(User::factory())
+            ->for(Instansi::factory(), 'instansi')
             ->create();
             
-        $this->assertInstanceOf(User::class, $formPengajuan->user);
+        $this->assertInstanceOf(Instansi::class, $formPengajuan->instansi);
     }
 
     #[Test]
@@ -83,9 +87,10 @@ class FormPengajuanUnitTest extends TestCase
     {
         $formPengajuan = new FormPengajuan;
         
+        // Sesuaikan dengan fillable yang ada di model FormPengajuan
         $fillable = [
             'kode_pengajuan',
-            'id_user',
+            'id_instansi',
             'id_kategori',
             'id_jenis_cairan',
             'volume_sampel',
@@ -123,5 +128,41 @@ class FormPengajuanUnitTest extends TestCase
         $formPengajuan = FormPengajuan::factory()->diambil()->create();
         
         $this->assertNotNull($formPengajuan->lokasi);
+    }
+
+    #[Test]
+    public function memastikan_relasi_dengan_jadwal_berfungsi()
+    {
+        $formPengajuan = FormPengajuan::factory()->create();
+        $jadwal = Jadwal::factory()->create([
+            'id_form_pengajuan' => $formPengajuan->id
+        ]);
+        
+        $this->assertInstanceOf(Jadwal::class, $formPengajuan->jadwal);
+        $this->assertEquals($jadwal->id, $formPengajuan->jadwal->id);
+    }
+
+    #[Test]
+    public function memastikan_relasi_dengan_pembayaran_berfungsi()
+    {
+        $formPengajuan = FormPengajuan::factory()->create();
+        $pembayaran = Pembayaran::factory()->create([
+            'id_form_pengajuan' => $formPengajuan->id
+        ]);
+        
+        $this->assertInstanceOf(Pembayaran::class, $formPengajuan->pembayaran);
+        $this->assertEquals($pembayaran->id, $formPengajuan->pembayaran->id);
+    }
+
+    #[Test]
+    public function memastikan_relasi_dengan_pengujian_berfungsi()
+    {
+        $formPengajuan = FormPengajuan::factory()->create();
+        $pengujian = Pengujian::factory()->create([
+            'id_form_pengajuan' => $formPengajuan->id
+        ]);
+        
+        $this->assertInstanceOf('Illuminate\Database\Eloquent\Collection', $formPengajuan->pengujian);
+        $this->assertTrue($formPengajuan->pengujian->contains($pengujian));
     }
 }
