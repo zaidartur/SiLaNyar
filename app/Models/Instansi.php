@@ -41,7 +41,6 @@ class Instansi extends Model
             }
 
             $model->kode_instansi = 'IN-' . str_pad($lanjut, 3, '0', STR_PAD_LEFT);
-
         });
     }
     
