@@ -18,7 +18,6 @@ class HasilUjiFactory extends Factory
     public function definition(): array
     {
         return [
-            'kode_hasil_uji' => 'HU-' . date('my') . '-' . str_pad(fake()->unique()->numberBetween(1, 999), 3, '0', STR_PAD_LEFT),
             'id_pengujian' => Pengujian::factory(),
             'status' => fake()->randomElement(['draf', 'revisi', 'proses_review', 'proses_peresmian', 'selesai']),
             'proses_review_at' => fake()->optional()->dateTimeThisMonth(),

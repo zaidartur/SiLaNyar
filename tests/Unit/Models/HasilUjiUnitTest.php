@@ -5,8 +5,8 @@ namespace Tests\Unit\Models;
 use Tests\TestCase;
 use App\Models\HasilUji;
 use App\Models\Pengujian;
-use App\Models\ParameterUji;
 use App\Models\HasilUjiHistori;
+use App\Models\Aduan;
 use PHPUnit\Framework\Attributes\Test;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -37,13 +37,19 @@ class HasilUjiUnitTest extends TestCase
     }
 
     #[Test]
-    public function memastikan_relasi_dengan_parameter_uji_berfungsi()
+    public function memastikan_mass_assignment_protection_berfungsi()
     {
-        $hasilUji = HasilUji::factory()
-            ->for(ParameterUji::factory(), 'parameter')
-            ->create();
-            
-        $this->assertInstanceOf(ParameterUji::class, $hasilUji->parameter);
+        $hasilUji = new HasilUji;
+        
+        $fillable = [
+            'kode_hasil_uji',
+            'id_pengujian',
+            'status',
+            'file_pdf',
+            'diverifikasi_oleh',
+        ];
+        
+        $this->assertEquals($fillable, $hasilUji->getFillable());
     }
 
     #[Test]
@@ -60,34 +66,32 @@ class HasilUjiUnitTest extends TestCase
     public function memastikan_relasi_dengan_riwayat_berfungsi()
     {
         $hasilUji = HasilUji::factory()->create();
+        $riwayat = HasilUjiHistori::factory()->create([
+            'id_hasil_uji' => $hasilUji->id
+        ]);
         
-        $this->assertInstanceOf('Illuminate\Database\Eloquent\Collection', $hasilUji->riwayat);
+        $this->assertTrue($hasilUji->riwayat->contains($riwayat));
     }
 
     #[Test]
-    public function memastikan_mass_assignment_protection_berfungsi()
+    public function memastikan_relasi_dengan_aduan_berfungsi()
     {
-        $hasilUji = new HasilUji;
+        $hasilUji = HasilUji::factory()->create();
+        $aduan = Aduan::factory()->create([
+            'id_hasil_uji' => $hasilUji->id
+        ]);
         
-        $fillable = [
-            'kode_hasil_uji',
-            'id_parameter',
-            'id_pengujian',
-            'nilai',
-            'keterangan',
-            'status',
-            'file_pdf'
-        ];
-        
-        $this->assertEquals($fillable, $hasilUji->getFillable());
+        $this->assertInstanceOf(Aduan::class, $hasilUji->aduan);
     }
 
     #[Test]
     public function memastikan_status_default_adalah_draf()
     {
-        $hasilUji = HasilUji::factory()->create([
+        $hasilUji = HasilUji::factory()->make([
             'status' => null
         ]);
+        
+        $hasilUji->save();
         
         $this->assertEquals('draf', $hasilUji->status);
     }
@@ -103,14 +107,34 @@ class HasilUjiUnitTest extends TestCase
     }
 
     #[Test]
-    public function memastikan_nilai_disimpan_sebagai_float()
+    public function memastikan_diverifikasi_oleh_bisa_null()
     {
-        $nilai = 12.34;
         $hasilUji = HasilUji::factory()->create([
-            'nilai' => $nilai
+            'diverifikasi_oleh' => null
         ]);
         
-        $this->assertIsFloat($hasilUji->nilai);
-        $this->assertEquals($nilai, $hasilUji->nilai);
+        $this->assertNull($hasilUji->diverifikasi_oleh);
+    }
+
+    #[Test]
+    public function memastikan_status_aduan_mengembalikan_status_aduan_jika_ada()
+    {
+        $hasilUji = HasilUji::factory()->create();
+        $aduan = Aduan::factory()->create([
+            'id_hasil_uji' => $hasilUji->id,
+            'status' => 'diterima_administrasi'
+        ]);
+        
+        $this->assertEquals('diterima_administrasi', $hasilUji->getStatusAduan());
+    }
+
+    #[Test]
+    public function memastikan_status_aduan_mengembalikan_status_hasil_uji_jika_tidak_ada_aduan()
+    {
+        $hasilUji = HasilUji::factory()->create([
+            'status' => 'selesai'
+        ]);
+        
+        $this->assertEquals('selesai', $hasilUji->getStatusAduan());
     }
 }

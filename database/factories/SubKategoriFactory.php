@@ -35,7 +35,6 @@ class SubKategoriFactory extends Factory
         static $counter = 1;
         
         return [
-            'kode_subkategori' => 'SK-' . str_pad($counter++, 3, '0', STR_PAD_LEFT),
             'nama' => fake()->unique()->randomElement($subkategoriNames),
         ];
     }

@@ -26,10 +26,19 @@ class Aduan extends Model
         parent::boot();
 
         static::creating(function ($model) {
-            $akhir = self::max('id') ?? 0;
-            $lanjut = $akhir + 1;
+            $prefix = 'AU-';
+            $akhir = self::where('kode_aduan', 'like', $prefix . '%')
+                        ->orderBy('kode_aduan', 'desc')
+                        ->first();
 
-            $model->kode_aduan = 'AU-' . str_pad($lanjut, 3, '0', STR_PAD_LEFT);
+            $lanjut = 1;
+
+            if ($akhir) {
+                $akhirKode = (int)substr($akhir->kode_aduan, -3);
+                $lanjut = $akhirKode + 1;
+            }
+
+            $model->kode_aduan = $prefix . str_pad($lanjut, 3, '0', STR_PAD_LEFT);
         });
     }
 

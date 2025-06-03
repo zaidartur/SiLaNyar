@@ -58,14 +58,6 @@ class PembayaranUnitTest extends TestCase
     }
 
     #[Test]
-    public function memastikan_metode_pembayaran_valid()
-    {
-        $pembayaran = Pembayaran::factory()->create();
-        
-        $this->assertContains($pembayaran->metode_pembayaran, ['tunai', 'transfer']);
-    }
-
-    #[Test]
     public function memastikan_status_pembayaran_valid()
     {
         $pembayaran = Pembayaran::factory()->create();
@@ -85,15 +77,6 @@ class PembayaranUnitTest extends TestCase
     }
 
     #[Test]
-    public function memastikan_bukti_pembayaran_terisi_saat_status_selesai()
-    {
-        $pembayaran = Pembayaran::factory()->selesai()->create();
-        
-        $this->assertNotNull($pembayaran->bukti_pembayaran);
-        $this->assertStringStartsWith('pembayaran/', $pembayaran->bukti_pembayaran);
-    }
-
-    #[Test]
     public function memastikan_mass_assignment_protection_berfungsi()
     {
         $pembayaran = new Pembayaran;
@@ -109,5 +92,34 @@ class PembayaranUnitTest extends TestCase
         ];
         
         $this->assertEquals($fillable, $pembayaran->getFillable());
+    }
+
+        #[Test]
+    public function memastikan_metode_pembayaran_valid()
+    {
+        // Test untuk pembayaran yang belum selesai (null)
+        $pembayaranBelumSelesai = Pembayaran::factory()->diproses()->create();
+        $this->assertNull($pembayaranBelumSelesai->metode_pembayaran);
+
+        // Test untuk pembayaran yang sudah selesai (tunai atau transfer)
+        $pembayaranSelesai = Pembayaran::factory()->selesai()->create();
+        $this->assertContains($pembayaranSelesai->metode_pembayaran, ['tunai', 'transfer']);
+    }
+
+    #[Test]
+    public function memastikan_bukti_pembayaran_terisi_saat_status_selesai()
+    {
+        // Test transfer
+        $pembayaranTransfer = Pembayaran::factory()->selesai()->state([
+            'metode_pembayaran' => 'transfer'
+        ])->create();
+        $this->assertNotNull($pembayaranTransfer->bukti_pembayaran);
+        $this->assertStringStartsWith('pembayaran/', $pembayaranTransfer->bukti_pembayaran);
+
+        // Test tunai
+        $pembayaranTunai = Pembayaran::factory()->selesai()->state([
+            'metode_pembayaran' => 'tunai'
+        ])->create();
+        $this->assertNull($pembayaranTunai->bukti_pembayaran);
     }
 }

@@ -35,7 +35,9 @@ class PembayaranFactory extends Factory
     public function selesai(): static
     {
         return $this->state(function (array $attributes) {
-            $metode = fake()->randomElement(['tunai', 'transfer']);
+            // Gunakan metode yang sudah ada di attributes jika ada, atau generate random
+            $metode = $attributes['metode_pembayaran'] ?? fake()->randomElement(['tunai', 'transfer']);
+            
             return [
                 'status_pembayaran' => 'selesai',
                 'tanggal_pembayaran' => now(),

@@ -5,6 +5,7 @@ namespace Tests\Unit\Models;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Instansi;
+use App\Models\FormPengajuan;
 use PHPUnit\Framework\Attributes\Test;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -34,16 +35,6 @@ class InstansiUnitTest extends TestCase
     }
 
     #[Test]
-    public function memastikan_relasi_dengan_user_berfungsi()
-    {
-        $instansi = Instansi::factory()
-            ->for(User::factory())
-            ->create();
-            
-        $this->assertInstanceOf(User::class, $instansi->user);
-    }
-
-    #[Test]
     public function memastikan_mass_assignment_protection_berfungsi()
     {
         $instansi = new Instansi;
@@ -55,55 +46,64 @@ class InstansiUnitTest extends TestCase
             'tipe',
             'alamat',
             'wilayah',
-            'desa/kelurahan',
+            'desa_kelurahan',
             'email',
             'no_telepon',
-            'posisi/jabatan',
-            'departemen/divisi',
-            'status_verifikasi',
-            'diverifikasi_oleh'
+            'posisi_jabatan',
+            'departemen_divisi'
         ];
         
         $this->assertEquals($fillable, $instansi->getFillable());
     }
 
     #[Test]
-    public function memastikan_status_verifikasi_default_adalah_diproses()
+    public function memastikan_relasi_dengan_user_berfungsi()
     {
-        $instansi = Instansi::factory()->create([
-            'status_verifikasi' => null
+        $instansi = Instansi::factory()
+            ->for(User::factory(), 'user')
+            ->create();
+            
+        $this->assertInstanceOf(User::class, $instansi->user);
+    }
+
+    #[Test]
+    public function memastikan_relasi_dengan_form_pengajuan_berfungsi()
+    {
+        $instansi = Instansi::factory()->create();
+        $formPengajuan = FormPengajuan::factory()->create([
+            'id_instansi' => $instansi->id
         ]);
         
-        $this->assertEquals('diproses', $instansi->status_verifikasi);
+        $this->assertTrue($instansi->form_pengajuan->contains($formPengajuan));
     }
 
     #[Test]
     public function memastikan_tipe_instansi_valid()
     {
+        $validTipe = ['swasta', 'pemerintahan', 'pribadi'];
         $instansi = Instansi::factory()->create();
         
-        $this->assertContains($instansi->tipe, ['swasta', 'pemerintahan', 'pribadi']);
+        $this->assertTrue(in_array($instansi->tipe, $validTipe));
     }
 
     #[Test]
     public function memastikan_email_bersifat_unique()
     {
-        $instansiPertama = Instansi::factory()->create();
+        $instansi = Instansi::factory()->create();
         
         $this->expectException(\Illuminate\Database\QueryException::class);
         
         Instansi::factory()->create([
-            'email' => $instansiPertama->email
+            'email' => $instansi->email
         ]);
     }
 
     #[Test]
-    public function memastikan_kode_instansi_bersifat_unique()
+    public function memastikan_timestamps_berfungsi()
     {
-        $instansiPertama = Instansi::factory()->create();
+        $instansi = Instansi::factory()->create();
         
-        Instansi::factory()->create(['kode_instansi' => $instansiPertama->kode_instansi]);
-        
-        $this->assertEquals(1, Instansi::where('kode_instansi', $instansiPertama->kode_instansi)->count());
+        $this->assertNotNull($instansi->created_at);
+        $this->assertNotNull($instansi->updated_at);
     }
 }

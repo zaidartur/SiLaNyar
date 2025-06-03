@@ -11,7 +11,6 @@ class AduanFactory extends Factory
     public function definition(): array
     {
         return [
-            'kode_aduan' => 'AU-' . str_pad(fake()->unique()->numberBetween(1, 999), 3, '0', STR_PAD_LEFT),
             'id_hasil_uji' => HasilUji::factory(),
             'id_user' => User::factory(),
             'masalah' => fake()->sentence(),

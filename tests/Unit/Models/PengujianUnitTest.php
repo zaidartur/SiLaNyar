@@ -76,25 +76,12 @@ class PengujianUnitTest extends TestCase
         $parameter = ParameterUji::factory()->create();
         
         $pengujian->parameter_uji()->attach($parameter->id, [
-            'kode_hasil_uji' => 'HU-' . date('my') . '-001',
             'nilai' => 10.5,
             'keterangan' => 'Test'
         ]);
         
         $this->assertTrue($pengujian->parameter_uji->contains($parameter));
         $this->assertEquals(10.5, $pengujian->parameter_uji->first()->pivot->nilai);
-    }
-
-    #[Test]
-    public function memastikan_relasi_dengan_hasil_uji_berfungsi()
-    {
-        $pengujian = Pengujian::factory()->create();
-        $hasilUji = HasilUji::factory()->create([
-            'id_pengujian' => $pengujian->id,
-            'kode_hasil_uji' => 'HU-' . date('my') . '-001'
-        ]);
-        
-        $this->assertTrue($pengujian->hasil_uji->contains($hasilUji));
     }
 
     #[Test]

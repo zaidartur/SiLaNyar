@@ -43,7 +43,6 @@ class RolesFactory extends Factory
         ];
 
         return [
-            'kode_role' => 'RL-' . str_pad($counter++, 3, '0', STR_PAD_LEFT),
             'name' => $roleName,
             'guard_name' => 'web',
             'dashboard_view' => $dashboardViews[$roleName] ?? null,

@@ -29,7 +29,6 @@ class JenisCairanFactory extends Factory
         [$minRange, $maxRange] = $types[$nama];
         
         return [
-            'kode_jenis_cairan' => 'JC-' . str_pad(fake()->unique()->numberBetween(1, 999), 3, '0', STR_PAD_LEFT),
             'nama' => $nama,
             'batas_minimum' => fake()->randomFloat(2, $minRange, $minRange * 1.5),
             'batas_maksimum' => fake()->randomFloat(2, $maxRange * 0.8, $maxRange)

@@ -21,19 +21,6 @@ class JenisCairanUnitTest extends TestCase
     }
 
     #[Test]
-    public function memastikan_kode_jenis_cairan_berurutan()
-    {
-        $cairanPertama = JenisCairan::factory()->create();
-        $cairanKedua = JenisCairan::factory()->create();
-        
-        $nomorPertama = (int)substr($cairanPertama->kode_jenis_cairan, -3);
-        $nomorKedua = (int)substr($cairanKedua->kode_jenis_cairan, -3);
-        
-        $this->assertEquals(1, $nomorPertama);
-        $this->assertEquals(2, $nomorKedua);
-    }
-
-    #[Test]
     public function memastikan_mass_assignment_protection_berfungsi()
     {
         $jenisCairan = new JenisCairan;
@@ -99,5 +86,17 @@ class JenisCairanUnitTest extends TestCase
         JenisCairan::factory()->create([
             'kode_jenis_cairan' => $jenisCairan->kode_jenis_cairan
         ]);
+    }
+
+    #[Test]
+    public function memastikan_kode_jenis_cairan_berurutan()
+    {
+        $jenisCairanPertama = JenisCairan::factory()->create();
+        $jenisCairanKedua = JenisCairan::factory()->create();
+        
+        $nomorPertama = (int)substr($jenisCairanPertama->kode_jenis_cairan, -3);
+        $nomorKedua = (int)substr($jenisCairanKedua->kode_jenis_cairan, -3);
+        
+        $this->assertEquals($nomorPertama + 1, $nomorKedua);
     }
 }

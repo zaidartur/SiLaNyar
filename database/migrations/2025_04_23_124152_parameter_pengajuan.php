@@ -15,7 +15,8 @@ return new class extends Migration
         {
            $table->id();
            $table->foreignId('id_parameter')->constrained('parameter_uji')->onDelete('cascade');
-           $table->foreignId('id_pengajuan')->constrained('form_pengajuan')->onDelete('cascade'); 
+           $table->foreignId('id_pengajuan')->constrained('form_pengajuan')->onDelete('cascade');
+           
         });
     }
 

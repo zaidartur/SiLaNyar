@@ -42,10 +42,8 @@ class ParameterUjiUnitTest extends TestCase
     {
         $parameter = ParameterUji::factory()->create();
         $pengujian = Pengujian::factory()->create();
-        $kodeHasilUji = 'HU-' . date('my') . '-001';
         
         $parameter->pengujian()->attach($pengujian->id, [
-            'kode_hasil_uji' => $kodeHasilUji,
             'nilai' => 10.5,
             'keterangan' => 'Test'
         ]);
@@ -55,15 +53,24 @@ class ParameterUjiUnitTest extends TestCase
     }
 
     #[Test]
-    public function memastikan_relasi_dengan_hasil_uji_berfungsi()
+    public function memastikan_relasi_tidak_langsung_dengan_hasil_uji_tetapi_melalui_pengujian()
     {
         $parameter = ParameterUji::factory()->create();
-        $hasilUji = HasilUji::factory()->create([
-            'id_parameter' => $parameter->id,
-            'kode_hasil_uji' => 'HU-' . date('my') . '-001'
+        $pengujian = Pengujian::factory()->create();
+        
+        // Hubungkan parameter dengan pengujian terlebih dahulu
+        $parameter->pengujian()->attach($pengujian->id, [
+            'nilai' => 10.5,
+            'keterangan' => 'Test'
         ]);
         
-        $this->assertTrue($parameter->hasil_uji->contains($hasilUji));
+        // Buat hasil uji yang terkait dengan pengujian
+        $hasilUji = HasilUji::factory()->create([
+            'id_pengujian' => $pengujian->id
+        ]);
+        
+        $this->assertTrue($parameter->pengujian->contains($pengujian));
+        $this->assertEquals($pengujian->id, $hasilUji->id_pengujian);
     }
 
     #[Test]

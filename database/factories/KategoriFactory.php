@@ -20,7 +20,6 @@ class KategoriFactory extends Factory
         $nama = fake()->randomElement(array_keys($categories));
         
         return [
-            'kode_kategori' => 'DK-' . str_pad(fake()->unique()->numberBetween(1, 999), 3, '0', STR_PAD_LEFT),
             'nama' => $nama,
             'harga' => $categories[$nama]
         ];

@@ -65,7 +65,7 @@ class Pengujian extends Model
 
     public function parameter_uji()
     {
-        return $this->belongsToMany(ParameterUji::class, 'parameter_pengajuan', 'id_pengujian', 'id_parameter')
+        return $this->belongsToMany(ParameterUji::class, 'parameter_pengujian', 'id_pengujian', 'id_parameter')
                     ->withPivot(['nilai', 'keterangan'])
                     ->withTimestamps();
     }

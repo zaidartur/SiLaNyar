@@ -10,7 +10,6 @@ class InstansiFactory extends Factory
     public function definition(): array
     {
         return [
-            'kode_instansi' => 'IN-' . str_pad(fake()->unique()->numberBetween(1, 999), 3, '0', STR_PAD_LEFT),
             'id_user' => User::factory(),
             'nama' => fake()->company(),
             'tipe' => fake()->randomElement(['swasta', 'pemerintahan', 'pribadi']),

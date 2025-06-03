@@ -22,7 +22,6 @@ class FormPengajuanFactory extends Factory
         $metode = fake()->randomElement(['diantar', 'diambil']);
         
         return [
-            'kode_pengajuan' => 'DP-' . date('my') . str_pad(fake()->unique()->numberBetween(1, 999), 3, '0', STR_PAD_LEFT),
             'id_instansi' => Instansi::factory(),
             'id_kategori' => fake()->boolean(80) ? Kategori::factory() : null,
             'id_jenis_cairan' => JenisCairan::factory(),
