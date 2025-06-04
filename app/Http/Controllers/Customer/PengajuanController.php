@@ -201,7 +201,7 @@ class PengajuanController extends Controller
         $kategori = Kategori::with('parameter', 'subkategori.parameter')->get();
         $parameter = ParameterUji::all();
 
-        return Inertia::render('pegawai/pengajuan/Edit', [
+        return Inertia::render('customer/pengajuan/Edit', [
             'pengajuan' => $pengajuan,
             'kategori' => $kategori,
             'jenis_cairan' => $jenis_cairan,

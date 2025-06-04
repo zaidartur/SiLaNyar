@@ -17,20 +17,20 @@ class JadwalController extends Controller
         $user = Auth::user();
 
         $jadwal = Jadwal::whereHas('form_pengajuan', function ($query) use ($user, $searchByStatus) {
-                $query->where('id_user', $user->id);
-                if ($searchByStatus) {
-                    $query->where('status', 'like', '%' . $searchByStatus . '%');
-                }
-            })
+            $query->where('id_user', $user->id);
+            if ($searchByStatus) {
+                $query->where('status', 'like', '%' . $searchByStatus . '%');
+            }
+        })
             ->orderBy('waktu_pengambilan')
             ->with('form_pengajuan')
             ->get();
 
         // Jadwal antar terbaru
         $jadwalAntarTerbaru = Jadwal::whereHas('form_pengajuan', function ($query) use ($user) {
-                $query->where('metode_pengambilan', 'diantar')
-                    ->where('id_user', $user->id);
-            })
+            $query->where('metode_pengambilan', 'diantar')
+                ->where('id_user', $user->id);
+        })
             ->with('form_pengajuan')
             ->latest()
             ->first();
@@ -39,9 +39,9 @@ class JadwalController extends Controller
 
         // Jadwal ambil terbaru
         $jadwalAmbilTerbaru = Jadwal::whereHas('form_pengajuan', function ($query) use ($user) {
-                $query->where('metode_pengambilan', 'diambil')
-                    ->where('id_user', $user->id);
-            })
+            $query->where('metode_pengambilan', 'diambil')
+                ->where('id_user', $user->id);
+        })
             ->with('form_pengajuan')
             ->latest()
             ->first();
@@ -61,15 +61,12 @@ class JadwalController extends Controller
     // Halaman khusus pengantaran
     public function pengantaran(Request $request)
     {
-        $user = Auth::user();
 
-        $jadwalAntarTerbaru = Jadwal::whereHas('form_pengajuan', function ($query) use ($user) {
-                $query->where('metode_pengambilan', 'diantar')
-                    ->where('id_user', $user->id);
-            })
+        $jadwalAntarTerbaru = Jadwal::whereHas('form_pengajuan', function ($query){
+            $query->where('metode_pengambilan', 'diantar');
+        })
             ->with('form_pengajuan')
-            ->latest()
-            ->first();
+            ->get();
 
         return Inertia::render('customer/jadwal/Pengantaran', [
             'jadwalAntarTerbaru' => $jadwalAntarTerbaru,
@@ -79,15 +76,12 @@ class JadwalController extends Controller
     // Halaman khusus penjemputan
     public function penjemputan(Request $request)
     {
-        $user = Auth::user();
 
-        $jadwalAmbilTerbaru = Jadwal::whereHas('form_pengajuan', function ($query) use ($user) {
-                $query->where('metode_pengambilan', 'diambil')
-                    ->where('id_user', $user->id);
-            })
+        $jadwalAmbilTerbaru = Jadwal::whereHas('form_pengajuan', function ($query) {
+            $query->where('metode_pengambilan', 'diambil');
+        })
             ->with('form_pengajuan')
-            ->latest()
-            ->first();
+            ->get();
 
         return Inertia::render('customer/jadwal/Penjemputan', [
             'jadwalAmbilTerbaru' => $jadwalAmbilTerbaru,
@@ -100,8 +94,8 @@ class JadwalController extends Controller
         $user = Auth::user();
 
         $jadwal = Jadwal::whereHas('form_pengajuan', function ($query) use ($user) {
-                $query->where('id_user', $user->id);
-            })
+            $query->where('id_user', $user->id);
+        })
             ->with(['form_pengajuan', 'form_pengajuan.kategori'])
             ->findOrFail($id);
 

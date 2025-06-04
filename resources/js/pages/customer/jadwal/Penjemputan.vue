@@ -6,6 +6,10 @@ import { Button } from '@/components/ui/button'
 import { ref } from 'vue'
 import { Head, Link } from '@inertiajs/vue3'
 
+const props = defineProps<{
+    jadwalAmbilTerbaru: any[]
+}>()
+
 const filterOptions = ref([
     { label: 'Belum Dijadwalkan', value: 'belum dijadwalkan' },
     { label: 'Diproses', value: 'diproses' },
@@ -18,62 +22,23 @@ const handleFilterChange = (value: string) => {
     selectedFilter.value = value
 }
 
-// Data untuk informasi penjemputan
-const sampelInfo = ref({
-    penjemputan: {
-        tanggal: 'Selasa, 22 April 2025',
-        idPengajuan: 'SMPOL-25042201',
-        jenisSampel: 'Universal',
-        status: 'Belum Terjadwalkan',
-        lokasi: 'Jl. Kenanga No. 45',
-        instansi: 'Perusahaan - PT. Tirta Murni'
-    }
-})
-
-// Data untuk tabel jadwal penjemputan
-const scheduleData = ref([
-    {
-        tanggal: '23 APR',
-        hari: 'Selasa',
-        waktu: '13:30 WIB',
-        kegiatan: 'Penjemputan Sampel oleh Teknisi',
-        lokasi: 'Jl. Kenanga No. 45',
-        status: 'Terjadwalkan'
-    },
-    {
-        tanggal: '23 APR',
-        hari: 'Selasa',
-        waktu: '13:30 WIB',
-        kegiatan: 'Penjemputan Sampel oleh Teknisi',
-        lokasi: 'Jl. Kenanga No. 45',
-        status: 'Terjadwalkan'
-    },
-    {
-        tanggal: '23 APR',
-        hari: 'Selasa',
-        waktu: '13:30 WIB',
-        kegiatan: 'Penjemputan Sampel oleh Teknisi',
-        lokasi: 'Jl. Kenanga No. 45',
-        status: 'Terjadwalkan'
-    },
-    {
-        tanggal: '23 APR',
-        hari: 'Selasa',
-        waktu: '13:30 WIB',
-        kegiatan: 'Penjemputan Sampel oleh Teknisi',
-        lokasi: 'Jl. Kenanga No. 45',
-        status: 'Terjadwalkan'
-    },
-    {
-        tanggal: '23 APR',
-        hari: 'Selasa',
-        waktu: '13:30 WIB',
-        kegiatan: 'Penjemputan Sampel oleh Teknisi',
-        lokasi: 'Jl. Kenanga No. 45',
-        status: 'Terjadwalkan'
-    },
-    
-])
+const formatTanggal = (tanggalStr: string) => {
+    if (!tanggalStr) return '-'
+    const date = new Date(tanggalStr)
+    return date.toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    })
+}
+const formatWaktu = (tanggalStr: string) => {
+    if (!tanggalStr) return '-'
+    const date = new Date(tanggalStr)
+    return date.toLocaleTimeString('id-ID', {
+        hour: '2-digit',
+        minute: '2-digit'
+    })
+}
 </script>
 
 <template>
@@ -118,67 +83,47 @@ const scheduleData = ref([
                 </DropdownMenu>
             </div>
 
-            <!-- Informasi Penjemputan -->
-            <div class="bg-purple-50 border-l-8 border-purple-600 rounded-lg p-4 mb-4">
-                <h2 class="text-lg font-semibold text-purple-600 mb-4">Informasi Penjemputan Sampel oleh Teknisi</h2>
-                <div class="grid grid-cols-4 gap-4">
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-blue-100">
-                        <p class="text-sm text-gray-600">Tanggal Penjemputan</p>
-                        <p class="font-medium">{{ sampelInfo.penjemputan.tanggal }}</p>
-                    </div>
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-blue-100">
-                        <p class="text-sm text-gray-600">ID Pengajuan</p>
-                        <p class="font-medium">{{ sampelInfo.penjemputan.idPengajuan }}</p>
-                    </div>
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-blue-100">
-                        <p class="text-sm text-gray-600">Jenis Sampel</p>
-                        <p class="font-medium">{{ sampelInfo.penjemputan.jenisSampel }}</p>
-                    </div>
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-blue-100">
-                        <p class="text-sm text-gray-600">Status</p>
-                        <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm">
-                            {{ sampelInfo.penjemputan.status }}
-                        </span>
-                    </div>
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-blue-100">
-                        <p class="text-sm text-gray-600">Lokasi Pengambilan</p>
-                        <p class="font-medium">{{ sampelInfo.penjemputan.lokasi }}</p>
-                    </div>
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-blue-100">
-                        <p class="text-sm text-gray-600">Instansi</p>
-                        <p class="font-medium">{{ sampelInfo.penjemputan.instansi }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Table Jadwal -->
+            <!-- Table Jadwal Penjemputan -->
             <div class="bg-white rounded-lg shadow overflow-hidden">
                 <ScrollArea class="h-[400px]">
                     <table class="w-full">
                         <thead class="bg-customDarkGreen">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">Tanggal</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">Waktu</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">Kegiatan</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">Lokasi</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">ID Penjemputan
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">Kode Pengajuan
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">Nama Instansi
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">Nama Pemohon
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">Metode
+                                    Pengambilan</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">Waktu
+                                    Penjemputan</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">Keterangan</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">Status</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
-                            <tr v-for="(item, index) in scheduleData" :key="index">
+                            <tr v-if="!props.jadwalAmbilTerbaru || props.jadwalAmbilTerbaru.length === 0">
+                                <td colspan="9" class="text-center text-gray-400 py-4">Tidak ada data penjemputan.</td>
+                            </tr>
+                            <tr v-for="(item, index) in props.jadwalAmbilTerbaru" :key="item.id || index">
+                                <td class="px-6 py-4">{{ item.kode_pengambilan }}</td>
+                                <td class="px-6 py-4">{{ item.form_pengajuan?.kode_pengajuan }}</td>
+                                <td class="px-6 py-4">{{ item.form_pengajuan?.instansi?.nama }}</td>
+                                <td class="px-6 py-4">{{ item.form_pengajuan?.instansi?.user?.nama }}</td>
+                                <td class="px-6 py-4">{{ item.form_pengajuan?.metode_pengambilan }}</td>
+                                <td class="px-6 py-4">{{ formatTanggal(item.waktu_pengambilan) }}</td>
+                                <td class="px-6 py-4">{{ item.keterangan }}</td>
                                 <td class="px-6 py-4">
-                                    <div class="font-medium">{{ item.tanggal }}</div>
-                                    <div class="text-sm text-gray-500">{{ item.hari }}</div>
-                                </td>
-                                <td class="px-6 py-4">{{ item.waktu }}</td>
-                                <td class="px-6 py-4">{{ item.kegiatan }}</td>
-                                <td class="px-6 py-4">{{ item.lokasi }}</td>
-                                <td class="px-6 py-4">
-                                    <span :class="{
-                                        'px-3 py-1 rounded-full text-sm': true,
-                                        'bg-purple-100 text-purple-700': item.status === 'Terjadwalkan'
-                                    }">
+                                    <span :class="[
+                                        'px-2 py-1 rounded text-xs font-semibold',
+                                        item.status === 'selesai' ? 'bg-green-500 text-white'
+                                            : 'bg-yellow-500 text-white'
+                                    ]">
                                         {{ item.status }}
                                     </span>
                                 </td>
