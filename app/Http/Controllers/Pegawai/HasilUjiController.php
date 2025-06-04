@@ -33,7 +33,7 @@ class HasilUjiController extends Controller
     //form tambah hasil uji
     public function create(Request $request)
     {
-        $pengujianList = Pengujian::select('id', 'kode_pengujian');
+        $pengujianList = Pengujian::with('form_pengajuan.instansi.user')->select('id', 'kode_pengujian', 'id_form_pengajuan')->get();;
 
         $pengujian = null;
         $semuaParameter = [];
@@ -49,7 +49,7 @@ class HasilUjiController extends Controller
 
             $kategori = $pengujian->form_pengajuan->kategori;
 
-            $parameterKategori = $kategori->parameter->map(function ($param) {
+            $parameterKategori = collect($kategori->parameter)->map(function ($param) {
                 return [
                     'id' => $param->id,
                     'nama' => $param->nama_parameter,
@@ -58,7 +58,7 @@ class HasilUjiController extends Controller
                 ];
             });
 
-            $parameterSubKategori = $kategori->subkategori->flatMap(function ($sub) {
+            $parameterSubKategori = collect($kategori->subkategori)->flatMap(function ($sub) {
                 return $sub->parameter->map(function ($param) {
                     return [
                         'id' => $param->id,
@@ -159,7 +159,7 @@ class HasilUjiController extends Controller
         $pengujian = $hasil_uji->pengujian;
         $kategori = $pengujian->form_pengajuan->kategori;
 
-        $parameterKategori = $kategori->parameter->map(function ($param) {
+        $parameterKategori = collect($kategori->parameter)->map(function ($param) {
             return [
                 'id' => $param->id,
                 'nama' => $param->nama_parameter,
@@ -168,7 +168,7 @@ class HasilUjiController extends Controller
             ];
         });
 
-        $parameterSubKategori = $kategori->subkategori->flatMap(function ($sub) {
+        $parameterSubKategori = collect($kategori->subkategori)->flatMap(function ($sub) {
             return $sub->parameter->map(function ($param) {
                 return [
                     'id' => $param->id,
@@ -330,7 +330,7 @@ class HasilUjiController extends Controller
             'pengujian.user'
         ])->findOrFail($id);
 
-        $parameterKategori = $hasil_uji->pengujian->form_pengajuan->kategori->parameter->map(function ($param) {
+        $parameterKategori = collect($hasil_uji->pengujian->form_pengajuan->kategori->parameter)->map(function ($param) {
             return [
                 'id_parameter' => $param->id,
                 'nama_parameter' => $param->nama_parameter,
@@ -339,7 +339,7 @@ class HasilUjiController extends Controller
             ];
         });
 
-        $parameterSubKategori = $hasil_uji->pengujian->form_pengajuan->kategori->subkategori->flatMap(function ($sub) {
+        $parameterSubKategori = collect($hasil_uji->pengujian->form_pengajuan->kategori->subkategori)->flatMap(function ($sub) {
             return $sub->parameter->map(function ($param) {
                 return [
                     'id_parameter' => $param->id,

@@ -192,9 +192,8 @@ function getNamaKategori() {
                             class="text-xs">
                             Batas Minimum: {{ jenis.batas_minimum }}
                         </div>
-                        <div :class="form.id_jenis_cairan === jenis.id ? 'text-white' : 'text-gray-500'"
-                            class="text-xs">
-                            Batas Maksimum: {{ jenis.batas_maksimum }}
+                        <div :class="form.id_jenis_cairan === jenis.id ? 'text-white' : 'text-gray-500'" class="text-xs">
+                            Batas Maksimum: {{ jenis.batas_maksimum ?? '-'}}
                         </div>
                         <div v-if="form.id_jenis_cairan === jenis.id" class="mt-2 text-xs font-semibold text-blue-400">
                             Dipilih</div>

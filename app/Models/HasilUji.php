@@ -13,6 +13,8 @@ class HasilUji extends Model
 
     public $incrementing = true;
 
+    public $timestamps = false;
+
     protected $fillable = [
         'kode_hasil_uji',
         'id_pengujian',

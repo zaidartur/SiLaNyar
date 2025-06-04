@@ -69,4 +69,9 @@ class Pengujian extends Model
                     ->withPivot(['nilai', 'keterangan'])
                     ->withTimestamps();
     }
+
+    public function hasil_uji()
+    {
+        return $this->belongsTo(HasilUji::class, 'id_hasil_uji');
+    }
 }
