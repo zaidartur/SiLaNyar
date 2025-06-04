@@ -39,16 +39,6 @@ class HasilUjiHistoriUnitTest extends TestCase
     }
 
     #[Test]
-    public function memastikan_relasi_dengan_user_berfungsi()
-    {
-        $hasilUjiHistori = HasilUjiHistori::factory()
-            ->for(User::factory(), 'user')
-            ->create();
-            
-        $this->assertInstanceOf(User::class, $hasilUjiHistori->user);
-    }
-
-    #[Test]
     public function memastikan_status_default_adalah_draf()
     {
         $hasilUjiHistori = HasilUjiHistori::factory()->make([
@@ -188,7 +178,6 @@ class HasilUjiHistoriUnitTest extends TestCase
         $hasilUjiHistori = HasilUjiHistori::factory()->create();
         
         $this->assertNotNull($hasilUjiHistori->id_hasil_uji);
-        $this->assertNotNull($hasilUjiHistori->id_user);
         $this->assertNotNull($hasilUjiHistori->data_parameterdanpengujian);
         $this->assertNotNull($hasilUjiHistori->status);
         $this->assertNotNull($hasilUjiHistori->diupdate_oleh);

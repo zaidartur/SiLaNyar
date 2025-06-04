@@ -24,9 +24,4 @@ class HasilUjiHistori extends Model
     {
         return $this->belongsTo(HasilUji::class, 'id_hasil_uji');
     }
-
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'id_user');
-    }
 }
