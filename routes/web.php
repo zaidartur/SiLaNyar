@@ -10,6 +10,7 @@ use App\Http\Controllers\Pegawai\HasilUjiHistoriController;
 use App\Http\Controllers\Pegawai\JadwalController as PegawaiJadwalController;
 use App\Http\Controllers\Pegawai\JenisCairanController;
 use App\Http\Controllers\Pegawai\KategoriController;
+use App\Http\Controllers\Pegawai\LaporanKeuanganController;
 use App\Http\Controllers\Pegawai\ParameterController;
 use App\Http\Controllers\Pegawai\SubKategoriController;
 use App\Http\Controllers\Pegawai\PengajuanController as PegawaiPengajuanController;
@@ -36,7 +37,6 @@ if (app()->environment('local')) {
         return redirect('/dashboard');
     });
 }
-
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -95,7 +95,7 @@ Route::prefix('customer')->middleware(['auth:web', 'role:customer'])->group(func
 
     //fitur pembayaran
     Route::get('pembayaran', [CustomerPembayaranController::class, 'index'])->name('customer.pembayaran.index');
-    Route::get('pembayaran/{id}', [CustomerPembayaranController::class, 'show'])->name('customer.pembayaran.detail');
+    Route::get('pembayaran/{id}', [CustomerPembayaranController::class, 'show'])->name('customer.pembayaran.show');
     Route::get('pembayaran/upload/{id}', [CustomerPembayaranController::class, 'upload'])->name('customer.pembayaran.upload');
     Route::post('pembayaran/{id}', [CustomerPembayaranController::class, 'process']);
     Route::get('pembayaran/{id}/sukses', [CustomerPembayaranController::class, 'sukses'])->name('customer.pembayaran.sukses');
@@ -189,6 +189,9 @@ Route::prefix('pegawai')->group(function () {
         Route::put('parameter/{parameter}/edit', [ParameterController::class, 'update']);
         Route::delete('parameter/{id}', [ParameterController::class, 'destroy'])->name('pegawai.parameter.destroy');
     });
+
+    //fitur Laporan Keuangan
+    Route::get('laporan-keuangan', [LaporanKeuanganController::class, 'index'])->middleware('check.permission:lihat laporan keuangan')->name('pegawai.laporan_keuangan.index');
 
     //fitur hasil uji
     Route::get('hasiluji/', [PegawaiHasilUjiController::class, 'index'])->middleware('check.permission:lihat hasil uji')->name('pegawai.hasil_uji.index');
