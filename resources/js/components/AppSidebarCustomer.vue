@@ -30,7 +30,7 @@ defineProps<{
             <ul class="space-y-4 font-medium">
                 <li>
                     <Link :href="route('customer.dashboard')"
-                        class="flex items-center p-2 text-white rounded-lg hover:bg-green-500">
+                        class="flex items-center p-2 text-white rounded-lg hover:bg-green-800">
                     <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center">
                         <svg width="35" height="26" viewBox="0 0 35 26" fill="none" xmlns="http://www.w3.org/2000/svg"
                             xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -51,7 +51,7 @@ defineProps<{
                 </li>
                 <li>
                     <Link :href="route('customer.pengajuan.index')"
-                        class="flex items-center p-2 text-white rounded-lg hover:bg-green-500">
+                        class="flex items-center p-2 text-white rounded-lg hover:bg-green-800">
                     <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center">
                         <svg width="49" height="42" viewBox="0 0 49 42" fill="none" xmlns="http://www.w3.org/2000/svg"
                             xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -72,7 +72,7 @@ defineProps<{
                 </li>
                 <li>
                     <Link :href="route('customer.hasil_uji.index')"
-                        class="flex items-center p-2 text-white rounded-lg hover:bg-green-500">
+                        class="flex items-center p-2 text-white rounded-lg hover:bg-green-800">
                     <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center">
                         <svg width="44" height="42" viewBox="0 0 44 42" fill="none" xmlns="http://www.w3.org/2000/svg"
                             xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -93,7 +93,7 @@ defineProps<{
                 </li>
                 <li>
                     <Link :href="route('customer.jadwal.index')"
-                        class="flex items-center p-2 text-white rounded-lg hover:bg-green-500">
+                        class="flex items-center p-2 text-white rounded-lg hover:bg-green-800">
                     <div clas="flex-shrink-0 w-8 h-8 flex items-center justify-center">
                         <svg width="34" height="35" viewBox="0 0 27 28" fill="none" xmlns="http://www.w3.org/2000/svg"
                             xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -114,7 +114,7 @@ defineProps<{
                 </li>
                 <li>
                     <Link :href="route('customer.profile')"
-                        class="flex items-center p-2 text-white rounded-lg hover:bg-green-500">
+                        class="flex items-center p-2 text-white rounded-lg hover:bg-green-800">
                     <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center">
                         <svg width="35" height="35" viewBox="0 0 100 100" fill="none"
                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -135,7 +135,7 @@ defineProps<{
             </ul>
             <div class="absolute bottom-0 left-0 w-full p-4">
                 <Link :href="route('sso.logout')"
-                    class="flex items-center p-2 text-white rounded-lg hover:bg-green-500">
+                    class="flex items-center p-2 text-white rounded-lg hover:bg-green-800">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                     stroke="currentColor" class="w-6 h-6">
                     <path stroke-linecap="round" stroke-linejoin="round"

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import CustomerLayout from '@/layouts/customer/CustomerLayout.vue';
 import { useForm, usePage, router } from '@inertiajs/vue3'
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 
 interface Parameter {
     id: number;
@@ -24,6 +24,7 @@ interface Kategori {
 interface Instansi {
     id: number;
     nama: string;
+    harga?: number;
 }
 
 interface JenisCairan {
@@ -66,7 +67,7 @@ const form = useForm({
     metode_pengambilan: pengajuan.metode_pengambilan,
     lokasi: pengajuan.lokasi,
     waktu_pengambilan: pengajuan.waktu_pengambilan,
-    kategori: pengajuan.kategori?.nama ?? null,
+    id_kategori: pengajuan.kategori?.id ?? null,
     parameter: pengajuan.parameter.map(p => p.id),
     keterangan: pengajuan.keterangan
 })
@@ -195,6 +196,15 @@ function verifikasi(status: 'diterima' | 'ditolak') {
                             </span>
                         </div>
                     </div>
+                    <!-- Total Biaya -->
+                    <div class="mt-2 text-right font-semibold">
+                        Total Biaya: Rp {{
+                            parameterList
+                                .filter(p => form.parameter.includes(p.id))
+                                .reduce((sum, p) => sum + (p.harga || 0), 0)
+                        .toLocaleString('id-ID')
+                        }}
+                    </div>
                 </div>
 
                 <!-- Keterangan -->
@@ -208,16 +218,6 @@ function verifikasi(status: 'diterima' | 'ditolak') {
                     <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded"
                         :disabled="form.processing || form.metode_pengambilan !== 'diambil'">
                         Simpan Perubahan
-                    </button>
-
-                    <!-- Verifikasi -->
-                    <button v-if="!verifikasiSelesai" type="button" class="px-4 py-2 bg-green-600 text-white rounded"
-                        @click="verifikasi('diterima')">
-                        ✅ Terima
-                    </button>
-                    <button v-if="!verifikasiSelesai" type="button" class="px-4 py-2 bg-red-600 text-white rounded"
-                        @click="verifikasi('ditolak')">
-                        ❌ Tolak
                     </button>
                 </div>
             </form>
