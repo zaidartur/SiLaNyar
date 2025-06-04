@@ -93,4 +93,102 @@ class SubKategoriUnitTest extends TestCase
         
         $this->assertNotEquals($subKategori1->kode_subkategori, $subKategori2->kode_subkategori);
     }
+
+    #[Test]
+    public function memastikan_bisa_menambah_multiple_kategori()
+    {
+        $subKategori = SubKategori::factory()->create();
+        $kategoris = Kategori::factory()->count(3)->create();
+        
+        $subKategori->kategori()->attach($kategoris);
+        
+        $this->assertEquals(3, $subKategori->kategori->count());
+        foreach ($kategoris as $kategori) {
+            $this->assertTrue($subKategori->kategori->contains($kategori));
+        }
+    }
+
+    #[Test]
+    public function memastikan_bisa_menambah_multiple_parameter_dengan_baku_mutu()
+    {
+        $subKategori = SubKategori::factory()->create();
+        $parameters = ParameterUji::factory()->count(3)->create();
+        
+        $parameterData = $parameters->mapWithKeys(function ($parameter) {
+            return [$parameter->id => ['baku_mutu' => fake()->numberBetween(1, 100) . ' mg/L']];
+        })->toArray();
+        
+        $subKategori->parameter()->attach($parameterData);
+        
+        $this->assertEquals(3, $subKategori->parameter->count());
+        foreach ($parameters as $parameter) {
+            $this->assertTrue($subKategori->parameter->contains($parameter));
+            $this->assertNotNull($subKategori->parameter->find($parameter->id)->pivot->baku_mutu);
+        }
+    }
+
+    #[Test]
+    public function memastikan_timestamps_berfungsi()
+    {
+        $subKategori = SubKategori::factory()->create();
+        
+        $this->assertNotNull($subKategori->created_at);
+        $this->assertNotNull($subKategori->updated_at);
+        $this->assertInstanceOf(\Carbon\Carbon::class, $subKategori->created_at);
+        $this->assertInstanceOf(\Carbon\Carbon::class, $subKategori->updated_at);
+    }
+    
+    // dikomen karena belum tahu harus unique atau tidak
+    // #[Test]
+    // public function memastikan_nama_bersifat_unique()
+    // {
+    //     $nama = 'Air Bersih Test';
+    //     $subKategori = SubKategori::factory()->create(['nama' => $nama]);
+        
+    //     $this->expectException(\Illuminate\Database\QueryException::class);
+        
+    //     SubKategori::factory()->create(['nama' => $nama]);
+    // }
+
+    #[Test]
+    public function memastikan_pivot_timestamps_parameter_berfungsi()
+    {
+        $subKategori = SubKategori::factory()->create();
+        $parameter = ParameterUji::factory()->create();
+        
+        $subKategori->parameter()->attach($parameter->id, [
+            'baku_mutu' => '100 mg/L'
+        ]);
+        
+        $pivot = $subKategori->parameter->first()->pivot;
+        $this->assertNotNull($pivot->created_at);
+        $this->assertNotNull($pivot->updated_at);
+    }
+
+    #[Test]
+    public function memastikan_bisa_update_baku_mutu_parameter()
+    {
+        $subKategori = SubKategori::factory()->create();
+        $parameter = ParameterUji::factory()->create();
+        $bakuMutuAwal = '100 mg/L';
+        $bakuMutuBaru = '150 mg/L';
+        
+        $subKategori->parameter()->attach($parameter->id, ['baku_mutu' => $bakuMutuAwal]);
+        $subKategori->parameter()->updateExistingPivot($parameter->id, ['baku_mutu' => $bakuMutuBaru]);
+        
+        $this->assertEquals($bakuMutuBaru, $subKategori->parameter->first()->pivot->baku_mutu);
+    }
+
+    #[Test]
+    public function memastikan_bisa_detach_kategori()
+    {
+        $subKategori = SubKategori::factory()->create();
+        $kategori = Kategori::factory()->create();
+        
+        $subKategori->kategori()->attach($kategori->id);
+        $this->assertEquals(1, $subKategori->kategori->count());
+        
+        $subKategori->kategori()->detach($kategori->id);
+        $this->assertEquals(0, $subKategori->fresh()->kategori->count());
+    }
 }

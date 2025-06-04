@@ -33,6 +33,12 @@ class ParameterUji extends Model
 
             $model->kode_parameter = 'PR-' . str_pad($lanjut, 3, '0', STR_PAD_LEFT);
         });
+
+        static::saving(function ($model) {
+            if ($model->harga < 0) {
+                throw new \InvalidArgumentException('Harga tidak boleh negatif');
+            }
+        });
     }
 
     public function pengujian()

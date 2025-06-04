@@ -4,34 +4,34 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\JenisCairan>
- */
 class JenisCairanFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    protected static $counter = 0;
+    protected $types = [
+        'Air Limbah',
+        'Air Sumur',
+        'Air Sungai',
+        'Air PDAM',
+        'Air Waduk',
+        'Air Danau'
+    ];
+
     public function definition(): array
     {
-        $types = [
-            'Air Limbah' => [100, 1000],
-            'Air Sumur' => [50, 500],
-            'Air Sungai' => [200, 2000],
-            'Air PDAM' => [100, 1000],
-            'Air Waduk' => [500, 5000],
-            'Air Danau' => [500, 5000],
+        $ranges = [
+            'min' => [100, 50, 200, 100, 500, 500],
+            'max' => [1000, 500, 2000, 1000, 5000, 5000]
         ];
-        
-        $nama = fake()->randomElement(array_keys($types));
-        [$minRange, $maxRange] = $types[$nama];
-        
+
+        // Memastikan nama unik dengan menggunakan counter
+        $index = static::$counter % count($this->types);
+        $nama = $this->types[$index] . ' ' . fake()->unique()->word();
+        static::$counter++;
+
         return [
             'nama' => $nama,
-            'batas_minimum' => fake()->randomFloat(2, $minRange, $minRange * 1.5),
-            'batas_maksimum' => fake()->randomFloat(2, $maxRange * 0.8, $maxRange)
+            'batas_minimum' => fake()->randomFloat(2, $ranges['min'][$index], $ranges['min'][$index] * 1.5),
+            'batas_maksimum' => fake()->randomFloat(2, $ranges['max'][$index] * 0.8, $ranges['max'][$index])
         ];
     }
 }

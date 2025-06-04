@@ -50,6 +50,12 @@ class FormPengajuan extends Model
         });
     }
 
+    // ini biar volume sampel nilainya selalu positif
+    public function setVolumeSampelAttribute($value)
+    {
+        $this->attributes['volume_sampel'] = abs($value);
+    }
+
     public function instansi()
     {
         return $this->belongsTo(Instansi::class, 'id_instansi');  

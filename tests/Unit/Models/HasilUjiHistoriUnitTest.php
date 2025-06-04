@@ -116,4 +116,102 @@ class HasilUjiHistoriUnitTest extends TestCase
         
         $this->assertEquals($nama, $hasilUjiHistori->diupdate_oleh);
     }
+
+    #[Test]
+    public function memastikan_struktur_data_parameterdanpengujian_valid()
+    {
+        $hasilUjiHistori = HasilUjiHistori::factory()->create();
+        
+        $this->assertArrayHasKey('parameter', $hasilUjiHistori->data_parameterdanpengujian);
+        $this->assertArrayHasKey('pengujian', $hasilUjiHistori->data_parameterdanpengujian);
+        
+        // Validasi struktur parameter
+        $parameter = $hasilUjiHistori->data_parameterdanpengujian['parameter'][0];
+        $this->assertArrayHasKey('id', $parameter);
+        $this->assertArrayHasKey('nama', $parameter);
+        $this->assertArrayHasKey('baku_mutu', $parameter);
+        $this->assertArrayHasKey('nilai', $parameter);
+        $this->assertArrayHasKey('keterangan', $parameter);
+        
+        // Validasi struktur pengujian
+        $pengujian = $hasilUjiHistori->data_parameterdanpengujian['pengujian'];
+        $this->assertArrayHasKey('id', $pengujian);
+        $this->assertArrayHasKey('tanggal_pengujian', $pengujian);
+        $this->assertArrayHasKey('metode', $pengujian);
+    }
+
+    #[Test]
+    public function memastikan_perubahan_status_terekam()
+    {
+        $hasilUjiHistori = HasilUjiHistori::factory()->create(['status' => 'draf']);
+        
+        $hasilUjiHistori->status = 'proses_review';
+        $hasilUjiHistori->save();
+        
+        $this->assertEquals('proses_review', $hasilUjiHistori->fresh()->status);
+    }
+
+    #[Test]
+    public function memastikan_histori_terhapus_saat_hasil_uji_dihapus()
+    {
+        $hasilUji = HasilUji::factory()->create();
+        $hasilUjiHistori = HasilUjiHistori::factory()->create([
+            'id_hasil_uji' => $hasilUji->id
+        ]);
+        
+        $hasilUji->delete();
+        
+        $this->assertDatabaseMissing('hasil_uji_histori', [
+            'id' => $hasilUjiHistori->id
+        ]);
+    }
+
+    #[Test]
+    public function memastikan_format_timestamps_benar()
+    {
+        $hasilUjiHistori = HasilUjiHistori::factory()->create();
+        
+        $this->assertMatchesRegularExpression(
+            '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/',
+            $hasilUjiHistori->created_at->format('Y-m-d H:i:s')
+        );
+        
+        $this->assertMatchesRegularExpression(
+            '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/',
+            $hasilUjiHistori->updated_at->format('Y-m-d H:i:s')
+        );
+    }
+
+    #[Test]
+    public function memastikan_field_wajib_terisi()
+    {
+        $hasilUjiHistori = HasilUjiHistori::factory()->create();
+        
+        $this->assertNotNull($hasilUjiHistori->id_hasil_uji);
+        $this->assertNotNull($hasilUjiHistori->id_user);
+        $this->assertNotNull($hasilUjiHistori->data_parameterdanpengujian);
+        $this->assertNotNull($hasilUjiHistori->status);
+        $this->assertNotNull($hasilUjiHistori->diupdate_oleh);
+    }
+
+    #[Test]
+    public function memastikan_urutan_status_valid()
+    {
+        $validTransitions = [
+            'draf' => ['revisi', 'proses_review'],
+            'revisi' => ['proses_review'],
+            'proses_review' => ['proses_peresmian', 'revisi'],
+            'proses_peresmian' => ['selesai', 'revisi'],
+            'selesai' => []
+        ];
+        
+        $hasilUjiHistori = HasilUjiHistori::factory()->create(['status' => 'draf']);
+        
+        foreach ($validTransitions['draf'] as $nextStatus) {
+            $hasilUjiHistori->status = $nextStatus;
+            $hasilUjiHistori->save();
+            
+            $this->assertEquals($nextStatus, $hasilUjiHistori->fresh()->status);
+        }
+    }
 }

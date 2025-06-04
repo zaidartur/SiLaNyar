@@ -118,4 +118,50 @@ class RolesUnitTest extends TestCase
             $this->assertTrue($role->hasPermissionTo($permission));
         }
     }
+
+    #[Test]
+    public function memastikan_timestamps_berfungsi()
+    {
+        $role = Roles::factory()->create();
+        
+        $this->assertNotNull($role->created_at);
+        $this->assertNotNull($role->updated_at);
+        $this->assertInstanceOf(\Carbon\Carbon::class, $role->created_at);
+        $this->assertInstanceOf(\Carbon\Carbon::class, $role->updated_at);
+    }
+    
+    #[Test]
+    public function memastikan_bisa_update_dashboard_view()
+    {
+        $role = Roles::factory()->create([
+            'dashboard_view' => 'old.dashboard'
+        ]);
+        
+        $role->dashboard_view = 'new.dashboard';
+        $role->save();
+        
+        $this->assertEquals('new.dashboard', $role->fresh()->dashboard_view);
+    }
+
+    #[Test]
+    public function memastikan_role_bisa_diassign_ke_multiple_users()
+    {
+        $role = Roles::factory()->create();
+        $users = \App\Models\User::factory()->count(3)->create();
+        
+        foreach ($users as $user) {
+            $user->assignRole($role);
+            $this->assertTrue($user->hasRole($role));
+        }
+        
+        $this->assertEquals(3, $role->users()->count());
+    }
+
+    #[Test]
+    public function memastikan_format_kode_role_valid()
+    {
+        $role = Roles::factory()->create();
+        
+        $this->assertMatchesRegularExpression('/^RL-\d{3}$/', $role->kode_role);
+    }
 }

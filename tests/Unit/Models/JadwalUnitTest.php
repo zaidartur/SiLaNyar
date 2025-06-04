@@ -115,4 +115,95 @@ class JadwalUnitTest extends TestCase
         
         $this->assertEquals(1, Jadwal::where('kode_pengambilan', $jadwalPertama->kode_pengambilan)->count());
     }
+
+    #[Test]
+    public function memastikan_jadwal_terhapus_saat_form_pengajuan_dihapus()
+    {
+        $formPengajuan = FormPengajuan::factory()->create();
+        $jadwal = Jadwal::factory()->create([
+            'id_form_pengajuan' => $formPengajuan->id
+        ]);
+        
+        $formPengajuan->delete();
+        
+        $this->assertDatabaseMissing('jadwal', ['id' => $jadwal->id]);
+    }
+
+    #[Test]
+    public function memastikan_jadwal_terhapus_saat_user_dihapus()
+    {
+        $user = User::factory()->create();
+        $jadwal = Jadwal::factory()->create([
+            'id_user' => $user->id
+        ]);
+        
+        $user->delete();
+        
+        $this->assertDatabaseMissing('jadwal', ['id' => $jadwal->id]);
+    }
+
+    #[Test]
+    public function memastikan_waktu_pengambilan_tidak_boleh_kosong()
+    {
+        $this->expectException(\Illuminate\Database\QueryException::class);
+        
+        Jadwal::factory()->create([
+            'waktu_pengambilan' => null
+        ]);
+    }
+
+    #[Test]
+    public function memastikan_status_hanya_bisa_diisi_nilai_yang_valid()
+    {
+        $validStatus = ['diproses', 'selesai'];
+        $jadwal = Jadwal::factory()->create();
+        
+        $this->assertTrue(in_array($jadwal->status, $validStatus));
+    }
+
+    #[Test]
+    public function memastikan_perubahan_status_berhasil()
+    {
+        $jadwal = Jadwal::factory()->create(['status' => 'diproses']);
+        
+        $jadwal->status = 'selesai';
+        $jadwal->save();
+        
+        $this->assertEquals('selesai', $jadwal->fresh()->status);
+    }
+
+    #[Test]
+    public function memastikan_timestamps_berfungsi()
+    {
+        $jadwal = Jadwal::factory()->create();
+        
+        $this->assertNotNull($jadwal->created_at);
+        $this->assertNotNull($jadwal->updated_at);
+        $this->assertInstanceOf(\Carbon\Carbon::class, $jadwal->created_at);
+        $this->assertInstanceOf(\Carbon\Carbon::class, $jadwal->updated_at);
+    }
+
+    #[Test]
+    public function memastikan_keterangan_bisa_diupdate()
+    {
+        $jadwal = Jadwal::factory()->create(['keterangan' => 'Keterangan awal']);
+        
+        $keteranganBaru = 'Keterangan telah diupdate';
+        $jadwal->keterangan = $keteranganBaru;
+        $jadwal->save();
+        
+        $this->assertEquals($keteranganBaru, $jadwal->fresh()->keterangan);
+    }
+
+    #[Test]
+    public function memastikan_waktu_pengambilan_bisa_diupdate()
+    {
+        $jadwal = Jadwal::factory()->create();
+        $waktuBaru = now()->addDays(7)->format('Y-m-d');
+        
+        $jadwal->waktu_pengambilan = $waktuBaru;
+        $jadwal->save();
+        
+        $this->assertEquals($waktuBaru, $jadwal->fresh()->waktu_pengambilan->format('Y-m-d'));
+    }
 }

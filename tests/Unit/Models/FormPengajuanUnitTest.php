@@ -165,4 +165,94 @@ class FormPengajuanUnitTest extends TestCase
         $this->assertInstanceOf('Illuminate\Database\Eloquent\Collection', $formPengajuan->pengujian);
         $this->assertTrue($formPengajuan->pengujian->contains($pengujian));
     }
+
+    #[Test]
+    public function memastikan_volume_sampel_tidak_boleh_negatif()
+    {
+        $formPengajuan = FormPengajuan::factory()->make([
+            'volume_sampel' => -1
+        ]);
+        
+        // Volume sampel negatif akan dikonversi menjadi positif
+        $this->assertEquals(1, $formPengajuan->volume_sampel, 'Volume sampel harus selalu bernilai positif');
+    }
+
+    #[Test]
+    public function memastikan_volume_sampel_bisa_diisi_nilai_valid()
+    {
+        $formPengajuan = FormPengajuan::factory()->create([
+            'volume_sampel' => 10.5
+        ]);
+        
+        $this->assertEquals(10.5, $formPengajuan->volume_sampel);
+        $this->assertTrue($formPengajuan->volume_sampel > 0);
+    }
+
+    #[Test]
+    public function memastikan_kategori_bisa_null()
+    {
+        $formPengajuan = FormPengajuan::factory()->create([
+            'id_kategori' => null
+        ]);
+        
+        $this->assertNull($formPengajuan->id_kategori);
+        $this->assertNull($formPengajuan->kategori);
+    }
+
+    #[Test]
+    public function memastikan_status_pengajuan_hanya_bisa_diisi_nilai_yang_valid()
+    {
+        $validStatus = ['proses_validasi', 'diterima', 'ditolak'];
+        
+        $formPengajuan = FormPengajuan::factory()->create();
+        
+        $this->assertTrue(in_array($formPengajuan->status_pengajuan, $validStatus));
+    }
+
+    #[Test]
+    public function memastikan_metode_pengambilan_hanya_bisa_diisi_nilai_yang_valid()
+    {
+        $validMetode = ['diantar', 'diambil'];
+        
+        $formPengajuan = FormPengajuan::factory()->create();
+        
+        $this->assertTrue(in_array($formPengajuan->metode_pengambilan, $validMetode));
+    }
+
+    #[Test]
+    public function memastikan_bisa_menambah_multiple_parameter()
+    {
+        $formPengajuan = FormPengajuan::factory()->create();
+        $parameters = ParameterUji::factory()->count(3)->create();
+        
+        $formPengajuan->parameter()->attach($parameters->pluck('id'));
+        
+        $this->assertEquals(3, $formPengajuan->parameter->count());
+        foreach ($parameters as $parameter) {
+            $this->assertTrue($formPengajuan->parameter->contains($parameter));
+        }
+    }
+
+    #[Test]
+    public function memastikan_kode_pengajuan_unik()
+    {
+        $formPertama = FormPengajuan::factory()->create();
+        $formKedua = FormPengajuan::factory()->create();
+        
+        $this->assertNotEquals($formPertama->kode_pengajuan, $formKedua->kode_pengajuan);
+    }
+
+    #[Test]
+    public function memastikan_bisa_memiliki_multiple_pengujian()
+    {
+        $formPengajuan = FormPengajuan::factory()->create();
+        $pengujian = Pengujian::factory()->count(3)->create([
+            'id_form_pengajuan' => $formPengajuan->id
+        ]);
+        
+        $this->assertEquals(3, $formPengajuan->pengujian->count());
+        foreach ($pengujian as $uji) {
+            $this->assertTrue($formPengajuan->pengujian->contains($uji));
+        }
+    }
 }

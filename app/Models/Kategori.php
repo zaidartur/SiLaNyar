@@ -32,6 +32,13 @@ class Kategori extends Model
 
             $model->kode_kategori = 'DK-' . str_pad($lanjut, 3, '0', STR_PAD_LEFT);
         });
+
+        // Tambahkan validasi harga
+        static::saving(function ($model) {
+            if ($model->harga < 0) {
+                throw new \InvalidArgumentException('Harga tidak boleh negatif');
+            }
+        });
     }
 
     public function parameter()

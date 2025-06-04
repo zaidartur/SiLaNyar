@@ -18,7 +18,6 @@ class PasswordOtpFactory extends Factory
     public function definition(): array
     {
         $isEmail = fake()->boolean();
-        $now = Carbon::now();
         
         return [
             'identitas' => $isEmail 
@@ -26,9 +25,16 @@ class PasswordOtpFactory extends Factory
                 : '+62' . fake()->numerify('8##########'), // 11 digit
             'otp' => str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT),
             'via' => $isEmail ? 'email' : 'whatsapp',
-            'expired_at' => $now->copy()->addMinutes(15),
-            'created_at' => $now,
-            'updated_at' => $now,
         ];
+    }
+
+    /**
+     * Set custom expired_at time
+     */
+    public function expired($minutes = -1): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'expired_at' => now()->addMinutes($minutes)
+        ]);
     }
 }

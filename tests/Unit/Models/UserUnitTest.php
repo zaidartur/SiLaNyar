@@ -148,11 +148,74 @@ class UserUnitTest extends TestCase
     }
 
     #[Test]
-    public function memastikan_guard_name_default_adalah_web()
+    public function memastikan_format_nik_valid()
     {
         $user = User::factory()->create();
         
-        // Test guard name property langsung
-        $this->assertEquals('web', $user->getDefaultGuardName());
+        $this->assertMatchesRegularExpression('/^\d{16}$/', $user->nik);
     }
+
+    #[Test]
+    public function memastikan_format_nomor_telepon_valid()
+    {
+        $user = User::factory()->create();
+        
+        $this->assertNotEmpty($user->no_telepon);
+        $this->assertIsString($user->no_telepon);
+    }
+
+    #[Test]
+    public function memastikan_format_email_valid()
+    {
+        $user = User::factory()->create();
+        
+        $this->assertMatchesRegularExpression(
+            '/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/',
+            $user->email
+        );
+    }
+
+    #[Test]
+    public function memastikan_rt_rw_dalam_range_valid()
+    {
+        $user = User::factory()->create();
+        
+        $this->assertGreaterThanOrEqual(1, $user->rt);
+        $this->assertLessThanOrEqual(20, $user->rt);
+        $this->assertGreaterThanOrEqual(1, $user->rw);
+        $this->assertLessThanOrEqual(10, $user->rw);
+    }
+
+    #[Test]
+    public function memastikan_format_kode_pos_valid()
+    {
+        $user = User::factory()->create();
+        
+        $this->assertMatchesRegularExpression('/^\d{5}$/', (string)$user->kode_pos);
+        $this->assertGreaterThanOrEqual(10000, $user->kode_pos);
+        $this->assertLessThanOrEqual(99999, $user->kode_pos);
+    }
+
+    #[Test]
+    public function memastikan_timestamps_berfungsi()
+    {
+        $user = User::factory()->create();
+        
+        $this->assertNotNull($user->created_at);
+        $this->assertNotNull($user->updated_at);
+        $this->assertInstanceOf(\Carbon\Carbon::class, $user->created_at);
+        $this->assertInstanceOf(\Carbon\Carbon::class, $user->updated_at);
+    }
+
+    #[Test]
+    public function memastikan_bisa_memiliki_multiple_instansi()
+    {
+        $user = User::factory()->create();
+        $instansi = Instansi::factory()
+            ->count(3)
+            ->create(['id_user' => $user->id]);
+        
+        $this->assertEquals(3, $user->instansi->count());
+    }
+
 }

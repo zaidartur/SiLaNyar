@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('parameter_uji', function (Blueprint $table) {
             $table->id();
             $table->string('kode_parameter')->unique();
-            $table->string('nama_parameter');
+            $table->string('nama_parameter')->unique();
             $table->string('satuan');
-            $table->integer('harga');
+            $table->integer('harga')->check('harga >= 0');
             $table->timestamps();
         });
     }

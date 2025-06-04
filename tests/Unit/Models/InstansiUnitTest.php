@@ -106,4 +106,113 @@ class InstansiUnitTest extends TestCase
         $this->assertNotNull($instansi->created_at);
         $this->assertNotNull($instansi->updated_at);
     }
+
+    #[Test]
+    public function memastikan_nama_instansi_tidak_boleh_kosong()
+    {
+        $this->expectException(\Illuminate\Database\QueryException::class);
+        
+        Instansi::factory()->create([
+            'nama' => null
+        ]);
+    }
+
+    #[Test]
+    public function memastikan_bisa_memiliki_multiple_form_pengajuan()
+    {
+        $instansi = Instansi::factory()->create();
+        $formPengajuan = FormPengajuan::factory()
+            ->count(3)
+            ->create(['id_instansi' => $instansi->id]);
+        
+        $this->assertEquals(3, $instansi->form_pengajuan->count());
+        foreach ($formPengajuan as $form) {
+            $this->assertTrue($instansi->form_pengajuan->contains($form));
+        }
+    }
+
+    #[Test]
+    public function memastikan_format_email_valid()
+    {
+        $instansi = Instansi::factory()->create([
+            'email' => 'test@example.com'
+        ]);
+        
+        $this->assertMatchesRegularExpression(
+            '/^[^@]+@[^@]+\.[^@]+$/',
+            $instansi->email
+        );
+    }
+
+    #[Test]
+    public function memastikan_nomor_telepon_tidak_boleh_kosong()
+    {
+        $this->expectException(\Illuminate\Database\QueryException::class);
+        
+        Instansi::factory()->create([
+            'no_telepon' => null
+        ]);
+    }
+
+    #[Test]
+    public function memastikan_alamat_tidak_boleh_kosong()
+    {
+        $this->expectException(\Illuminate\Database\QueryException::class);
+        
+        Instansi::factory()->create([
+            'alamat' => null
+        ]);
+    }
+
+    #[Test]
+    public function memastikan_instansi_terhapus_saat_user_terhapus()
+    {
+        $user = User::factory()->create();
+        $instansi = Instansi::factory()->create([
+            'id_user' => $user->id
+        ]);
+        
+        $user->delete();
+        
+        $this->assertDatabaseMissing('instansi', [
+            'id' => $instansi->id
+        ]);
+    }
+
+    #[Test]
+    public function memastikan_form_pengajuan_terhapus_saat_instansi_terhapus()
+    {
+        $instansi = Instansi::factory()->create();
+        $formPengajuan = FormPengajuan::factory()->create([
+            'id_instansi' => $instansi->id
+        ]);
+        
+        $instansi->delete();
+        
+        $this->assertDatabaseMissing('form_pengajuan', [
+            'id' => $formPengajuan->id
+        ]);
+    }
+
+    #[Test]
+    public function memastikan_data_instansi_bisa_diupdate()
+    {
+        $instansi = Instansi::factory()->create();
+        
+        $namaUpdate = 'Nama Instansi Update';
+        $instansi->update(['nama' => $namaUpdate]);
+        
+        $this->assertEquals($namaUpdate, $instansi->fresh()->nama);
+    }
+
+    #[Test]
+    public function memastikan_wilayah_dan_desa_kelurahan_tidak_boleh_kosong()
+    {
+        $this->expectException(\Illuminate\Database\QueryException::class);
+        
+        Instansi::factory()->create([
+            'wilayah' => null,
+            'desa_kelurahan' => null
+        ]);
+    }
 }

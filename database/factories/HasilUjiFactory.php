@@ -27,4 +27,23 @@ class HasilUjiFactory extends Factory
             'updated_at' => fake()->dateTime()
         ];
     }
+
+    public function selesai(): static
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'status' => 'draf' // Mulai dari draf karena ini awal / default
+            ];
+        })->afterCreating(function ($hasilUji) {
+            // Ikuti alur status yang valid
+            $hasilUji->status = 'proses_review';
+            $hasilUji->save();
+            
+            $hasilUji->status = 'proses_peresmian';
+            $hasilUji->save();
+            
+            $hasilUji->status = 'selesai';
+            $hasilUji->save();
+        });
+    }
 }

@@ -94,7 +94,7 @@ class PembayaranUnitTest extends TestCase
         $this->assertEquals($fillable, $pembayaran->getFillable());
     }
 
-        #[Test]
+    #[Test]
     public function memastikan_metode_pembayaran_valid()
     {
         // Test untuk pembayaran yang belum selesai (null)
@@ -107,19 +107,79 @@ class PembayaranUnitTest extends TestCase
     }
 
     #[Test]
-    public function memastikan_bukti_pembayaran_terisi_saat_status_selesai()
+    public function memastikan_format_id_order_valid()
     {
-        // Test transfer
-        $pembayaranTransfer = Pembayaran::factory()->selesai()->state([
-            'metode_pembayaran' => 'transfer'
-        ])->create();
-        $this->assertNotNull($pembayaranTransfer->bukti_pembayaran);
-        $this->assertStringStartsWith('pembayaran/', $pembayaranTransfer->bukti_pembayaran);
+        $pembayaran = Pembayaran::factory()->create();
+        
+        // Format: ORD-YYYYMMDD-XXXX
+        $parts = explode('-', $pembayaran->id_order);
+        
+        $this->assertEquals('ORD', $parts[0]);
+        $this->assertEquals(date('Ymd'), $parts[1]);
+        $this->assertEquals(4, strlen($parts[2]));
+        $this->assertIsNumeric($parts[2]);
+    }
 
-        // Test tunai
-        $pembayaranTunai = Pembayaran::factory()->selesai()->state([
-            'metode_pembayaran' => 'tunai'
+    #[Test]
+    public function memastikan_tanggal_pembayaran_sesuai_status()
+    {
+        // Test pembayaran diproses
+        $pembayaranProses = Pembayaran::factory()->diproses()->create();
+        $this->assertNull($pembayaranProses->tanggal_pembayaran);
+        
+        // Test pembayaran selesai
+        $pembayaranSelesai = Pembayaran::factory()->selesai()->create();
+        $this->assertNotNull($pembayaranSelesai->tanggal_pembayaran);
+        
+        // Test pembayaran gagal
+        $pembayaranGagal = Pembayaran::factory()->gagal()->create();
+        $this->assertNull($pembayaranGagal->tanggal_pembayaran);
+    }
+
+    #[Test]
+    public function memastikan_format_bukti_pembayaran_valid()
+    {
+        $pembayaran = Pembayaran::factory()->selesai()->state([
+            'metode_pembayaran' => 'transfer',
+            'bukti_pembayaran' => 'pembayaran/test-bukti.jpg'
         ])->create();
-        $this->assertNull($pembayaranTunai->bukti_pembayaran);
+        
+        $this->assertMatchesRegularExpression(
+            '/^pembayaran\/[a-zA-Z0-9-_]+\.(jpg|jpeg|png|pdf)$/',
+            $pembayaran->bukti_pembayaran
+        );
+    }
+
+    #[Test]
+    public function memastikan_total_biaya_berupa_integer_positif()
+    {
+        $pembayaran = Pembayaran::factory()->create();
+        
+        $this->assertIsInt($pembayaran->total_biaya);
+        $this->assertGreaterThan(0, $pembayaran->total_biaya);
+    }
+
+    #[Test]
+    public function memastikan_timestamps_berfungsi()
+    {
+        $pembayaran = Pembayaran::factory()->create();
+        
+        $this->assertNotNull($pembayaran->created_at);
+        $this->assertNotNull($pembayaran->updated_at);
+        $this->assertInstanceOf(\Carbon\Carbon::class, $pembayaran->created_at);
+        $this->assertInstanceOf(\Carbon\Carbon::class, $pembayaran->updated_at);
+    }
+
+    #[Test]
+    public function memastikan_pembayaran_terhapus_saat_form_pengajuan_terhapus()
+    {
+        $formPengajuan = FormPengajuan::factory()->create();
+        $pembayaran = Pembayaran::factory()->create([
+            'id_form_pengajuan' => $formPengajuan->id
+        ]);
+        
+        $formPengajuan->delete();
+        
+        $this->assertDatabaseMissing('pembayaran', ['id' => $pembayaran->id]);
     }
 }

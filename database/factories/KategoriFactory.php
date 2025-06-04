@@ -17,10 +17,10 @@ class KategoriFactory extends Factory
             'Air PDAM' => 1000000
         ];
 
-        $nama = fake()->randomElement(array_keys($categories));
+        $nama = fake()->unique()->randomElement(array_keys($categories));
         
         return [
-            'nama' => $nama,
+            'nama' => $nama . ' ' . fake()->unique()->word(), // Tambahkan kata unik
             'harga' => $categories[$nama]
         ];
     }

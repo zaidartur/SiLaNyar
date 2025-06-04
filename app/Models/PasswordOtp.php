@@ -21,15 +21,21 @@ class PasswordOtp extends Model
 
     protected $dates = ['expired_at'];
 
+    protected $casts = [
+        'expired_at' => 'datetime'
+    ];
+
     protected static function boot()
     {
         parent::boot();
 
         static::creating(function ($model) {
-            // Set expired_at berdasarkan created_at yang akan dibuat
-            $now = Carbon::now();
-            $model->created_at = $now;
-            $model->expired_at = $now->copy()->addMinutes(15);
+            if (!$model->expired_at) {
+                $now = now()->startOfSecond();
+                $model->expired_at = $now->copy()->addMinutes(15);
+            }
+            $model->created_at = now()->startOfSecond();
+            $model->updated_at = $model->created_at;
         });
     }
 }

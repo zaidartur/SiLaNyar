@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('id_instansi')->constrained('instansi')->onDelete('cascade');
             $table->foreignId('id_kategori')->nullable()->constrained('kategori')->onDelete('cascade');
             $table->foreignId('id_jenis_cairan')->constrained('jenis_cairan')->onDelete('cascade');
-            $table->float('volume_sampel');
+            $table->float('volume_sampel')->check('volume_sampel >= 0');
             $table->enum('status_pengajuan', ['proses_validasi', 'diterima', 'ditolak'])
                   ->default('proses_validasi')
                   ->index();

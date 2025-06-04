@@ -8,6 +8,7 @@ use App\Models\Kategori;
 use App\Models\Pengujian;
 use App\Models\ParameterUji;
 use App\Models\FormPengajuan;
+use App\Models\SubKategori;
 use PHPUnit\Framework\Attributes\Test;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -135,5 +136,123 @@ class ParameterUjiUnitTest extends TestCase
         $parameterPertama = ParameterUji::factory()->create();
         
         $this->assertEquals(1, ParameterUji::where('kode_parameter', $parameterPertama->kode_parameter)->count());
+    }
+
+    #[Test]
+    public function memastikan_bisa_menambah_multiple_kategori()
+    {
+        $parameter = ParameterUji::factory()->create();
+        $kategoris = Kategori::factory()->count(3)->create();
+        
+        $kategoriData = $kategoris->mapWithKeys(function ($kategori) {
+            return [$kategori->id => ['baku_mutu' => fake()->randomFloat(2, 1, 100)]];
+        })->toArray();
+        
+        $parameter->kategori()->attach($kategoriData);
+        
+        $this->assertEquals(3, $parameter->kategori->count());
+        foreach ($kategoris as $kategori) {
+            $this->assertTrue($parameter->kategori->contains($kategori));
+            $this->assertNotNull($parameter->kategori->find($kategori->id)->pivot->baku_mutu);
+        }
+    }
+
+    #[Test]
+    public function memastikan_relasi_dengan_subkategori_berfungsi()
+    {
+        $parameter = ParameterUji::factory()->create();
+        $subkategori = SubKategori::factory()->create();
+        
+        $parameter->subkategori()->attach($subkategori->id, ['baku_mutu' => 15.5]);
+        
+        $this->assertTrue($parameter->subkategori->contains($subkategori));
+        $this->assertEquals(15.5, $parameter->subkategori->first()->pivot->baku_mutu);
+    }
+
+    #[Test]
+    public function memastikan_pivot_timestamps_berfungsi()
+    {
+        $parameter = ParameterUji::factory()->create();
+        $kategori = Kategori::factory()->create();
+        
+        $parameter->kategori()->attach($kategori->id, ['baku_mutu' => 10.5]);
+        
+        $pivot = $parameter->kategori->first()->pivot;
+        $this->assertNotNull($pivot->created_at);
+        $this->assertNotNull($pivot->updated_at);
+    }
+
+    #[Test]
+    public function memastikan_satuan_tidak_boleh_null()
+    {
+        $this->expectException(\Illuminate\Database\QueryException::class);
+        
+        ParameterUji::factory()->create(['satuan' => null]);
+    }
+
+    #[Test]
+    public function memastikan_bisa_update_nilai_pengujian()
+    {
+        $parameter = ParameterUji::factory()->create();
+        $pengujian = Pengujian::factory()->create();
+        
+        $parameter->pengujian()->attach($pengujian->id, [
+            'nilai' => 10.5,
+            'keterangan' => 'Awal'
+        ]);
+        
+        $parameter->pengujian()->updateExistingPivot($pengujian->id, [
+            'nilai' => 15.5,
+            'keterangan' => 'Updated'
+        ]);
+        
+        $pivot = $parameter->pengujian->first()->pivot;
+        $this->assertEquals(15.5, $pivot->nilai);
+        $this->assertEquals('Updated', $pivot->keterangan);
+    }
+
+    #[Test]
+    public function memastikan_harga_tidak_boleh_negatif()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Harga tidak boleh negatif');
+        
+        ParameterUji::factory()->create(['harga' => -1000]);
+    }
+
+    #[Test]
+    public function memastikan_nama_parameter_bersifat_unique()
+    {
+        $namaParameter = 'pH Test Unique ' . uniqid();
+        
+        // Buat parameter pertama
+        ParameterUji::factory()->create(['nama_parameter' => $namaParameter]);
+        
+        // Coba buat parameter dengan nama yang sama
+        try {
+            ParameterUji::factory()->create(['nama_parameter' => $namaParameter]);
+            $this->fail('Seharusnya gagal membuat parameter dengan nama yang sama');
+        } catch (\Illuminate\Database\QueryException $e) {
+            $this->assertTrue(true);
+            $this->assertStringContainsString('Duplicate entry', $e->getMessage());
+        }
+    }
+
+    #[Test]
+    public function memastikan_bisa_update_data_parameter()
+    {
+        $parameter = ParameterUji::factory()->create();
+        $dataUpdate = [
+            'nama_parameter' => 'Parameter Updated',
+            'satuan' => 'mg/L Updated',
+            'harga' => 200000
+        ];
+        
+        $parameter->update($dataUpdate);
+        $parameter->refresh();
+        
+        $this->assertEquals($dataUpdate['nama_parameter'], $parameter->nama_parameter);
+        $this->assertEquals($dataUpdate['satuan'], $parameter->satuan);
+        $this->assertEquals($dataUpdate['harga'], $parameter->harga);
     }
 }

@@ -102,4 +102,27 @@ class PermissionsUnitTest extends TestCase
             'guard_name' => 'web'
         ]);
     }
+
+    #[Test]
+    public function memastikan_timestamps_berfungsi()
+    {
+        $permission = Permissions::factory()->create();
+        
+        $this->assertNotNull($permission->created_at);
+        $this->assertNotNull($permission->updated_at);
+        $this->assertInstanceOf(\Carbon\Carbon::class, $permission->created_at);
+        $this->assertInstanceOf(\Carbon\Carbon::class, $permission->updated_at);
+    }
+
+    #[Test]
+    public function memastikan_permission_dapat_diupdate()
+    {
+        $permission = Permissions::factory()->create();
+        $newName = 'lihat-test';
+        
+        $permission->name = $newName;
+        $permission->save();
+        
+        $this->assertEquals($newName, $permission->fresh()->name);
+    }
 }

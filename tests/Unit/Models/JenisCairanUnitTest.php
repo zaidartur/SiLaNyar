@@ -99,4 +99,108 @@ class JenisCairanUnitTest extends TestCase
         
         $this->assertEquals($nomorPertama + 1, $nomorKedua);
     }
+
+    #[Test]
+    public function memastikan_batas_minimum_tidak_boleh_null()
+    {
+        $this->expectException(\Illuminate\Database\QueryException::class);
+        
+        JenisCairan::factory()->create([
+            'batas_minimum' => null
+        ]);
+    }
+
+    #[Test]
+    public function memastikan_batas_maksimum_bisa_null()
+    {
+        $jenisCairan = JenisCairan::factory()->create([
+            'batas_maksimum' => null
+        ]);
+        
+        $this->assertNull($jenisCairan->batas_maksimum);
+    }
+
+    #[Test]
+    public function memastikan_bisa_update_nama()
+    {
+        $jenisCairan = JenisCairan::factory()->create();
+        $namaBaru = 'Air Limbah Industri';
+        
+        $jenisCairan->nama = $namaBaru;
+        $jenisCairan->save();
+        
+        $this->assertEquals($namaBaru, $jenisCairan->fresh()->nama);
+    }
+
+    #[Test]
+    public function memastikan_bisa_update_batas()
+    {
+        $jenisCairan = JenisCairan::factory()->create();
+        $batasMinimumBaru = 150.5;
+        $batasMaksimumBaru = 1500.5;
+        
+        $jenisCairan->update([
+            'batas_minimum' => $batasMinimumBaru,
+            'batas_maksimum' => $batasMaksimumBaru
+        ]);
+        
+        $this->assertEquals($batasMinimumBaru, $jenisCairan->fresh()->batas_minimum);
+        $this->assertEquals($batasMaksimumBaru, $jenisCairan->fresh()->batas_maksimum);
+    }
+
+    #[Test]
+    public function memastikan_nama_bersifat_unique()
+    {
+        $nama = 'Air Limbah Khusus';
+        
+        // Buat jenis cairan pertama
+        JenisCairan::factory()->create([
+            'nama' => $nama
+        ]);
+        
+        // Pastikan tidak bisa membuat jenis cairan dengan nama yang sama
+        try {
+            JenisCairan::factory()->create([
+                'nama' => $nama
+            ]);
+            
+            $this->fail('Seharusnya gagal membuat jenis cairan dengan nama yang sama');
+        } catch (\Illuminate\Database\QueryException $e) {
+            $this->assertTrue(true);
+            // Memastikan error karena unique constraint
+            $this->assertStringContainsString('Duplicate entry', $e->getMessage());
+        }
+        
+        // Verifikasi hanya ada satu record dengan nama tersebut
+        $this->assertEquals(1, JenisCairan::where('nama', $nama)->count());
+    }
+    
+    #[Test]
+    public function memastikan_data_valid_saat_create()
+    {
+        $data = [
+            'nama' => 'Air Limbah Test',
+            'batas_minimum' => 100.5,
+            'batas_maksimum' => 1000.5
+        ];
+        
+        $jenisCairan = JenisCairan::create($data);
+        
+        $this->assertInstanceOf(JenisCairan::class, $jenisCairan);
+        $this->assertEquals($data['nama'], $jenisCairan->nama);
+        $this->assertEquals($data['batas_minimum'], $jenisCairan->batas_minimum);
+        $this->assertEquals($data['batas_maksimum'], $jenisCairan->batas_maksimum);
+        $this->assertStringStartsWith('JC-', $jenisCairan->kode_jenis_cairan);
+    }
+
+    #[Test]
+    public function memastikan_format_batas_valid()
+    {
+        $jenisCairan = JenisCairan::factory()->create();
+        
+        $this->assertMatchesRegularExpression('/^\d+\.\d{1,2}$/', (string)$jenisCairan->batas_minimum);
+        if ($jenisCairan->batas_maksimum) {
+            $this->assertMatchesRegularExpression('/^\d+\.\d{1,2}$/', (string)$jenisCairan->batas_maksimum);
+        }
+    }
 }

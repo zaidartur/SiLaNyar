@@ -127,4 +127,101 @@ class PengujianUnitTest extends TestCase
         
         $this->assertEquals($fillable, $pengujian->getFillable());
     }
+
+    #[Test]
+    public function memastikan_jam_selesai_lebih_besar_dari_jam_mulai()
+    {
+        $pengujian = Pengujian::factory()->create();
+        
+        $jamMulai = Carbon::createFromFormat('H:i', $pengujian->jam_mulai->format('H:i'));
+        $jamSelesai = Carbon::createFromFormat('H:i', $pengujian->jam_selesai->format('H:i'));
+        
+        $this->assertTrue($jamSelesai->gt($jamMulai));
+    }
+
+
+    #[Test]
+    public function memastikan_bisa_menambah_multiple_parameter_uji()
+    {
+        $pengujian = Pengujian::factory()->create();
+        $parameters = ParameterUji::factory()->count(3)->create();
+        
+        $parameterData = $parameters->mapWithKeys(function ($parameter) {
+            return [$parameter->id => [
+                'nilai' => fake()->randomFloat(2, 0, 100),
+                'keterangan' => fake()->sentence()
+            ]];
+        })->toArray();
+        
+        $pengujian->parameter_uji()->attach($parameterData);
+        
+        $this->assertEquals(3, $pengujian->parameter_uji->count());
+        foreach ($parameters as $parameter) {
+            $this->assertTrue($pengujian->parameter_uji->contains($parameter));
+            $this->assertNotNull($pengujian->parameter_uji->find($parameter->id)->pivot->nilai);
+            $this->assertNotNull($pengujian->parameter_uji->find($parameter->id)->pivot->keterangan);
+        }
+    }
+
+    #[Test]
+    public function memastikan_pivot_timestamps_parameter_uji_berfungsi()
+    {
+        $pengujian = Pengujian::factory()->create();
+        $parameter = ParameterUji::factory()->create();
+        
+        $pengujian->parameter_uji()->attach($parameter->id, [
+            'nilai' => 10.5,
+            'keterangan' => 'Test'
+        ]);
+        
+        $pivot = $pengujian->parameter_uji->first()->pivot;
+        $this->assertNotNull($pivot->created_at);
+        $this->assertNotNull($pivot->updated_at);
+    }
+
+    #[Test]
+    public function memastikan_pengujian_terhapus_saat_form_pengajuan_terhapus()
+    {
+        $formPengajuan = FormPengajuan::factory()->create();
+        $pengujian = Pengujian::factory()->create([
+            'id_form_pengajuan' => $formPengajuan->id
+        ]);
+        
+        $formPengajuan->delete();
+        
+        $this->assertDatabaseMissing('pengujian', ['id' => $pengujian->id]);
+    }
+
+    #[Test]
+    public function memastikan_status_bisa_diupdate()
+    {
+        $pengujian = Pengujian::factory()->create(['status' => 'diproses']);
+        
+        $pengujian->status = 'selesai';
+        $pengujian->save();
+        
+        $this->assertEquals('selesai', $pengujian->fresh()->status);
+    }
+
+    #[Test]
+    public function memastikan_tanggal_uji_valid()
+    {
+        $tanggalUji = now()->format('Y-m-d');
+        $pengujian = Pengujian::factory()->create([
+            'tanggal_uji' => $tanggalUji
+        ]);
+        
+        $this->assertEquals($tanggalUji, $pengujian->tanggal_uji->format('Y-m-d'));
+    }
+
+    #[Test]
+    public function memastikan_timestamps_berfungsi()
+    {
+        $pengujian = Pengujian::factory()->create();
+        
+        $this->assertNotNull($pengujian->created_at);
+        $this->assertNotNull($pengujian->updated_at);
+        $this->assertInstanceOf(\Carbon\Carbon::class, $pengujian->created_at);
+        $this->assertInstanceOf(\Carbon\Carbon::class, $pengujian->updated_at);
+    }
 }
