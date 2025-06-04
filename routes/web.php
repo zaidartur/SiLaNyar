@@ -21,6 +21,22 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
+
+if (app()->environment('local')) {
+    Route::get('/dev-login', function () {
+        $user = \App\Models\User::find(2);
+
+        if (!$user) {
+            abort(404, 'User not found');
+        }
+
+        Auth::loginUsingId($user->id);
+
+        return redirect('/dashboard');
+    });
+}
+
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -118,10 +134,10 @@ Route::prefix('pegawai')->group(function () {
     Route::get('pengujian/', [PengujianController::class, 'index'])->middleware('check.permission:lihat pengujian')->name('pegawai.pengujian.index');
     Route::get('pengujian/create', [PengujianController::class, 'create'])->middleware('check.permission:tambah pengujian')->name('pegawai.pengujian.create');
     Route::post('pengujian/store', [PengujianController::class, 'store'])->middleware('check.permission:tambah pengujian');
-    Route::get('pengujian/edit/{pengujian}', [PengujianController::class, 'edit'])->middleware('check.permission:edit pengujian');
+    Route::get('pengujian/edit/{pengujian}', [PengujianController::class, 'edit'])->middleware('check.permission:edit pengujian')->name('pegawai.pengujian.edit');
     Route::put('pengujian/{pengujian}/edit', [PengujianController::class, 'update'])->middleware('check.permission:edit pengujian');
-    Route::get('pengujian/{pengujian}', [PengujianController::class, 'show'])->middleware('check.permission:detail pengujian');
-    Route::delete('pengujian/{id}', [PengujianController::class, 'destroy'])->middleware('check.permission:hapus pengujian');
+    Route::get('pengujian/{pengujian}', [PengujianController::class, 'show'])->middleware('check.permission:detail pengujian')->name('pegawai.pengujian.detail');
+    Route::delete('pengujian/{id}', [PengujianController::class, 'destroy'])->middleware('check.permission:hapus pengujian')->name('pegawai.pengujian.destroy');
 
     //fitur pengambilan
     Route::get('pengambilan/', [PegawaiJadwalController::class, 'index'])->middleware('check.permission:lihat pengambilan')->name('pegawai.pengambilan.index');
@@ -178,13 +194,13 @@ Route::prefix('pegawai')->group(function () {
     Route::get('hasiluji/', [PegawaiHasilUjiController::class, 'index'])->middleware('check.permission:lihat hasil uji')->name('pegawai.hasil_uji.index');
     Route::get('hasiluji/create', [PegawaiHasilUjiController::class, 'create'])->middleware('check.permission:tambah hasil uji');
     Route::post('hasiluji/store', [PegawaiHasilUjiController::class, 'store'])->middleware('check.permission:tambah hasil uji');
-    Route::get('hasiluji/edit/{id}', [PegawaiHasilUjiController::class, 'edit'])->middleware('check.permission:edit hasil uji');
+    Route::get('hasiluji/edit/{id}', [PegawaiHasilUjiController::class, 'edit'])->middleware('check.permission:edit hasil uji')->name('pegawai.hasil_uji.edit');
     Route::put('hasiluji/{hasil_uji}/edit', [PegawaiHasilUjiController::class, 'update'])->middleware('check.permission:edit hasil uji');
     Route::put('hasiluji/verifikasi/{id}', [PegawaiHasilUjiController::class, 'verifikasi'])->middleware('check.permission:verifikasi hasil uji');
-    Route::get('hasiluji/{id}', [PegawaiHasilUjiController::class, 'show'])->middleware('check.permission:detail hasil uji');
-    Route::get('hasiluji/riwayat/{id}', [HasilUjiHistoriController::class, 'index'])->middleware('check.permission:riwayat hasil uji');
+    Route::get('hasiluji/{id}', [PegawaiHasilUjiController::class, 'show'])->middleware('check.permission:detail hasil uji')->name('pegawai.hasil_uji.detail');
+    Route::get('hasiluji/riwayat/{id}', [HasilUjiHistoriController::class, 'index'])->middleware('check.permission:riwayat hasil uji')->name('pegawai.hasil_uji.riwayat');
     Route::get('hasiluji/riwayat/show/{id}', [HasilUjiHistoriController::class, 'show'])->middleware('check.permission:detail riwayat hasil uji');
-    Route::delete('hasiluji/{id}', [PegawaiHasilUjiController::class, 'destroy'])->middleware('check.permission:hapus hasil uji');
+    Route::delete('hasiluji/{id}', [PegawaiHasilUjiController::class, 'destroy'])->middleware('check.permission:hapus hasil uji')->name('pegawai.hasil_uji.destroy');
 
     //fitur Aduan
     Route::middleware('check.permission:kelola aduan')->group(function () {

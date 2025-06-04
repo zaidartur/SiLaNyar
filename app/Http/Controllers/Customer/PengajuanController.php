@@ -21,13 +21,34 @@ class PengajuanController extends Controller
     private function hitungTotalBiaya(FormPengajuan $pengajuan)
     {
         $kategori = $pengajuan->kategori;
-        $parameterDipilih = $pengajuan->parameter;
-        $parameterKategori = $kategori->parameter;
+        $parameterDipilih = $pengajuan->parameter; // parameter yang dipilih user
 
-        if ($parameterDipilih->count() == $parameterKategori->count() && $parameterDipilih->pluck('id')->diff($parameterKategori->pluck('id')->isEmpty())) {
-            return $kategori->harga;
+        $subkategori = $kategori->subkategori;
+
+        if ($subkategori->isNotEmpty()) {
+            $parameterSubkategori = $subkategori->flatMap(fn($sub) => $sub->parameter);
+
+            $isFullSubkategoriPaket = $parameterDipilih->count() === $parameterSubkategori->count() &&
+                $parameterDipilih->pluck('id')->sort()->values()->toArray() ===
+                $parameterSubkategori->pluck('id')->sort()->values()->toArray();
+
+            if ($isFullSubkategoriPaket) {
+                return $kategori->harga;
+            } else {
+                return $parameterDipilih->sum('harga');
+            }
         } else {
-            return $parameterDipilih->sum('harga');
+            $parameterKategori = $kategori->parameter;
+
+            $isFullKategoriPaket = $parameterDipilih->count() === $parameterKategori->count() &&
+                $parameterDipilih->pluck('id')->sort()->values()->toArray() ===
+                $parameterKategori->pluck('id')->sort()->values()->toArray();
+
+            if ($isFullKategoriPaket) {
+                return $kategori->harga;
+            } else {
+                return $parameterDipilih->sum('harga');
+            }
         }
     }
 
@@ -129,6 +150,10 @@ class PengajuanController extends Controller
             'lokasi' => $validated['lokasi'],
         ]);
 
+        if (!empty($validated['parameter'])) {
+            $pengajuan->parameter()->attach($validated['parameter']);
+        }
+
         if (!empty($validated['parameter'] && !empty($validated['id_kategori']))) {
             Pembayaran::create([
                 'id_order' => Str::upper(Str::random(10)),
@@ -137,10 +162,6 @@ class PengajuanController extends Controller
                 'metode_pembayaran' => 'transfer',
                 'status_pembayaran' => 'diproses',
             ]);
-        }
-
-        if (!empty($validated['parameter'])) {
-            $pengajuan->parameter()->attach($validated['parameter']);
         }
 
         if ($validated['metode_pengambilan'] === 'diantar') {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue'
-import { Link,Head } from '@inertiajs/vue3'
+import { Link, Head } from '@inertiajs/vue3'
 import { ref } from 'vue'
 
 const props = defineProps<{
@@ -14,12 +14,22 @@ const props = defineProps<{
 const status = ref(props.filter.status ?? "")
 const tanggal = ref(props.filter.tanggal)
 
+const formatTanggal = (tanggalStr: string) => {
+    const date = new Date(tanggalStr)
+    return date.toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    })
+}
+
 const handleFilter = () => {
     window.location.href = `/pegawai/pengujian?status=${status.value}&tanggal=${tanggal.value}`
 }
 </script>
 
 <template>
+
     <Head title="Daftar Pengujian" />
     <AdminLayout>
         <div class="p-6">
@@ -36,8 +46,7 @@ const handleFilter = () => {
                 <div class="flex flex-col w-40">
                     <label for="status" class="mb-1 text-sm font-medium text-gray-700">Status</label>
                     <select id="status" v-model="status"
-                        class="rounded bg-customDarkGreen text-white border-gray-300 px-2 py-1"
-                        @change="handleFilter">
+                        class="rounded bg-customDarkGreen text-white border-gray-300 px-2 py-1" @change="handleFilter">
                         <option disabled value="">Pilih Status</option>
                         <option value="selesai">Selesai</option>
                         <option value="diproses">Diproses</option>
@@ -62,6 +71,7 @@ const handleFilter = () => {
                             <th class="px-4 py-3 text-left font-semibold">Tanggal Pengujian</th>
                             <th class="px-4 py-3 text-left font-semibold">Jam Mulai</th>
                             <th class="px-4 py-3 text-left font-semibold">Jam Selesai</th>
+                            <th class="px-4 py-3 text-left font-semibold">Nama Kategori</th>
                             <th class="px-4 py-3 text-left font-semibold">Status</th>
                             <th class="px-4 py-3 text-left font-semibold rounded-tr-xl">Aksi</th>
                         </tr>
@@ -70,11 +80,12 @@ const handleFilter = () => {
                         <tr v-for="(item, index) in pengujian" :key="item.id"
                             :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
                             <td class="px-4 py-3 border-b">{{ item.kode_pengujian ?? '-' }}</td>
-                            <td class="px-4 py-3 border-b">{{ item.form_pengajuan_id ?? '-' }}</td>
-                            <td class="px-4 py-3 border-b">{{ item.teknisi?.nama ?? '-' }}</td>
-                            <td class="px-4 py-3 border-b">{{ item.tanggal_pengujian ?? '-' }}</td>
+                            <td class="px-4 py-3 border-b">{{ item.form_pengajuan.kode_pengajuan ?? '-' }}</td>
+                            <td class="px-4 py-3 border-b">{{ item.user?.nama ?? '-' }}</td>
+                            <td class="px-4 py-3 border-b">{{ formatTanggal(item.tanggal_uji) ?? '-' }}</td>
                             <td class="px-4 py-3 border-b">{{ item.jam_mulai ?? '-' }}</td>
                             <td class="px-4 py-3 border-b">{{ item.jam_selesai ?? '-' }}</td>
+                            <td class="px-4 py-3 border-b"> {{ item.kategori?.nama ?? '-' }}</td>
                             <td class="px-4 py-3 border-b">
                                 <span :class="[
                                     'px-2 py-1 rounded text-xs font-semibold',
@@ -85,7 +96,7 @@ const handleFilter = () => {
                             </td>
                             <td class="px-4 py-3 border-b">
                                 <div class="flex gap-2">
-                                    <Link :href="route('pegawai.pengujian.show', item.id)"
+                                    <Link :href="route('pegawai.pengujian.detail', item.id)"
                                         class="text-blue-500 hover:text-blue-700" title="Lihat">
                                     <span>👁️</span>
                                     </Link>

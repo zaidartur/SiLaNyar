@@ -40,7 +40,7 @@ class DashboardController extends Controller
         $ditolak = FormPengajuan::whereIn('id_instansi', $instansiUser)->where('status_pengajuan', 'ditolak')->count();
         $diterima = FormPengajuan::whereIn('id_instansi', $instansiUser)->where('status_pengajuan', 'diterima')->count();
 
-        $pengajuan = FormPengajuan::with(['jadwal', 'pembayaran', 'pengujian', 'pengujian.hasil_uji', 'jenis_cairan', 'kategori'])
+        $pengajuan = FormPengajuan::with(['jadwal', 'pembayaran', 'pengujian.hasil_uji', 'jenis_cairan', 'kategori'])
             ->whereIn('id_instansi', $instansiUser)
             ->orderByDesc('updated_at')
             ->get();

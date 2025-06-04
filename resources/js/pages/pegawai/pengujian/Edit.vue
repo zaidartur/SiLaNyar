@@ -17,8 +17,8 @@ interface Instansi {
 }
 
 interface Kategori {
-    id: number,
-    nama: string,
+    id: number
+    nama: string
 }
 
 interface Pengajuan {
@@ -28,19 +28,31 @@ interface Pengajuan {
     kategori: Kategori
 }
 
+interface Pengujian {
+    id: number
+    id_form_pengajuan: number
+    id_user: number
+    id_kategori: number
+    tanggal_mulai: string
+    tanggal_selesai: string
+    jam_mulai: string
+    jam_selesai: string
+}
+
 const props = defineProps<{
+    pengujian: Pengujian
     form_pengajuan: Pengajuan[]
     user: User[]
 }>()
 
 const form = useForm({
-    id_form_pengajuan: null as number | null,
-    id_user: null as number | null,
-    id_kategori: null as number | null,
-    tanggal_mulai: '',
-    tanggal_selesai: '',
-    jam_mulai: '',
-    jam_selesai: '',
+    id_form_pengajuan: props.pengujian.id_form_pengajuan,
+    id_user: props.pengujian.id_user,
+    id_kategori: props.pengujian.id_kategori as number | null,
+    tanggal_mulai: props.pengujian.tanggal_mulai,
+    tanggal_selesai: props.pengujian.tanggal_selesai,
+    jam_mulai: props.pengujian.jam_mulai,
+    jam_selesai: props.pengujian.jam_selesai,
 })
 
 const selectedPengajuan = computed(() =>
@@ -54,7 +66,7 @@ watch(() => form.id_form_pengajuan, () => {
 })
 
 const submit = () => {
-    form.post('/pegawai/pengujian/store')
+    form.put(`/pegawai/pengujian/${props.pengujian.id}/edit`)
 }
 </script>
 
@@ -64,20 +76,19 @@ const submit = () => {
         <div>
             <Label for="id_form_pengajuan">Pilih Form Pengajuan</Label>
             <select v-model="form.id_form_pengajuan" id="id_form_pengajuan" class="w-full border rounded p-2 mt-1">
-                <option :value="null" disabled>Pilih Pengajuan</option>
+                <option value="" disabled>Pilih Pengajuan</option>
                 <option v-for="item in form_pengajuan" :key="item.id" :value="item.id">
                     {{ item.kode_pengajuan }} - {{ item.instansi.nama }}
                 </option>
             </select>
-            <p v-if="form.errors.id_form_pengajuan" class="text-sm text-red-500 mt-1">{{ form.errors.id_form_pengajuan
-                }}</p>
+            <p v-if="form.errors.id_form_pengajuan" class="text-sm text-red-500 mt-1">{{ form.errors.id_form_pengajuan }}</p>
         </div>
 
         <!-- Teknisi -->
         <div>
             <Label for="id_user">Pilih Teknisi</Label>
             <select v-model="form.id_user" id="id_user" class="w-full border rounded p-2 mt-1">
-                <option :value="null" disabled>Pilih Teknisi</option>
+                <option value="" disabled>Pilih Teknisi</option>
                 <option v-for="u in user" :key="u.id" :value="u.id">
                     {{ u.nama }}
                 </option>
@@ -90,14 +101,12 @@ const submit = () => {
             <div>
                 <Label for="tanggal_mulai">Tanggal Mulai</Label>
                 <Input type="date" id="tanggal_mulai" v-model="form.tanggal_mulai" />
-                <p v-if="form.errors.tanggal_mulai" class="text-sm text-red-500 mt-1">{{ form.errors.tanggal_mulai }}
-                </p>
+                <p v-if="form.errors.tanggal_mulai" class="text-sm text-red-500 mt-1">{{ form.errors.tanggal_mulai }}</p>
             </div>
             <div>
                 <Label for="tanggal_selesai">Tanggal Selesai</Label>
                 <Input type="date" id="tanggal_selesai" v-model="form.tanggal_selesai" />
-                <p v-if="form.errors.tanggal_selesai" class="text-sm text-red-500 mt-1">{{ form.errors.tanggal_selesai
-                    }}</p>
+                <p v-if="form.errors.tanggal_selesai" class="text-sm text-red-500 mt-1">{{ form.errors.tanggal_selesai }}</p>
             </div>
         </div>
 
@@ -117,7 +126,7 @@ const submit = () => {
 
         <!-- Submit -->
         <Button type="submit" :disabled="form.processing">
-            Simpan Jadwal Pengujian
+            Update Jadwal Pengujian
         </Button>
     </form>
 </template>

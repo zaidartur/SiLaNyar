@@ -45,8 +45,8 @@ class JadwalController extends Controller
     public function create()
     {
         $form_pengajuan = FormPengajuan::with('instansi')->where('metode_pengambilan', 'diambil')->get();
-        $user = User::whereDoesntHave('roles', function ($query) {
-            $query->where('name', 'customer');
+        $user = User::whereHas('roles', function ($query) {
+            $query->where('name', 'teknisi');
         })->get();
 
         return Inertia::render('pegawai/pengambilan/Tambah', [
@@ -90,7 +90,7 @@ class JadwalController extends Controller
 
         $pengajuan = FormPengajuan::findOrFail($jadwal->id_form_pengajuan);
 
-        if ($pengajuan->metode_pengambilan === 'diantar') {
+        if ($jadwal->status === 'selesai') {
             return Redirect::back()->withErrors(['status' => 'Jadwal Yang Sudah Selesai Tidak Dapat Diubah!']);
         }
 
@@ -112,10 +112,19 @@ class JadwalController extends Controller
         }
 
         $pengajuan = FormPengajuan::findOrFail($jadwal->id_form_pengajuan);
-        if ($pengajuan->metode_pengambilan !== 'diambil') {
-            return Redirect::route('pegawia.pengambilan.index')->withErrors([
-                'metode_pengajuan' => 'Jadwal Hanya Bisa Dibuat Ketika Customer Memilih Diambil'
+
+        if ($pengajuan->metode_pengambilan === 'diantar') {
+            $request->validate([
+                'status' => 'required|in:diproses,selesai'
             ]);
+
+            $jadwal->update([
+                'status' => $request->status,
+            ]);
+
+            return $jadwal->update
+                ? Redirect::route('pegawai.pengambilan.index')->with('message', 'Jadwal Berhasil Diupdate')
+                : Redirect::back()->withErrors('error', 'Gagal Melakukan Edit Jadwal');
         }
 
         $tanggalBaru = $request->waktu_pengambilan;
@@ -152,14 +161,9 @@ class JadwalController extends Controller
             'keterangan' => $request->keterangan,
         ]);
 
-        if ($updated) {
-            return Redirect::route('pegawai.pengambilan.index')
-                ->with('message', 'Jadwal Berhasil Diupdate!');
-        }
-
-        return Redirect::back()->withErrors([
-            'error' => 'Gagal mengupdate jadwal!'
-        ]);
+        return $updated
+            ? Redirect::route('pegawai.pengambilan.index')->with('message', 'Jadwal Berhasil Diupdate!')
+            : Redirect::back()->withErrors(['error' => 'Gagal mengupdate jadwal!']);
     }
 
 
@@ -171,6 +175,11 @@ class JadwalController extends Controller
         if ($jadwal->status === 'diproses') {
             return Redirect::back()->withErrors('Jadwal Tidak Dapat Dihapus, Jika Status Masih Proses');
         }
+
+        if ($jadwal->form_pengajuan->metode_pengambilan === 'diantar') {
+            return Redirect::back()->withErrors('Jadwal Tidak Dapat Dihapus, Jika Status Masih Proses');
+        }
+
         $jadwal->delete();
 
         if ($jadwal) {
