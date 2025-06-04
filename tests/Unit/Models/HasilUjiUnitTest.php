@@ -46,7 +46,7 @@ class HasilUjiUnitTest extends TestCase
             'id_pengujian',
             'status',
             'file_pdf',
-            'diverifikasi_oleh',
+            'diupdate_oleh',
         ];
         
         $this->assertEquals($fillable, $hasilUji->getFillable());
@@ -108,13 +108,13 @@ class HasilUjiUnitTest extends TestCase
     }
 
     #[Test]
-    public function memastikan_diverifikasi_oleh_bisa_null()
+    public function memastikan_diupdate_oleh_bisa_null()
     {
         $hasilUji = HasilUji::factory()->create([
-            'diverifikasi_oleh' => null
+            'diupdate_oleh' => null
         ]);
         
-        $this->assertNull($hasilUji->diverifikasi_oleh);
+        $this->assertNull($hasilUji->diupdate_oleh);
     }
 
     #[Test]
