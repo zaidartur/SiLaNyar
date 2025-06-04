@@ -72,6 +72,6 @@ class Pengujian extends Model
 
     public function hasil_uji()
     {
-        return $this->belongsTo(HasilUji::class, 'id_hasil_uji');
+        return $this->hasMany(HasilUji::class, 'id_pengujian');
     }
 }

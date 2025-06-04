@@ -224,4 +224,25 @@ class PengujianUnitTest extends TestCase
         $this->assertInstanceOf(\Carbon\Carbon::class, $pengujian->created_at);
         $this->assertInstanceOf(\Carbon\Carbon::class, $pengujian->updated_at);
     }
+
+    #[Test]
+    public function memastikan_relasi_dengan_hasil_uji_berfungsi()
+    {
+        $pengujian = Pengujian::factory()->create();
+        $hasilUji = HasilUji::factory()->count(3)->create([
+            'id_pengujian' => $pengujian->id
+        ]);
+
+        $this->assertInstanceOf('Illuminate\Database\Eloquent\Collection', $pengujian->hasil_uji);
+        $this->assertCount(3, $pengujian->hasil_uji);
+        $this->assertInstanceOf(HasilUji::class, $pengujian->hasil_uji->first());
+    }
+
+    #[Test]
+    public function memastikan_hasil_uji_bisa_kosong()
+    {
+        $pengujian = Pengujian::factory()->create();
+        
+        $this->assertCount(0, $pengujian->hasil_uji);
+    }
 }

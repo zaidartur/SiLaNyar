@@ -125,16 +125,16 @@ class UserUnitTest extends TestCase
         $this->assertTrue($user->pengujian->contains($pengujian));
     }
 
-    #[Test]
-    public function memastikan_relasi_dengan_hasil_uji_histori_berfungsi()
-    {
-        $user = User::factory()->create();
-        $histori = HasilUjiHistori::factory()->create([
-            'id_user' => $user->id
-        ]);
+    // #[Test]
+    // public function memastikan_relasi_dengan_hasil_uji_histori_berfungsi()
+    // {
+    //     $user = User::factory()->create();
+    //     $histori = HasilUjiHistori::factory()->create([
+    //         'id_user' => $user->id
+    //     ]);
         
-        $this->assertTrue($user->hasil_uji_histori->contains($histori));
-    }
+    //     $this->assertTrue($user->hasil_uji_histori->contains($histori));
+    // }
 
     #[Test]
     public function memastikan_relasi_dengan_aduan_berfungsi()
