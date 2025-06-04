@@ -83,11 +83,12 @@ const scheduleData = ref([
         <div class="max-w-6xl mx-auto p-4">
             <!-- Navigasi Antar/Jemput -->
             <div class="flex gap-2 mb-4">
-                <Link href="/customer/jadwal/Pengantaran" class="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200">
+                <Link href="/customer/pengujian" class="px-4 py-2 rounded-lg font-semibold"
+                    :class="['bg-gray-100 text-customDarkGreen', 'hover:bg-gray-200']">
                 Pengantaran
                 </Link>
-                <Link href="/customer/jadwal/Penjemputan" class="px-4 py-2 rounded-lg"
-                    :class="{ 'bg-customDarkGreen text-white': true }">
+                <Link href="/customer/jadwal/penjemputan" class="px-4 py-2 rounded-lg font-semibold"
+                    :class="['bg-customDarkGreen text-white', 'hover:bg-green-800']">
                 Penjemputan
                 </Link>
             </div>

@@ -3,42 +3,66 @@ import CustomerLayout from '@/layouts/customer/CustomerLayout.vue'
 import ScrollArea from '@/components/ui/scroll-area/ScrollArea.vue'
 import { DropdownMenu, DropdownMenuUserDashboard, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { Head, Link } from '@inertiajs/vue3'
 
-const filterOptions = ref([
-    { label: 'Belum Dijadwalkan', value: 'belum dijadwalkan' },
-    { label: 'Diproses', value: 'diproses' },
-    { label: 'Selesai', value: 'selesai' }
-])
-
-const selectedFilter = ref('all')
-
-const handleFilterChange = (value: string) => {
-    selectedFilter.value = value
+interface User {
+    id: number
+    nama: string
 }
 
-// Data untuk informasi pengantaran
-const sampelInfo = ref({
-    pengantaran: {
-        tanggal: 'Selasa, 22 April 2025',
-        idPengajuan: 'SMPOL-25042201',
-        jenisSampel: 'Universal',
-        status: 'Terkonfirmasi'
-    }
-})
+interface Instansi {
+    id: number
+    nama: string
+    user: User
+}
 
-// Data untuk tabel jadwal pengantaran
-const scheduleData = ref([
-    {
-        tanggal: '22 APR',
-        hari: 'Selasa',
-        waktu: '09:50 WIB',
-        kegiatan: 'Pengantaran Sampel ke DLH',
-        lokasi: 'Gedung A',
-        status: 'Terkonfirmasi'
+interface Pengajuan {
+    id: number
+    kode_pengajuan: string
+    metode_pengambilan: string
+    lokasi: string
+    instansi: Instansi
+}
+
+interface Jadwal {
+    id: number
+    kode_pengambilan: string
+    form_pengajuan: Pengajuan
+    user: User
+    waktu_pengambilan: string
+    status: 'diproses' | 'selesai' | 'terkonfirmasi'
+    keterangan: string
+}
+
+const props = defineProps<{
+    jadwal: Jadwal[]
+    filter?: {
+        status?: string,
+        tanggal?: string
     }
-])
+}>()
+
+const status = ref(props.filter?.status ?? "")
+const tanggal = ref(props.filter?.tanggal ?? "")
+
+// Filter hanya jadwal dengan metode pengantaran
+const jadwalPengantaran = computed(() =>
+    props.jadwal.filter(j => j.form_pengajuan?.metode_pengambilan === 'diantar')
+)
+
+const formatTanggal = (tanggalStr: string) => {
+    const date = new Date(tanggalStr)
+    return date.toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    })
+}
+
+const handleFilter = () => {
+    window.location.href = `/customer/jadwal/pengantaran?status=${status.value}&tanggal=${tanggal.value}`
+}
 </script>
 
 <template>
@@ -48,63 +72,14 @@ const scheduleData = ref([
         <div class="max-w-6xl mx-auto p-4">
             <!-- Navigasi Antar/Jemput -->
             <div class="flex gap-2 mb-4">
-                <Link href="/customer/jadwal/pengantaran" class="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200">
+                <Link href="/customer/pengujian"
+                    class="px-4 py-2 rounded-lg font-semibold bg-customDarkGreen text-white hover:bg-green-800">
                 Pengantaran
                 </Link>
-                <Link href="/customer/jadwal/penjemputan" class="px-4 py-2 rounded-lg"
-                    :class="{ 'bg-customDarkGreen text-white': true }">
+                <Link href="/customer/jadwal/penjemputan"
+                    class="px-4 py-2 rounded-lg font-semibold bg-gray-100 text-customDarkGreen hover:bg-gray-200">
                 Penjemputan
                 </Link>
-            </div>
-            <!-- Header -->
-            <div class="flex justify-between items-center mb-4">
-                <h1 class="text-2xl font-bold">Jadwal Pengantaran</h1>
-                <DropdownMenu>
-                    <DropdownMenuTrigger :as-child="true">
-                        <Button variant="ghost"
-                            class="flex items-center gap-2 px-4 py-2 bg-white border rounded-lg hover:bg-gray-50">
-                            <span>Filter</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuUserDashboard align="end" class="w-56 z-50">
-                        <div class="py-1">
-                            <button v-for="option in filterOptions" :key="option.value"
-                                @click="handleFilterChange(option.value)"
-                                class="w-full px-4 py-2 text-left hover:bg-customDarkGreen flex items-center gap-2 rounded-lg"
-                                :class="{ 'bg-customDarkGreen': selectedFilter === option.value }">
-                                <i v-if="selectedFilter === option.value" class="fas fa-check text-green-500 w-4"></i>
-                                <span v-else class="w-4"></span>
-                                {{ option.label }}
-                            </button>
-                        </div>
-                    </DropdownMenuUserDashboard>
-                </DropdownMenu>
-            </div>
-
-            <!-- Informasi Pengantaran -->
-            <div class="bg-blue-50 border-l-8 border-blue-600 rounded-lg p-4 mb-4">
-                <h2 class="text-lg font-semibold text-blue-600 mb-4">Informasi Pengantaran Sampel ke DLH</h2>
-                <div class="grid grid-cols-4 gap-4">
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-blue-100">
-                        <p class="text-sm text-gray-600">Tanggal Pengantaran</p>
-                        <p class="font-medium">{{ sampelInfo.pengantaran.tanggal }}</p>
-                    </div>
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-blue-100">
-                        <p class="text-sm text-gray-600">ID Pengajuan</p>
-                        <p class="font-medium">{{ sampelInfo.pengantaran.idPengajuan }}</p>
-                    </div>
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-blue-100">
-                        <p class="text-sm text-gray-600">Jenis Sampel</p>
-                        <p class="font-medium">{{ sampelInfo.pengantaran.jenisSampel }}</p>
-                    </div>
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-blue-100">
-                        <p class="text-sm text-gray-600">Status</p>
-                        <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">
-                            {{ sampelInfo.pengantaran.status }}
-                        </span>
-                    </div>
-                </div>
             </div>
 
             <!-- Penting Notice -->
@@ -116,46 +91,76 @@ const scheduleData = ref([
                 </p>
             </div>
 
-            <!-- Table Jadwal -->
-            <div class="bg-white rounded-lg shadow overflow-hidden">
-                <ScrollArea class="h-[400px]">
-                    <table class="w-full">
-                        <thead class="bg-customDarkGreen">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">Tanggal</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">Waktu</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">Kegiatan</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">Lokasi</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200">
-                            <tr v-for="(item, index) in scheduleData" :key="index">
-                                <td class="px-6 py-4">
-                                    <div class="font-medium">{{ item.tanggal }}</div>
-                                    <div class="text-sm text-gray-500">{{ item.hari }}</div>
-                                </td>
-                                <td class="px-6 py-4">{{ item.waktu }}</td>
-                                <td class="px-6 py-4">{{ item.kegiatan }}</td>
-                                <td class="px-6 py-4">{{ item.lokasi }}</td>
-                                <td class="px-6 py-4">
-                                    <span :class="{
-                                        'px-3 py-1 rounded-full text-sm': true,
-                                        'bg-green-100 text-green-700': item.status === 'Terkonfirmasi'
-                                    }">
-                                        {{ item.status }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <button class="text-blue-600 hover:text-blue-800">
-                                        <i class="fas fa-print"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </ScrollArea>
+            <!-- Filter -->
+            <div class="mb-6 flex gap-4 items-end">
+                <div class="flex flex-col">
+                    <label for="status" class="mb-1 text-sm font-medium text-gray-700">Status</label>
+                    <select id="status" v-model="status"
+                        class="rounded bg-customDarkGreen text-white border-gray-300 px-2 py-1" @change="handleFilter">
+                        <option disabled value="">Pilih Status</option>
+                        <option value="diproses">Diproses</option>
+                        <option value="selesai">Selesai</option>
+                        <option value="terkonfirmasi">Terkonfirmasi</option>
+                    </select>
+                </div>
+                <div class="flex flex-col">
+                    <label for="tanggal" class="mb-1 text-sm font-medium text-gray-700">Tanggal</label>
+                    <input id="tanggal" type="date" v-model="tanggal"
+                        class="rounded bg-customDarkGreen text-white border-gray-300 px-2 py-1" @change="handleFilter">
+                </div>
+            </div>
+
+            <!-- Table Jadwal Pengantaran -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full border bg-white rounded-xl shadow overflow-hidden">
+                    <thead>
+                        <tr class="bg-customDarkGreen text-white">
+                            <th class="px-4 py-3 text-left font-semibold rounded-tl-xl">ID Pengantar</th>
+                            <th class="px-4 py-3 text-left font-semibold">Kode Pengajuan</th>
+                            <th class="px-4 py-3 text-left font-semibold">Nama Instansi</th>
+                            <th class="px-4 py-3 text-left font-semibold">Nama Pemohon</th>
+                            <th class="px-4 py-3 text-left font-semibold">Metode Pengambilan</th>
+                            <th class="px-4 py-3 text-left font-semibold">Waktu Pengantaran</th>
+                            <th class="px-4 py-3 text-left font-semibold">Keterangan</th>
+                            <th class="px-4 py-3 text-left font-semibold">Status</th>
+                            <th class="px-4 py-3 text-left font-semibold rounded-tr-xl">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(item, index) in jadwalPengantaran" :key="item.id"
+                            :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
+                            <td class="px-4 py-3">{{ item.kode_pengambilan }}</td>
+                            <td class="px-4 py-3">{{ item.form_pengajuan?.kode_pengajuan }}</td>
+                            <td class="px-4 py-3">{{ item.form_pengajuan?.instansi?.nama }}</td>
+                            <td class="px-4 py-3">{{ item.form_pengajuan?.instansi?.user?.nama }}</td>
+                            <td class="px-4 py-3">{{ item.form_pengajuan?.metode_pengambilan }}</td>
+                            <td class="px-4 py-3">{{ formatTanggal(item.waktu_pengambilan) }}</td>
+                            <td class="px-4 py-3">{{ item.keterangan }}</td>
+                            <td class="px-4 py-3">
+                                <span :class="[
+                                    'px-2 py-1 rounded text-xs font-semibold',
+                                    item.status === 'selesai' ? 'bg-green-500 text-white'
+                                        : item.status === 'terkonfirmasi' ? 'bg-blue-500 text-white'
+                                            : 'bg-yellow-500 text-white'
+                                ]">
+                                    {{ item.status }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex gap-2">
+                                    <Link :href="`/customer/jadwal/pengantaran/${item.id}`" method="get"
+                                        class="text-blue-600 hover:text-blue-800" as="button" type="button"
+                                        title="Lihat">
+                                    <span>👁️</span>
+                                    </Link>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr v-if="jadwalPengantaran.length === 0">
+                            <td colspan="9" class="text-center text-gray-400 py-4">Tidak ada data pengantaran.</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </CustomerLayout>
