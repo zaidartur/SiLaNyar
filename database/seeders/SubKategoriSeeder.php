@@ -25,6 +25,12 @@ class SubKategoriSeeder extends Seeder
         $makananKecil = SubKategori::firstOrCreate(['nama' => 'Makanan Kecil']);
         $golonganI = SubKategori::firstOrCreate(['nama' => 'Golongan Air Limbah I']);
         $golonganII = SubKategori::firstOrCreate(['nama' => 'Golongan Air Limbah II']);
+        $industriTahu = SubKategori::firstOrCreate(['nama' => 'Industri Tahu']);
+        $industriTempe = SubKategori::firstOrCreate(['nama' => 'Industri Tempe']);
+        $kelasI = SubKategori::firstOrCreate(['nama' => 'Kelas I']);
+        $kelasII = SubKategori::firstOrCreate(['nama' => 'Kelas II']);
+        $kelasIII = SubKategori::firstOrCreate(['nama' => 'Kelas III']);
+        $kelasIV = SubKategori::firstOrCreate(['nama' => 'Kelas IV']);
 
         $suhu = ParameterUji::where('nama_parameter', 'Suhu')->first();
         $ph = ParameterUji::where('nama_parameter', 'Ph')->first();
@@ -106,6 +112,8 @@ class SubKategoriSeeder extends Seeder
             $bod->id => ['baku_mutu' => '100'],
             $cod->id => ['baku_mutu' => '300'],
             $tss->id => ['baku_mutu' => '100'],
+            $totalN->id => ['baku_mutu' => '-'],
+            $fenol->id => ['baku_mutu' => '-'],
             $ph->id => ['baku_mutu' => '6,0 - 9,0'],
         ]);
 
@@ -122,6 +130,7 @@ class SubKategoriSeeder extends Seeder
             $bod->id => ['baku_mutu' => '50'],
             $cod->id => ['baku_mutu' => '100'],
             $tss->id => ['baku_mutu' => '100'],
+            $minyakLemak->id => ['baku_mutu' => '-'],
             $ph->id => ['baku_mutu' => '6,0 - 9,0'],
             $debitMaksimum->id => ['baku_mutu' => '3 m³/ton'],
         ]);
@@ -130,6 +139,7 @@ class SubKategoriSeeder extends Seeder
             $bod->id => ['baku_mutu' => '50'],
             $cod->id => ['baku_mutu' => '100'],
             $tss->id => ['baku_mutu' => '75'],
+            $minyakLemak->id => ['baku_mutu' => '-'],
             $ph->id => ['baku_mutu' => '6,0 - 9,0'],
             $debitMaksimum->id => ['baku_mutu' => '5 m³/ton'],
         ]);
@@ -220,6 +230,64 @@ class SubKategoriSeeder extends Seeder
             $minyakNabati->id => ['baku_mutu' => '10'],
             $minyakMineral->id => ['baku_mutu' => '50'],
             $radioAktifitas->id => ['baku_mutu' => '-'],
+        ]);
+
+        $industriTahu->parameter()->syncWithoutDetaching([
+            $suhu->id => ['baku_mutu' => '38'],
+            $bod->id => ['baku_mutu' => '150'],
+            $cod->id => ['baku_mutu' => '275'],
+            $tss->id => ['baku_mutu' => '100'],
+            $ph->id => ['baku_mutu' => '6,0 - 9,0'],
+            $debitMaksimum->id => ['baku_mutu' => '20 m³/ton kedelai']
+        ]);
+
+        $industriTempe->parameter()->syncWithoutDetaching([
+            $suhu->id => ['baku_mutu' => '38'],
+            $bod->id => ['baku_mutu' => '150'],
+            $cod->id => ['baku_mutu' => '275'],
+            $tss->id => ['baku_mutu' => '100'],
+            $ph->id => ['baku_mutu' => '6,0 - 9,0'],
+            $debitMaksimum->id => ['baku_mutu' => '10 m³/ton kedelai']
+        ]);
+
+        $kelasI->parameter()->syncWithoutDetaching([
+            $ph->id => ['baku_mutu' => '6,0 - 9,0'],
+            $bod->id => ['baku_mutu' => '2'],
+            $cod->id => ['baku_mutu' => '10'],
+            $tss->id => ['baku_mutu' => '40'],
+            $do->id => ['baku_mutu' => '6'],
+            $phosphat->id => ['baku_mutu' => '0.2'],
+            $totalColiform->id => ['baku_mutu' => '1000'],
+        ]);
+
+        $kelasII->parameter()->syncWithoutDetaching([
+            $ph->id => ['baku_mutu' => '6,0 - 9,0'],
+            $bod->id => ['baku_mutu' => '3'],
+            $cod->id => ['baku_mutu' => '25'],
+            $tss->id => ['baku_mutu' => '50'],
+            $do->id => ['baku_mutu' => '4'],
+            $phosphat->id => ['baku_mutu' => '0.2'],
+            $totalColiform->id => ['baku_mutu' => '5000'],
+        ]);
+
+        $kelasIII->parameter()->syncWithoutDetaching([
+            $ph->id => ['baku_mutu' => '6,0 - 9,0'],
+            $bod->id => ['baku_mutu' => '6'],
+            $cod->id => ['baku_mutu' => '40'],
+            $tss->id => ['baku_mutu' => '100'],
+            $do->id => ['baku_mutu' => '3'],
+            $phosphat->id => ['baku_mutu' => '1.0'],
+            $totalColiform->id => ['baku_mutu' => '10000'],
+        ]);
+
+        $kelasIV->parameter()->syncWithoutDetaching([
+            $ph->id => ['baku_mutu' => '6,0 - 9,0'],
+            $bod->id => ['baku_mutu' => '12'],
+            $cod->id => ['baku_mutu' => '80'],
+            $tss->id => ['baku_mutu' => '400'],
+            $do->id => ['baku_mutu' => '1'],
+            $phosphat->id => ['baku_mutu' => '-'],
+            $totalColiform->id => ['baku_mutu' => '5000'],
         ]);
 
         $this->command->info('Subkategori dan Parameter Uji dengan baku mutu berhasil dilampirkan!');

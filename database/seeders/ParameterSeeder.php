@@ -243,6 +243,11 @@ class ParameterSeeder extends Seeder
                 'harga' => 75000
             ],
             [
+                'nama_parameter' => 'Ti (Titanium)',
+                'satuan' => 'mg/L',
+                'harga' => 75000
+            ],
+            [
                 'nama_parameter' => 'Logam Lainnya',
                 'satuan' => 'mg/L',
                 'harga' => 75000
