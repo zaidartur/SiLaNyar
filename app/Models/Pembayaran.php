@@ -51,6 +51,6 @@ class Pembayaran extends Model
 
     public function form_pengajuan()
     {
-        return $this->belongsTo(FormPengajuan::class, 'id_form_pengajuan');    
+        return $this->belongsTo(FormPengajuan::class, 'id_form_pengajuan');
     }
 }

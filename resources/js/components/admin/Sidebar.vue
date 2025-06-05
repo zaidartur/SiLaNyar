@@ -218,7 +218,7 @@ const toggle = (menu: 'daftar' | 'kategori') => {
                 </Transition>
             </div>
 
-            <a href="/pegawai/instansi" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
+            <a href="/pegawai/pembayaran" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                 <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg"
                     xmlns:xlink="http://www.w3.org/1999/xlink">
                     <rect width="38" height="38" fill="url(#pattern0_1673_92)" />
@@ -230,9 +230,9 @@ const toggle = (menu: 'daftar' | 'kategori') => {
                             xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAACXElEQVR4nO3cwWoTURTG8TyZPpNkXkCEgvsmIBdBlwXprlwEoXAcLXYZ+gAJbs7SfRa3FFobTA0WMn7n3vv/4GwCDZnvlwkzJ6GzGSGEEELIsBwLM+51IHtngDHGBDk5W5V3X9Zdz8nZKg5IutwU89L1pMsNIBYAAhDXlw+I6wsHxPUlA+L6YgEJUKYBoi/QANGXZoDoizJA9OUYIKxOEquTEmoAcT0CIK4vHhDXlw2I6wsGJECpBoi+SAPk8TLxb3N+82uvqLvHDv3NVPPUa2nysvfQL1bSE8+3e8D/c/712ABZAnLUM6S1SbV/ZLU2CZAiRwDE9cUD4vqyAXF9wYAEKNUA0RdpgOjLM0D0hRkgh0tglzVBWC6Wdu7UWb9PEHZZpZ0zpLVJgBQ5AiCuLx4Q15cNiOsLBiRAqQaIvkgDRF+eAbJfAnfqE4RdVmnnTp1t7wRhdVLaOUNamwRIkSMA4vriAXF92YC4vmBAApRqgOiLNED05Rkg+sIMkMMlsDqZIOyySjt36qzfJwi7rNLOGdLaJECKHAEQ1xcPiOvLBsT1BQMSoFQDJMYMR/7PQlz2OiBN3YcM98dxer4qF1frZ8/rD9e/n2O++LrlDPHjgHy+3pTnJv9YP2Isx+2rxfeXgLgGJBRG7yA5GkbPIDkiRq8gOSpGjyA5MkZvIDk6Rk8guQaMXkByLRg9gOSaMFoHybVhtAySa8RoFSTXitEiyJuPO1vb5bidn357MaspDy/+7aeb8t5+VjvDH18wzRcVYtzl2N+0DQGmuo+p3ajLG8AghBBCyCxobgFjAQlcrdoQqAAAAABJRU5ErkJggg==" />
                     </defs>
                 </svg>
-                <span>Verifikasi Keuangan</span>
+                <span>Verifikasi Pembayaran</span>
             </a>
-            <a href="/pegawai/instansi" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
+            <a href="/pegawai/laporan-keuangan" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                 <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg"
                     xmlns:xlink="http://www.w3.org/1999/xlink">
                     <rect width="38" height="38" fill="url(#pattern0_1836_2511)" />
