@@ -48,7 +48,7 @@ const formatWaktu = (tanggalStr: string) => {
         <div class="max-w-6xl mx-auto p-4">
             <!-- Navigasi Antar/Jemput -->
             <div class="flex gap-2 mb-4">
-                <Link href="/customer/pengujian" class="px-4 py-2 rounded-lg font-semibold"
+                <Link href="/customer/jadwal/pengantaran" class="px-4 py-2 rounded-lg font-semibold"
                     :class="['bg-gray-100 text-customDarkGreen', 'hover:bg-gray-200']">
                 Pengantaran
                 </Link>

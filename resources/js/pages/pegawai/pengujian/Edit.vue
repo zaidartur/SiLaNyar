@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { computed, watch } from 'vue'
@@ -49,10 +48,11 @@ const form = useForm({
     id_form_pengajuan: props.pengujian.id_form_pengajuan,
     id_user: props.pengujian.id_user,
     id_kategori: props.pengujian.id_kategori as number | null,
-    tanggal_mulai: props.pengujian.tanggal_mulai,
-    tanggal_selesai: props.pengujian.tanggal_selesai,
+    tanggal_mulai: formatDate(props.pengujian.tanggal_mulai),
+    tanggal_selesai: formatDate(props.pengujian.tanggal_selesai),
     jam_mulai: props.pengujian.jam_mulai,
     jam_selesai: props.pengujian.jam_selesai,
+    status: props.pengujian.status,
 })
 
 const selectedPengajuan = computed(() =>
@@ -65,8 +65,15 @@ watch(() => form.id_form_pengajuan, () => {
     form.id_kategori = idKategori.value
 })
 
+function formatDate(dateStr: string) {
+    if (!dateStr) return ''
+    const d = new Date(dateStr)
+    return d.toISOString().split('T')[0]
+}
 const submit = () => {
-    form.put(`/pegawai/pengujian/${props.pengujian.id}/edit`)
+    form.put(`/pegawai/pengujian/${props.pengujian.id}/edit`, {
+        only: ['status']
+    })
 }
 </script>
 
@@ -153,6 +160,16 @@ const submit = () => {
                                 {{ form.errors.jam_selesai }}
                             </span>
                         </div>
+                    </div>
+                    <div class="grid gap-2">
+                        <Label for="status">Status</Label>
+                        <select id="status" v-model="form.status" class="w-full rounded border px-3 py-2 mt-1">
+                            <option value="proses">Proses</option>
+                            <option value="selesai">Selesai</option>
+                        </select>
+                        <span v-if="form.errors.status" class="text-sm text-red-600">
+                            {{ form.errors.status }}
+                        </span>
                     </div>
                 </div>
 

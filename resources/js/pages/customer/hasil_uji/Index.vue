@@ -1,88 +1,124 @@
 <script setup lang="ts">
 import CustomerLayout from '@/layouts/customer/CustomerLayout.vue'
-import { ref } from 'vue'
 import { Head } from '@inertiajs/vue3'
+import { ref } from 'vue'
 
-// Sample data for the table
-const tableData = [
-    {
-        id: 'HU_042-025-1D',
-        jenisCatiran: 'Universal',
-        kategori: 'Suhu,Ph,DHL',
-        tanggal: '22 Apr 2025',
-        lokasi: 'Gedung A',
-        metodePengambilan: 'DiJemput Petugas',
-        aduan: true,
-        rating: 5,
-        aksi: ''
-    }
-]
+const props = defineProps<{
+    hasil_uji: any[],
+    currentPage?: number,
+    totalPages?: number
+}>()
 
-// Pagination state
-const currentPage = ref(1)
-const totalPages = ref(5)
+const tableData = props.hasil_uji
 
-const handlePageChange = (page: number) => {
+const currentPage = ref(props.currentPage ?? 1)
+const totalPages = ref(props.totalPages ?? 1)
+
+function handlePageChange(page: number) {
     currentPage.value = page
+    // Untuk pagination dinamis, request ke backend di sini
 }
 
+function formatTanggal(tanggal: string) {
+    if (!tanggal) return '-'
+    const d = new Date(tanggal)
+    return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
+}
+
+const statusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+        draf: 'Draf',
+        revisi: 'Revisi',
+        proses_review: 'Proses Review',
+        proses_peresmian: 'Proses Peresmian',
+        selesai: 'Selesai'
+    }
+    return labels[status] ?? status
+}
 </script>
 
 <template>
+
     <Head title="Hasil Uji Sample" />
     <CustomerLayout>
-        <div class="max-w-4xl mx-auto">
-            <!-- Header Profile -->
-            <div class="mb-4 p-2 bg-white rounded-lg shadow-sm border border-gray-300">
-                <h1 class="text-xl font-bold text-gray-800">Hasil Uji Sample </h1>
-                <p class="text-sm text-gray-500">Selamat datang di Hasil Uji Sample</p>
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl text-black font-bold">DAFTAR HASIL UJI</h1>
             </div>
-
-            <!-- Table -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-300">
-                <table class="w-full">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">ID</th>
-                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Jenis Catiran</th>
-                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Kategori</th>
-                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Tanggal</th>
-                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Lokasi</th>
-                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Metode Pengambilan</th>
-                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Aduan</th>
-                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Rating</th>
-                            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Aksi</th>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white rounded-xl shadow overflow-hidden">
+                    <thead>
+                        <tr class="bg-customDarkGreen text-white">
+                            <th class="px-4 py-3 text-left font-semibold rounded-tl-xl">ID Hasil</th>
+                            <th class="px-4 py-3 text-left font-semibold">Jenis Cairan</th>
+                            <th class="px-4 py-3 text-left font-semibold">Kategori</th>
+                            <th class="px-4 py-3 text-left font-semibold">Tanggal</th>
+                            <th class="px-4 py-3 text-left font-semibold">Lokasi</th>
+                            <th class="px-4 py-3 text-left font-semibold">Metode Pengambilan</th>
+                            <th class="px-4 py-3 text-left font-semibold">Aduan</th>
+                            <th class="px-4 py-3 text-left font-semibold">Rating</th>
+                            <th class="px-4 py-3 text-left font-semibold">Status</th>
+                            <th class="px-4 py-3 text-left font-semibold rounded-tr-xl">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="item in tableData" :key="item.id" class="border-t border-gray-200">
-                            <td class="px-4 py-2 text-sm text-gray-900">{{ item.id }}</td>
-                            <td class="px-4 py-2 text-sm text-gray-900">{{ item.jenisCatiran }}</td>
-                            <td class="px-4 py-2 text-sm text-gray-900">{{ item.kategori }}</td>
-                            <td class="px-4 py-2 text-sm text-gray-900">{{ item.tanggal }}</td>
-                            <td class="px-4 py-2 text-sm text-gray-900">{{ item.lokasi }}</td>
-                            <td class="px-4 py-2 text-sm text-gray-900">{{ item.metodePengambilan }}</td>
-                            <td class="px-4 py-2 text-sm text-gray-900">
+                        <tr v-for="(item, index) in tableData" :key="item.id"
+                            :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
+                            <td class="px-4 py-3 border-b">{{ item.id }}</td>
+                            <td class="px-4 py-3 border-b">
+                                {{ item.pengujian?.form_pengajuan?.jenis_cairan?.nama ?? '-' }}
+                            </td>
+                            <td class="px-4 py-3 border-b">
+                                {{ item.pengujian?.form_pengajuan?.kategori?.nama ?? '-' }}
+                            </td>
+                            <td class="px-4 py-3 border-b">
+                                {{ formatTanggal(item.pengujian?.tanggal_uji) ?? '-' }}
+                            </td>
+                            <td class="px-4 py-3 border-b">
+                                {{ item.pengujian?.form_pengajuan?.lokasi ?? '-' }}
+                            </td>
+                            <td class="px-4 py-3 border-b">
+                                {{ item.pengujian?.form_pengajuan?.metode_pengambilan ?? '-' }}
+                            </td>
+                            <td class="px-4 py-3 border-b text-center">
                                 <span v-if="item.aduan" class="text-blue-500">
                                     <i class="fas fa-comment"></i>
                                 </span>
+                                <span v-else>-</span>
                             </td>
-                            <td class="px-4 py-2 text-sm text-gray-900">
-                                <span class="text-yellow-400">
+                            <td class="px-4 py-3 border-b text-center">
+                                <span v-if="item.rating" class="text-yellow-400">
                                     <i class="fas fa-star"></i>
                                 </span>
+                                <span v-else>-</span>
                             </td>
-                            <td class="px-4 py-2 text-sm text-gray-900">
-                                <button class="text-gray-500 hover:text-gray-700">
-                                    <i class="fas fa-ellipsis-v"></i>
-                                </button>
+                            <td class="px-4 py-3 border-b">
+                                <span :class="[
+                                    'text-xs px-2 py-1 rounded',
+                                    item.status === 'selesai' ? 'bg-green-500 text-white' :
+                                        item.status === 'proses_review' ? 'bg-yellow-500 text-white' :
+                                            item.status === 'proses_peresmian' ? 'bg-blue-500 text-white' :
+                                                item.status === 'revisi' ? 'bg-red-500 text-white' :
+                                                    'bg-gray-400 text-white'
+                                ]">
+                                    {{ statusLabel(item.status) }}
+                                </span>
                             </td>
+                            <td class="px-4 py-3 border-b">
+                                <a :href="`/customer/hasil-uji/${item.id}`" class="text-blue-600 hover:underline"
+                                    title="Detail">
+                                    👁️
+                                </a>
+                            </td>
+                        </tr>
+                        <tr v-if="tableData.length === 0">
+                            <td colspan="10" class="text-center py-4 text-gray-500">Tidak ada data hasil uji.</td>
                         </tr>
                     </tbody>
                 </table>
 
                 <!-- Pagination -->
-                <div class="p-4 border-t border-gray-200 flex justify-end">
+                <div class="p-4 border-t border-gray-200 flex justify-end" v-if="totalPages > 1">
                     <nav aria-label="Page navigation">
                         <ul class="flex items-center -space-x-px h-10 text-base">
                             <!-- Previous Button -->
@@ -97,7 +133,6 @@ const handlePageChange = (page: number) => {
                                     </svg>
                                 </a>
                             </li>
-
                             <!-- Page Numbers -->
                             <li v-for="page in totalPages" :key="page">
                                 <a href="#" @click.prevent="handlePageChange(page)" :class="[
@@ -109,7 +144,6 @@ const handlePageChange = (page: number) => {
                                     {{ page }}
                                 </a>
                             </li>
-
                             <!-- Next Button -->
                             <li>
                                 <a href="#"

@@ -13,8 +13,8 @@ const form = useForm({
     no_telepon: '',
     posisi_jabatan: '',
     departemen_divisi: '',
-    surat_penugasan: null,
-    kartu_identitas: null,
+    surat_keterangan_penugasan: null,
+    foto_kartu_identitas: null,
 })
 
 const closeModal = () => {
@@ -143,23 +143,23 @@ const submit = () => {
                     </div>
 
                     <!-- Dokumen Pendukung -->
-                    <!-- <div>
-                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Dokumen Pendukung</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Surat Keterangan
-                                Penugasan</label>
-                            <input type="file" @change="e => form.surat_penugasan = e.target.files[0]"
-                                class="mt-1 block w-full border rounded-sm p-2" />
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Foto Kartu Identitas
-                                Instansi</label>
-                            <input type="file" @change="e => form.kartu_identitas = e.target.files[0]"
-                                class="mt-1 block w-full border rounded-sm p-2" />
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-700 mb-2">Dokumen Pendukung</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Surat Keterangan
+                                    Penugasan</label>
+                                <input type="file" @change="e => form.surat_keterangan_penugasan = e.target.files[0]"
+                                    class="mt-1 block w-full border rounded-sm p-2" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Foto Kartu Identitas
+                                    Instansi</label>
+                                <input type="file" @change="e => form.foto_kartu_identitas = e.target.files[0]"
+                                    class="mt-1 block w-full border rounded-sm p-2" />
+                            </div>
                         </div>
                     </div>
-                </div> -->
 
                     <!-- Actions -->
                     <div class="flex justify-end gap-3 pt-4">

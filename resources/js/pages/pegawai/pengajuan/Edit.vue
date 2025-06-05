@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue'
 import { ref, computed, watch } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { router, Head } from '@inertiajs/vue3'
 
 interface User {
     id: number
@@ -99,6 +99,7 @@ const handleVerifikasi = (status: 'diterima' | 'ditolak') => {
 </script>
 
 <template>
+    <Head title="Edit Pengajuan" />
     <AdminLayout>
         <div class="p-6 max-w-4xl mx-auto bg-white rounded shadow">
             <h1 class="text-2xl font-bold mb-6">Edit Pengajuan</h1>

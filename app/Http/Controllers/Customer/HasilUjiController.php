@@ -23,7 +23,8 @@ class HasilUjiController extends Controller
 
         $hasil_uji = HasilUji::with([
             'pengujian.form_pengajuan.jenis_cairan',
-            'pengujian.form_pengajuan.kategori',
+            'pengujian.form_pengajuan.kategori.subkategori.parameter',
+            'pengujian.form_pengajuan.kategori.parameter',
             'pengujian.form_pengajuan.instansi.user',
             'pengujian.user',
             'aduan',

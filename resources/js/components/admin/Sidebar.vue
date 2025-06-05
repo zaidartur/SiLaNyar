@@ -218,7 +218,7 @@ const toggle = (menu: 'daftar' | 'kategori') => {
                 </Transition>
             </div>
 
-            <a href="/pegawai/pembayaran" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
+            <a v-if="can('kelola pembayaran')" href="/pegawai/pembayaran" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                 <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg"
                     xmlns:xlink="http://www.w3.org/1999/xlink">
                     <rect width="38" height="38" fill="url(#pattern0_1673_92)" />
@@ -232,7 +232,7 @@ const toggle = (menu: 'daftar' | 'kategori') => {
                 </svg>
                 <span>Verifikasi Pembayaran</span>
             </a>
-            <a href="/pegawai/laporan-keuangan" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
+            <a v-if="can('laporan keuangan')" href="/pegawai/laporan-keuangan" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                 <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg"
                     xmlns:xlink="http://www.w3.org/1999/xlink">
                     <rect width="38" height="38" fill="url(#pattern0_1836_2511)" />

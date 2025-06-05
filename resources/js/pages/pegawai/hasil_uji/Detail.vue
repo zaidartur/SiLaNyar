@@ -1,68 +1,79 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue'
-import { Head } from '@inertiajs/vue3'
-import { ref } from 'vue'
+import { Head, router } from '@inertiajs/vue3'
+import { ref, computed } from 'vue'
 
 interface ParameterPengujian {
-    id_parameter: number
-    nama_parameter: string
-    satuan: string | null
-    nilai: string | null
-    baku_mutu: string | null
-    keterangan: string | null
+  id_parameter: number
+  nama_parameter: string
+  satuan: string | null
+  nilai: string | null
+  baku_mutu: string | null
+  keterangan: string | null
 }
 
 interface HasilUji {
-    id: number
-    status: string
-    diupdate_oleh: string
-    created_at: string
-    pengujian: {
-        kode_pengujian: string
-        form_pengajuan: {
-            kode_pengajuan: string
-            kategori: {
-                nama: string
-            }
-            instansi: {
-                nama: string
-                user: {
-                    nama: string
-                }
-            }
-        }
+  id: number
+  status: string
+  diupdate_oleh: string
+  created_at: string
+  pengujian: {
+    kode_pengujian: string
+    form_pengajuan: {
+      kode_pengajuan: string
+      kategori: {
+        nama: string
+      }
+      instansi: {
+        nama: string
         user: {
-            nama: string
+          nama: string
         }
+      }
     }
+    user: {
+      nama: string
+    }
+  }
 }
 
 const props = defineProps<{
-    hasil_uji: HasilUji
-    parameter_pengujian: ParameterPengujian[]
+  hasil_uji: HasilUji
+  parameter_pengujian: ParameterPengujian[]
 }>()
 
-const statusOptions = [
-  { value: 'draf', label: 'Draf' },
-  { value: 'revisi', label: 'Revisi' },
-  { value: 'proses_review', label: 'Proses Review' },
-  { value: 'proses_peresmian', label: 'Proses Peresmian' },
-  { value: 'selesai', label: 'Selesai' }
-]
+const STATUS_FLOW = {
+  draf: ['proses_review', 'revisi'],
+  revisi: ['draf', 'proses_review'],
+  proses_review: ['proses_peresmian', 'revisi'],
+  proses_peresmian: ['selesai', 'revisi'],
+  selesai: [],
+}
+
+const statusLabels = {
+  draf: 'Draf',
+  revisi: 'Revisi',
+  proses_review: 'Proses Review',
+  proses_peresmian: 'Proses Peresmian',
+  selesai: 'Selesai'
+}
 
 const status = ref(props.hasil_uji.status)
+
+const availableStatus = computed(() => STATUS_FLOW[props.hasil_uji.status] || [])
 
 function kembali() {
   window.history.back()
 }
 
-function perbaruiStatus() {
-  router.post(`/pegawai/hasil-uji/${props.hasil_uji.id}/update-status`, {
-    status: status.value,
+function perbaruiStatus(newStatus: string) {
+  router.put(`/pegawai/hasiluji/verifikasi/${props.hasil_uji.id}`, {
+    status: newStatus,
   })
-  
+}
+
 function bukaPDF() {
-    window.open(route('hasil_uji.convert', props.hasil_uji.id), '_blank')
+  window.open(route('hasil_uji.convert', props.hasil_uji.id), '_blank')
 }
 </script>
 
@@ -170,15 +181,23 @@ function bukaPDF() {
             <div class="mb-2">DJ-{{ props.hasil_uji.id.toString().padStart(3, '0') }}</div>
           </div>
           <div class="mb-4">
-            <label class="block text-sm font-semibold mb-1">Status:</label>
-            <select v-model="status" class="w-full border rounded px-3 py-2">
-              <option v-for="opt in statusOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
-            </select>
+            <label class="block text-sm font-semibold mb-1">Status Saat Ini:</label>
+            <span class="inline-block px-3 py-1 rounded bg-gray-200 font-semibold text-customDarkGreen">
+              {{ statusLabels[props.hasil_uji.status] }}
+            </span>
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-semibold mb-1">Ubah Status:</label>
+            <div class="flex flex-wrap gap-2">
+              <button v-for="opt in availableStatus" :key="opt" type="button" @click="perbaruiStatus(opt)" class="px-4 py-2 rounded font-semibold transition
+          bg-green-700 text-white hover:bg-green-800 focus:ring-2 focus:ring-green-400">
+                {{ statusLabels[opt] }}
+              </button>
+              <span v-if="availableStatus.length === 0" class="text-gray-400">Tidak ada status lanjutan.</span>
+            </div>
           </div>
           <div class="flex gap-2 justify-end">
             <button @click="kembali" class="bg-gray-200 text-black px-4 py-2 rounded font-semibold">Kembali</button>
-            <button @click="perbaruiStatus"
-              class="bg-green-700 text-white px-4 py-2 rounded font-semibold">Perbarui</button>
           </div>
         </div>
       </div>

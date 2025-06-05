@@ -38,9 +38,8 @@ function kembaliKeIndex() {
 }
 
 function updateStatus(status: string) {
-    router.post(`/pegawai/pembayaran/${props.pembayaran.id}/update-status`, {
+    router.put(`/pegawai/pembayaran/${props.pembayaran.id}/edit`, {
         status_pembayaran: status,
-        catatan: catatan.value
     }, {
         onSuccess: () => kembaliKeIndex()
     })
