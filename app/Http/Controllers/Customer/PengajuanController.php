@@ -159,7 +159,6 @@ class PengajuanController extends Controller
                 'id_order' => Str::upper(Str::random(10)),
                 'id_form_pengajuan' => $pengajuan->id,
                 'total_biaya' => $this->hitungTotalBiaya($pengajuan),
-                'metode_pembayaran' => 'transfer',
                 'status_pembayaran' => 'belum_dibayar',
             ]);
         }

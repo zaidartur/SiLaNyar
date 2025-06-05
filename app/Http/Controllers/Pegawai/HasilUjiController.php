@@ -24,6 +24,7 @@ class HasilUjiController extends Controller
         'proses_peresmian' => ['selesai', 'revisi'],
         'selesai' => [],
     ];
+    
     //lihat list hasil uji
     public function index()
     {
@@ -264,7 +265,8 @@ class HasilUjiController extends Controller
                     'pengujian.form_pengajuan.instansi.user',
                     'pengujian.user'
                 ]),
-                'tanggal' => now()->format('d-m-Y')
+                'tanggal' => now()->format('d-m-Y'),
+                'is_customer' => false
             ]);
 
             $path = 'pdf/hasil_uji_' . $hasil_uji->id . '.pdf';

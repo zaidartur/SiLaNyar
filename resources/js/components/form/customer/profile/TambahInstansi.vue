@@ -23,9 +23,13 @@ const closeModal = () => {
 
 const submit = () => {
     form.post('/customer/profile/instansi/store', {
+        forceFormData: true,
         onSuccess: () => {
             closeModal()
         },
+        onError: (errors) => {
+            console.error(errors);
+        }
     })
 }
 </script>

@@ -82,6 +82,7 @@ Route::prefix('superadmin')->middleware(['auth:web'])->group(function () {
 Route::prefix('customer')->middleware(['auth:web', 'role:customer'])->group(function () {
 
     //fitur jadwal
+    Route::get('jadwal', [CustomerJadwalController::class, 'index'])->name('customer.jadwal.index');
     Route::get('jadwal/penjemputan', [CustomerJadwalController::class, 'penjemputan'])->name('customer.jadwal.penjemputan');
     Route::get('jadwal/pengantaran', [CustomerJadwalController::class, 'pengantaran'])->name('customer.jadwal.pengantaran');
     Route::get('jadwal/{id}', [CustomerJadwalController::class, 'show']);

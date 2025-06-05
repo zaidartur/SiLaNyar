@@ -77,13 +77,6 @@ class PengajuanController extends Controller
                 'status_pengajuan' => 'required|in:diterima,ditolak'
             ];
 
-            if ($pengajuan->metode_pengambilan === 'diantar') {
-                $rules['id_kategori'] = 'required|exists:kategori,id';
-                $rules['parameter'] = 'required|array';
-                $rules['parameter.*'] = 'exists:parameter_uji,id';
-                $rules['metode_pembayaran'] = 'required|in:tunai,transfer';
-            }
-
             $validated = $request->validate($rules);
 
             $pengajuan->status_pengajuan = $validated['status_pengajuan'];
