@@ -16,14 +16,14 @@ use Inertia\Inertia;
 
 class AduanController extends Controller
 {
-    public function index()
-    {
-        $aduan = Aduan::with('hasil_uji.pengujian.form_pengajuan.instansi.user')->get();
+    // public function index()
+    // {
+    //     $aduan = Aduan::with('hasil_uji.pengujian.form_pengajuan.instansi.user')->get();
         
-        return Inertia::render('customer/aduan/Index', [
-            'aduan' => $aduan
-        ]);
-    }
+    //     return Inertia::render('customer/aduan/Index', [
+    //         'aduan' => $aduan
+    //     ]);
+    // }
 
     public function create(HasilUji $hasil_uji)
     {
@@ -60,4 +60,5 @@ class AduanController extends Controller
 
         return Redirect::route('customer.hasil_uji.index')->with('message', 'Aduan Berhasil Terkirim');
     }
+    
 }

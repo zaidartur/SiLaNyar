@@ -44,7 +44,7 @@ class HasilUjiController extends Controller
                 'form_pengajuan.kategori.subkategori.parameter',
                 'form_pengajuan.instansi.user',
                 'user'
-                ])
+            ])
                 ->find($request->id_pengujian);
 
             $kategori = $pengujian->form_pengajuan->kategori;
@@ -272,6 +272,62 @@ class HasilUjiController extends Controller
             DB::rollBack();
             return Redirect::back()->withErrors(['error' => 'Gagal Memperbarui Hasil Uji ' . $hasil_uji->kode_hasil_uji . ' Dengan Error ' . $err->getMessage()]);
         }
+    }
+
+    public function editVerifikasi($id)
+    {
+        $hasil_uji = HasilUji::with([
+            'pengujian.parameter_uji',
+            'pengujian.form_pengajuan.kategori.parameter',
+            'pengujian.form_pengajuan.kategori.subkategori.parameter',
+            'pengujian.form_pengajuan.instansi.user',
+            'pengujian.form_pengajuan.user'
+        ])->findOrFail($id);
+
+        if (!in_array($hasil_uji->status, ['draf', 'revisi'])) {
+            return Redirect::route('pegawai.hasil_uji.index')->withErrors(['status' => 'Hanya Status Hasil Uji Draf dan Revisi Yang Dapat Diedit']);
+        }
+
+        $pengujian = $hasil_uji->pengujian;
+        $kategori = $pengujian->form_pengajuan->kategori;
+
+        $parameterKategori = collect($kategori->parameter)->map(function ($param) {
+            return [
+                'id' => $param->id,
+                'nama' => $param->nama_parameter,
+                'satuan' => $param->satuan,
+                'baku_mutu' => $param->pivot->baku_mutu ?? null,
+            ];
+        });
+
+        $parameterSubKategori = collect($kategori->subkategori)->flatMap(function ($sub) {
+            return $sub->parameter->map(function ($param) {
+                return [
+                    'id' => $param->id,
+                    'nama' => $param->nama_parameter,
+                    'satuan' => $param->satuan,
+                    'baku_mutu' => $param->pivot->baku_mutu ?? null,
+                ];
+            });
+        });
+
+        $semuaParameter = $parameterKategori->merge($parameterSubKategori)->unique('id')->values();
+
+        $nilaiTersimpan = DB::table('parameter_pengujian')->where('id_pengujian', $pengujian->id)->get()->keyBy('id_parameter');
+
+        $parameterDenganNilai = $semuaParameter->map(function ($param) use ($nilaiTersimpan) {
+            $nilai = $nilaiTersimpan[$param['id']] ?? null;
+            return array_merge($param, [
+                'nilai' => $nilai->nilai ?? null,
+                'keterangan' => $nilai->keterangan ?? null,
+            ]);
+        });
+
+        return Inertia::render('pegawai/hasil_uji/Verifikasi', [
+            'hasil_uji' => $hasil_uji,
+            'pengujian' => $pengujian,
+            'parameter' => $parameterDenganNilai
+        ]);
     }
 
     public function verifikasi($id, Request $request)

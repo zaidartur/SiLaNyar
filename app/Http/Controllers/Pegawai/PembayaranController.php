@@ -9,12 +9,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use App\Notifications\PembayaranSukses;
+use Illuminate\Support\Facades\Auth;
 
 class PembayaranController extends Controller
 {
     public function index()
     {
-        $pembayaran = Pembayaran::with(['form_pengajuan', 'form_pengajuan.user'])->get();
+        $pembayaran = Pembayaran::with(['form_pengajuan.kategori.parameter', 'form_pengajuan.kategori.subkategori.parameter', 'form_pengajuan.instansi.user'])->get();
 
         return Inertia::render('pegawai/pembayaran/Index', [
             'pembayaran' => $pembayaran
@@ -23,7 +24,7 @@ class PembayaranController extends Controller
 
     public function show($id)
     {
-        $pembayaran = Pembayaran::with(['form_pengajuan', 'form_pengajuan.user'])->findOrFail($id);
+        $pembayaran = Pembayaran::with(['form_pengajuan.kategori.parameter', 'form_pengajuan.kategori.subkategori.parameter', 'form_pengajuan.instansi.user'])->findOrFail($id);
 
         return Inertia::render('pegawai/pembayaran/Detail', [
             'pembayaran' => $pembayaran
@@ -41,21 +42,16 @@ class PembayaranController extends Controller
 
     public function update(Pembayaran $pembayaran, Request $request)
     {
+        $user = Auth::user();
+
         $request->validate([
-            'status_pembayaran' => 'required|in:diproses,selesai,gagal'
+            'status_pembayaran' => 'required|in:diproses,selesai,gagal',
         ]);
 
-        $pembayaran->update($request->all());
-
-        if ($request->status_pembayaran === 'selesai' && $pembayaran->form_pengajuan && $pembayaran->form_pengajuan->user) {
-            try {
-                $pembayaran->form_pengajuan->user->notify(new PembayaranSukses($pembayaran));
-            } catch (\Exception $err) {
-                return Redirect::back()->withErrors([
-                    'notification' => 'Gagal Mengirim Email:' . $err->getMessage()
-                ]);
-            }
-        }
+        $pembayaran->update([
+            'status_pembayaran' => $request->status_pembayaran,
+            'diverifikas_oleh' => $user->nama,
+        ]);
 
         return Redirect::route('pegawai.pembayaran.index')->with('message', 'Pembayaran Berhasil Diupdate!');
     }

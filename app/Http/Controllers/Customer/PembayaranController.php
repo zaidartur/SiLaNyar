@@ -51,84 +51,69 @@ class PembayaranController extends Controller
     }
 
 
-    public function index()
-    {
-        /** @var \App\Models\User */
-        $user = Auth::user();
+    // public function index()
+    // {
+    //     /** @var \App\Models\User */
+    //     $user = Auth::user();
 
-        $idInstansi = $user->instansi()->pluck('id')->toArray();
+    //     $idInstansi = $user->instansi()->pluck('id')->toArray();
 
-        $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'user'])
-            ->where('id_instansi', $idInstansi)
-            ->get();
+    //     $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'user'])
+    //         ->where('id_instansi', $idInstansi)
+    //         ->get();
 
-        $totalBiaya = $this->hitungTotalBiaya($pengajuan->id);
+    //     $totalBiaya = $this->hitungTotalBiaya($pengajuan->id);
 
-        return Inertia::render('customer/pembayaran/Index', [
-            'pengajuan' => $pengajuan,
-            'totalBiaya' => $totalBiaya,
-            'detailPembayaran' => [
-                'kategori' => $pengajuan->kategori,
-                'parameter' => $pengajuan->parameter,
-            ]
-        ]);
-    }
+    //     return Inertia::render('customer/pembayaran/Index', [
+    //         'pengajuan' => $pengajuan,
+    //         'totalBiaya' => $totalBiaya,
+    //         'detailPembayaran' => [
+    //             'kategori' => $pengajuan->kategori,
+    //             'parameter' => $pengajuan->parameter,
+    //         ]
+    //     ]);
+    // }
 
     public function show($id)
     {
-        /** @var \App\Models\User */
+        /** @var \App\Models\User $user */
         $user = Auth::user();
-
         $idInstansi = $user->instansi()->pluck('id')->toArray();
 
-        $pengajuan = FormPengajuan::with(['kategori', 'parameter'])
+        $pengajuan = FormPengajuan::with([
+            'kategori.parameter',
+            'kategori.subkategori.parameter',
+            'pembayaran',
+            'instansi.user'
+        ])
             ->where('id', $id)
-            ->where('id_instansi', $idInstansi)
-            ->where('status_pengajuan', 'diterima')
+            ->whereIn('id_instansi', $idInstansi)
             ->firstOrFail();
 
         if ($pengajuan->status_pengajuan !== 'diterima') {
             return Redirect::back()->withErrors([
-                'status_pengajuan' => 'Pengajuan Anda Belum Diverifikasi Oleh Admin, Harap Tunggu Verifikasi Administrasi Sebelum Melakukan Pembayaran'
+                'status_pengajuan' => 'Pengajuan Anda Belum Diverifikasi Oleh Admin. Harap Tunggu Verifikasi Sebelum Melakukan Pembayaran.'
             ]);
         }
 
-        $totalBiaya = $this->hitungTotalBiaya($pengajuan);
-
+        $pembayaran = $pengajuan->pembayaran;
         $metode_pembayaran = ['transfer'];
 
         if ($pengajuan->metode_pengantaran === 'diantar') {
             $metode_pembayaran[] = 'tunai';
         }
 
+        $showUploadForm = $pembayaran && $pembayaran->metode_pembayaran === 'transfer';
+
         return Inertia::render('customer/pembayaran/Show', [
             'pengajuan' => $pengajuan,
-            'totalBiaya' => $totalBiaya,
+            'pembayaran' => $pembayaran,
             'metodePembayaran' => $metode_pembayaran,
             'detailPembayaran' => [
                 'kategori' => $pengajuan->kategori,
                 'parameter' => $pengajuan->parameter
-            ]
-        ]);
-    }
-
-    public function upload($id)
-    {
-        /** @var \App\Models\User */
-        $user = Auth::user();
-        $idInstansi = $user->instansi()->pluck('id')->toArray();
-
-        $pengajuan = FormPengajuan::with(['pembayaran', 'kategori', 'parameter'])
-            ->where('id_instansi', $idInstansi)
-            ->findOrFail($id);
-
-        if (!$pengajuan->pembayaran || $pengajuan->pembayaran->metode_pembayaran !== 'transfer') {
-            return Redirect::back();
-        }
-
-        return Inertia::render('customer/pembayaran/Upload', [
-            'pengajuan' => $pengajuan,
-            'pembayaran' => $pengajuan->pembayaran
+            ],
+            'showUploadForm' => $showUploadForm
         ]);
     }
 
@@ -139,7 +124,7 @@ class PembayaranController extends Controller
 
         $idInstansi = $user->instansi()->pluck('id')->toArray();
 
-        $pengajuan = FormPengajuan::where('id_instansi', $idInstansi)
+        $pengajuan = FormPengajuan::whereIn('id_instansi', $idInstansi)
             ->findOrFail($id);
 
         if ($pengajuan->status_pengajuan !== 'diterima') {
@@ -150,10 +135,10 @@ class PembayaranController extends Controller
 
         $validated = $request->validate([
             'metode_pembayaran' => 'required|in:tunai,transfer',
-            'bukti_pembayaran' => 'required_if:metode_pembayaran,transfer|images|mimes:jpeg,png,jpg|max:2048',
+            'bukti_pembayaran' => 'required_if:metode_pembayaran,transfer|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        if ($validated['metode_pembayaran'] === 'transfer' && $pengajuan->metode_pengantaran !== 'diantar') {
+        if ($validated['metode_pembayaran'] === 'tunai' && $pengajuan->metode_pengantaran !== 'diantar') {
             return Redirect::back()->withErrors([
                 'metode_pembayaran' => 'Metode Pembayaran Tunai Hanya Tersedia Untuk Metode Pengantaran Diantar'
             ]);
@@ -176,10 +161,12 @@ class PembayaranController extends Controller
             $data['bukti_pembayaran'] = $buktiPath;
         }
 
-        $pembayaran = Pembayaran::updateOrCreate([
-            ['id_form_pengajuan' => $pengajuan],
+        $pembayaran = Pembayaran::updateOrCreate(
+            [
+                'id_form_pengajuan' => $pengajuan->id
+            ],
             $data
-        ]);
+        );
 
         if (!$pembayaran) {
             return Redirect::back()->withErrors([
@@ -187,7 +174,7 @@ class PembayaranController extends Controller
             ]);
         }
 
-        return Redirect::route('customer.pembayaran.sukses')->with('message', 'Pembayaran Berhasil.');
+        return Redirect::route('customer.dashboard')->with('message', 'Pembayaran Berhasil.');
     }
 
     public function success($id)

@@ -22,7 +22,9 @@ class Instansi extends Model
         'email',
         'no_telepon',
         'posisi_jabatan',
-        'departemen_divisi'
+        'departemen_divisi',
+        'surat_keterangan_penugasan',
+        'foto_kartu_identitas',
     ];
 
     protected static function boot()

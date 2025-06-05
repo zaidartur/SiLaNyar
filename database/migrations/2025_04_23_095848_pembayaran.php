@@ -18,8 +18,9 @@ return new class extends Migration
             $table->unsignedInteger('total_biaya');
             $table->date('tanggal_pembayaran')->nullable();
             $table->enum('metode_pembayaran', ['tunai', 'transfer'])->nullable();
-            $table->enum('status_pembayaran', ['diproses', 'selesai', 'gagal']);
+            $table->enum('status_pembayaran', ['belum_dibayar','diproses', 'selesai', 'gagal']);
             $table->string('bukti_pembayaran')->nullable();
+            $table->string('diverifikasi_oleh')->nullable();
             $table->timestamps();
         });
     }
