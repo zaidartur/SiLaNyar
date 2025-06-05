@@ -17,6 +17,13 @@ use Inertia\Inertia;
 
 class HasilUjiController extends Controller
 {
+    private const STATUS_FLOW = [
+        'draf' => ['proses_review', 'revisi'],
+        'revisi' => ['draf', 'proses_review'],
+        'proses_review' => ['proses_peresmian', 'revisi'],
+        'proses_peresmian' => ['selesai', 'revisi'],
+        'selesai' => [],
+    ];
     //lihat list hasil uji
     public function index()
     {
@@ -340,6 +347,15 @@ class HasilUjiController extends Controller
         $request->validate([
             'status' => 'required|in:draf,revisi,proses_review,proses_peresmian,selesai',
         ]);
+
+        $statusSekarang = $hasil_uji->status;
+        $statusTersedia = self::STATUS_FLOW[$statusSekarang] ?? [];
+
+        if (!in_array($request->status, $statusTersedia)) {
+            return Redirect::back()->withErrors([
+                'status' => 'Status Yang Anda Masukkan Tidak Valid'
+            ]);
+        }
 
         DB::beginTransaction();
 
