@@ -55,11 +55,13 @@ class HasilUjiUnitTest extends TestCase
     #[Test]
     public function memastikan_relasi_dengan_pengujian_berfungsi()
     {
-        $hasilUji = HasilUji::factory()
-            ->for(Pengujian::factory(), 'pengujian')
-            ->create();
+        $pengujian = Pengujian::factory()->create();
+        $hasilUji = HasilUji::factory()->create([
+            'id_pengujian' => $pengujian->id
+        ]);
             
         $this->assertInstanceOf(Pengujian::class, $hasilUji->pengujian);
+        $this->assertEquals($pengujian->id, $hasilUji->pengujian->id);
     }
 
     #[Test]

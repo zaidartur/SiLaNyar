@@ -110,19 +110,23 @@ class HasilUjiController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        if ($hasil_uji->pengujian->form_pengajuan->instansi->id_user !== $user->id) {
-            abort(403, 'Anda Tidak Memiliki Akses Di Halaman Ini');
-        }
+        $isCustomer = $user->role === 'customer';
 
         if (!$hasil_uji->file_pdf) {
             abort(433, 'File Hasil Uji Belum Tersedia!');
         }
 
-        $hasil_uji->load(['parameter', 'pengujian.form_pengajuan.instansi.user', 'pengujian.user']);
+        $hasil_uji->load([
+            'pengujian.form_pengajuan.kategori.parameter',
+            'pengujian.form_pengajuan.kategori.subkategori.parameter',
+            'pengujian.form_pengajuan.instansi.user',
+            'pengujian.user'
+        ]);
 
         $pdf = PDF::loadView('hasil_uji.show', [
             'hasil_uji' => $hasil_uji,
-            'tanggal' => now()->format('d-m-Y')
+            'tanggal' => now()->format('d-m-Y'),
+            'is_customer' => $isCustomer,
         ]);
 
         return $pdf->download('Hasil_Uji_' . $hasil_uji->id . '.pdf');

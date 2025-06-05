@@ -4,42 +4,42 @@ import { Head } from '@inertiajs/vue3'
 import { ref } from 'vue'
 
 interface ParameterPengujian {
-  id_parameter: number
-  nama_parameter: string
-  satuan: string | null
-  nilai: string | null
-  baku_mutu: string | null
-  keterangan: string | null
+    id_parameter: number
+    nama_parameter: string
+    satuan: string | null
+    nilai: string | null
+    baku_mutu: string | null
+    keterangan: string | null
 }
 
 interface HasilUji {
-  id: number
-  status: string
-  diupdate_oleh: string
-  created_at: string
-  pengujian: {
-    kode_pengujian: string
-    form_pengajuan: {
-      kode_pengajuan: string
-      kategori: {
-        nama: string
-      }
-      instansi: {
-        nama: string
-        user: {
-          nama: string
+    id: number
+    status: string
+    diupdate_oleh: string
+    created_at: string
+    pengujian: {
+        kode_pengujian: string
+        form_pengajuan: {
+            kode_pengajuan: string
+            kategori: {
+                nama: string
+            }
+            instansi: {
+                nama: string
+                user: {
+                    nama: string
+                }
+            }
         }
-      }
+        user: {
+            nama: string
+        }
     }
-    user: {
-      nama: string
-    }
-  }
 }
 
 const props = defineProps<{
-  hasil_uji: HasilUji
-  parameter_pengujian: ParameterPengujian[]
+    hasil_uji: HasilUji
+    parameter_pengujian: ParameterPengujian[]
 }>()
 
 const statusOptions = [
@@ -60,6 +60,9 @@ function perbaruiStatus() {
   router.post(`/pegawai/hasil-uji/${props.hasil_uji.id}/update-status`, {
     status: status.value,
   })
+  
+function bukaPDF() {
+    window.open(route('hasil_uji.convert', props.hasil_uji.id), '_blank')
 }
 </script>
 

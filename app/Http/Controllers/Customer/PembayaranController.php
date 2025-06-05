@@ -51,28 +51,28 @@ class PembayaranController extends Controller
     }
 
 
-    public function index()
-    {
-        /** @var \App\Models\User */
-        $user = Auth::user();
+    // public function index()
+    // {
+    //     /** @var \App\Models\User */
+    //     $user = Auth::user();
 
-        $idInstansi = $user->instansi()->pluck('id')->toArray();
+    //     $idInstansi = $user->instansi()->pluck('id')->toArray();
 
-        $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'user'])
-            ->where('id_instansi', $idInstansi)
-            ->get();
+    //     $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'user'])
+    //         ->where('id_instansi', $idInstansi)
+    //         ->get();
 
-        $totalBiaya = $this->hitungTotalBiaya($pengajuan->id);
+    //     $totalBiaya = $this->hitungTotalBiaya($pengajuan->id);
 
-        return Inertia::render('customer/pembayaran/Index', [
-            'pengajuan' => $pengajuan,
-            'totalBiaya' => $totalBiaya,
-            'detailPembayaran' => [
-                'kategori' => $pengajuan->kategori,
-                'parameter' => $pengajuan->parameter,
-            ]
-        ]);
-    }
+    //     return Inertia::render('customer/pembayaran/Index', [
+    //         'pengajuan' => $pengajuan,
+    //         'totalBiaya' => $totalBiaya,
+    //         'detailPembayaran' => [
+    //             'kategori' => $pengajuan->kategori,
+    //             'parameter' => $pengajuan->parameter,
+    //         ]
+    //     ]);
+    // }
 
     public function show($id)
     {
@@ -104,7 +104,6 @@ class PembayaranController extends Controller
             $metode_pembayaran[] = 'tunai';
         }
 
-        // Flag untuk menampilkan form upload jika metode transfer
         $showUploadForm = $pembayaran && $pembayaran->metode_pembayaran === 'transfer';
 
         return Inertia::render('customer/pembayaran/Show', [

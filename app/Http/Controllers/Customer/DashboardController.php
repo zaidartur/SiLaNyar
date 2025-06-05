@@ -96,7 +96,10 @@ class DashboardController extends Controller
             $statusList = [];
         }
 
-        $pembayaran = $pengajuan->pluck('pembayaran')->filter()->values();
+        $pembayaran = $pengajuan->where('status_pengajuan', 'diterima')
+                                ->pluck('pembayaran')
+                                ->filter()
+                                ->values();
 
         return Inertia::render('customer/dashboard/Index', [
             'statistik' => [

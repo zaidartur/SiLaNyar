@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use App\Notifications\PembayaranSukses;
+use Illuminate\Support\Facades\Auth;
 
 class PembayaranController extends Controller
 {
@@ -41,21 +42,16 @@ class PembayaranController extends Controller
 
     public function update(Pembayaran $pembayaran, Request $request)
     {
+        $user = Auth::user();
+
         $request->validate([
-            'status_pembayaran' => 'required|in:diproses,selesai,gagal'
+            'status_pembayaran' => 'required|in:diproses,selesai,gagal',
         ]);
 
-        $pembayaran->update($request->all());
-
-        if ($request->status_pembayaran === 'selesai' && $pembayaran->form_pengajuan && $pembayaran->form_pengajuan->user) {
-            try {
-                $pembayaran->form_pengajuan->user->notify(new PembayaranSukses($pembayaran));
-            } catch (\Exception $err) {
-                return Redirect::back()->withErrors([
-                    'notification' => 'Gagal Mengirim Email:' . $err->getMessage()
-                ]);
-            }
-        }
+        $pembayaran->update([
+            'status_pembayaran' => $request->status_pembayaran,
+            'diverifikas_oleh' => $user->nama,
+        ]);
 
         return Redirect::route('pegawai.pembayaran.index')->with('message', 'Pembayaran Berhasil Diupdate!');
     }
