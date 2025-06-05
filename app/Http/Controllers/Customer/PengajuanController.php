@@ -52,26 +52,26 @@ class PengajuanController extends Controller
         }
     }
 
-    // //list pengajuan dari customer
-    // public function index()
-    // {
-    //     /** @var \App\Models\User $user */
-    //     $user = Auth::user();
+    //list pengajuan dari customer
+    public function index()
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
-    //     $instansi = Instansi::where('id_user', $user->id)
-    //         ->get();
+        $instansi = Instansi::where('id_user', $user->id)
+            ->get();
 
-    //     $jenis_cairan = JenisCairan::all();
-    //     $kategori = Kategori::with('parameter', 'subkategori.parameter')->get();
-    //     $parameter = ParameterUji::all();
+        $jenis_cairan = JenisCairan::all();
+        $kategori = Kategori::with('parameter', 'subkategori.parameter')->get();
+        $parameter = ParameterUji::all();
 
-    //     return Inertia::render('customer/pengajuan/Index', [
-    //         'kategori' => $kategori,
-    //         'jenis_cairan' => $jenis_cairan,
-    //         'parameter' => $parameter,
-    //         'instansi' => $instansi
-    //     ]);
-    // }
+        return Inertia::render('customer/pengajuan/Index', [
+            'kategori' => $kategori,
+            'jenis_cairan' => $jenis_cairan,
+            'parameter' => $parameter,
+            'instansi' => $instansi
+        ]);
+    }
 
     //daftar pengajuan uji lab customer
     public function daftar()

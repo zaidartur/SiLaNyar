@@ -64,7 +64,7 @@ class DashboardManager
                     'jadwalPengambilan' => Jadwal::where('id_user', $user->id)->count(),
                 ],
                 'pengajuan' => FormPengajuan::all(),
-                'pengambilan' => Jadwal::all(),
+                'pengambilan' => Jadwal::with('user')->where('id_user', $user->id)->get(),
             ],
             'dashboard/Admin' => [
                 'statistik' => [

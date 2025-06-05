@@ -105,7 +105,7 @@ defineProps<{
               <tbody>
                 <tr v-for="item in pengambilan" :key="item.id" class="even:bg-gray-50">
                   <td class="px-4 py-3 border-b">{{ item.id }}</td>
-                  <td class="px-4 py-3 border-b">{{ item.nama_pengambilan }}</td>
+                  <td class="px-4 py-3 border-b">{{ item.user.nama }}</td>
                   <td class="px-4 py-3 border-b">
                     <span class="text-blue-600 hover:underline cursor-pointer">Detail</span>
                   </td>

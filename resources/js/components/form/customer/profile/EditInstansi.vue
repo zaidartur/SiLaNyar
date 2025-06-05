@@ -20,6 +20,8 @@ const form = useForm({
     no_telepon: '',
     posisi_jabatan: '',
     departemen_divisi: '',
+    surat_keterangan_penugasan: null,
+    foto_kartu_identitas: null,
 })
 
 watch(
@@ -122,6 +124,37 @@ function submit() {
                             class="mt-1 block w-full border rounded-md p-2" />
                         <span v-if="form.errors.departemen_divisi" class="text-sm text-red-600">{{
                             form.errors.departemen_divisi }}</span>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-700 mb-2">Dokumen Pendukung</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">
+                                    Surat Keterangan Penugasan
+                                </label>
+                                <input type="file" accept="application/pdf"
+                                    @change="e => form.surat_keterangan_penugasan = e.target.files[0]"
+                                    class="mt-1 block w-full border rounded-sm p-2" />
+                                <span v-if="form.errors.surat_keterangan_penugasan" class="text-sm text-red-600">
+                                    {{ form.errors.surat_keterangan_penugasan }}
+                                </span>
+                                <p class="text-xs text-gray-500 mt-1">Format PDF, maksimal 2MB. Kosongkan jika tidak
+                                    ingin mengubah.</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">
+                                    Foto Kartu Identitas Instansi
+                                </label>
+                                <input type="file" accept="image/png,image/jpeg,application/pdf"
+                                    @change="e => form.foto_kartu_identitas = e.target.files[0]"
+                                    class="mt-1 block w-full border rounded-sm p-2" />
+                                <span v-if="form.errors.foto_kartu_identitas" class="text-sm text-red-600">
+                                    {{ form.errors.foto_kartu_identitas }}
+                                </span>
+                                <p class="text-xs text-gray-500 mt-1">Format JPG, PNG, atau PDF, maksimal 2MB. Kosongkan
+                                    jika tidak ingin mengubah.</p>
+                            </div>
+                        </div>
                     </div>
                     <div class="flex justify-end gap-3 pt-4">
                         <button type="button" @click="close"

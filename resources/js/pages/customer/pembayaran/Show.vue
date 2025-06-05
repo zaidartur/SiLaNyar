@@ -85,13 +85,6 @@ const props = defineProps<{
 }>()
 </script>
 
-const props = defineProps({
-  pengajuan: Object as () => Pengajuan,
-  pembayaran: Object as () => { status_pembayaran: string; total_biaya: number; metode_pembayaran: string } | null,
-  metodePembayaran: Array as () => string[],
-  detailPembayaran: Object as () => { kategori: Kategori; parameter: Parameter[] },
-})
-</script>
 <template>
 
     <Head title="Detail Pembayaran" />
