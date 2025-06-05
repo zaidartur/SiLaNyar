@@ -90,6 +90,7 @@ class PembayaranController extends Controller
             ->whereIn('id_instansi', $idInstansi)
             ->firstOrFail();
 
+        // Validasi status pengajuan harus sudah diterima
         if ($pengajuan->status_pengajuan !== 'diterima') {
             return Redirect::back()->withErrors([
                 'status_pengajuan' => 'Pengajuan Anda Belum Diverifikasi Oleh Admin. Harap Tunggu Verifikasi Sebelum Melakukan Pembayaran.'

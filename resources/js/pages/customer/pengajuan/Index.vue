@@ -119,6 +119,11 @@ function getNamaKategori() {
     <Head title="Pengajuan Sampel" />
     <CustomerLayout>
         <!-- Stepper 4 langkah -->
+        <div>
+            <h1 class="mb-2 text-2xl font-bold text-customDarkGreen">Pengajuan Sampel</h1>
+            <p class="mb-6 text-gray-600 border-b-2 border-green-700 inline-block w-fit">Ikuti langkah-langkah berikut
+                untuk mengajukan sampel.</p>
+        </div>
         <div class="flex p-6 mb-5">
             <ol class="mb-8 flex w-full items-center justify-center">
                 <!-- Step 1 -->
@@ -192,7 +197,8 @@ function getNamaKategori() {
                             class="text-xs">
                             Batas Minimum: {{ jenis.batas_minimum }}
                         </div>
-                        <div :class="form.id_jenis_cairan === jenis.id ? 'text-white' : 'text-gray-500'" class="text-xs">
+                        <div :class="form.id_jenis_cairan === jenis.id ? 'text-white' : 'text-gray-500'"
+                            class="text-xs">
                             Batas Maksimum: {{ jenis.batas_maksimum ?? '-'}}
                         </div>
                         <div v-if="form.id_jenis_cairan === jenis.id" class="mt-2 text-xs font-semibold text-blue-400">

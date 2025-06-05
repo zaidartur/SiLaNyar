@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Auth;
 
 if (app()->environment('local')) {
     Route::get('/dev-login', function () {
-        $user = \App\Models\User::find(2);
+        $user = \App\Models\User::find(3);
 
         if (!$user) {
             abort(404, 'User not found');
@@ -98,6 +98,7 @@ Route::prefix('customer')->middleware(['auth:web', 'role:customer'])->group(func
     //fitur pembayaran
     // Route::get('pembayaran', [CustomerPembayaranController::class, 'index'])->name('customer.pembayaran.index');
     Route::get('pembayaran/{id}', [CustomerPembayaranController::class, 'show'])->name('customer.pembayaran.show');
+    Route::get('pembayaran/upload/{id}', [CustomerPembayaranController::class, 'upload'])->name('customer.pembayaran.upload');
     Route::post('pembayaran/{id}', [CustomerPembayaranController::class, 'process'])->name('customer.pembayaran.process');
     Route::get('pembayaran/{id}/sukses', [CustomerPembayaranController::class, 'sukses'])->name('customer.pembayaran.sukses');
 
