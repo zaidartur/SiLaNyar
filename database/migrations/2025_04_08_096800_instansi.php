@@ -24,6 +24,8 @@ return new class extends Migration
             $table->string('no_telepon');
             $table->string('posisi_jabatan');
             $table->string('departemen_divisi');
+            $table->string('surat_keterangan_penugasan');
+            $table->string('foto_kartu_identitas');
             $table->timestamps();
         });
     }

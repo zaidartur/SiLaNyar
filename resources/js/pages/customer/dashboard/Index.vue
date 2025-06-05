@@ -70,16 +70,6 @@ interface PilihPengajuan {
 }
 
 const showStepPembayaran = ref(false)
-const selectedPembayaran = ref<Pembayaran | null>(null)
-
-function openStepPembayaran(pembayaran: Pembayaran) {
-    selectedPembayaran.value = pembayaran
-    showStepPembayaran.value = true
-}
-function closeStepPembayaran() {
-    showStepPembayaran.value = false
-    selectedPembayaran.value = null
-}
 
 const props = defineProps<{
     statusList: StatusItem[]

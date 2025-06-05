@@ -17,6 +17,13 @@ use Inertia\Inertia;
 
 class HasilUjiController extends Controller
 {
+    private const STATUS_FLOW = [
+        'draf' => ['proses_review', 'revisi'],
+        'revisi' => ['draf', 'proses_review'],
+        'proses_review' => ['proses_peresmian', 'revisi'],
+        'proses_peresmian' => ['selesai', 'revisi'],
+        'selesai' => [],
+    ];
     //lihat list hasil uji
     public function index()
     {
@@ -44,7 +51,7 @@ class HasilUjiController extends Controller
                 'form_pengajuan.kategori.subkategori.parameter',
                 'form_pengajuan.instansi.user',
                 'user'
-                ])
+            ])
                 ->find($request->id_pengujian);
 
             $kategori = $pengujian->form_pengajuan->kategori;
@@ -274,6 +281,62 @@ class HasilUjiController extends Controller
         }
     }
 
+    public function editVerifikasi($id)
+    {
+        $hasil_uji = HasilUji::with([
+            'pengujian.parameter_uji',
+            'pengujian.form_pengajuan.kategori.parameter',
+            'pengujian.form_pengajuan.kategori.subkategori.parameter',
+            'pengujian.form_pengajuan.instansi.user',
+            'pengujian.form_pengajuan.user'
+        ])->findOrFail($id);
+
+        if (!in_array($hasil_uji->status, ['draf', 'revisi'])) {
+            return Redirect::route('pegawai.hasil_uji.index')->withErrors(['status' => 'Hanya Status Hasil Uji Draf dan Revisi Yang Dapat Diedit']);
+        }
+
+        $pengujian = $hasil_uji->pengujian;
+        $kategori = $pengujian->form_pengajuan->kategori;
+
+        $parameterKategori = collect($kategori->parameter)->map(function ($param) {
+            return [
+                'id' => $param->id,
+                'nama' => $param->nama_parameter,
+                'satuan' => $param->satuan,
+                'baku_mutu' => $param->pivot->baku_mutu ?? null,
+            ];
+        });
+
+        $parameterSubKategori = collect($kategori->subkategori)->flatMap(function ($sub) {
+            return $sub->parameter->map(function ($param) {
+                return [
+                    'id' => $param->id,
+                    'nama' => $param->nama_parameter,
+                    'satuan' => $param->satuan,
+                    'baku_mutu' => $param->pivot->baku_mutu ?? null,
+                ];
+            });
+        });
+
+        $semuaParameter = $parameterKategori->merge($parameterSubKategori)->unique('id')->values();
+
+        $nilaiTersimpan = DB::table('parameter_pengujian')->where('id_pengujian', $pengujian->id)->get()->keyBy('id_parameter');
+
+        $parameterDenganNilai = $semuaParameter->map(function ($param) use ($nilaiTersimpan) {
+            $nilai = $nilaiTersimpan[$param['id']] ?? null;
+            return array_merge($param, [
+                'nilai' => $nilai->nilai ?? null,
+                'keterangan' => $nilai->keterangan ?? null,
+            ]);
+        });
+
+        return Inertia::render('pegawai/hasil_uji/Verifikasi', [
+            'hasil_uji' => $hasil_uji,
+            'pengujian' => $pengujian,
+            'parameter' => $parameterDenganNilai
+        ]);
+    }
+
     public function verifikasi($id, Request $request)
     {
         /** @var \App\Models\User */
@@ -284,6 +347,15 @@ class HasilUjiController extends Controller
         $request->validate([
             'status' => 'required|in:draf,revisi,proses_review,proses_peresmian,selesai',
         ]);
+
+        $statusSekarang = $hasil_uji->status;
+        $statusTersedia = self::STATUS_FLOW[$statusSekarang] ?? [];
+
+        if (!in_array($request->status, $statusTersedia)) {
+            return Redirect::back()->withErrors([
+                'status' => 'Status Yang Anda Masukkan Tidak Valid'
+            ]);
+        }
 
         DB::beginTransaction();
 

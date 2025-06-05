@@ -52,26 +52,26 @@ class PengajuanController extends Controller
         }
     }
 
-    //list pengajuan dari customer
-    public function index()
-    {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
+    // //list pengajuan dari customer
+    // public function index()
+    // {
+    //     /** @var \App\Models\User $user */
+    //     $user = Auth::user();
 
-        $instansi = Instansi::where('id_user', $user->id)
-            ->get();
+    //     $instansi = Instansi::where('id_user', $user->id)
+    //         ->get();
 
-        $jenis_cairan = JenisCairan::all();
-        $kategori = Kategori::with('parameter', 'subkategori.parameter')->get();
-        $parameter = ParameterUji::all();
+    //     $jenis_cairan = JenisCairan::all();
+    //     $kategori = Kategori::with('parameter', 'subkategori.parameter')->get();
+    //     $parameter = ParameterUji::all();
 
-        return Inertia::render('customer/pengajuan/Index', [
-            'kategori' => $kategori,
-            'jenis_cairan' => $jenis_cairan,
-            'parameter' => $parameter,
-            'instansi' => $instansi
-        ]);
-    }
+    //     return Inertia::render('customer/pengajuan/Index', [
+    //         'kategori' => $kategori,
+    //         'jenis_cairan' => $jenis_cairan,
+    //         'parameter' => $parameter,
+    //         'instansi' => $instansi
+    //     ]);
+    // }
 
     //daftar pengajuan uji lab customer
     public function daftar()
@@ -160,7 +160,7 @@ class PengajuanController extends Controller
                 'id_form_pengajuan' => $pengajuan->id,
                 'total_biaya' => $this->hitungTotalBiaya($pengajuan),
                 'metode_pembayaran' => 'transfer',
-                'status_pembayaran' => 'diproses',
+                'status_pembayaran' => 'belum_dibayar',
             ]);
         }
 
@@ -292,7 +292,7 @@ class PengajuanController extends Controller
                 'id_form_pengajuan' => $pengajuan->id,
                 'total_biaya' => $this->hitungTotalBiaya($pengajuan),
                 'metode_pembayaran' => 'transfer',
-                'status_pembayaran' => 'diproses',
+                'status_pembayaran' => 'belum_dibayar',
             ]);
         }
 
@@ -326,5 +326,19 @@ class PengajuanController extends Controller
 
         return redirect()->route('customer.dashboard')
             ->with('message', 'Pengajuan Berhasil Diupdate');
+    }
+
+    public function destroy($id)
+    {
+        $pengajuan = FormPengajuan::where('status_pengajuan', ['proses_validasi', 'ditolak'])->findOrFail($id);
+
+        if($pengajuan->status_pengajuan === 'diterima')
+        {
+            return Redirect::back()->with('error', 'Hapus Pengajuan Anda Ditolak Karena Telah Melewati Proses Verifikasi');
+        }
+
+        $pengajuan->delete();
+
+        return Redirect::route('customer.dashboard');
     }
 }

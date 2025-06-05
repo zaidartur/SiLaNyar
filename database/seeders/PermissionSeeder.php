@@ -17,7 +17,6 @@ class PermissionSeeder extends Seeder
             'kelola permission',
             'kelola role',
             'kelola user',
-            'kelola instansi',
             'kelola pembayaran',
             'kelola jenis cairan',
             'kelola kategori',
@@ -43,8 +42,10 @@ class PermissionSeeder extends Seeder
             'tambah hasil uji',
             'detail hasil uji',
             'edit hasil uji',
+            'edit status hasil uji',
             'hapus hasil uji',
-            'riwayat hasil uji'
+            'riwayat hasil uji',
+            'laporan keuangan',
         ];
 
         foreach ($permission as $per) {
