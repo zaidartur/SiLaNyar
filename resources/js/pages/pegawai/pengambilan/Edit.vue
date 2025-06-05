@@ -16,6 +16,7 @@ interface Pengajuan {
     id: number
     kode_pengajuan: string
     instansi: Instansi
+    metode_pengambilan: string
 }
 
 interface Jadwal {
@@ -31,18 +32,32 @@ const props = defineProps<{
     jadwal: Jadwal
 }>()
 
+const metode = props.jadwal.form_pengajuan?.metode_pengambilan
+
 const formatDateForInput = (dateString: string) => {
     const date = new Date(dateString)
     return date.toISOString().split('T')[0]
 }
 
 const form = useForm({
-    waktu_pengambilan: formatDateForInput(props.jadwal.waktu_pengambilan), status: props.jadwal.status,
+    waktu_pengambilan: formatDateForInput(props.jadwal.waktu_pengambilan),
+    status: props.jadwal.status,
     keterangan: props.jadwal.keterangan || '',
 })
 
 const submit = () => {
-    form.put(`/pegawai/pengambilan/${props.jadwal.id}/edit`)
+    // Validasi sebelum submit
+    if (metode === 'diantar') {
+        // Hanya status yang boleh diubah
+        form.put(`/pegawai/pengambilan/${props.jadwal.id}/edit`, {
+            only: ['status']
+        })
+    } else if (metode === 'diambil') {
+        // Status dan keterangan boleh diubah
+        form.put(`/pegawai/pengambilan/${props.jadwal.id}/edit`, {
+            only: ['status', 'keterangan']
+        })
+    }
 }
 </script>
 
@@ -60,13 +75,14 @@ const submit = () => {
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Nama Pengambil/Penerima</label>
                     <input :value="props.jadwal.user?.nama"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600" />
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600" disabled />
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium">Waktu Pengambilan</label>
                     <input type="date" v-model="form.waktu_pengambilan"
-                        class="w-full rounded border border-gray-300 p-2" />
+                        class="w-full rounded border border-gray-300 p-2"
+                        :disabled="metode === 'diantar' || metode === 'diambil'" />
                     <div v-if="form.errors.waktu_pengambilan" class="text-red-500 text-sm mt-1">
                         {{ form.errors.waktu_pengambilan }}
                     </div>
@@ -85,7 +101,8 @@ const submit = () => {
 
                 <div>
                     <label class="block text-sm font-medium">Keterangan</label>
-                    <textarea v-model="form.keterangan" class="w-full rounded border border-gray-300 p-2" />
+                    <textarea v-model="form.keterangan" class="w-full rounded border border-gray-300 p-2"
+                        :disabled="metode === 'diantar'"></textarea>
                     <div v-if="form.errors.keterangan" class="text-red-500 text-sm mt-1">
                         {{ form.errors.keterangan }}
                     </div>

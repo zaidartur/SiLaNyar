@@ -22,6 +22,17 @@ const formatTanggal = (tanggalStr: string) => {
         year: 'numeric'
     })
 }
+
+const statusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+        draf: 'Draf',
+        revisi: 'Revisi',
+        proses_review: 'Proses Review',
+        proses_peresmian: 'Proses Peresmian',
+        selesai: 'Selesai'
+    }
+    return labels[status] ?? status
+}
 </script>
 
 <template>
@@ -69,8 +80,15 @@ const formatTanggal = (tanggalStr: string) => {
                                 {{ formatTanggal(item.pengujian?.tanggal_uji) ?? '-' }}
                             </td>
                             <td class="px-4 py-3 border-b">
-                                <span class="bg-green-500 text-white text-xs px-2 py-1 rounded">
-                                    Selesai
+                                <span :class="[
+                                    'text-xs px-2 py-1 rounded',
+                                    item.status === 'selesai' ? 'bg-green-500 text-white' :
+                                        item.status === 'proses_review' ? 'bg-yellow-500 text-white' :
+                                            item.status === 'proses_peresmian' ? 'bg-blue-500 text-white' :
+                                                item.status === 'revisi' ? 'bg-red-500 text-white' :
+                                                    'bg-gray-400 text-white'
+                                ]">
+                                    {{ statusLabel(item.status) }}
                                 </span>
                             </td>
                             <td class="px-4 py-3 border-b">

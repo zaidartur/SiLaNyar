@@ -58,8 +58,13 @@ class DashboardController extends Controller
         $statusList = [];
 
         if ($pilihPengajuan) {
-            $pengujian = $pilihPengajuan->pengujian->last();
-            $hasiluji = $pengujian?->hasil_uji;
+            $pengujian = $pilihPengajuan->pengujian
+                ->filter(function ($uji) {
+                    return $uji->hasil_uji->contains('status', 'selesai');
+                })
+                ->last();
+            $hasiluji = $pengujian?->hasil_uji
+                ->firstWhere('status', 'selesai');
             $statusList = [
                 [
                     'label' => 'Pengajuan Diterima',
@@ -97,9 +102,9 @@ class DashboardController extends Controller
         }
 
         $pembayaran = $pengajuan->where('status_pengajuan', 'diterima')
-                                ->pluck('pembayaran')
-                                ->filter()
-                                ->values();
+            ->pluck('pembayaran')
+            ->filter()
+            ->values();
 
         return Inertia::render('customer/dashboard/Index', [
             'statistik' => [

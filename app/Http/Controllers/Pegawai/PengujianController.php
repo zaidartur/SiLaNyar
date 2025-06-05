@@ -125,6 +125,7 @@ class PengujianController extends Controller
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'jam_mulai' => 'required|date_format:H:i',
             'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
+            'status' => 'required|in:diproses,selesai',
         ]);
 
         $pengajuan = FormPengajuan::find($request->id_form_pengajuan);
@@ -162,7 +163,7 @@ class PengujianController extends Controller
                     'tanggal_uji' => $tanggalSaatIni->format('Y-m-d'),
                     'jam_mulai' => $request->jam_mulai,
                     'jam_selesai' => $request->jam_selesai,
-                    'status' => 'diproses'
+                    'status' => $request->status,
                 ]);
                 $sukses = true;
             }

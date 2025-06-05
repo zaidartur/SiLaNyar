@@ -92,7 +92,7 @@ defineProps<{
                     </Link>
                 </li>
                 <li>
-                    <Link :href="route('customer.jadwal.index')"
+                    <Link :href="route('customer.jadwal.pengantaran')"
                         class="flex items-center p-2 text-white rounded-lg hover:bg-green-800">
                     <div clas="flex-shrink-0 w-8 h-8 flex items-center justify-center">
                         <svg width="34" height="35" viewBox="0 0 27 28" fill="none" xmlns="http://www.w3.org/2000/svg"

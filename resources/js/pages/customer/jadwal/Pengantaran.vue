@@ -36,7 +36,7 @@ interface Jadwal {
 }
 
 const props = defineProps<{
-    jadwal: Jadwal[]
+    jadwal?: Jadwal[]
     filter?: {
         status?: string,
         tanggal?: string
@@ -46,7 +46,7 @@ const props = defineProps<{
 const status = ref(props.filter?.status ?? "")
 const tanggal = ref(props.filter?.tanggal ?? "")
 
-// Filter hanya jadwal dengan metode pengantaran
+// Aman dari error filter jika jadwal undefined
 const jadwalPengantaran = computed(() =>
     (props.jadwal ?? []).filter(j => j.form_pengajuan?.metode_pengambilan === 'diantar')
 )
