@@ -74,7 +74,7 @@ class CustomerProfileController extends Controller
         $user = Auth::user();
 
         $tanggal = now()->format('dmY');
-        $namaUser = str_replace('', '_', strtolower($user->nama));
+        $namaUser = Str::slug(strtolower($user->nama), '_');
         $randomId = Str::random(6);
 
         $request->validate([
@@ -150,7 +150,7 @@ class CustomerProfileController extends Controller
         $user = Auth::user();
 
         $tanggal = now()->format('dmY');
-        $namaUser = str_replace('', '_', strtolower($user->nama));
+        $namaUser = Str::slug(strtolower($user->nama), '_');
         $randomId = Str::random(6);
 
         $request->validate([

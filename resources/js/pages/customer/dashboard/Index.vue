@@ -219,7 +219,7 @@ const props = defineProps<{
                                 </tbody>
                             </table>
                         </div>
-                        <div v-else class="text-gray-500">Belum ada pembayaran.</div>
+                        <div v-else class="text-gray-500">Belum ada pembayaran atau status pengajuan belum diterima!</div>
                     </div>
                 </div>
 

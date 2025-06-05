@@ -10,52 +10,56 @@ use Inertia\Inertia;
 
 class JadwalController extends Controller
 {
-    // public function index(Request $request)
-    // {
-    //     $searchByStatus = $request->input('status');
-    //     $user = Auth::user();
+    public function index(Request $request)
+    {
+        /** @var \App\Models\User */
+        $user = Auth::user();
 
-    //     $jadwal = Jadwal::whereHas('form_pengajuan', function ($query) use ($user, $searchByStatus) {
-    //         $query->where('id_user', $user->id);
-    //         if ($searchByStatus) {
-    //             $query->where('status', 'like', '%' . $searchByStatus . '%');
-    //         }
-    //     })
-    //         ->orderBy('waktu_pengambilan')
-    //         ->with('form_pengajuan')
-    //         ->get();
+        $searchByStatus = $request->input('status');
 
-    //     // Jadwal antar terbaru
-    //     $jadwalAntarTerbaru = Jadwal::whereHas('form_pengajuan', function ($query) use ($user) {
-    //         $query->where('metode_pengambilan', 'diantar')
-    //             ->where('id_user', $user->id);
-    //     })
-    //         ->with('form_pengajuan')
-    //         ->latest()
-    //         ->first();
+        $instansiUser = $user->instansi()->pluck('id')->toArray();
 
-    //     $idJadwalAntarTerbaru = $jadwalAntarTerbaru?->id;
+        $jadwal = Jadwal::whereHas('form_pengajuan', function ($query) use ($user, $searchByStatus) {
+            $query->where('id_user', $user->id);
+            if ($searchByStatus) {
+                $query->where('status', 'like', '%' . $searchByStatus . '%');
+            }
+        })
+            ->orderBy('waktu_pengambilan')
+            ->with('form_pengajuan')
+            ->get();
 
-    //     // Jadwal ambil terbaru
-    //     $jadwalAmbilTerbaru = Jadwal::whereHas('form_pengajuan', function ($query) use ($user) {
-    //         $query->where('metode_pengambilan', 'diambil')
-    //             ->where('id_user', $user->id);
-    //     })
-    //         ->with('form_pengajuan')
-    //         ->latest()
-    //         ->first();
+        // Jadwal antar terbaru
+        $jadwalAntarTerbaru = Jadwal::whereHas('form_pengajuan', function ($query) use ($instansiUser) {
+            $query->where('metode_pengambilan', 'diantar')
+                ->whereIn('id_instansi', $instansiUser);
+        })
+            ->with('form_pengajuan')
+            ->latest()
+            ->first();
 
-    //     $idJadwalAmbilTerbaru = $jadwalAmbilTerbaru?->id;
+        $idJadwalAntarTerbaru = $jadwalAntarTerbaru?->id;
 
-    //     return Inertia::render('customer/jadwal/Pengantaran', [
-    //         'jadwal' => $jadwal,
-    //         'jadwalAntarTerbaru' => $idJadwalAntarTerbaru,
-    //         'jadwalAmbilTerbaru' => $idJadwalAmbilTerbaru,
-    //         'filter' => [
-    //             'status' => $searchByStatus
-    //         ],
-    //     ]);
-    // }
+        // Jadwal ambil terbaru
+        $jadwalAmbilTerbaru = Jadwal::whereHas('form_pengajuan', function ($query) use ($instansiUser) {
+            $query->where('metode_pengambilan', 'diambil')
+                ->whereIn('id_instansi', $instansiUser);
+        })
+            ->with('form_pengajuan')
+            ->latest()
+            ->first();
+
+        $idJadwalAmbilTerbaru = $jadwalAmbilTerbaru?->id;
+
+        return Inertia::render('customer/jadwal/Pengantaran', [
+            'jadwal' => $jadwal,
+            'jadwalAntarTerbaru' => $idJadwalAntarTerbaru,
+            'jadwalAmbilTerbaru' => $idJadwalAmbilTerbaru,
+            'filter' => [
+                'status' => $searchByStatus
+            ],
+        ]);
+    }
 
     public function pengantaran(Request $request)
     {
@@ -64,7 +68,7 @@ class JadwalController extends Controller
 
         $instansiUser = $user->instansi()->pluck('id')->toArray();
 
-        $jadwalAntarTerbaru = Jadwal::whereHas('form_pengajuan', function ($query) use ($instansiUser){
+        $jadwalAntarTerbaru = Jadwal::whereHas('form_pengajuan', function ($query) use ($instansiUser) {
             $query->where('metode_pengambilan', 'diantar')->whereIn('id_instansi', $instansiUser);
         })
             ->with('form_pengajuan')
@@ -77,7 +81,7 @@ class JadwalController extends Controller
 
     public function penjemputan(Request $request)
     {
-         /** @var \App\Models\User */
+        /** @var \App\Models\User */
         $user = Auth::user();
 
         $instansiUser = $user->instansi()->pluck('id')->toArray();

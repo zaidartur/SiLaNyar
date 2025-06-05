@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue'
-import { Head } from '@inertiajs/vue3'
+import { Head, router } from '@inertiajs/vue3'
 import { ref } from 'vue'
 
 interface ParameterPengujian {
@@ -57,9 +57,10 @@ function kembali() {
 }
 
 function perbaruiStatus() {
-  router.post(`/pegawai/hasil-uji/${props.hasil_uji.id}/update-status`, {
+  router.put(`/pegawai/hasiluji/verifikasi/${props.hasil_uji.id}`, {
     status: status.value,
   })
+}
   
 function bukaPDF() {
     window.open(route('hasil_uji.convert', props.hasil_uji.id), '_blank')

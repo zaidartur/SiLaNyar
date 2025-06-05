@@ -82,13 +82,14 @@ Route::prefix('superadmin')->middleware(['auth:web'])->group(function () {
 Route::prefix('customer')->middleware(['auth:web', 'role:customer'])->group(function () {
 
     //fitur jadwal
+    Route::get('jadwal', [CustomerJadwalController::class, 'index'])->name('customer.jadwal.index');
     Route::get('jadwal/penjemputan', [CustomerJadwalController::class, 'penjemputan'])->name('customer.jadwal.penjemputan');
     Route::get('jadwal/pengantaran', [CustomerJadwalController::class, 'pengantaran'])->name('customer.jadwal.pengantaran');
     Route::get('jadwal/{id}', [CustomerJadwalController::class, 'show']);
 
     //fitur pengajuan
-    // Route::get('pengajuan', [CustomerPengajuanController::class, 'index'])->name('customer.pengajuan.index');
-    Route::get('pengajuan/create', [CustomerPengajuanController::class, 'daftar'])->name('customer.pengajuan.daftar');
+    Route::get('pengajuan', [CustomerPengajuanController::class, 'index'])->name('customer.pengajuan.index');
+    // Route::get('pengajuan/create', [CustomerPengajuanController::class, 'daftar'])->name('customer.pengajuan.daftar');
     Route::post('pengajuan/store', [CustomerPengajuanController::class, 'store'])->name('customer.pengajuan.store');
     Route::get('pengajuan/{id}', [CustomerPengajuanController::class, 'show'])->name('customer.pengajuan.detail');
     Route::get('pengajuan/edit/{pengajuan}', [CustomerPengajuanController::class, 'edit'])->name('customer.pengajuan.edit');

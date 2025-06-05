@@ -123,6 +123,10 @@ class PembayaranController extends Controller
         /** @var \App\Models\User */
         $user = Auth::user();
 
+        $tanggal = now()->format('dmY');
+        $namaUser = Str::slug(strtolower($user->nama), '_');
+        $randomId = Str::random(6);
+
         $idInstansi = $user->instansi()->pluck('id')->toArray();
 
         $pengajuan = FormPengajuan::whereIn('id_instansi', $idInstansi)
@@ -158,7 +162,9 @@ class PembayaranController extends Controller
         ];
 
         if ($validated['metode_pembayaran'] === 'transfer' || $request->hasFile('bukti_pembayaran')) {
-            $buktiPath = $request->file('bukti_pembayaran')->store('bukti_pembayaran', 'public');
+            $bukti = $request->file('bukti_pembayaran');
+            $buktiFileName = 'bukti_pembayaran'.$namaUser.'_'.$tanggal.'_'.$randomId.'.'.$bukti->getClientOriginalExtension();
+            $buktiPath = $bukti->storeAs('bukti_pembayaran', $buktiFileName, 'public');
             $data['bukti_pembayaran'] = $buktiPath;
         }
 
