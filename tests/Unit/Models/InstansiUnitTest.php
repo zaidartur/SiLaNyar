@@ -50,7 +50,9 @@ class InstansiUnitTest extends TestCase
             'email',
             'no_telepon',
             'posisi_jabatan',
-            'departemen_divisi'
+            'departemen_divisi',
+            'surat_keterangan_penugasan',
+            'foto_kartu_identitas'
         ];
         
         $this->assertEquals($fillable, $instansi->getFillable());
@@ -213,6 +215,36 @@ class InstansiUnitTest extends TestCase
         Instansi::factory()->create([
             'wilayah' => null,
             'desa_kelurahan' => null
+        ]);
+    }
+
+    #[Test]
+    public function memastikan_surat_penugasan_tersimpan()
+    {
+        $instansi = Instansi::factory()->create();
+        
+        $this->assertNotNull($instansi->surat_keterangan_penugasan);
+        $this->assertStringStartsWith('surat_penugasan/', $instansi->surat_keterangan_penugasan);
+        $this->assertStringEndsWith('.pdf', $instansi->surat_keterangan_penugasan);
+    }
+
+    #[Test]
+    public function memastikan_foto_kartu_identitas_tersimpan()
+    {
+        $instansi = Instansi::factory()->create();
+        
+        $this->assertNotNull($instansi->foto_kartu_identitas);
+        $this->assertStringStartsWith('kartu_identitas/', $instansi->foto_kartu_identitas);
+        $this->assertStringEndsWith('.jpg', $instansi->foto_kartu_identitas);
+    }
+
+    #[Test]
+    public function memastikan_departemen_divisi_tidak_boleh_kosong()
+    {
+        $this->expectException(\Illuminate\Database\QueryException::class);
+        
+        Instansi::factory()->create([
+            'departemen_divisi' => null
         ]);
     }
 }

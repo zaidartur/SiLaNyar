@@ -62,7 +62,10 @@ class PembayaranUnitTest extends TestCase
     {
         $pembayaran = Pembayaran::factory()->create();
         
-        $this->assertContains($pembayaran->status_pembayaran, ['diproses', 'selesai', 'gagal']);
+        $this->assertContains(
+            $pembayaran->status_pembayaran, 
+            ['belum_dibayar', 'diproses', 'selesai', 'gagal']
+        );
     }
 
     #[Test]
@@ -89,6 +92,7 @@ class PembayaranUnitTest extends TestCase
             'metode_pembayaran',
             'status_pembayaran',
             'bukti_pembayaran',
+            'diverifikasi_oleh',
         ];
         
         $this->assertEquals($fillable, $pembayaran->getFillable());
@@ -181,5 +185,33 @@ class PembayaranUnitTest extends TestCase
         $formPengajuan->delete();
         
         $this->assertDatabaseMissing('pembayaran', ['id' => $pembayaran->id]);
+    }
+
+    #[Test]
+    public function memastikan_verifikator_terisi_saat_pembayaran_selesai()
+    {
+        $pembayaran = Pembayaran::factory()->selesai()->create();
+        
+        $this->assertNotNull($pembayaran->diverifikasi_oleh);
+    }
+
+    #[Test]
+    public function memastikan_verifikator_kosong_saat_pembayaran_belum_selesai()
+    {
+        $pembayaran = Pembayaran::factory()->belumDibayar()->create();
+        
+        $this->assertNull($pembayaran->diverifikasi_oleh);
+    }
+
+    #[Test]
+    public function memastikan_pembayaran_baru_berstatus_belum_dibayar()
+    {
+        $pembayaran = Pembayaran::factory()->belumDibayar()->create();
+        
+        $this->assertEquals('belum_dibayar', $pembayaran->status_pembayaran);
+        $this->assertNull($pembayaran->tanggal_pembayaran);
+        $this->assertNull($pembayaran->metode_pembayaran);
+        $this->assertNull($pembayaran->bukti_pembayaran);
+        $this->assertNull($pembayaran->diverifikasi_oleh);
     }
 }

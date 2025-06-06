@@ -56,11 +56,6 @@ class FormPengajuan extends Model
         $this->attributes['volume_sampel'] = abs($value);
     }
 
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'id_user');    
-    }
-
     public function instansi()
     {
         return $this->belongsTo(Instansi::class, 'id_instansi');  

@@ -17,7 +17,7 @@ class PembayaranFactory extends Factory
      */
     public function definition(): array
     {
-        $status = fake()->randomElement(['diproses', 'selesai', 'gagal']);
+        $status = fake()->randomElement(['belum_dibayar', 'diproses', 'selesai', 'gagal']);
         $isComplete = $status === 'selesai';
         $methodPayment = $isComplete ? fake()->randomElement(['tunai', 'transfer']) : null;
         
@@ -29,6 +29,7 @@ class PembayaranFactory extends Factory
             'metode_pembayaran' => $methodPayment,
             'status_pembayaran' => $status,
             'bukti_pembayaran' => ($isComplete && $methodPayment === 'transfer') ? 'pembayaran/'.fake()->uuid().'.jpg' : null,
+            'diverifikasi_oleh' => $isComplete ? fake()->name() : null,
         ];
     }
 
@@ -43,6 +44,7 @@ class PembayaranFactory extends Factory
                 'tanggal_pembayaran' => now(),
                 'metode_pembayaran' => $metode,
                 'bukti_pembayaran' => $metode === 'transfer' ? 'pembayaran/'.fake()->uuid().'.jpg' : null,
+                'diverifikasi_oleh' => fake()->name(),
             ];
         });
     }
@@ -55,6 +57,7 @@ class PembayaranFactory extends Factory
                 'tanggal_pembayaran' => null,
                 'metode_pembayaran' => null,
                 'bukti_pembayaran' => null,
+                'diverifikasi_oleh' => null,
             ];
         });
     }
@@ -67,6 +70,20 @@ class PembayaranFactory extends Factory
                 'tanggal_pembayaran' => null,
                 'metode_pembayaran' => null,
                 'bukti_pembayaran' => null,
+                'diverifikasi_oleh' => null,
+            ];
+        });
+    }
+
+    public function belumDibayar(): static
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'status_pembayaran' => 'belum_dibayar',
+                'tanggal_pembayaran' => null,
+                'metode_pembayaran' => null,
+                'bukti_pembayaran' => null,
+                'diverifikasi_oleh' => null,
             ];
         });
     }

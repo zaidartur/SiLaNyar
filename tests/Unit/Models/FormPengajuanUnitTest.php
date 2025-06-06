@@ -87,7 +87,6 @@ class FormPengajuanUnitTest extends TestCase
     {
         $formPengajuan = new FormPengajuan;
         
-        // Sesuaikan dengan fillable yang ada di model FormPengajuan
         $fillable = [
             'kode_pengajuan',
             'id_instansi',

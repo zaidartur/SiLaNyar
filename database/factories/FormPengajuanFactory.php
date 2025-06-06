@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\Instansi;
 use App\Models\Kategori;
 use App\Models\JenisCairan;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
