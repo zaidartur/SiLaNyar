@@ -1,102 +1,103 @@
 <script setup lang="ts">
-import CustomerLayout from '@/layouts/customer/CustomerLayout.vue'
-import ScrollArea from '@/components/ui/scroll-area/ScrollArea.vue'
-import { DropdownMenu, DropdownMenuUserDashboard, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Button } from '@/components/ui/button'
-import { ref, computed } from 'vue'
-import { Head, Link } from '@inertiajs/vue3'
+import CustomerLayout from '@/layouts/customer/CustomerLayout.vue';
+// import ScrollArea from '@/components/ui/scroll-area/ScrollArea.vue'
+// import { DropdownMenu, DropdownMenuUserDashboard, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+// import { Button } from '@/components/ui/button'
+import { Head, Link } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 
 interface User {
-    id: number
-    nama: string
+    id: number;
+    nama: string;
 }
 
 interface Instansi {
-    id: number
-    nama: string
-    user: User
+    id: number;
+    nama: string;
+    user: User;
 }
 
 interface Pengajuan {
-    id: number
-    kode_pengajuan: string
-    metode_pengambilan: string
-    lokasi: string
-    instansi: Instansi
+    id: number;
+    kode_pengajuan: string;
+    metode_pengambilan: string;
+    lokasi: string;
+    instansi: Instansi;
 }
 
 interface Jadwal {
-    id: number
-    kode_pengambilan: string
-    form_pengajuan: Pengajuan
-    user: User
-    waktu_pengambilan: string
-    status: 'diproses' | 'selesai' | 'terkonfirmasi'
-    keterangan: string
+    id: number;
+    kode_pengambilan: string;
+    form_pengajuan: Pengajuan;
+    user: User;
+    waktu_pengambilan: string;
+    status: 'diproses' | 'selesai' | 'terkonfirmasi';
+    keterangan: string;
 }
 
 const props = defineProps<{
-    jadwal?: Jadwal[]
+    jadwal?: Jadwal[];
     filter?: {
-        status?: string,
-        tanggal?: string
-    }
-}>()
+        status?: string;
+        tanggal?: string;
+    };
+}>();
 
-const status = ref(props.filter?.status ?? "")
-const tanggal = ref(props.filter?.tanggal ?? "")
+const status = ref(props.filter?.status ?? '');
+const tanggal = ref(props.filter?.tanggal ?? '');
 
 // Aman dari error filter jika jadwal undefined
-const jadwalPengantaran = computed(() =>
-    (props.jadwal ?? []).filter(j => j.form_pengajuan?.metode_pengambilan === 'diantar')
-)
+const jadwalPengantaran = computed(() => (props.jadwal ?? []).filter((j) => j.form_pengajuan?.metode_pengambilan === 'diantar'));
 
 const formatTanggal = (tanggalStr: string) => {
-    const date = new Date(tanggalStr)
+    const date = new Date(tanggalStr);
     return date.toLocaleDateString('id-ID', {
         day: '2-digit',
         month: '2-digit',
-        year: 'numeric'
-    })
-}
+        year: 'numeric',
+    });
+};
 
 const handleFilter = () => {
-    window.location.href = `/customer/jadwal/pengantaran?status=${status.value}&tanggal=${tanggal.value}`
-}
+    window.location.href = `/customer/jadwal/pengantaran?status=${status.value}&tanggal=${tanggal.value}`;
+};
 </script>
 
 <template>
-
     <Head title="Jadwal Pengantaran" />
     <CustomerLayout>
-        <div class="max-w-6xl mx-auto p-4">
+        <div class="mx-auto max-w-6xl p-4">
             <!-- Navigasi Antar/Jemput -->
-            <div class="flex gap-2 mb-4">
-                <Link href="/customer/jadwal/pengantaran"
-                    class="px-4 py-2 rounded-lg font-semibold bg-customDarkGreen text-white hover:bg-green-800">
-                Pengantaran
+            <div class="mb-4 flex gap-2">
+                <Link href="/customer/jadwal/pengantaran" class="rounded-lg bg-customDarkGreen px-4 py-2 font-semibold text-white hover:bg-green-800">
+                    Pengantaran
                 </Link>
-                <Link href="/customer/jadwal/penjemputan"
-                    class="px-4 py-2 rounded-lg font-semibold bg-gray-100 text-customDarkGreen hover:bg-gray-200">
-                Penjemputan
+                <Link
+                    href="/customer/jadwal/penjemputan"
+                    class="rounded-lg bg-gray-100 px-4 py-2 font-semibold text-customDarkGreen hover:bg-gray-200"
+                >
+                    Penjemputan
                 </Link>
             </div>
 
             <!-- Penting Notice -->
-            <div class="bg-yellow-50 border-l-8 border-yellow-400 p-4 mb-4 rounded-lg">
+            <div class="mb-4 rounded-lg border-l-8 border-yellow-400 bg-yellow-50 p-4">
                 <p class="text-sm text-yellow-700">
-                    <span class="font-bold">Penting:</span> Untuk pengantaran sampel ke DLH, silakan bawa sampel ke
-                    Gedung A Dinas Lingkungan Hidup pada tanggal yang telah ditentukan. Jam operasional 08:00 - 15:00
-                    WIB.
+                    <span class="font-bold">Penting:</span> Untuk pengantaran sampel ke DLH, silakan bawa sampel ke Gedung A Dinas Lingkungan Hidup
+                    pada tanggal yang telah ditentukan. Jam operasional 08:00 - 15:00 WIB.
                 </p>
             </div>
 
             <!-- Filter -->
-            <div class="mb-6 flex gap-4 items-end">
+            <div class="mb-6 flex items-end gap-4">
                 <div class="flex flex-col">
                     <label for="status" class="mb-1 text-sm font-medium text-gray-700">Status</label>
-                    <select id="status" v-model="status"
-                        class="rounded bg-customDarkGreen text-white border-gray-300 px-2 py-1" @change="handleFilter">
+                    <select
+                        id="status"
+                        v-model="status"
+                        class="rounded border-gray-300 bg-customDarkGreen px-2 py-1 text-white"
+                        @change="handleFilter"
+                    >
                         <option disabled value="">Pilih Status</option>
                         <option value="diproses">Diproses</option>
                         <option value="selesai">Selesai</option>
@@ -105,17 +106,22 @@ const handleFilter = () => {
                 </div>
                 <div class="flex flex-col">
                     <label for="tanggal" class="mb-1 text-sm font-medium text-gray-700">Tanggal</label>
-                    <input id="tanggal" type="date" v-model="tanggal"
-                        class="rounded bg-customDarkGreen text-white border-gray-300 px-2 py-1" @change="handleFilter">
+                    <input
+                        id="tanggal"
+                        type="date"
+                        v-model="tanggal"
+                        class="rounded border-gray-300 bg-customDarkGreen px-2 py-1 text-white"
+                        @change="handleFilter"
+                    />
                 </div>
             </div>
 
             <!-- Table Jadwal Pengantaran -->
             <div class="overflow-x-auto">
-                <table class="min-w-full border bg-white rounded-xl shadow overflow-hidden">
+                <table class="min-w-full overflow-hidden rounded-xl border bg-white shadow">
                     <thead>
                         <tr class="bg-customDarkGreen text-white">
-                            <th class="px-4 py-3 text-left font-semibold rounded-tl-xl">ID Pengantar</th>
+                            <th class="rounded-tl-xl px-4 py-3 text-left font-semibold">ID Pengantar</th>
                             <th class="px-4 py-3 text-left font-semibold">Kode Pengajuan</th>
                             <th class="px-4 py-3 text-left font-semibold">Nama Instansi</th>
                             <th class="px-4 py-3 text-left font-semibold">Nama Pemohon</th>
@@ -123,12 +129,11 @@ const handleFilter = () => {
                             <th class="px-4 py-3 text-left font-semibold">Waktu Pengantaran</th>
                             <th class="px-4 py-3 text-left font-semibold">Keterangan</th>
                             <th class="px-4 py-3 text-left font-semibold">Status</th>
-                            <th class="px-4 py-3 text-left font-semibold rounded-tr-xl">Aksi</th>
+                            <th class="rounded-tr-xl px-4 py-3 text-left font-semibold">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(item, index) in jadwalPengantaran" :key="item.id"
-                            :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
+                        <tr v-for="(item, index) in jadwalPengantaran" :key="item.id" :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
                             <td class="px-4 py-3">{{ item.kode_pengambilan }}</td>
                             <td class="px-4 py-3">{{ item.form_pengajuan?.kode_pengajuan }}</td>
                             <td class="px-4 py-3">{{ item.form_pengajuan?.instansi?.nama }}</td>
@@ -137,27 +142,36 @@ const handleFilter = () => {
                             <td class="px-4 py-3">{{ formatTanggal(item.waktu_pengambilan) }}</td>
                             <td class="px-4 py-3">{{ item.keterangan }}</td>
                             <td class="px-4 py-3">
-                                <span :class="[
-                                    'px-2 py-1 rounded text-xs font-semibold',
-                                    item.status === 'selesai' ? 'bg-green-500 text-white'
-                                        : item.status === 'terkonfirmasi' ? 'bg-blue-500 text-white'
-                                            : 'bg-yellow-500 text-white'
-                                ]">
+                                <span
+                                    :class="[
+                                        'rounded px-2 py-1 text-xs font-semibold',
+                                        item.status === 'selesai'
+                                            ? 'bg-green-500 text-white'
+                                            : item.status === 'terkonfirmasi'
+                                              ? 'bg-blue-500 text-white'
+                                              : 'bg-yellow-500 text-white',
+                                    ]"
+                                >
                                     {{ item.status }}
                                 </span>
                             </td>
                             <td class="px-4 py-3">
                                 <div class="flex gap-2">
-                                    <Link :href="`/customer/jadwal/pengantaran/${item.id}`" method="get"
-                                        class="text-blue-600 hover:text-blue-800" as="button" type="button"
-                                        title="Lihat">
-                                    <span>👁️</span>
+                                    <Link
+                                        :href="`/customer/jadwal/pengantaran/${item.id}`"
+                                        method="get"
+                                        class="text-blue-600 hover:text-blue-800"
+                                        as="button"
+                                        type="button"
+                                        title="Lihat"
+                                    >
+                                        <span>👁️</span>
                                     </Link>
                                 </div>
                             </td>
                         </tr>
                         <tr v-if="jadwalPengantaran.length === 0">
-                            <td colspan="9" class="text-center text-gray-400 py-4">Tidak ada data pengantaran.</td>
+                            <td colspan="9" class="py-4 text-center text-gray-400">Tidak ada data pengantaran.</td>
                         </tr>
                     </tbody>
                 </table>

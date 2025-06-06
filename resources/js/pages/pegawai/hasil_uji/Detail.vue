@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue'
 import { Head, router } from '@inertiajs/vue3'
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 
 interface ParameterPengujian {
   id_parameter: number
@@ -58,7 +58,7 @@ const statusLabels = {
   selesai: 'Selesai'
 }
 
-const status = ref(props.hasil_uji.status)
+// const status = ref(props.hasil_uji.status)
 
 const availableStatus = computed(() => STATUS_FLOW[props.hasil_uji.status] || [])
 
@@ -72,9 +72,9 @@ function perbaruiStatus(newStatus: string) {
   })
 }
 
-function bukaPDF() {
-  window.open(route('hasil_uji.convert', props.hasil_uji.id), '_blank')
-}
+// function bukaPDF() {
+//   window.open(route('hasil_uji.convert', props.hasil_uji.id), '_blank')
+// }
 </script>
 
 <template>
