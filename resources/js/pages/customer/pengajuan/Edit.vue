@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import CustomerLayout from '@/layouts/customer/CustomerLayout.vue';
-import { useForm, usePage, router } from '@inertiajs/vue3'
-import { ref, watch, computed } from 'vue'
+import { useForm, usePage } from '@inertiajs/vue3';
+import { watch } from 'vue';
 
 interface Parameter {
     id: number;
@@ -52,13 +52,13 @@ const { props } = usePage<{
     parameter: Parameter[];
     jenis_cairan: JenisCairan[];
     instansi: Instansi[];
-}>()
+}>();
 
-const pengajuan = props.pengajuan
-const kategoriList = props.kategori
-const parameterList = props.parameter
-const jenisCairanList = props.jenis_cairan
-const instansiList = props.instansi
+const pengajuan = props.pengajuan;
+const kategoriList = props.kategori;
+const parameterList = props.parameter;
+const jenisCairanList = props.jenis_cairan;
+const instansiList = props.instansi;
 
 const form = useForm({
     id_instansi: pengajuan.id_instansi,
@@ -68,67 +68,66 @@ const form = useForm({
     lokasi: pengajuan.lokasi,
     waktu_pengambilan: pengajuan.waktu_pengambilan,
     id_kategori: pengajuan.kategori?.id ?? null,
-    parameter: pengajuan.parameter.map(p => p.id),
-    keterangan: pengajuan.keterangan
-})
+    parameter: pengajuan.parameter.map((p) => p.id),
+    keterangan: pengajuan.keterangan,
+});
 
-const verifikasiSelesai = ref(pengajuan.status_pengajuan !== 'proses_validasi')
+// const verifikasiSelesai = ref(pengajuan.status_pengajuan !== 'proses_validasi');
 
-watch(() => form.kategori, (kategoriId) => {
-    const kat = kategoriList.find(k => k.id === kategoriId)
-    if (!kat) return
+watch(
+    () => form.kategori,
+    (kategoriId) => {
+        const kat = kategoriList.find((k) => k.id === kategoriId);
+        if (!kat) return;
 
-    const allowed = kat.subkategori.length
-        ? kat.subkategori.flatMap(s => s.parameter.map(p => p.id))
-        : kat.parameter.map(p => p.id)
+        const allowed = kat.subkategori.length ? kat.subkategori.flatMap((s) => s.parameter.map((p) => p.id)) : kat.parameter.map((p) => p.id);
 
-    form.parameter = [...new Set(allowed)]
-})
+        form.parameter = [...new Set(allowed)];
+    },
+);
 
 watch(
     () => form.metode_pengambilan,
     (metode) => {
         if (metode === 'diantar') {
-            form.kategori = null
-            form.parameter = []
+            form.kategori = null;
+            form.parameter = [];
         }
-    }
-)
+    },
+);
 
 const parameterIsInKategori = (id: number): boolean => {
-    const kat = kategoriList.find(k => k.id === form.kategori)
-    if (!kat) return true
-    const allowedIds = kat.subkategori.length
-        ? kat.subkategori.flatMap(s => s.parameter.map(p => p.id))
-        : kat.parameter.map(p => p.id)
-    return allowedIds.includes(id)
-}
+    const kat = kategoriList.find((k) => k.id === form.kategori);
+    if (!kat) return true;
+    const allowedIds = kat.subkategori.length ? kat.subkategori.flatMap((s) => s.parameter.map((p) => p.id)) : kat.parameter.map((p) => p.id);
+    return allowedIds.includes(id);
+};
 
 function submit() {
-    form.put(route('customer.pengajuan.update', pengajuan.id))
+    form.put(route('customer.pengajuan.update', pengajuan.id));
 }
 
-function verifikasi(status: 'diterima' | 'ditolak') {
-    router.put(route('customer.pengajuan.verifikasi', pengajuan.id), {
-        status_pengajuan: status
-    }, {
-        onSuccess: () => {
-            verifikasiSelesai.value = true
-        }
-    })
-}
+// function verifikasi(status: 'diterima' | 'ditolak') {
+//     router.put(route('customer.pengajuan.verifikasi', pengajuan.id), {
+//         status_pengajuan: status
+//     }, {
+//         onSuccess: () => {
+//             verifikasiSelesai.value = true
+//         }
+//     })
+// }
 </script>
 
 <template>
     <CustomerLayout>
-        <div class="p-6 space-y-4">
+        <div class="space-y-4 p-6">
             <h1 class="text-2xl font-bold">Edit Pengajuan</h1>
 
             <form @submit.prevent="submit" class="space-y-4">
                 <!-- Instansi -->
                 <div>
                     <label>Instansi</label>
-                    <select v-model="form.id_instansi" class="w-full border rounded" disabled>
+                    <select v-model="form.id_instansi" class="w-full rounded border" disabled>
                         <option v-for="ins in instansiList" :key="ins.id" :value="ins.id">
                             {{ ins.nama }}
                         </option>
@@ -138,22 +137,21 @@ function verifikasi(status: 'diterima' | 'ditolak') {
                 <!-- Jenis Cairan -->
                 <div>
                     <label>Jenis Cairan</label>
-                    <select v-model="form.id_jenis_cairan" class="w-full border rounded" disabled>
-                        <option v-for="jenis in jenisCairanList" :key="jenis.id" :value="jenis.id">{{ jenis.nama }}
-                        </option>
+                    <select v-model="form.id_jenis_cairan" class="w-full rounded border" disabled>
+                        <option v-for="jenis in jenisCairanList" :key="jenis.id" :value="jenis.id">{{ jenis.nama }}</option>
                     </select>
                 </div>
 
                 <!-- Volume -->
                 <div>
                     <label>Volume Sampel</label>
-                    <input type="number" v-model="form.volume_sampel" class="w-full border rounded" disabled />
+                    <input type="number" v-model="form.volume_sampel" class="w-full rounded border" disabled />
                 </div>
 
                 <!-- Metode Pengambilan -->
                 <div>
                     <label>Metode Pengambilan</label>
-                    <select v-model="form.metode_pengambilan" class="w-full border rounded" disabled>
+                    <select v-model="form.metode_pengambilan" class="w-full rounded border" disabled>
                         <option value="diantar">Diantar</option>
                         <option value="diambil">Diambil</option>
                     </select>
@@ -162,19 +160,19 @@ function verifikasi(status: 'diterima' | 'ditolak') {
                 <!-- Lokasi -->
                 <div v-if="form.metode_pengambilan === 'diambil'">
                     <label>Lokasi</label>
-                    <input type="text" v-model="form.lokasi" class="w-full border rounded" disabled />
+                    <input type="text" v-model="form.lokasi" class="w-full rounded border" disabled />
                 </div>
 
                 <!-- Waktu -->
                 <div v-if="form.metode_pengambilan === 'diantar'">
                     <label>Waktu Pengambilan</label>
-                    <input type="date" v-model="form.waktu_pengambilan" class="w-full border rounded" disabled />
+                    <input type="date" v-model="form.waktu_pengambilan" class="w-full rounded border" disabled />
                 </div>
 
                 <!-- Kategori -->
                 <div v-if="form.metode_pengambilan === 'diambil'">
                     <label for="kategori">Kategori</label>
-                    <select v-model="form.id_kategori" class="w-full border rounded" id="kategori">
+                    <select v-model="form.id_kategori" class="w-full rounded border" id="kategori">
                         <option :value="null" disabled selected>Pilih kategori</option>
                         <option v-for="kat in kategoriList" :key="kat.id" :value="kat.id">
                             {{ kat.nama }}
@@ -187,22 +185,30 @@ function verifikasi(status: 'diterima' | 'ditolak') {
                     <label>Parameter</label>
                     <div class="grid grid-cols-2 gap-2 text-sm">
                         <div v-for="param in parameterList" :key="param.id" class="flex items-center">
-                            <input type="checkbox" :value="param.id" v-model="form.parameter"
-                                :disabled="form.id_kategori && !parameterIsInKategori(param.id)" />
-                            <span class="ml-2" :class="{
-                            'text-gray-400': form.id_kategori && !parameterIsInKategori(param.id),
-                        }">
+                            <input
+                                type="checkbox"
+                                :value="param.id"
+                                v-model="form.parameter"
+                                :disabled="form.id_kategori && !parameterIsInKategori(param.id)"
+                            />
+                            <span
+                                class="ml-2"
+                                :class="{
+                                    'text-gray-400': form.id_kategori && !parameterIsInKategori(param.id),
+                                }"
+                            >
                                 {{ param.nama_parameter }}
                             </span>
                         </div>
                     </div>
                     <!-- Total Biaya -->
                     <div class="mt-2 text-right font-semibold">
-                        Total Biaya: Rp {{
+                        Total Biaya: Rp
+                        {{
                             parameterList
-                                .filter(p => form.parameter.includes(p.id))
+                                .filter((p) => form.parameter.includes(p.id))
                                 .reduce((sum, p) => sum + (p.harga || 0), 0)
-                        .toLocaleString('id-ID')
+                                .toLocaleString('id-ID')
                         }}
                     </div>
                 </div>
@@ -210,13 +216,16 @@ function verifikasi(status: 'diterima' | 'ditolak') {
                 <!-- Keterangan -->
                 <div>
                     <label>Keterangan</label>
-                    <textarea v-model="form.keterangan" class="w-full border rounded" rows="3" disabled></textarea>
+                    <textarea v-model="form.keterangan" class="w-full rounded border" rows="3" disabled></textarea>
                 </div>
 
                 <!-- Submit -->
                 <div class="space-x-4">
-                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded"
-                        :disabled="form.processing || form.metode_pengambilan !== 'diambil'">
+                    <button
+                        type="submit"
+                        class="rounded bg-blue-600 px-4 py-2 text-white"
+                        :disabled="form.processing || form.metode_pengambilan !== 'diambil'"
+                    >
                         Simpan Perubahan
                     </button>
                 </div>
