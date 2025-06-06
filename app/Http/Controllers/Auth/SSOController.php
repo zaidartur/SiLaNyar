@@ -61,7 +61,9 @@ class SSOController extends Controller
             ->get(config('services.sso.api_user_url'));
 
         if ($userResponse->failed()) {
-            return Redirect::route('/')->withErrors(['Gagal Mengambil Informasi Data']);
+            return redirect('/')->withErrors(['Gagal Mengambil Informasi Data']);
+            // return Redirect::route('/')->withErrors(['Gagal Mengambil Informasi Data']);
+            // iki sek ngubah aku jik, mbuh ngp nek nganggo sek "Redirect::route" test callback gagal ketika permintaan data user gagal e dadi gagal
         }
 
         $userData = $userResponse->json();
