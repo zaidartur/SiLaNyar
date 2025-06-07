@@ -286,6 +286,13 @@ class PengajuanController extends Controller
         ]);
 
         if (!empty($validated['parameter'] && !empty($validated['id_kategori']))) {
+        // $pembayaran = $pengajuan->pembayaran;
+        //     if ($pembayaran) {
+        //         $pembayaran->update([
+        //             'total_biaya' => $this->hitungTotalBiaya($pengajuan),
+        //             'status_pembayaran' => 'belum_dibayar',
+        //         ]);
+        //     }
             Pembayaran::update([
                 'id_order' => Str::upper(Str::random(10)),
                 'id_form_pengajuan' => $pengajuan->id,
