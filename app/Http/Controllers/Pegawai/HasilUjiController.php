@@ -25,7 +25,7 @@ class HasilUjiController extends Controller
         'selesai' => [],
     ];
     
-    //lihat list hasil uji
+    // menampilkan daftar hasil uji
     public function index()
     {
         $hasil_uji = HasilUji::with([
@@ -38,7 +38,7 @@ class HasilUjiController extends Controller
         ]);
     }
 
-    //form tambah hasil uji
+    // form tambah hasil uji
     public function create(Request $request)
     {
         $pengujianList = Pengujian::with('form_pengajuan.instansi.user')->select('id', 'kode_pengujian', 'id_form_pengajuan')->get();;
@@ -87,7 +87,7 @@ class HasilUjiController extends Controller
         ]);
     }
 
-    //proses tambah hasil uji
+    // proses tambah hasil uji
     public function store(Request $request)
     {
         /** @var \App\Models\User */
@@ -150,7 +150,7 @@ class HasilUjiController extends Controller
         }
     }
 
-    //form edit hasil uji
+    // form edit hasil uji
     public function edit($id)
     {
         $hasil_uji = HasilUji::with([
@@ -158,7 +158,7 @@ class HasilUjiController extends Controller
             'pengujian.form_pengajuan.kategori.parameter',
             'pengujian.form_pengajuan.kategori.subkategori.parameter',
             'pengujian.form_pengajuan.instansi.user',
-            'pengujian.form_pengajuan.user'
+            // 'pengujian.form_pengajuan.user'
         ])->findOrFail($id);
 
         if (!in_array($hasil_uji->status, ['draf', 'revisi'])) {
@@ -207,7 +207,7 @@ class HasilUjiController extends Controller
         ]);
     }
 
-    //proses update hasil uji
+    // proses update hasil uji
     public function update(HasilUji $hasil_uji, Request $request)
     {
         /** @var \App\Models\User */
@@ -284,6 +284,7 @@ class HasilUjiController extends Controller
         }
     }
 
+    // form verifikasi hasil uji
     public function editVerifikasi($id)
     {
         $hasil_uji = HasilUji::with([
@@ -291,7 +292,7 @@ class HasilUjiController extends Controller
             'pengujian.form_pengajuan.kategori.parameter',
             'pengujian.form_pengajuan.kategori.subkategori.parameter',
             'pengujian.form_pengajuan.instansi.user',
-            'pengujian.form_pengajuan.user'
+            // 'pengujian.form_pengajuan.user'
         ])->findOrFail($id);
 
         if (!in_array($hasil_uji->status, ['draf', 'revisi'])) {
@@ -340,6 +341,7 @@ class HasilUjiController extends Controller
         ]);
     }
 
+    // proses verifikasi hasil uji
     public function verifikasi($id, Request $request)
     {
         /** @var \App\Models\User */
@@ -395,7 +397,7 @@ class HasilUjiController extends Controller
         }
     }
 
-    //lihat detail hasil uji
+    // menampilkan detail hasil uji
     public function show($id)
     {
         $hasil_uji = HasilUji::with([
@@ -449,7 +451,7 @@ class HasilUjiController extends Controller
         ]);
     }
 
-    //hapus hasil uji
+    // hapus hasil uji
     public function destroy($id)
     {
         $hasil_uji = HasilUji::findOrFail($id);
