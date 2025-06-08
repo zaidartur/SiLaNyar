@@ -32,7 +32,6 @@ class HasilUjiHistoriController extends Controller
     public function show($id)
     {
         $histori = HasilUjiHistori::with([
-            'user',
             'hasil_uji.pengujian.form_pengajuan.kategori.parameter',
             'hasil_uji.pengujian.form_pengajuan.kategori.subkategori.parameter',
             'hasil_uji.pengujian.form_pengajuan.instansi.user',
