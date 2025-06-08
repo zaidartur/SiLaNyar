@@ -158,7 +158,6 @@ class HasilUjiController extends Controller
             'pengujian.form_pengajuan.kategori.parameter',
             'pengujian.form_pengajuan.kategori.subkategori.parameter',
             'pengujian.form_pengajuan.instansi.user',
-            // 'pengujian.form_pengajuan.user'
         ])->findOrFail($id);
 
         if (!in_array($hasil_uji->status, ['draf', 'revisi'])) {
@@ -292,7 +291,6 @@ class HasilUjiController extends Controller
             'pengujian.form_pengajuan.kategori.parameter',
             'pengujian.form_pengajuan.kategori.subkategori.parameter',
             'pengujian.form_pengajuan.instansi.user',
-            // 'pengujian.form_pengajuan.user'
         ])->findOrFail($id);
 
         if (!in_array($hasil_uji->status, ['draf', 'revisi'])) {
