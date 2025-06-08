@@ -32,10 +32,10 @@ class PegawaiHasilUjiHistoriControllerFeatureTest extends TestCase
     {
         parent::setUp();
 
-        // Configure Vite for testing
+        // Konfigurasi Vite untuk testing
         config(['app.asset_url' => null]);
 
-        // Create roles and permissions
+        // Membuat role dan permission
         $pegawaiRole = Role::firstOrCreate(
             ['name' => 'pegawai', 'guard_name' => 'web'],
             ['kode_role' => 'RL-002']
@@ -54,14 +54,14 @@ class PegawaiHasilUjiHistoriControllerFeatureTest extends TestCase
 
         $pegawaiRole->givePermissionTo($permission);
 
-        // Create users
+        // Membuat user
         $this->pegawai = User::factory()->create();
         $this->pegawai->assignRole($pegawaiRole);
 
         $this->customer = User::factory()->create();
         $this->customer->assignRole($customerRole);
 
-        // Create test data
+        // Membuat data untuk testing
         $this->setupTestData();
     }
 
@@ -72,7 +72,7 @@ class PegawaiHasilUjiHistoriControllerFeatureTest extends TestCase
         $this->kategori = Kategori::factory()->create();
         $this->parameter = ParameterUji::factory()->create();
 
-        // Attach parameter to kategori with baku_mutu
+        // Menghubungkan parameter ke kategori dengan baku_mutu
         $this->kategori->parameter()->attach($this->parameter->id, ['baku_mutu' => 50.0]);
 
         $formPengajuan = FormPengajuan::factory()->create([
@@ -92,7 +92,7 @@ class PegawaiHasilUjiHistoriControllerFeatureTest extends TestCase
             'status' => 'selesai'
         ]);
 
-        // Create histori with proper data structure and non-null diupdate_oleh
+        // Membuat histori dengan struktur data yang benar dan diupdate_oleh tidak null
         $this->histori = HasilUjiHistori::factory()->create([
             'id_hasil_uji' => $this->hasilUji->id,
             'data_parameterdanpengujian' => [
@@ -137,7 +137,7 @@ class PegawaiHasilUjiHistoriControllerFeatureTest extends TestCase
 
     public function test_index_mengurutkan_histori_berdasarkan_tanggal_terbaru()
     {
-        // Create additional histori records
+        // Membuat record histori tambahan
         $histori2 = HasilUjiHistori::factory()->create([
             'id_hasil_uji' => $this->hasilUji->id,
             'status' => 'draf',
@@ -159,9 +159,9 @@ class PegawaiHasilUjiHistoriControllerFeatureTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('pegawai/hasil_uji/Histori')
                 ->has('histori', 3)
-                ->where('histori.0.id', $this->histori->id) // Most recent first
+                ->where('histori.0.id', $this->histori->id) // Terbaru pertama
                 ->where('histori.1.id', $histori3->id)
-                ->where('histori.2.id', $histori2->id) // Oldest last
+                ->where('histori.2.id', $histori2->id) // Terlama terakhir
             );
     }
 
@@ -219,11 +219,11 @@ class PegawaiHasilUjiHistoriControllerFeatureTest extends TestCase
 
     public function test_show_menampilkan_parameter_dari_kategori()
     {
-        // Create additional parameter for kategori
+        // Membuat parameter tambahan untuk kategori
         $parameterTambahan = ParameterUji::factory()->create(['nama_parameter' => 'Parameter Tambahan']);
         $this->kategori->parameter()->attach($parameterTambahan->id, ['baku_mutu' => 100.0]);
 
-        // Update histori data to include both parameters
+        // Memperbarui data histori untuk menyertakan kedua parameter
         $this->histori->update([
             'data_parameterdanpengujian' => [
                 'parameter' => [
@@ -255,13 +255,13 @@ class PegawaiHasilUjiHistoriControllerFeatureTest extends TestCase
 
     public function test_show_menangani_parameter_tidak_ditemukan()
     {
-        // Create histori with invalid parameter ID
+        // Membuat histori dengan ID parameter yang tidak valid
         $historiInvalid = HasilUjiHistori::factory()->create([
             'id_hasil_uji' => $this->hasilUji->id,
             'data_parameterdanpengujian' => [
                 'parameter' => [
                     [
-                        'id_parameter' => 99999, // Non-existent parameter
+                        'id_parameter' => 99999, // Parameter yang tidak ada
                         'nilai' => 45.5,
                         'keterangan' => 'Test',
                     ]
