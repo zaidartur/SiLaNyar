@@ -1,38 +1,37 @@
 <script setup lang="ts">
-import CustomerLayout from '@/layouts/customer/CustomerLayout.vue'
-import { Head, Link, usePage } from '@inertiajs/vue3'
-import { computed } from 'vue'
+import CustomerLayout from '@/layouts/customer/CustomerLayout.vue';
+import { Head, Link } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 const props = defineProps<{
-    jadwal: any
-}>()
+    jadwal: any;
+}>();
 
 const formatTanggal = (tanggalStr: string) => {
-    if (!tanggalStr) return '-'
-    const date = new Date(tanggalStr)
+    if (!tanggalStr) return '-';
+    const date = new Date(tanggalStr);
     return date.toLocaleDateString('id-ID', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
-    })
-}
+    });
+};
 
 // Ambil query parameter "from" dari URL
 const from = computed(() => {
-    const url = new URL(window.location.href)
-    const value = url.searchParams.get('from')
-    return ['penjemputan', 'pengantaran'].includes(value ?? '') ? value : 'penjemputan'
-})
+    const url = new URL(window.location.href);
+    const value = url.searchParams.get('from');
+    return ['penjemputan', 'pengantaran'].includes(value ?? '') ? value : 'penjemputan';
+});
 </script>
 
 <template>
-
     <Head title="Detail Jadwal" />
     <CustomerLayout>
         <div class="mx-auto max-w-3xl p-4">
-            <h1 class="text-2xl font-bold mb-6 text-customDarkGreen">Detail Jadwal</h1>
-            <div class="bg-white rounded-xl border shadow-lg p-6 mb-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
+            <h1 class="mb-6 text-2xl font-bold text-customDarkGreen">Detail Jadwal</h1>
+            <div class="mb-6 rounded-xl border bg-white p-6 shadow-lg">
+                <div class="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-2">
                     <div>
                         <span class="font-bold text-customDarkGreen">Kode Pengambilan:</span>
                         <span class="ml-2">{{ props.jadwal.kode_pengambilan ?? '-' }}</span>
@@ -72,8 +71,7 @@ const from = computed(() => {
                 </div>
             </div>
             <div class="flex justify-end">
-                <Link :href="`/customer/jadwal/${from}`"
-                    class="bg-gray-200 text-black px-4 py-2 rounded font-semibold mr-2">Kembali</Link>
+                <Link :href="`/customer/jadwal/${from}`" class="mr-2 rounded bg-gray-200 px-4 py-2 font-semibold text-black">Kembali</Link>
             </div>
         </div>
     </CustomerLayout>
