@@ -201,7 +201,7 @@ Route::prefix('pegawai')->group(function () {
     Route::put('hasiluji/verifikasi/{id}', [PegawaiHasilUjiController::class, 'verifikasi'])->middleware('check.permission:edit status hasil uji');
     Route::get('hasiluji/{id}', [PegawaiHasilUjiController::class, 'show'])->middleware('check.permission:detail hasil uji')->name('pegawai.hasil_uji.detail');
     Route::get('hasiluji/riwayat/{id}', [HasilUjiHistoriController::class, 'index'])->middleware('check.permission:riwayat hasil uji')->name('pegawai.hasil_uji.riwayat');
-    Route::get('hasiluji/riwayat/show/{id}', [HasilUjiHistoriController::class, 'show'])->middleware('check.permission:riwayat hasil uji');
+    Route::get('hasiluji/riwayat/show/{id}', [HasilUjiHistoriController::class, 'show'])->middleware('check.permission:riwayat hasil uji')->name('pegawai.hasil_uji.riwayat.show');
     Route::delete('hasiluji/{id}', [PegawaiHasilUjiController::class, 'destroy'])->middleware('check.permission:hapus hasil uji')->name('pegawai.hasil_uji.destroy');
 
     //fitur Aduan

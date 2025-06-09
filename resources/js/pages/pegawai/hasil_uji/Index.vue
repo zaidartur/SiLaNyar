@@ -126,10 +126,10 @@ const handleDelete = () => {
                                         class="text-purple-500 hover:text-purple-700" title="Riwayat">
                                     🕓
                                     </Link>
-                                    <Link :href="route('pegawai.hasil_uji.edit', item.id)"
+                                    <!-- <Link :href="route('pegawai.hasil_uji.edit', item.id)"
                                         class="text-yellow-500 hover:text-yellow-700" title="Edit">
                                     ✏️
-                                    </Link>
+                                    </Link> -->
                                     <button @click="openDeleteModal(item)" class="text-red-500 hover:text-red-700"
                                         title="Hapus" type="button">
                                         🗑️
