@@ -163,11 +163,8 @@ Route::prefix('pegawai')->group(function () {
     //fitur kategori
     Route::middleware('check.permission:kelola kategori')->group(function () {
         Route::get('kategori/', [KategoriController::class, 'index'])->name('pegawai.kategori.index');
-        Route::get('kategori/create', [KategoriController::class, 'create'])->name('pegawai.kategori.tambah');
         Route::post('kategori/store', [KategoriController::class, 'store']);
-        Route::get('kategori/edit/{id}', [KategoriController::class, 'edit'])->name('pegawai.kategori.edit');
         Route::put('kategori/{kategori}/edit', [KategoriController::class, 'update']);
-        Route::get('kategori/{id}', [KategoriController::class, 'show'])->name('pegawai.kategori.detail');
         Route::delete('kategori/{id}', [KategoriController::class, 'destroy'])->name('pegawai.kategori.destroy');
     });
 
@@ -201,7 +198,6 @@ Route::prefix('pegawai')->group(function () {
     Route::post('hasiluji/store', [PegawaiHasilUjiController::class, 'store'])->middleware('check.permission:tambah hasil uji');
     Route::get('hasiluji/edit/{id}', [PegawaiHasilUjiController::class, 'edit'])->middleware('check.permission:edit hasil uji')->name('pegawai.hasil_uji.edit');
     Route::put('hasiluji/{hasil_uji}/edit', [PegawaiHasilUjiController::class, 'update'])->middleware('check.permission:edit hasil uji');
-    Route::get('hasiluji/verifikasi/{id}', [PegawaiHasilUjiController::class, 'editVerifikasi'])->middleware('check.permission:edit status hasil uji')->name('pegawai.hasil_uji.verifikasi');
     Route::put('hasiluji/verifikasi/{id}', [PegawaiHasilUjiController::class, 'verifikasi'])->middleware('check.permission:edit status hasil uji');
     Route::get('hasiluji/{id}', [PegawaiHasilUjiController::class, 'show'])->middleware('check.permission:detail hasil uji')->name('pegawai.hasil_uji.detail');
     Route::get('hasiluji/riwayat/{id}', [HasilUjiHistoriController::class, 'index'])->middleware('check.permission:riwayat hasil uji')->name('pegawai.hasil_uji.riwayat');
