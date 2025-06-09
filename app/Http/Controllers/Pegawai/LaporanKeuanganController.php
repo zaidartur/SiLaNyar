@@ -26,10 +26,11 @@ class LaporanKeuanganController extends Controller
 
         $query = Pembayaran::with([
             'form_pengajuan:id,kode_pengajuan,id_instansi',
-            'form_pengajuan.instansi:id,nama',
+            'form_pengajuan.instansi:id,nama,id_user',
             'form_pengajuan.instansi.user:id,nama',
         ])->where('status_pembayaran', 'selesai');
 
+        // Apply filters
         if ($periode === 'bulanan' && $request->filled(['bulan', 'tahun_bulanan'])) {
             $bulan = $request->input('bulan');
             $tahun = $request->input('tahun_bulanan');
@@ -44,11 +45,14 @@ class LaporanKeuanganController extends Controller
             $query->whereBetween('tanggal_pembayaran', [$tanggalMulai, $tanggalAkhir]);
         }
 
+        // Create a separate query for diagram data to avoid GROUP BY conflicts
+        $diagramQuery = clone $query;
+
         $label = [];
         $data = [];
 
         if ($periode === 'bulanan' && $request->filled(['bulan', 'tahun_bulanan'])) {
-            $hasil = $query->select(
+            $hasil = $diagramQuery->select(
                 DB::raw('DATE(tanggal_pembayaran) as tanggal'),
                 DB::raw('SUM(total_biaya) as total'),
             )->groupBy('tanggal')->orderBy('tanggal')->get();
@@ -58,7 +62,7 @@ class LaporanKeuanganController extends Controller
                 $data[] = (float) $diagram->total;
             }
         } elseif ($periode === 'tahunan' && $request->filled(['tahun_tahunan'])) {
-            $hasil = $query->select(
+            $hasil = $diagramQuery->select(
                 DB::raw('YEAR(tanggal_pembayaran) as tahun'),
                 DB::raw('MONTH(tanggal_pembayaran) as bulan'),
                 DB::raw('SUM(total_biaya) as total'),
@@ -75,7 +79,7 @@ class LaporanKeuanganController extends Controller
             $bedaHari = $tanggalMulai->diffInDays($tanggalAkhir);
 
             if ($bedaHari <= 60) {
-                $hasil = $query->select(
+                $hasil = $diagramQuery->select(
                     DB::raw('DATE(tanggal_pembayaran) as tanggal'),
                     DB::raw('SUM(total_biaya) as total'),
                 )->groupBy('tanggal')->orderBy('tanggal')->get();
@@ -85,7 +89,7 @@ class LaporanKeuanganController extends Controller
                     $data[] = (float) $diagram->total;
                 }
             } else {
-                $hasil = $query->select(
+                $hasil = $diagramQuery->select(
                     DB::raw('YEAR(tanggal_pembayaran) as tahun'),
                     DB::raw('MONTH(tanggal_pembayaran) as bulan'),
                     DB::raw('SUM(total_biaya) as total'),
@@ -97,7 +101,7 @@ class LaporanKeuanganController extends Controller
                 }
             }
         } else {
-            $hasil = $query->select(
+            $hasil = $diagramQuery->select(
                 DB::raw('YEAR(tanggal_pembayaran) as tahun'),
                 DB::raw('MONTH(tanggal_pembayaran) as bulan'),
                 DB::raw('SUM(total_biaya) as total'),
@@ -109,11 +113,24 @@ class LaporanKeuanganController extends Controller
             }
         }
 
+        // Get the actual data list (not grouped) and total income
         $laporanKeuangan = $query->orderByDesc('tanggal_pembayaran')->get();
         $totalPemasukan = (clone $query)->sum('total_biaya');
 
+        // Prepare filter data with proper data types
+        $filterData = $request->all();
+        if (isset($filterData['bulan'])) {
+            $filterData['bulan'] = (int) $filterData['bulan'];
+        }
+        if (isset($filterData['tahun_bulanan'])) {
+            $filterData['tahun_bulanan'] = (int) $filterData['tahun_bulanan'];
+        }
+        if (isset($filterData['tahun_tahunan'])) {
+            $filterData['tahun_tahunan'] = (int) $filterData['tahun_tahunan'];
+        }
+
         return Inertia::render('pegawai/laporan/Index', [
-            'filter' => $request->all(),
+            'filter' => $filterData,
             'laporan_keuangan' => $laporanKeuangan,
             'total_pemasukan' => $totalPemasukan,
             'diagram' => [
@@ -130,8 +147,8 @@ class LaporanKeuanganController extends Controller
             'tahunTersedia' => Pembayaran::selectRaw('YEAR(tanggal_pembayaran) as tahun')
                 ->where('status_pembayaran', 'selesai')
                 ->distinct()
-                ->orderBy('year', 'desc')
-                ->pluck('year'),
+                ->orderBy('tahun', 'desc')
+                ->pluck('tahun'),
         ]);
     }
 }
