@@ -189,21 +189,6 @@ class KategoriController extends Controller
         return Redirect::route('pegawai.kategori.index')->with('message', 'Kategori Berhasil Diupdate!');
     }
 
-    public function show($id)
-    {
-        $kategori = Kategori::with([
-            'subkategori',
-            'parameter' => function ($query) {
-                $query->withPivot('baku_mutu');
-            }
-        ])->findOrFail($id)
-            ->get();
-
-        return Inertia::render('pegawai/kategori/Detail', [
-            'kategori' => $kategori,
-        ]);
-    }
-
     //proses delete kategori
     public function destroy($id)
     {

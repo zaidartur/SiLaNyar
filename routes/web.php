@@ -97,7 +97,6 @@ Route::prefix('customer')->middleware(['auth:web', 'role:customer'])->group(func
     Route::delete('pengajuan/{id}', [CustomerPengajuanController::class, 'destroy'])->name('customer.pengajuan.delete');
 
     //fitur pembayaran
-    // Route::get('pembayaran', [CustomerPembayaranController::class, 'index'])->name('customer.pembayaran.index');
     Route::get('pembayaran/{id}', [CustomerPembayaranController::class, 'show'])->name('customer.pembayaran.show');
     Route::get('pembayaran/upload/{id}', [CustomerPembayaranController::class, 'upload'])->name('customer.pembayaran.upload');
     Route::post('pembayaran/{id}', [CustomerPembayaranController::class, 'process'])->name('customer.pembayaran.process');
@@ -153,9 +152,7 @@ Route::prefix('pegawai')->group(function () {
     //fitur jenis cairan
     Route::middleware('check.permission:kelola jenis cairan')->group(function () {
         Route::get('jenis-cairan', [JenisCairanController::class, 'index'])->name('pegawai.jenis_cairan.index');
-        Route::get('jenis-cairan/create', [JenisCairanController::class, 'create']);
         Route::post('jenis-cairan/store', [JenisCairanController::class, 'store']);
-        Route::get('jenis-cairan/edit/{jenis_cairan}', [JenisCairanController::class, 'edit'])->name('pegawai.jenis_cairan.edit');
         Route::put('jenis-cairan/{jenis_cairan}/edit', [JenisCairanController::class, 'update']);
         Route::delete('jenis-cairan/{id}', [JenisCairanController::class, 'destroy']);
     });
@@ -201,7 +198,6 @@ Route::prefix('pegawai')->group(function () {
     Route::post('hasiluji/store', [PegawaiHasilUjiController::class, 'store'])->middleware('check.permission:tambah hasil uji');
     Route::get('hasiluji/edit/{id}', [PegawaiHasilUjiController::class, 'edit'])->middleware('check.permission:edit hasil uji')->name('pegawai.hasil_uji.edit');
     Route::put('hasiluji/{hasil_uji}/edit', [PegawaiHasilUjiController::class, 'update'])->middleware('check.permission:edit hasil uji');
-    Route::get('hasiluji/verifikasi/{id}', [PegawaiHasilUjiController::class, 'editVerifikasi'])->middleware('check.permission:edit status hasil uji')->name('pegawai.hasil_uji.verifikasi');
     Route::put('hasiluji/verifikasi/{id}', [PegawaiHasilUjiController::class, 'verifikasi'])->middleware('check.permission:edit status hasil uji');
     Route::get('hasiluji/{id}', [PegawaiHasilUjiController::class, 'show'])->middleware('check.permission:detail hasil uji')->name('pegawai.hasil_uji.detail');
     Route::get('hasiluji/riwayat/{id}', [HasilUjiHistoriController::class, 'index'])->middleware('check.permission:riwayat hasil uji')->name('pegawai.hasil_uji.riwayat');

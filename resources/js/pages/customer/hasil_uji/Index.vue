@@ -37,7 +37,6 @@ const verifikasi = (id: number) => {
                 router.reload({ only: ['hasil_uji'] })
             }
         })
-
     }
 }
 </script>
@@ -77,7 +76,7 @@ const verifikasi = (id: number) => {
                                 {{ item.pengujian?.form_pengajuan?.kategori?.nama ?? '-' }}
                             </td>
                             <td class="px-4 py-3 border-b">
-                                {{ formatTanggal(item.pengujian?.tanggal_uji) ?? '-' }}
+                                {{ formatTanggal(item.pengujian?.updated_at) ?? '-' }}
                             </td>
                             <td class="px-4 py-3 border-b">
                                 {{ item.pengujian?.form_pengajuan?.lokasi ?? '-' }}
@@ -85,14 +84,19 @@ const verifikasi = (id: number) => {
                             <td class="px-4 py-3 border-b">
                                 {{ item.pengujian?.form_pengajuan?.metode_pengambilan ?? '-' }}
                             </td>
+                            <td class="px-4 py-3 border-b text-center">
+                                <span v-if="item.aduan && item.status === 'proses_review'" class="text-blue-500">
+                                    {{ item.aduan?.status }}
+                                </span>
+                                <span v-else>-</span>
+                            </td>
                             <td class="px-4 py-3 border-b">
                                 <span :class="[
                                     'text-xs px-2 py-1 rounded',
                                     item.status === 'selesai' ? 'bg-green-500 text-white' :
                                         item.status === 'proses_review' ? 'bg-yellow-500 text-white' :
                                             item.status === 'proses_peresmian' ? 'bg-blue-500 text-white' :
-                                                item.status === 'revisi' ? 'bg-red-500 text-white' :
-                                                    'bg-gray-400 text-white'
+                                                'bg-gray-400 text-white'
                                 ]">
                                     {{ statusLabel(item.status) }}
                                 </span>
@@ -116,7 +120,8 @@ const verifikasi = (id: number) => {
                             </td>
                         </tr>
                         <tr v-if="tableData.length === 0">
-                            <td colspan="10" class="text-center py-4 text-gray-500">Tidak ada data hasil uji.</td>
+                            <td colspan="10" class="text-center py-4 text-gray-500">Tidak ada data hasil uji atau hasil
+                                uji sedang diproses.</td>
                         </tr>
                     </tbody>
                 </table>
