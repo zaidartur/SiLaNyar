@@ -63,18 +63,6 @@ class KategoriController extends Controller
         ]);
     }
 
-    //form tambah kategori
-    public function create()
-    {
-        $subkategori = SubKategori::all();
-        $parameter = ParameterUji::all();
-
-        return Inertia::render('pegawai/kategori/Tambah', [
-            'parameter' => $parameter,
-            'subkategori' => $subkategori
-        ]);
-    }
-
     //proses tambah kategori
     public function store(Request $request)
     {
@@ -115,40 +103,6 @@ class KategoriController extends Controller
         return Redirect::route('pegawai.kategori.index')->with('message', 'Kategori Berhasil Ditambahkan!');
     }
 
-    //form edit kategori
-    public function edit($id)
-    {
-        $kategori = Kategori::with(['subkategori', 'parameter' => function ($q) {
-            $q->withPivot('baku_mutu');
-        }])->findOrFail($id);
-
-        $subkategori = SubKategori::all();
-
-        $parameter = ParameterUji::all()->map(function ($param) use ($kategori) {
-            $existing = $kategori->parameter->firstWhere('id', $param->id);
-
-            return [
-                'id' => $param->id,
-                'kode_parameter' => $param->kode_parameter,
-                'nama_parameter' => $param->nama_parameter,
-                'satuan' => $param->satuan,
-                'harga' => $param->harga,
-                'pivot' => $existing ? ['baku_mutu' => $existing->pivot->baku_mutu] : null
-            ];
-        });
-
-        return Inertia::render('pegawai/kategori/Edit', [
-            'kategori' => [
-                'id' => $kategori->id,
-                'nama' => $kategori->nama,
-                'harga' => $kategori->harga,
-                'subkategori' => $kategori->subkategori
-            ],
-            'subkategori' => $subkategori,
-            'parameter' => $parameter,
-        ]);
-    }
-
     //proses update kategori
     public function update(Kategori $kategori, Request $request)
     {
@@ -187,21 +141,6 @@ class KategoriController extends Controller
         }
 
         return Redirect::route('pegawai.kategori.index')->with('message', 'Kategori Berhasil Diupdate!');
-    }
-
-    public function show($id)
-    {
-        $kategori = Kategori::with([
-            'subkategori',
-            'parameter' => function ($query) {
-                $query->withPivot('baku_mutu');
-            }
-        ])->findOrFail($id)
-            ->get();
-
-        return Inertia::render('pegawai/kategori/Detail', [
-            'kategori' => $kategori,
-        ]);
     }
 
     //proses delete kategori
