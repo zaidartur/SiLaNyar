@@ -17,4 +17,14 @@ abstract class TestCase extends BaseTestCase
             Artisan::call('key:generate', ['--force' => true]);
         }
     }
+
+    protected function assertRedirectContains($response, $needle)
+    {
+        $this->assertTrue(
+            str_contains($response->headers->get('Location'), $needle),
+            "Expected redirect URL to contain '{$needle}', but got: " . $response->headers->get('Location')
+        );
+        
+        return $this;
+    }
 }
