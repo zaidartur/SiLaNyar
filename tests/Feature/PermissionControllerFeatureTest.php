@@ -20,16 +20,16 @@ class PermissionControllerFeatureTest extends TestCase
     {
         parent::setUp();
 
-        // Configure Vite for testing
+        // Konfigurasi Vite untuk testing
         config(['app.asset_url' => null]);
 
-        // Create superadmin role with permission
+        // Buat role superadmin dengan permission
         $this->superAdminRole = Role::firstOrCreate(
             ['name' => 'superadmin', 'guard_name' => 'web'],
             ['kode_role' => 'RL-000']
         );
 
-        // Create kelola permission permission
+        // Buat permission kelola permission
         $kelolaPermission = Permissions::firstOrCreate([
             'name' => 'kelola permission',
             'guard_name' => 'web'
@@ -37,14 +37,14 @@ class PermissionControllerFeatureTest extends TestCase
 
         $this->superAdminRole->givePermissionTo($kelolaPermission);
 
-        // Create superadmin user
+        // Buat user superadmin
         $this->superAdmin = User::factory()->create();
         $this->superAdmin->assignRole($this->superAdminRole);
     }
 
     public function test_index_menampilkan_halaman_permission_dengan_data_lengkap()
     {
-        // Create sample permissions
+        // Buat sample permissions
         $permissions = Permissions::factory()->count(3)->create();
 
         $response = $this->actingAs($this->superAdmin)
@@ -54,7 +54,7 @@ class PermissionControllerFeatureTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('superadmin/permission/Index')
                 ->has('permission')
-                ->has('permission', 4) // 3 created + 1 from setUp (kelola permission)
+                ->has('permission', 4) // 3 yang dibuat + 1 dari setUp (kelola permission)
                 ->has('permission.0', fn (Assert $permission) => $permission
                     ->where('name', 'kelola permission')
                     ->where('guard_name', 'web')
@@ -74,7 +74,7 @@ class PermissionControllerFeatureTest extends TestCase
 
     public function test_index_menampilkan_array_kosong_ketika_tidak_ada_permission()
     {
-        // Delete all permissions except the one created in setUp
+        // Hapus semua permission kecuali yang dibuat di setUp
         Permissions::where('name', '!=', 'kelola permission')->delete();
 
         $response = $this->actingAs($this->superAdmin)
@@ -83,7 +83,7 @@ class PermissionControllerFeatureTest extends TestCase
         $response->assertStatus(200)
             ->assertInertia(fn (Assert $page) => $page
                 ->component('superadmin/permission/Index')
-                ->has('permission', 1) // Only the one from setUp
+                ->has('permission', 1) // Hanya yang dari setUp
                 ->has('permission.0', fn (Assert $permission) => $permission
                     ->where('name', 'kelola permission')
                     ->etc()
@@ -146,12 +146,12 @@ class PermissionControllerFeatureTest extends TestCase
     {
         $permission = Permissions::factory()->create();
 
-        // Test without authentication
+        // Test tanpa autentikasi
         $response = $this->delete("/superadmin/permission/{$permission->id}");
         $response->assertRedirect()
             ->assertRedirectContains('/sso/login');
 
-        // Test with user without permission
+        // Test dengan user yang tidak memiliki permission
         $userWithoutPermission = User::factory()->create();
         $basicRole = Role::firstOrCreate(
             ['name' => 'basic', 'guard_name' => 'web'],
@@ -164,7 +164,7 @@ class PermissionControllerFeatureTest extends TestCase
 
         $response->assertStatus(403);
 
-        // Permission should still exist
+        // Permission harus masih ada
         $this->assertDatabaseHas('permissions', [
             'id' => $permission->id
         ]);
@@ -179,24 +179,24 @@ class PermissionControllerFeatureTest extends TestCase
 
         $this->assertNotNull($permission->kode_permission);
         $this->assertStringStartsWith('PS-', $permission->kode_permission);
-        $this->assertEquals(6, strlen($permission->kode_permission)); // PS-XXX format
+        $this->assertEquals(6, strlen($permission->kode_permission)); // format PS-XXX
     }
 
     public function test_kode_permission_increments_correctly()
     {
-        // Create first permission
+        // Buat permission pertama
         $permission1 = Permissions::factory()->create([
             'name' => 'first permission',
             'guard_name' => 'web'
         ]);
 
-        // Create second permission
+        // Buat permission kedua
         $permission2 = Permissions::factory()->create([
             'name' => 'second permission', 
             'guard_name' => 'web'
         ]);
 
-        // Extract numeric parts
+        // Ekstrak bagian angka
         $kode1Number = (int)substr($permission1->kode_permission, -3);
         $kode2Number = (int)substr($permission2->kode_permission, -3);
 
