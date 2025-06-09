@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue';
-// import TambahKategori from '@/components/form/admin/kategori/Tambah.vue'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
