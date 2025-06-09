@@ -282,7 +282,7 @@ class HasilUjiController extends Controller
             return Redirect::back()->withErrors(['error' => 'Gagal Memperbarui Hasil Uji ' . $hasil_uji->kode_hasil_uji . ' Dengan Error ' . $err->getMessage()]);
         }
     }
-  
+
     // proses verifikasi hasil uji
     public function verifikasi($id, Request $request)
     {
