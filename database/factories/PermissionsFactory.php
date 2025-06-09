@@ -15,12 +15,13 @@ class PermissionsFactory extends Factory
 
     public function definition(): array
     {
+        // Use fake()->unique() to ensure unique permission names
         $action = fake()->randomElement($this->actions);
         $resource = fake()->randomElement($this->resources);
-        static $counter = 1;
+        $suffix = fake()->unique()->numberBetween(1, 99999);
         
         return [
-            'name' => $action . '-' . $resource,
+            'name' => $action . ' ' . $resource . ' ' . $suffix,
             'guard_name' => 'web',
         ];
     }
@@ -28,13 +29,14 @@ class PermissionsFactory extends Factory
     public function special()
     {
         return $this->state(function (array $attributes) {
+            $suffix = fake()->unique()->numberBetween(1, 99999);
             return [
-                'name' => fake()->unique()->randomElement([
-                    'kelola-permission',
-                    'kelola-role',
-                    'kelola-user',
-                    'kelola-system'
-                ]),
+                'name' => fake()->randomElement([
+                    'kelola permission',
+                    'kelola role', 
+                    'kelola user',
+                    'kelola system'
+                ]) . ' ' . $suffix,
                 'guard_name' => 'web'
             ];
         });
