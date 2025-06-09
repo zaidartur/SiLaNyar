@@ -18,11 +18,6 @@ class JenisCairanController extends Controller
         ]);
     }
 
-    public function create()
-    {
-        return Inertia::render('pegawai/jenis_cairan/Tambah');
-    }
-
     public function store(Request $request)
     {
         $request->validate([
@@ -43,13 +38,6 @@ class JenisCairanController extends Controller
         if ($jenis_cairan) {
             return Redirect::route('pegawai.jenis_cairan.index')->with('message', 'Jenis Cairan Berhasil Ditambahkan');
         }
-    }
-
-    public function edit(JenisCairan $jenis_cairan)
-    {
-        return Inertia::render('pegawai/jenis_cairan/Edit', [
-            'jenis_cairan' => $jenis_cairan
-        ]);
     }
 
     public function update(JenisCairan $jenis_cairan, Request $request)
