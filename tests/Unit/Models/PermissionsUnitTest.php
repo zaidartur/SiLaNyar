@@ -62,7 +62,7 @@ class PermissionsUnitTest extends TestCase
         $permission = Permissions::factory()->create();
         
         $this->assertMatchesRegularExpression(
-            '/^(lihat|tambah|edit|hapus|detail|verifikasi)-[a-z_]+$/', 
+            '/^(lihat|tambah|edit|hapus|detail|verifikasi) [a-z_]+ \d+$/', 
             $permission->name
         );
     }
@@ -73,7 +73,7 @@ class PermissionsUnitTest extends TestCase
         $permission = Permissions::factory()->special()->create();
         
         $this->assertMatchesRegularExpression(
-            '/^kelola-(permission|role|user|system)$/', 
+            '/^kelola (permission|role|user|system) \d+$/', 
             $permission->name
         );
     }
