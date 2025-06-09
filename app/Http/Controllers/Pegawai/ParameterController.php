@@ -21,19 +21,19 @@ class ParameterController extends Controller
         ]);
     }
 
-    //form tambah parameter
-    public function create()
-    {
-        return Inertia::render('pegawai/parameter/Tambah');
-    }
+    // //form tambah parameter
+    // public function create()
+    // {
+    //     return Inertia::render('pegawai/parameter/Tambah');
+    // }
 
     //proses tambah parameter
     public function store(Request $request)
     {
         $request->validate([
-            'nama_parameter' => 'required|string',
-            'satuan' => 'required|string',
-            'harga' => 'required|numeric|min:0',
+            'nama_parameter' => 'required|string|max:255|unique:parameter_uji,nama_parameter',
+            'satuan' => 'required|string|max:255',
+            'harga' => 'required|integer|min:0',
         ]);
 
         $parameter = ParameterUji::create($request->all());
@@ -43,13 +43,13 @@ class ParameterController extends Controller
         }
     }
 
-    //form edit parameter
-    public function edit(ParameterUji $parameter)
-    {
-        return Inertia::render('pegawai/parameter/Edit', [
-            'parameter' => $parameter
-        ]);
-    }
+    // //form edit parameter
+    // public function edit(ParameterUji $parameter)
+    // {
+    //     return Inertia::render('pegawai/parameter/Edit', [
+    //         'parameter' => $parameter
+    //     ]);
+    // }
 
     //proses update parameter
     public function update(ParameterUji $parameter, Request $request)

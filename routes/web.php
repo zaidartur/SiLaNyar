@@ -184,8 +184,8 @@ Route::prefix('pegawai')->group(function () {
         Route::get('parameter/', [ParameterController::class, 'index'])->name('pegawai.parameter.index');
         Route::get('parameter/create', [ParameterController::class, 'create'])->name('pegawai.parameter.tambah');
         Route::post('parameter/store', [ParameterController::class, 'store']);
-        Route::get('parameter/edit/{parameter}', [ParameterController::class, 'edit'])->name('pegawai.parameter.edit');
-        Route::put('parameter/{parameter}/edit', [ParameterController::class, 'update']);
+        // Route::get('parameter/edit/{parameter}', [ParameterController::class, 'edit'])->name('pegawai.parameter.edit');
+        // Route::put('parameter/{parameter}/edit', [ParameterController::class, 'update']);
         Route::delete('parameter/{id}', [ParameterController::class, 'destroy'])->name('pegawai.parameter.destroy');
     });
 
