@@ -110,7 +110,7 @@ Route::prefix('customer')->middleware(['auth:web', 'role:customer'])->group(func
     //fitur aduan
     Route::get('hasiluji/aduan/{hasil_uji}', [AduanController::class, 'create']);
     Route::post('hasiluji/aduan/{hasil_uji}', [AduanController::class, 'store']);
-    Route::put('hasiluji/{hasil_uji}/verifikasi', [CustomerHasilUjiController::class, 'verifikasi']);
+    Route::put('hasiluji/{hasil_uji}/verifikasi', [CustomerHasilUjiController::class, 'verifikasi'])->name('customer.hasil_uji.verifikasi');
 });
 
 //route pegawai

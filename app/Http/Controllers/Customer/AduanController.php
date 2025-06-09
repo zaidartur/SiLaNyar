@@ -29,11 +29,11 @@ class AduanController extends Controller
     {
         $user = Auth::user();
 
-        if (!$hasil_uji->pengujian->form_pengajuan->instansi->id_user !== $user->id) {
+        if ($hasil_uji->pengujian->form_pengajuan->instansi->id_user !== $user->id) {
             abort(403, 'Anda Tidak Memiliki Akses Di Halaman Ini!');
         }
 
-        return Inertia::render('Customer/Aduan/Create', [
+        return Inertia::render('customer/aduan/Create', [
             'hasil_uji' => $hasil_uji,
         ]);
     }
@@ -42,7 +42,7 @@ class AduanController extends Controller
     {
         $user = Auth::user();
 
-        if (!$hasil_uji->pengujian->form_pengajuan->instansi->id_user !== $user->id) {
+        if ($hasil_uji->pengujian->form_pengajuan->instansi->id_user !== $user->id) {
             abort(403, 'Anda Tidak Memiliki Akses Di Aduan Ini!');
         }
 
@@ -55,7 +55,8 @@ class AduanController extends Controller
             'id_hasil_uji' => $hasil_uji->id,
             'id_user' => $user->id,
             'masalah' => $request->masalah,
-            'perbaikan' => $request->perbaikan
+            'perbaikan' => $request->perbaikan,
+            'status' => 'diproses'
         ]);
 
         return Redirect::route('customer.hasil_uji.index')->with('message', 'Aduan Berhasil Terkirim');
