@@ -153,32 +153,32 @@ class JadwalControllerFeatureTest extends TestCase
             );
     }
 
-    // public function test_show_menampilkan_detail_jadwal_dengan_relasi()
-    // {
-    //     $kategori = Kategori::factory()->create();
-    //     $this->pengajuan->update(['id_kategori' => $kategori->id]);
+    public function test_show_menampilkan_detail_jadwal_dengan_relasi()
+    {
+        $kategori = Kategori::factory()->create();
+        $this->pengajuan->update(['id_kategori' => $kategori->id]);
 
-    //     $response = $this->actingAs($this->customer)
-    //         ->get('/customer/jadwal/' . $this->jadwal->id);
+        $response = $this->actingAs($this->customer)
+            ->get('/customer/jadwal/' . $this->jadwal->id);
 
-    //     $response->assertStatus(200)
-    //         ->assertInertia(fn (Assert $page) => $page
-    //             ->component('customer/jadwal/Detail')
-    //             ->has('jadwal', fn (Assert $jadwal) => $jadwal
-    //                 ->where('id', $this->jadwal->id)
-    //                 ->where('status', 'diproses')
-    //                 ->has('form_pengajuan', fn (Assert $pengajuan) => $pengajuan
-    //                     ->where('id', $this->pengajuan->id)
-    //                     ->has('kategori', fn (Assert $kategoriData) => $kategoriData
-    //                         ->where('id', $kategori->id)
-    //                         ->etc()
-    //                     )
-    //                     ->etc()
-    //                 )
-    //                 ->etc()
-    //             )
-    //         );
-    // }
+        $response->assertStatus(200)
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('customer/jadwal/Detail')
+                ->has('jadwal', fn (Assert $jadwal) => $jadwal
+                    ->where('id', $this->jadwal->id)
+                    ->where('status', 'diproses')
+                    ->has('form_pengajuan', fn (Assert $pengajuan) => $pengajuan
+                        ->where('id', $this->pengajuan->id)
+                        ->has('kategori', fn (Assert $kategoriData) => $kategoriData
+                            ->where('id', $kategori->id)
+                            ->etc()
+                        )
+                        ->etc()
+                    )
+                    ->etc()
+                )
+            );
+    }
 
     public function test_show_membatasi_akses_jadwal_milik_customer_lain()
     {

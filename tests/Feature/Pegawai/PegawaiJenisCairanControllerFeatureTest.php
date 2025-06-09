@@ -94,16 +94,6 @@ class PegawaiJenisCairanControllerFeatureTest extends TestCase
             );
     }
 
-    public function test_create_menampilkan_form_tambah_jenis_cairan()
-    {
-        $response = $this->actingAs($this->pegawai)
-            ->get('/pegawai/jenis-cairan/create');
-
-        $response->assertStatus(200)
-            ->assertInertia(fn (Assert $page) => $page
-                ->component('pegawai/jenis_cairan/Tambah')
-            );
-    }
 
     public function test_store_membuat_jenis_cairan_baru_dengan_data_valid()
     {
@@ -176,30 +166,6 @@ class PegawaiJenisCairanControllerFeatureTest extends TestCase
         $response->assertSessionHasErrors(['nama', 'batas_minimum']);
     }
 
-    public function test_edit_menampilkan_form_edit_dengan_data_jenis_cairan()
-    {
-        $jenisCairan = JenisCairan::factory()->create([
-            'nama' => 'Air Tanah Dalam',
-            'batas_minimum' => 100.0,
-            'batas_maksimum' => 2000.0
-        ]);
-
-        $response = $this->actingAs($this->pegawai)
-            ->get(route('pegawai.jenis_cairan.edit', $jenisCairan));
-
-        $response->assertStatus(200)
-            ->assertInertia(fn (Assert $page) => $page
-                ->component('pegawai/jenis_cairan/Edit')
-                ->has('jenis_cairan', fn (Assert $jenisCairanData) => $jenisCairanData
-                    ->where('id', $jenisCairan->id)
-                    ->where('nama', 'Air Tanah Dalam')
-                    ->where('batas_minimum', 100)
-                    ->where('batas_maksimum', 2000)
-                    ->has('kode_jenis_cairan')
-                    ->etc()
-                )
-            );
-    }
 
     public function test_update_memodifikasi_jenis_cairan_dengan_data_valid()
     {

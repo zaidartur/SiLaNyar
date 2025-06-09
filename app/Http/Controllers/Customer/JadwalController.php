@@ -112,12 +112,10 @@ class JadwalController extends Controller
     {
         $user = Auth::user();
 
-        $jadwal = Jadwal::
-        //whereHas('form_pengajuan', function ($query) use ($user) {
-        //     $query->where('id_user', $user->id);
-        // })
-        // ->
-        with([
+        $jadwal = Jadwal::whereHas('form_pengajuan', function ($query) use ($user) {
+            $query->where('id_user', $user->id);
+        })
+        ->with([
                 'form_pengajuan',
                 'form_pengajuan.kategori',
                 'form_pengajuan.instansi',

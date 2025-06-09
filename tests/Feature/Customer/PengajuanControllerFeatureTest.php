@@ -260,11 +260,6 @@ class PengajuanControllerFeatureTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_update_memodifikasi_pengajuan_berhasil()
-    {
-        $this->markTestSkipped('Fungsionalitas update perlu diperbaiki di controller - masalah pemanggilan method static');
-    }
-
     public function test_destroy_menghapus_pengajuan_yang_valid()
     {
         $pengajuan = FormPengajuan::factory()->prosesValidasi()->create([

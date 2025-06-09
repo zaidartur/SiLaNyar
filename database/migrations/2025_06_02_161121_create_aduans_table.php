@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
             $table->string('masalah');
             $table->string('perbaikan');
-            $table->enum('status', ['diterima_administrasi', 'diterima_pengujian','ditolak', 'diproses']);
+            $table->enum('status', ['diterima_administrasi', 'diterima_pengujian','ditolak', 'diproses'])->nullable();
             $table->string('diverifikasi_oleh')->nullable();
             $table->timestamps();
         });

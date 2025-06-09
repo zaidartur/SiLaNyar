@@ -62,14 +62,16 @@ class HasilUjiHistoriController extends Controller
 
         $semuaParameter = $parameterKategori->merge($parameterSubKategori)->keyBy('id');
 
-        $idParameter = collect($histori->data_parameter)->pluck('id_parameter')->unique();
+        // Ubah untuk membaca dari data_parameterdanpengujian.parameter
+        $parameterData = $histori->data_parameterdanpengujian['parameter'] ?? [];
+        $idParameter = collect($parameterData)->pluck('id_parameter')->unique();
 
         $parameterMap = ParameterUji::whereIn('id', $idParameter)
             ->get()
             ->keyBy('id')
             ->map(fn($item) => $item->nama_parameter);
 
-        $dataParameter = collect($histori->data_parameter)->map(function ($item) use ($parameterMap, $semuaParameter) {
+        $dataParameter = collect($parameterData)->map(function ($item) use ($parameterMap, $semuaParameter) {
             $idParameter = $item['id_parameter'];
 
             return [
@@ -79,6 +81,7 @@ class HasilUjiHistoriController extends Controller
                 'keterangan' => $item['keterangan'] ?? null,
             ];
         });
+        
         return Inertia::render('pegawai/hasil_uji/ShowHistori', [
             'histori' => $histori,
             'data_parameter' => $dataParameter

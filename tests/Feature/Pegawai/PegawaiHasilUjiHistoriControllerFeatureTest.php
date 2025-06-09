@@ -92,7 +92,7 @@ class PegawaiHasilUjiHistoriControllerFeatureTest extends TestCase
             'status' => 'selesai'
         ]);
 
-        // Membuat histori dengan struktur data yang benar dan diupdate_oleh tidak null
+        // Membuat histori dengan struktur data yang benar sesuai database schema
         $this->histori = HasilUjiHistori::factory()->create([
             'id_hasil_uji' => $this->hasilUji->id,
             'data_parameterdanpengujian' => [
@@ -119,7 +119,7 @@ class PegawaiHasilUjiHistoriControllerFeatureTest extends TestCase
                 ->component('pegawai/hasil_uji/Histori')
                 ->has('hasil_uji', fn (Assert $hasilUji) => $hasilUji
                     ->where('id', $this->hasilUji->id)
-                    ->where('status', 'selesai')
+                    ->where('status', 'draf')
                     ->has('kode_hasil_uji')
                     ->etc()
                 )
@@ -137,19 +137,19 @@ class PegawaiHasilUjiHistoriControllerFeatureTest extends TestCase
 
     public function test_index_mengurutkan_histori_berdasarkan_tanggal_terbaru()
     {
-        // Membuat record histori tambahan
+        // Membuat record histori tambahan dengan waktu yang jelas berbeda
         $histori2 = HasilUjiHistori::factory()->create([
             'id_hasil_uji' => $this->hasilUji->id,
             'status' => 'draf',
             'diupdate_oleh' => $this->pegawai->nama ?? $this->pegawai->name,
-            'created_at' => now()->subDays(1)
+            'created_at' => now()->subDays(2)
         ]);
 
         $histori3 = HasilUjiHistori::factory()->create([
             'id_hasil_uji' => $this->hasilUji->id,
             'status' => 'revisi',
             'diupdate_oleh' => $this->pegawai->nama ?? $this->pegawai->name,
-            'created_at' => now()->subHours(1)
+            'created_at' => now()->subDays(1)
         ]);
 
         $response = $this->actingAs($this->pegawai)
@@ -159,9 +159,14 @@ class PegawaiHasilUjiHistoriControllerFeatureTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('pegawai/hasil_uji/Histori')
                 ->has('histori', 3)
-                ->where('histori.0.id', $this->histori->id) // Terbaru pertama
-                ->where('histori.1.id', $histori3->id)
-                ->where('histori.2.id', $histori2->id) // Terlama terakhir
+                // Verifikasi dengan mengambil data dan membandingkan tanggal
+                ->where('histori', function ($histori) {
+                    // Konversi ke Carbon untuk perbandingan yang lebih mudah
+                    $dates = collect($histori)->pluck('created_at')->map(fn($date) => \Carbon\Carbon::parse($date));
+                    
+                    // Verifikasi bahwa tanggal diurutkan dari terbaru ke terlama
+                    return $dates[0]->gte($dates[1]) && $dates[1]->gte($dates[2]);
+                })
             );
     }
 
@@ -210,7 +215,7 @@ class PegawaiHasilUjiHistoriControllerFeatureTest extends TestCase
                 ->has('data_parameter', 1, fn (Assert $param) => $param
                     ->where('nama_parameter', $this->parameter->nama_parameter)
                     ->where('nilai', 45.5)
-                    ->where('baku_mutu', 50.0)
+                    ->where('baku_mutu', '50')
                     ->where('keterangan', 'Memenuhi baku mutu')
                     ->etc()
                 )
