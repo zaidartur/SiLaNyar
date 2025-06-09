@@ -71,8 +71,13 @@ class JadwalController extends Controller
         $jadwalAntarTerbaru = Jadwal::whereHas('form_pengajuan', function ($query) use ($instansiUser) {
             $query->where('metode_pengambilan', 'diantar')->whereIn('id_instansi', $instansiUser);
         })
-            ->with('form_pengajuan')
-            ->get();
+        ->with([
+                'form_pengajuan',
+                'form_pengajuan.instansi',
+                'form_pengajuan.instansi.user'
+            ])
+        ->orderBy('waktu_pengambilan', 'desc')
+        ->get();
 
         return Inertia::render('customer/jadwal/Pengantaran', [
             'jadwalAntarTerbaru' => $jadwalAntarTerbaru,
@@ -89,8 +94,13 @@ class JadwalController extends Controller
         $jadwalAmbilTerbaru = Jadwal::whereHas('form_pengajuan', function ($query)  use ($instansiUser) {
             $query->where('metode_pengambilan', 'diambil')->whereIn('id_instansi', $instansiUser);
         })
-            ->with('form_pengajuan')
-            ->get();
+        ->with([
+                'form_pengajuan',
+                'form_pengajuan.instansi',
+                'form_pengajuan.instansi.user'
+            ])
+        ->orderBy('waktu_pengambilan', 'desc')
+        ->get();
 
         return Inertia::render('customer/jadwal/Penjemputan', [
             'jadwalAmbilTerbaru' => $jadwalAmbilTerbaru,
@@ -102,10 +112,17 @@ class JadwalController extends Controller
     {
         $user = Auth::user();
 
-        $jadwal = Jadwal::whereHas('form_pengajuan', function ($query) use ($user) {
-            $query->where('id_user', $user->id);
-        })
-            ->with(['form_pengajuan', 'form_pengajuan.kategori'])
+        $jadwal = Jadwal::
+        //whereHas('form_pengajuan', function ($query) use ($user) {
+        //     $query->where('id_user', $user->id);
+        // })
+        // ->
+        with([
+                'form_pengajuan',
+                'form_pengajuan.kategori',
+                'form_pengajuan.instansi',
+                'form_pengajuan.instansi.user'
+            ])
             ->findOrFail($id);
 
         return Inertia::render('customer/jadwal/Detail', [

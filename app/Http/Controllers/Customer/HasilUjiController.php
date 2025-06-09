@@ -34,7 +34,6 @@ class HasilUjiController extends Controller
             ->whereHas('pengujian.form_pengajuan', function ($query) use ($idInstansi) {
                 $query->whereIn('id_instansi', $idInstansi);
             })
-            ->has('aduan')
             ->get();
 
         return Inertia::render('customer/hasil_uji/Index', [

@@ -1,5 +1,12 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
+import { ref } from 'vue';
+
+const sidebarOpen = ref(false);
+
+function toggleSidebar() {
+    sidebarOpen.value = !sidebarOpen.value;
+}
 
 defineProps<{
     breadcrumbs?: any
@@ -7,7 +14,7 @@ defineProps<{
 </script>
 
 <template>
-    <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar"
+    <button @click="toggleSidebar"
         type="button"
         class="inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
         <span class="sr-only">Open sidebar</span>
@@ -20,7 +27,9 @@ defineProps<{
     </button>
 
     <aside id="logo-sidebar"
-        class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0"
+        :class="['fixed top-0 left-0 z-40 w-64 h-screen transition-transform',
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full',
+        'sm:translate-x-0']"
         aria-label="Sidebar">
         <div class="h-full px-3 py-4 overflow-y-auto bg-customDarkGreen">
             <Link :href="route('dashboard')" class="flex items-center ps-2.5 mb-5">

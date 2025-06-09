@@ -14,7 +14,7 @@ class VerifikasiAduanController extends Controller
 {
     public function index()
     {
-        $aduan = Aduan::with(['user', 'hasil_uji'])->get();
+        $aduan = Aduan::with(['user', 'hasil_uji.pengujian.form_pengajuan.instansi.user'])->get();
 
         return Inertia::render('pegawai/aduan/Index', [
             'aduan' => $aduan

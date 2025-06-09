@@ -1,9 +1,22 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { usePage } from '@inertiajs/vue3'
-import { Link } from '@inertiajs/vue3'
+import { ref, watchEffect } from 'vue'
+import { usePage, Link } from '@inertiajs/vue3'
 
-const isSidebarOpen = ref(true)
+const isSidebarOpen = ref(false)
+
+watchEffect(() => {
+    if (window.innerWidth >= 1024) {
+        isSidebarOpen.value = true
+    }
+    window.addEventListener('resize', () => {
+        if (window.innerWidth >= 1024) {
+            isSidebarOpen.value = true
+        } else {
+            isSidebarOpen.value = false
+        }
+    })
+})
+
 const toggles = ref({
     daftar: false,
     kategori: false
@@ -26,11 +39,20 @@ const toggle = (menu: 'daftar' | 'kategori') => {
 </script>
 
 <template>
-    <button @click="toggleSidebar" class="lg:hidden fixed top-4 left-4 z-30 p-2 bg-green-800 rounded-md">
-        <span alt="Menu" class="w-6 h-6">≡</span>
+    <button @click="toggleSidebar"
+        type="button"
+        class="inline-flex items-center p-2 mt-2 ms-3 text-sm text-white bg-customDarkGreen rounded-lg lg:hidden hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-200 fixed top-4 left-4 z-30">
+        <span class="sr-only">Open sidebar</span>
+        <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
+            xmlns="http://www.w3.org/2000/svg">
+            <path clip-rule="evenodd" fill-rule="evenodd"
+                d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z">
+            </path>
+        </svg>
     </button>
 
-    <aside :class="['fixed lg:static z-10 bg-green-800 text-white min-h-screen transition-all duration-300 ease-in-out',
+    <aside :class="['fixed lg:static z-10 bg-customDarkGreen text-white transition-all duration-300 ease-in-out',
+        'h-screen overflow-y-auto',
         isSidebarOpen ? 'w-64 left-0' : '-left-64 lg:w-64']">
         <div class="flex items-center px-4 font-bold text-xl mt-4 mb-6">
             <img src="/assets/assetsadmin/logodlh.png" alt="Logo" class="w-12 h-12" />
@@ -154,13 +176,13 @@ const toggle = (menu: 'daftar' | 'kategori') => {
 
                 <Transition name="slide">
                     <div v-if="toggles.daftar" class="pl-8 space-y-1">
-                        <Link v-if="can('lihat pengambilan')" :href="route('pegawai.pengambilan.index')"
-                            class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
-                        <span>Pengambilan</span>
-                        </Link>
                         <Link v-if="can('lihat pengajuan')" :href="route('pegawai.pengajuan.index')"
                             class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                         <span>Pengajuan</span>
+                        </Link>
+                        <Link v-if="can('lihat pengambilan')" :href="route('pegawai.pengambilan.index')"
+                            class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
+                        <span>Pengambilan</span>
                         </Link>
                         <Link v-if="can('lihat pengujian')" :href="route('pegawai.pengujian.index')"
                             class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
@@ -218,7 +240,24 @@ const toggle = (menu: 'daftar' | 'kategori') => {
                 </Transition>
             </div>
 
-            <a v-if="can('kelola pembayaran')" href="/pegawai/pembayaran" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
+            <a v-if="can('kelola aduan')" href="/pegawai/aduan"
+                class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
+                <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg"
+                    xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <rect width="38" height="38" fill="url(#pattern0_1673_92)" />
+                    <defs>
+                        <pattern id="pattern0_1673_92" patternContentUnits="objectBoundingBox" width="1" height="1">
+                            <use xlink:href="#image0_1673_92" transform="scale(0.01)" />
+                        </pattern>
+                        <image id="image0_1673_92" width="100" height="100" preserveAspectRatio="none"
+                            xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAACXElEQVR4nO3cwWoTURTG8TyZPpNkXkCEgvsmIBdBlwXprlwEoXAcLXYZ+gAJbs7SfRa3FFobTA0WMn7n3vv/4GwCDZnvlwkzJ6GzGSGEEELIsBwLM+51IHtngDHGBDk5W5V3X9Zdz8nZKg5IutwU89L1pMsNIBYAAhDXlw+I6wsHxPUlA+L6YgEJUKYBoi/QANGXZoDoizJA9OUYIKxOEquTEmoAcT0CIK4vHhDXlw2I6wsGJECpBoi+SAPk8TLxb3N+82uvqLvHDv3NVPPUa2nysvfQL1bSE8+3e8D/c/712ABZAnLUM6S1SbV/ZLU2CZAiRwDE9cUD4vqyAXF9wYAEKNUA0RdpgOjLM0D0hRkgh0tglzVBWC6Wdu7UWb9PEHZZpZ0zpLVJgBQ5AiCuLx4Q15cNiOsLBiRAqQaIvkgDRF+eAbJfAnfqE4RdVmnnTp1t7wRhdVLaOUNamwRIkSMA4vriAXF92YC4vmBAApRqgOiLNED05Rkg+sIMkMMlsDqZIOyySjt36qzfJwi7rNLOGdLaJECKHAEQ1xcPiOvLBsT1BQMSoFQDJMYMR/7PQlz2OiBN3YcM98dxer4qF1frZ8/rD9e/n2O++LrlDPHjgHy+3pTnJv9YP2Isx+2rxfeXgLgGJBRG7yA5GkbPIDkiRq8gOSpGjyA5MkZvIDk6Rk8guQaMXkByLRg9gOSaMFoHybVhtAySa8RoFSTXitEiyJuPO1vb5bidn357MaspDy/+7aeb8t5+VjvDH18wzRcVYtzl2N+0DQGmuo+p3ajLG8AghBBCyCxobgFjAQlcrdoQqAAAAABJRU5ErkJggg==" />
+                    </defs>
+                </svg>
+                <span>Verifikasi Aduan</span>
+            </a>
+
+            <a v-if="can('kelola pembayaran')" href="/pegawai/pembayaran"
+                class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                 <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg"
                     xmlns:xlink="http://www.w3.org/1999/xlink">
                     <rect width="38" height="38" fill="url(#pattern0_1673_92)" />
@@ -232,7 +271,9 @@ const toggle = (menu: 'daftar' | 'kategori') => {
                 </svg>
                 <span>Verifikasi Pembayaran</span>
             </a>
-            <a v-if="can('laporan keuangan')" href="/pegawai/laporan-keuangan" class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
+
+            <a v-if="can('laporan keuangan')" href="/pegawai/laporan-keuangan"
+                class="flex items-center gap-3 py-3 px-3 hover:bg-green-700 rounded">
                 <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg"
                     xmlns:xlink="http://www.w3.org/1999/xlink">
                     <rect width="38" height="38" fill="url(#pattern0_1836_2511)" />
