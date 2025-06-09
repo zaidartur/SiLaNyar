@@ -33,7 +33,8 @@ class PembayaranController extends Controller
 
     public function edit($id)
     {
-        $pembayaran = Pembayaran::with(['form_pengajuan', 'form_pengajuan.user'])->findOrFail($id);
+        $pembayaran = Pembayaran::with(['form_pengajuan.instansi.user'])->findOrFail($id);
+        // $pembayaran = Pembayaran::with(['form_pengajuan', 'form_pengajuan.user'])->findOrFail($id);
 
         return Inertia::render('pegawai/pembayaran/Edit', [
             'pembayaran' => $pembayaran
