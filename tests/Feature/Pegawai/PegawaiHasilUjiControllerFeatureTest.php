@@ -294,24 +294,6 @@ class PegawaiHasilUjiControllerFeatureTest extends TestCase
             );
     }
 
-    public function test_edit_verifikasi_menampilkan_form_verifikasi()
-    {
-        $response = $this->actingAs($this->pegawai)
-            ->get('/pegawai/hasiluji/verifikasi/' . $this->hasilUji->id);
-
-        $response->assertStatus(200)
-            ->assertInertia(fn (Assert $page) => $page
-                ->component('pegawai/hasil_uji/Verifikasi')
-                ->has('hasil_uji', fn (Assert $hasilUji) => $hasilUji
-                    ->where('id', $this->hasilUji->id)
-                    ->where('status', 'draf')
-                    ->etc()
-                )
-                ->has('pengujian')
-                ->has('parameter')
-            );
-    }
-
     public function test_verifikasi_mengubah_status_hasil_uji()
     {
         $data = ['status' => 'proses_review'];

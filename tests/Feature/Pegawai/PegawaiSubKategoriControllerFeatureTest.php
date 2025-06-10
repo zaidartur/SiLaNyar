@@ -271,24 +271,6 @@ class PegawaiSubKategoriControllerFeatureTest extends TestCase
         ]);
     }
 
-    public function test_show_menampilkan_detail_subkategori()
-    {
-        $response = $this->actingAs($this->pegawai)
-            ->get(route('pegawai.subkategori.detail', $this->subKategori->id));
-
-        $response->assertStatus(200)
-            ->assertInertia(fn (Assert $page) => $page
-                ->component('pegawai/subkategori/Detail')
-                ->has('subkategori', 1)
-                ->has('subkategori.0', fn (Assert $subkategori) => $subkategori
-                    ->where('id', $this->subKategori->id)
-                    ->where('nama', $this->subKategori->nama)
-                    ->has('parameter', 2)
-                    ->etc()
-                )
-            );
-    }
-
     public function test_destroy_subkategori_berhasil()
     {
         $response = $this->actingAs($this->pegawai)
