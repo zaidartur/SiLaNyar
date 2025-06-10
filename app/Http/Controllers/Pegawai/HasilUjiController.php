@@ -24,7 +24,7 @@ class HasilUjiController extends Controller
         'proses_peresmian' => ['selesai', 'revisi'],
         'selesai' => [],
     ];
-    
+
     // menampilkan daftar hasil uji
     public function index()
     {
@@ -226,11 +226,42 @@ class HasilUjiController extends Controller
         DB::beginTransaction();
 
         try {
+            $parameterKategori = collect($hasil_uji->pengujian->form_pengajuan->kategori->parameter)->map(function ($param) {
+                return [
+                    'id' => $param->id,
+                    'nama_parameter' => $param->nama_parameter,
+                    'satuan' => $param->satuan,
+                    'baku_mutu' => $param->pivot->baku_mutu ?? null,
+                ];
+            });
+
+            $parameterSubKategori = collect($hasil_uji->pengujian->form_pengajuan->kategori->subkategori)->flatMap(function ($sub) {
+                return $sub->parameter->map(function ($param) {
+                    return [
+                        'id' => $param->id,
+                        'nama_parameter' => $param->nama_parameter,
+                        'satuan' => $param->satuan,
+                        'baku_mutu' => $param->pivot->baku_mutu ?? null,
+                    ];
+                });
+            });
+
+            $semuaParameter = $parameterKategori->merge($parameterSubKategori)->keyBy('id');
+
             $dataSebelum = DB::table('parameter_pengujian')
                 ->where('id_pengujian', $hasil_uji->id_pengujian)
-                ->get(['id_parameter', 'nilai', 'keterangan'])
-                ->map(function ($item) {
-                    return (array) $item;
+                ->get()
+                ->map(function ($item) use ($semuaParameter) {
+                    $parameter = $semuaParameter[$item->id_parameter] ?? null;
+
+                    return [
+                        'id_parameter' => $item->id_parameter,
+                        'nama_parameter' => $parameter['nama_parameter'] ?? 'Tidak Ditemukan',
+                        'satuan' => $parameter['satuan'] ?? null,
+                        'baku_mutu' => $parameter['baku_mutu'] ?? null,
+                        'nilai' => $item->nilai,
+                        'keterangan' => $item->keterangan,
+                    ];
                 });
 
             HasilUjiHistori::create([
@@ -282,7 +313,7 @@ class HasilUjiController extends Controller
             return Redirect::back()->withErrors(['error' => 'Gagal Memperbarui Hasil Uji ' . $hasil_uji->kode_hasil_uji . ' Dengan Error ' . $err->getMessage()]);
         }
     }
-  
+
     // proses verifikasi hasil uji
     public function verifikasi($id, Request $request)
     {

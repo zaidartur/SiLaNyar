@@ -197,7 +197,7 @@ Route::prefix('pegawai')->group(function () {
     Route::get('hasiluji/create', [PegawaiHasilUjiController::class, 'create'])->middleware('check.permission:tambah hasil uji')->name('pegawai.hasil_uji.tambah');
     Route::post('hasiluji/store', [PegawaiHasilUjiController::class, 'store'])->middleware('check.permission:tambah hasil uji');
     Route::get('hasiluji/edit/{id}', [PegawaiHasilUjiController::class, 'edit'])->middleware('check.permission:edit hasil uji')->name('pegawai.hasil_uji.edit');
-    Route::put('hasiluji/{hasil_uji}/edit', [PegawaiHasilUjiController::class, 'update'])->middleware('check.permission:edit hasil uji');
+    Route::put('hasiluji/{hasil_uji}/edit', [PegawaiHasilUjiController::class, 'update'])->middleware('check.permission:edit hasil uji')->name('pegawai.hasil_uji.update');
     Route::put('hasiluji/verifikasi/{id}', [PegawaiHasilUjiController::class, 'verifikasi'])->middleware('check.permission:edit status hasil uji');
     Route::get('hasiluji/{id}', [PegawaiHasilUjiController::class, 'show'])->middleware('check.permission:detail hasil uji')->name('pegawai.hasil_uji.detail');
     Route::get('hasiluji/riwayat/{id}', [HasilUjiHistoriController::class, 'index'])->middleware('check.permission:riwayat hasil uji')->name('pegawai.hasil_uji.riwayat');

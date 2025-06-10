@@ -7,6 +7,7 @@ use App\Models\HasilUji;
 use App\Models\HasilUjiHistori;
 use App\Models\ParameterUji;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class HasilUjiHistoriController extends Controller
@@ -38,9 +39,7 @@ class HasilUjiHistoriController extends Controller
             'hasil_uji.pengujian.user'
         ])->findOrFail($id);
 
-        $kategori = $histori->hasil_uji->pengujian->form_pengajuan->kategori;
-
-        $parameterKategori = $kategori->parameter->map(function ($param) {
+        $parameterKategori = collect($histori->hasil_uji->pengujian->form_pengajuan->kategori->parameter)->map(function ($param) {
             return [
                 'id' => $param->id,
                 'nama' => $param->nama_parameter,
@@ -49,7 +48,7 @@ class HasilUjiHistoriController extends Controller
             ];
         });
 
-        $parameterSubKategori = $kategori->subkategori->flatMap(function ($sub) {
+        $parameterSubKategori = collect($histori->hasil_uji->pengujian->form_pengajuan->kategori->subkategori)->flatMap(function ($sub) {
             return $sub->parameter->map(function ($param) {
                 return [
                     'id' => $param->id,
@@ -60,28 +59,27 @@ class HasilUjiHistoriController extends Controller
             });
         });
 
-        $semuaParameter = $parameterKategori->merge($parameterSubKategori)->keyBy('id');
+        $semuaParameter = $parameterKategori->merge($parameterSubKategori)->keyBy('id_parameter');
 
-        $idParameter = collect($histori->data_parameter)->pluck('id_parameter')->unique();
-
-        $parameterMap = ParameterUji::whereIn('id', $idParameter)
+        $parameterPengujian = DB::table('parameter_pengujian')
+            ->where('id_pengujian', $histori->hasil_uji->id_pengujian)
             ->get()
-            ->keyBy('id')
-            ->map(fn($item) => $item->nama_parameter);
+            ->map(function ($item) use ($semuaParameter) {
+                $parameter = $semuaParameter[$item->id_parameter] ?? null;
 
-        $dataParameter = collect($histori->data_parameter)->map(function ($item) use ($parameterMap, $semuaParameter) {
-            $idParameter = $item['id_parameter'];
+                return [
+                    'id_parameter' => $item->id_parameter,
+                    'nama_parameter' => $parameter['nama_parameter'] ?? 'Tidak Ditemukan',
+                    'satuan' => $parameter['satuan'] ?? null,
+                    'nilai' => $item->nilai ?? null,
+                    'baku_mutu' => $parameter['baku_mutu'] ?? null,
+                    'keterangan' => $item->keterangan ?? null
+                ];
+            });
 
-            return [
-                'nama_parameter' => $parameterMap[$idParameter] ?? 'Tidak Ditemukan',
-                'nilai' => $item['nilai'] ?? null,
-                'baku_mutu' => $semuaParameter[$idParameter]['baku_mutu'] ?? 'Tidak Ditemukan',
-                'keterangan' => $item['keterangan'] ?? null,
-            ];
-        });
         return Inertia::render('pegawai/hasil_uji/ShowHistori', [
             'histori' => $histori,
-            'data_parameter' => $dataParameter
+            'data_parameter' => $parameterPengujian
         ]);
     }
 }

@@ -16,9 +16,10 @@ return new class extends Migration
             $table->string('kode_aduan')->unique();
             $table->foreignId('id_hasil_uji')->constrained('hasil_uji')->onDelete('cascade');
             $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
+            $table->enum('terkait', ['administrasi', 'pengujian'])->nullable();
             $table->string('masalah');
             $table->string('perbaikan');
-            $table->enum('status', ['diterima_administrasi', 'diterima_pengujian','ditolak', 'diproses']);
+            $table->enum('status', ['diterima_administrasi', 'diterima_pengujian','ditolak', 'diproses'])->nullable();
             $table->string('diverifikasi_oleh')->nullable();
             $table->timestamps();
         });

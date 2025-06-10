@@ -15,6 +15,7 @@ class Aduan extends Model
         'kode_aduan',
         'id_hasil_uji',
         'id_user',
+        'terkait',
         'masalah',
         'perbaikan',
         'status',
