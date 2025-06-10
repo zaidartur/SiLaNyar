@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import CustomerLayout from '@/layouts/customer/CustomerLayout.vue'
-import { Head, Link, router } from '@inertiajs/vue3'
-import { ref } from 'vue'
+import { Head, router, Link } from '@inertiajs/vue3'
 
 const props = defineProps<{
     hasil_uji: any[],
@@ -29,11 +28,12 @@ const statusLabel = (status: string) => {
 }
 
 const verifikasi = (id: number) => {
-    if (confirm('Anda yakin tidak ada aduan dalam hasil uji ini?')) {
-        router.put(route('customer.hasil_uji.verifikasi', id), {
+    if (confirm('Apakah Anda yakin ingin memverifikasi hasil uji ini?')) {
+        router.put(route('customer.hasiluji.verifikasi', id), {
             status: 'proses_peresmian'
         }, {
             onSuccess: () => {
+                // Refresh data atau lakukan tindakan lain setelah verifikasi
                 router.reload({ only: ['hasil_uji'] })
             }
         })
@@ -59,9 +59,9 @@ const verifikasi = (id: number) => {
                             <th class="px-4 py-3 text-left font-semibold">Tanggal</th>
                             <th class="px-4 py-3 text-left font-semibold">Lokasi</th>
                             <th class="px-4 py-3 text-left font-semibold">Metode Pengambilan</th>
-                            <th class="px-4 py-3 text-left font-semibold">Aduan</th>
-                            <th class="px-4 py-3 text-left font-semibold">Rating</th>
                             <th class="px-4 py-3 text-left font-semibold">Status</th>
+                            <th class="px-4 py-3 text-left font-semibold">Aduan</th>
+                            <!-- <th class="px-4 py-3 text-left font-semibold">Rating</th> -->
                             <th class="px-4 py-3 text-left font-semibold rounded-tr-xl">Aksi</th>
                         </tr>
                     </thead>
@@ -106,13 +106,16 @@ const verifikasi = (id: number) => {
                                     class="text-green-600 hover:text-green-800" title="Verifikasi hasil uji">
                                     ✅
                                 </button>
-                                <Link v-if="item.status === 'proses_review'" :href="`/customer/hasiluji/aduan/${item.id}`"
+                                <Link v-if="item.status === 'proses_review'"
+                                    :href="`/customer/hasiluji/aduan/${item.id}`"
                                     class="text-red-500 hover:text-red-700" title="Tambah Aduan">
                                 📝
                                 </Link>
-                                <Link :href="`/customer/hasil-uji/${item.id}`" class="text-blue-500 hover:text-blue-700"
-                                    title="Lihat Detail">
-                                👁️
+                            </td>
+                            <td class="px-4 py-3 border-b">
+                                <Link :href="`/customer/hasiluji/ ${item.id}`"
+                                    class="text-blue-500 hover:text-blue-700" title="Lihat Detail">
+                                👁
                                 </Link>
                             </td>
                         </tr>

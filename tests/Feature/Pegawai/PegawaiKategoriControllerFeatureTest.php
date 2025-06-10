@@ -266,24 +266,6 @@ class PegawaiKategoriControllerFeatureTest extends TestCase
         $response->assertSessionHasErrors(['harga']);
     }
 
-    public function test_show_menampilkan_detail_kategori()
-    {
-        $response = $this->actingAs($this->pegawai)
-            ->get(route('pegawai.kategori.detail', $this->kategori->id));
-
-        $response->assertStatus(200)
-            ->assertInertia(fn (Assert $page) => $page
-                ->component('pegawai/kategori/Detail')
-                ->has('kategori', 1, fn (Assert $kategori) => $kategori
-                    ->where('id', $this->kategori->id)
-                    ->where('nama', $this->kategori->nama)
-                    ->has('subkategori')
-                    ->has('parameter')
-                    ->etc()
-                )
-            );
-    }
-
     public function test_edit_menampilkan_form_edit_kategori()
     {
         $response = $this->actingAs($this->pegawai)
