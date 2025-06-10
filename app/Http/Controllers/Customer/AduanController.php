@@ -16,14 +16,6 @@ use Inertia\Inertia;
 
 class AduanController extends Controller
 {
-    // public function index()
-    // {
-    //     $aduan = Aduan::with('hasil_uji.pengujian.form_pengajuan.instansi.user')->get();
-        
-    //     return Inertia::render('customer/aduan/Index', [
-    //         'aduan' => $aduan
-    //     ]);
-    // }
 
     public function create(HasilUji $hasil_uji)
     {
@@ -49,17 +41,18 @@ class AduanController extends Controller
         $request->validate([
             'masalah' => 'required|string',
             'perbaikan' => 'required|string',
+            'terkait' => 'required|in:administrasi,pengujian',
         ]);
 
         Aduan::create([
             'id_hasil_uji' => $hasil_uji->id,
             'id_user' => $user->id,
+            'terkait' => $request->terkait,
             'masalah' => $request->masalah,
             'perbaikan' => $request->perbaikan,
             'status' => 'diproses'
         ]);
 
         return Redirect::route('customer.hasil_uji.index')->with('message', 'Aduan Berhasil Terkirim');
-    }
-    
+    }   
 }
