@@ -15,7 +15,7 @@ class JenisCairanSeeder extends Seeder
     {
         $jeniscairan = [
             [
-                'nama' => 'Sampel Total Volume',
+                'nama' => 'Sampel Umum',
                 'batas_minimum' =>  2500,
             ],
             [

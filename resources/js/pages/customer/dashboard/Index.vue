@@ -209,7 +209,7 @@ const props = defineProps<{
                                             <td class="border p-2">
                                                 <Link v-if="p.status_pembayaran !== 'selesai'"
                                                     :href="route('customer.pembayaran.show', p.id)"
-                                                    class="rounded bg-green-500 px-3 py-1 text-xs text-white hover:bg-green-600">
+                                                    class="rounded bg-customDarkGreen px-3 py-1 text-xs text-white hover:bg-green-600">
                                                 Bayar
                                                 </Link>
                                                 <span v-else class="text-xs text-gray-400">Lunas</span>
@@ -256,12 +256,12 @@ const props = defineProps<{
                                                 item.status ? 'bg-green-200' : 'bg-gray-200',
                                             ]">
                                             <div
-                                                :class="['h-4 w-4 rounded-full', item.status ? 'bg-green-600' : 'bg-gray-400']">
+                                                :class="['h-4 w-4 rounded-full', item.status ? 'bg-customDarkGreen' : 'bg-gray-400']">
                                             </div>
                                         </div>
                                         <div class="ml-4">
                                             <p
-                                                :class="['font-medium', item.status ? 'text-green-600' : 'text-gray-600']">
+                                                :class="['font-medium', item.status ? 'text-customDarkbg-customDarkGreen' : 'text-gray-600']">
                                                 {{ item.label }}
                                             </p>
                                             <p class="text-sm text-gray-500">{{ item.tanggal }}</p>

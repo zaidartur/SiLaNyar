@@ -83,6 +83,16 @@ watch(() => form.value.kategori_id, () => {
     form.value.parameter_ids = Array.from(current)
 })
 
+watch(
+    () => props.pengajuan.metode_pengambilan,
+    (val) => {
+        if (val === 'diambil') {
+            form.value.metode_pembayaran = 'transfer'
+        }
+    },
+    { immediate: true }
+)
+
 const handleVerifikasi = (status: 'diterima' | 'ditolak') => {
     const payload: Record<string, any> = {
         status_pengajuan: status,
@@ -94,11 +104,16 @@ const handleVerifikasi = (status: 'diterima' | 'ditolak') => {
         payload.metode_pembayaran = form.value.metode_pembayaran
     }
 
-    router.put(`/pegawai/pengajuan/${props.pengajuan.id}/edit`, payload)
+    router.put(`/pegawai/pengajuan/${props.pengajuan.id}/edit`, payload, {
+        onSuccess: () => {
+            router.visit('/pegawai/pengajuan') // arahkan ke halaman index pengajuan
+        }
+    })
 }
 </script>
 
 <template>
+
     <Head title="Edit Pengajuan" />
     <AdminLayout>
         <div class="p-6 max-w-4xl mx-auto bg-white rounded shadow">
@@ -146,10 +161,10 @@ const handleVerifikasi = (status: 'diterima' | 'ditolak') => {
                 </div>
             </div>
 
-            <div class="mb-4">
+            <div v-if="props.pengajuan.metode_pengambilan === 'diambil'" class="mb-4">
                 <label class="font-semibold block mb-1">Metode Pembayaran</label>
                 <select v-model="form.metode_pembayaran" class="w-full border rounded px-2 py-1"
-                    :disabled="props.pengajuan.metode_pengambilan !== 'diantar'">
+                    :disabled="props.pengajuan.metode_pengambilan === 'diambil'">
                     <option value="transfer">Transfer</option>
                     <option value="tunai">Tunai</option>
                 </select>

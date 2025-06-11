@@ -207,4 +207,12 @@ class CustomerProfileController extends Controller
 
         return Redirect::route('customer.profile')->with('message', 'Data Instansi Berhasil Diupdate!');
     }
+
+    public function destroyInstansi($id, Request $request)
+    {
+        $instansi = Instansi::findOrFail($id);
+        $instansi->delete();
+
+        return Redirect::route('customer.profile')->with('message', 'Data Instansi Berhasil Dihapus!');
+    }
 }

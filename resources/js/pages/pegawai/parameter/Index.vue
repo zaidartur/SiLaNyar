@@ -82,7 +82,7 @@ const handleDelete = () => {
             <div class="overflow-x-auto rounded-lg shadow-md">
                 <table class="min-w-full bg-white divide-y divide-gray-300">
                     <thead>
-                        <tr class="bg-gray-600 text-white text-left text-sm font-semibold uppercase tracking-wider">
+                        <tr class="bg-customDarkGreen text-white text-left text-sm font-semibold uppercase tracking-wider">
                             <th class="px-6 py-3">ID Parameter</th>
                             <th class="px-6 py-3">Nama Parameter</th>
                             <th class="px-6 py-3">Satuan</th>
@@ -92,8 +92,7 @@ const handleDelete = () => {
                     </thead>
                     <tbody>
                         <tr v-for="(item, index) in props.parameter" :key="item.id" :class="[
-                            index % 2 === 0 ? 'bg-white' : 'bg-gray-100',
-                            'hover:bg-gray-200 transition-colors'
+                            index % 2 === 0 ? 'bg-white' : 'bg-gray-200',
                         ]">
                             <td class="px-6 py-4 text-gray-800 whitespace-nowrap">PR-{{ String(item.id).padStart(3, '0')
                                 }}</td>

@@ -30,7 +30,7 @@ const submit = () => {
         <p class="text-gray-900">{{ hasil_uji.kode_hasil_uji }}</p>
       </div>
 
-       <div class="mb-4">
+      <div class="mb-4">
         <label class="block text-gray-700 font-semibold mb-1" for="masalah">Masalah</label>
         <textarea
           id="masalah"

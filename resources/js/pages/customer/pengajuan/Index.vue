@@ -127,8 +127,10 @@ function getNamaKategori() {
         <div class="flex p-6 mb-5">
             <ol class="mb-8 flex w-full items-center justify-center">
                 <!-- Step 1 -->
-                <li class="flex w-full items-center after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:border-customLightGreen after:content-['']"
-                    :class="step > 1 ? 'text-customDarkGreen' : 'text-gray-400'">
+                <li class="flex w-full items-center after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:content-['']"
+                    :class="[
+                        step > 1 ? 'text-customDarkGreen after:border-customLightGreen' : 'text-gray-400 after:border-gray-100'
+                    ]">
                     <div :class="[
                         'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
                         step === 1 ? 'bg-customDarkGreen text-white' : step > 1 ? 'bg-customDarkGreen text-white' : 'bg-gray-100 text-gray-400',
@@ -138,8 +140,10 @@ function getNamaKategori() {
                     <span class="mt-2 text-xs font-semibold text-center">Detail Sample</span>
                 </li>
                 <!-- Step 2 -->
-                <li class="flex w-full items-center after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:border-gray-100 after:content-['']"
-                    :class="step > 2 ? 'text-customDarkGreen' : 'text-gray-400'">
+                <li class="flex w-full items-center after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:content-['']"
+                    :class="[
+                        step > 2 ? 'text-customDarkGreen after:border-customLightGreen' : 'text-gray-400 after:border-gray-100'
+                    ]">
                     <div :class="[
                         'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
                         step === 2 ? 'bg-customDarkGreen text-white' : step > 2 ? 'bg-customDarkGreen text-white' : 'bg-gray-100 text-gray-400',
@@ -149,8 +153,10 @@ function getNamaKategori() {
                     <span class="mt-2 text-xs font-semibold text-center">Parameter Pengujian</span>
                 </li>
                 <!-- Step 3 -->
-                <li class="flex w-full items-center after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:border-gray-100 after:content-['']"
-                    :class="step > 3 ? 'text-customDarkGreen' : 'text-gray-400'">
+                <li class="flex w-full items-center after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:content-['']"
+                    :class="[
+                        step > 3 ? 'text-customDarkGreen after:border-customLightGreen' : 'text-gray-400 after:border-gray-100'
+                    ]">
                     <div :class="[
                         'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
                         step === 3 ? 'bg-customDarkGreen text-white' : step > 3 ? 'bg-blue-100 text-customDarkGreen' : 'bg-gray-100 text-gray-400',
@@ -233,23 +239,8 @@ function getNamaKategori() {
                     <div>
                         <label class="mb-1 block font-semibold">Volume/Berat Sampel</label>
                         <div class="relative">
-                            <!-- SVG Icon -->
-                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                <svg width="21" height="21" viewBox="0 0 21 21" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                                    <rect width="21" height="21" fill="url(#pattern0_1393_1242)" />
-                                    <defs>
-                                        <pattern id="pattern0_1393_1242" patternContentUnits="objectBoundingBox"
-                                            width="1" height="1">
-                                            <use xlink:href="#image0_1393_1242" transform="scale(0.01)" />
-                                        </pattern>
-                                        <image id="image0_1393_1242" width="100" height="100" preserveAspectRatio="none"
-                                            xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAALKklEQVR4nO2de3QcVR3HP7zlqaAUQeUlPo6gxyeIKCogSFEEAStWAUFBfBzFBwiKQVRo9t5tifI4IAikmU0b4EChBygHDM1M0hYC1GYmPVRLmtk0FSq2SFuYDc14bppwwt3ZzWZ3Znc2zPec+092597v7/e7v3t/v9+9mYUECRIkSJAgQYIECRIkSJAgQYJQ4PtsN2TzZc9hlmpDPZyk/paotwbwu9nNc3g45+CPb57Ng77LrolRqmWIBrZf08whW55ioW6Msbapm/v7WjlYfTcxTARwmznMzXBp1mCRa7B5oBXf6wk2xoiX9OAPzMN3M2zKZnjYNfhVfyvvTYxTAfwGth8wOCtr0OEaDGcz+GNt8J7Cxhhr6jvjnxntY3E2w5mJ50zWIwxOcw16xyt0fFs7f2KDDMwPfna0Of0ZTk08ZgL0tXKwWpaKKPL19nIXXiFjqM9K6SNr8NBgCwclhgnyihYuyGZ4qZDy3AzPZw2uV94z2Ma+/gr2yzn0BhjE8ZczbV0z09wMp2cz3OAavFDEMC+psROjjGLNXPZ3DRYWNITBU2rd776ZnfL2meXsnrO5JOewYLT9VIXD+vfUs6oP1+DpIuMsVFze1IZxM5ydNXixgIJctamHmeipvvpbmeFmyBZYwl5UnHizQS05boa7i8zW5vW3smdU46+9n91cgyY9ehs3/l2KI1Mdfjs79htc7GZYX8AYg9lWTq4Wn6zB9JExg/es9Yqr38YOTDWoNby/hfPcDCuLRDyG28Y+1eamxswaZIp4a+9AhnOD9rC6gkq+shmOcg3mFJqFr0dPLXy91nyzBmdMEI0NugazXYMjY5tYrmtmdzXD+g0OHTA42jWY6WZoGI2aNhTLAUbX79Y4rdXrmpmWNZhXQg6zwc3wwKisM5XsSgdKF0onVSU9GkK2ZDO8UlLyFdyW9Rt8lpjCbeHYrMGTFcj3imswV+2ZkZPNGpxTDknlEa7BY/2tnEidwDU4yc3w97IN08p3IiepIo/JGCGbYYVrcGU9V1vdbdXmhqxBz2QMMpDhB5GTU/lBoDsbeM8146/6G75zC/4zN7I6TvtDmPvM8ptYrWRUsq6+k2Ele4A+nogyl8rLeNe2ceDYRua2sasp+LMl8d/QGvkcUwydgmN1OU1Jk9LBWICjdFPTo2SrkT1NycY8g0jmM8VgCdoCDPK/pU3sRVxgCn4cYAzVhpbO4t1MEViNHGAKckGympIfEQco1zQFKwsYRLU/MEVgCv5YRM5VsbjxYqU4sQhJ3xK80N7AW6hzPNjELqbg38VkNSVfisOsWfAGUoIBUzA8/m8dogrxeMRQMmhyDitZtb8toJboFBxkCV7TZsmFpuQxbfZ0U+cwBcs05T9qprlIk32rOZtDa0bSkkhtedqwSLB7h+Q03Z270hxJnaJDcFTeEpXia90N7GYKXtR0IGpCMpCMRKrP2trYwZI8p82oudQpTEGL5glrlIyjn6WDJmX1SUouLOaupuAy7XOvPcU7qTN0CqZZgle1iXfp2OdL5nCwvmxbKb5fdaKW5B/azHhg/OfmtextSjZrRrmSOoMl+J3m6VuWXcPbx3/HlCzUdGFXNQQ2BV8IWFPzqriW4DbNIGvr6eStvYEdTUlWk/VW/XudkpN0fXSk+XzViJqCu/OSooBTNCvFR/NidcE3qBNYkhkBucYnSkmOTcldVSHZleZdevlAlU4Kfd8SmJo7m9QJLImlKbmjyHd/ohlvaLHkPdUgec1kCmvKI0qZZXGDFeTdac4qWmAVvKRN1D9FXz6QPK8R/UsY63DcYJWx/1mC67XVYH2kZSNLcp42A4Y7JR+c6DkVXU0UqcQJZlCEKPjtRM893sj79LKRKTg3OqKCJ7VZs6iU5zqa2NeSvFIolo8bzIAcasl17FfKs5bgEc0gT0dC0kpxdEDE9NVSn1eZuvZ8/1i2Gye0BVQZLElzqc9bklMD9p5Ph07UEmQKlQ9KgdrI82J1yWnEDGaK0yupw6nw3xKs1vowQiW5eDb7K7fVvOMXYVRMiRnM/Er10jL6+KUmZ06lC+GRFFylecfmrvTk7+HqZwqjs+/DxAQdgg/pm7KV5tuT7ad9Dm+zJJs0WRtCIalCPf0gxpLcXE5fdgM766dupuBGYgJTclNYp52m5Batr0Elf8UkOyRn5639KT5Sbn/qjF33NhVmUmO0q1kteFlT4tXl9mfO5nDd2zoF36yYqCnp0kg+HvbNDTPFz6gxLMElYd+YMSWLtdWgsyKSnZKP6d5hpTmjok63ecl8zUv+Vcsr/r7PdpbgWU158yrtt1NwZp7+ZvPJsju0JHdoJAfCKJ+rG40BOc3JlfZbNp800/P4yMpv56uykSVwNTlvL68zyTsCsusrCAnq4oPW94Nh9T1pLoKHNGM8E1rfkt9oS/6r6hSynI6u0DsqtXxQCkzBBdrMGbYa+QBVRleaw9Txs2aQ88PqP6hsZAoun1QnKgM3BX3aDL6DENGVZldT8h/N6NdRZaiL0pqc/1UXOMIcwxLcqY3Rr5az0jtIc4a+pnYKPkXIMAWNtby03H49ewRcEp8V9jiLG/l4wJ5Z+v9VqtBWU1QXEcCcxYF5NzYkF1MldAh+qHnoa4sFh0QxliVYosnZXnZCY6b4VhQkR8aT3KfNnN5q3dgwJT2aQe6NaixLMrOsBDsv5ZesCyXlL4AOyfF5RCXHEzHMFCcELMvHRTXeSAlKsnZSJaigopgqLBIxTMEKbYm8r9qXxC2JE7VnmpLfT6pIq0rqkZaNC0DtGxrRrVGt5YUuiVsi+n/QDDrGsCQ/L/1gRZChRtGOKWiMajxTktKjO3VrJKrxtLFbNTn7Ag/61HFs3poq+QxVgspBrIjzgYL5j2QOVUJHimMC9syv1O5wfjIZswj/TW+W5HvaGMMdkvdTRUx4WURdX3niBoafnYffc8e21reA1JDDCZNuNseV9ZzDCStbWKbGdubi97bgL22iJ2xlLGtiuepbjaHG6m1hWbl8y5W17z7EmJ6VzpXuX79O5dvss3EJ7kRv+ZxE+2dYfXk2/sZObgnLGBuX8FfVZxxl3biUfn8Fe5NzuD1EgqGSzI22Iafy0vyQw/SweYUuq81teDbrY03SGfGUis/dPZub4m4QZQtyNmvjTDKniK6sPAT2HGTcDZJzyKola1HMSfqv9nJKpQYZ6uWUOjDIw/gr2dOz2RBXkp7N/YQEzy78iwq1ltWz2eiv5q3bZo/DdM9mOG4kczZ9I5FHSFARZc6hP24G8Wy2qh+meePscbg2ViQdcrlejiZk5GyO9JzC742vkaz597/U+wFzDvfEgaRns9WzmUlE8Ho5R40RB1lzDnf5foFL677NziGssxWR9LYtnZFXXj2H80NYpiuT1WGRv4pdihJVv9+Us7m3FiQ9tUzZXESVoAw/MmZtDHJPyb+VpQ5qcjaXeTavVY2kyod6qlddHkOuh2M8m8FqGUTp1HO4yvfLuKmpfoaujMSxHJKP+HbtXruxeSUHeDaPVsEgWVVcrIisv4q9PIe0Z7MldJI2z3l2fH4ewrOZmbNZE7ZBlO48m5Rvs0doZP1e9vdsGj2HdZWS9Bye8Gy+63fH7zUbfjc7eQ4X5Gy6KzWI0pX6wctIvV+Fx6r66tlcl7OxA/aZPJKew6aRJcHm157D4dQJvF6OyNlc7jk8pmSYyCCew1DOpsezmaMSvaq8ajwwVO7lCFUr8hxmeDbnqRnmOZw11MMXt9gcyBSA77PdFoeDlExKthEZt8k6Y1T2w5Uuas0zQYIECRIkSJAgQYIECRIkSJAgQYIECRIQA/wfNrcfqOishOEAAAAASUVORK5CYII=" />
-                                    </defs>
-                                </svg>
-                            </span>
                             <input type="text" inputmode="numeric" v-model.number="form.volume_sampel"
-                                class="w-full rounded border px-3 py-2 pl-10" placeholder="Min : 2,5 ml" required />
+                                class="w-full rounded border px-3 py-2" required />
                         </div>
                     </div>
                     <!-- Instansi -->
@@ -287,6 +278,28 @@ function getNamaKategori() {
                         <label class="mb-1 block font-semibold">Lokasi Pengambilan</label>
                         <input type="text" v-model="form.lokasi" class="w-full rounded border px-3 py-2" required />
                     </div>
+
+                    <div v-if="form.metode_pengambilan === 'diantar'"
+                        class="mt-2 rounded-lg border border-orange-300 bg-yellow-50 p-3 text-orange-700">
+                        <div class="font-semibold">Perhatian untuk Pengantaran Sampel</div>
+                        <div>
+                            Karena Anda memilih metode <b>"Diantar"</b>, sampel harus menggunakan wadah sejenis gelas
+                            untuk
+                            memastikan akurasi hasil uji dan mencegah kontaminasi.
+                        </div>
+                    </div>
+
+                    <div v-if="form.metode_pengambilan === 'diantar'" class="rounded-lg border border-gray-300 bg-white p-3">
+                        <div class="font-semibold mb-1">Persyaratan Wadah</div>
+                        <ul class="list-disc pl-5 text-sm text-gray-800">
+                            <li>Wadah harus dari bahan kaca/gelas</li>
+                            <li>Bersih dan steril (jika memungkinkan)</li>
+                            <li>Tutup rapat untuk mencegah kontaminasi</li>
+                            <li>Tidak retak atau rusak</li>
+                            <li>Kapasitas minimal sesuai volume sampel</li>
+                        </ul>
+                    </div>
+
                     <!-- Waktu Pengambilan (jika diantar) -->
                     <div v-if="form.metode_pengambilan === 'diantar'" class="md:col-span-2 lg:col-span-1">
                         <label class="mb-1 block font-semibold">Waktu Pengambilan</label>

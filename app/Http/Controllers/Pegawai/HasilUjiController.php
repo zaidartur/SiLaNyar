@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Log;
 
 class HasilUjiController extends Controller
 {
@@ -41,7 +42,10 @@ class HasilUjiController extends Controller
     // form tambah hasil uji
     public function create(Request $request)
     {
-        $pengujianList = Pengujian::with('form_pengajuan.instansi.user')->select('id', 'kode_pengujian', 'id_form_pengajuan')->get();;
+        $pengujianList = Pengujian::with('form_pengajuan.instansi.user')
+            ->whereDoesntHave('hasil_uji')
+            ->select('id', 'kode_pengujian', 'id_form_pengajuan')
+            ->get();
 
         $pengujian = null;
         $semuaParameter = [];
@@ -158,6 +162,7 @@ class HasilUjiController extends Controller
             'pengujian.form_pengajuan.kategori.parameter',
             'pengujian.form_pengajuan.kategori.subkategori.parameter',
             'pengujian.form_pengajuan.instansi.user',
+            'pengujian.user',
         ])->findOrFail($id);
 
         if (!in_array($hasil_uji->status, ['draf', 'revisi'])) {
@@ -278,6 +283,7 @@ class HasilUjiController extends Controller
 
             return Redirect::route('pegawai.hasil_uji.index')->with('message', 'Hasil Uji Berhasil Diupdate!');
         } catch (\Exception $err) {
+            Log::error("Update error: " . $err->getMessage());
             DB::rollBack();
             return Redirect::back()->withErrors(['error' => 'Gagal Memperbarui Hasil Uji ' . $hasil_uji->kode_hasil_uji . ' Dengan Error ' . $err->getMessage()]);
         }

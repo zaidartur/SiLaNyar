@@ -75,13 +75,13 @@ const props = defineProps<{
                     <span class="text-xs text-gray-500">Status Pengajuan</span>
                     <span class="flex items-center gap-2 text-lg font-semibold capitalize">
                         <span
-                            v-if="props.pengajuan.status_pengajuan === 'selesai'"
+                            v-if="props.pengajuan.status_pengajuan === 'diterima'"
                             class="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-sm font-semibold text-green-700"
                         >
                             <svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                             </svg>
-                            Selesai
+                            diterima
                         </span>
                         <span
                             v-else-if="props.pengajuan.status_pengajuan === 'proses_validasi'"

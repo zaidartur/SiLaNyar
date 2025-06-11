@@ -81,11 +81,11 @@ class PengajuanController extends Controller
 
             $pengajuan->status_pengajuan = $validated['status_pengajuan'];
 
-            if ($pengajuan->metode_pengambilan === 'diantar') {
-                $pengajuan->id_kategori = $validated['id_kategori'];
+            // if ($pengajuan->metode_pengambilan === 'diantar') {
+            //     $pengajuan->id_kategori = $validated['id_kategori'];
 
-                $pengajuan->parameter()->sync($validated['parameter']);
-            }
+            //     $pengajuan->parameter()->sync($validated['parameter']);
+            // }
 
             $pengajuan->save();
 

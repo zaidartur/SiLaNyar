@@ -33,7 +33,7 @@ class AduanController extends Controller
             abort(403, 'Anda Tidak Memiliki Akses Di Halaman Ini!');
         }
 
-        return Inertia::render('customer/aduan/Create', [
+        return Inertia::render('customer/aduan/Tambah', [
             'hasil_uji' => $hasil_uji,
         ]);
     }
@@ -49,6 +49,7 @@ class AduanController extends Controller
         $request->validate([
             'masalah' => 'required|string',
             'perbaikan' => 'required|string',
+            'terkait' => 'nullable|in:administrasi,pengujian',
         ]);
 
         Aduan::create([
@@ -61,5 +62,4 @@ class AduanController extends Controller
 
         return Redirect::route('customer.hasil_uji.index')->with('message', 'Aduan Berhasil Terkirim');
     }
-    
 }

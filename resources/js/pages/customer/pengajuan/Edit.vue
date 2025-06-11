@@ -120,14 +120,14 @@ function submit() {
 
 <template>
     <CustomerLayout>
-        <div class="space-y-4 p-6">
-            <h1 class="text-2xl font-bold">Edit Pengajuan</h1>
+        <div class="max-w-2xl mx-auto bg-white rounded-lg shadow p-8 space-y-6">
+            <h1 class="text-2xl font-bold mb-4 text-gray-800">Edit Pengajuan</h1>
 
-            <form @submit.prevent="submit" class="space-y-4">
+            <form @submit.prevent="submit" class="space-y-5">
                 <!-- Instansi -->
                 <div>
-                    <label>Instansi</label>
-                    <select v-model="form.id_instansi" class="w-full rounded border" disabled>
+                    <label class="block mb-1 font-medium text-gray-700">Instansi</label>
+                    <select v-model="form.id_instansi" class="w-full text-base px-3 py-2 rounded border-gray-300 bg-gray-100" disabled>
                         <option v-for="ins in instansiList" :key="ins.id" :value="ins.id">
                             {{ ins.nama }}
                         </option>
@@ -136,22 +136,22 @@ function submit() {
 
                 <!-- Jenis Cairan -->
                 <div>
-                    <label>Jenis Cairan</label>
-                    <select v-model="form.id_jenis_cairan" class="w-full rounded border" disabled>
+                    <label class="block mb-1 font-medium text-gray-700">Jenis Cairan</label>
+                    <select v-model="form.id_jenis_cairan" class="w-full text-base px-3 py-2 rounded border-gray-300 bg-gray-100" disabled>
                         <option v-for="jenis in jenisCairanList" :key="jenis.id" :value="jenis.id">{{ jenis.nama }}</option>
                     </select>
                 </div>
 
                 <!-- Volume -->
                 <div>
-                    <label>Volume Sampel</label>
-                    <input type="number" v-model="form.volume_sampel" class="w-full rounded border" disabled />
+                    <label class="block mb-1 font-medium text-gray-700">Volume Sampel</label>
+                    <input type="number" v-model="form.volume_sampel" class="w-full text-base px-3 py-2 rounded border-gray-300 bg-gray-100" disabled />
                 </div>
 
                 <!-- Metode Pengambilan -->
                 <div>
-                    <label>Metode Pengambilan</label>
-                    <select v-model="form.metode_pengambilan" class="w-full rounded border" disabled>
+                    <label class="block mb-1 font-medium text-gray-700">Metode Pengambilan</label>
+                    <select v-model="form.metode_pengambilan" class="w-full text-base px-3 py-2 rounded border-gray-300 bg-gray-100" disabled>
                         <option value="diantar">Diantar</option>
                         <option value="diambil">Diambil</option>
                     </select>
@@ -159,20 +159,20 @@ function submit() {
 
                 <!-- Lokasi -->
                 <div v-if="form.metode_pengambilan === 'diambil'">
-                    <label>Lokasi</label>
-                    <input type="text" v-model="form.lokasi" class="w-full rounded border" disabled />
+                    <label class="block mb-1 font-medium text-gray-700">Lokasi</label>
+                    <input type="text" v-model="form.lokasi" class="w-full text-base px-3 py-2 rounded border-gray-300"/>
                 </div>
 
                 <!-- Waktu -->
                 <div v-if="form.metode_pengambilan === 'diantar'">
-                    <label>Waktu Pengambilan</label>
-                    <input type="date" v-model="form.waktu_pengambilan" class="w-full rounded border" disabled />
+                    <label class="block mb-1 font-medium text-gray-700">Waktu Pengambilan</label>
+                    <input type="date" v-model="form.waktu_pengambilan" class="w-full text-base px-3 py-2 rounded border-gray-300 bg-gray-100" />
                 </div>
 
                 <!-- Kategori -->
-                <div v-if="form.metode_pengambilan === 'diambil'">
-                    <label for="kategori">Kategori</label>
-                    <select v-model="form.id_kategori" class="w-full rounded border" id="kategori">
+                <div>
+                    <label for="kategori" class="block mb-1 font-medium text-gray-700">Kategori</label>
+                    <select v-model="form.id_kategori" class="w-full text-base px-3 py-2 rounded border-gray-300 bg-gray-100" id="kategori" disabled>
                         <option :value="null" disabled selected>Pilih kategori</option>
                         <option v-for="kat in kategoriList" :key="kat.id" :value="kat.id">
                             {{ kat.nama }}
@@ -181,15 +181,16 @@ function submit() {
                 </div>
 
                 <!-- Parameter -->
-                <div v-if="form.metode_pengambilan === 'diambil'">
-                    <label>Parameter</label>
-                    <div class="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                    <label class="block mb-1 font-medium text-gray-700">Parameter</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                         <div v-for="param in parameterList" :key="param.id" class="flex items-center">
                             <input
                                 type="checkbox"
                                 :value="param.id"
                                 v-model="form.parameter"
-                                :disabled="form.id_kategori && !parameterIsInKategori(param.id)"
+                                disabled
+                                class="text-base px-3 py-2 rounded border-gray-300"
                             />
                             <span
                                 class="ml-2"
@@ -202,7 +203,7 @@ function submit() {
                         </div>
                     </div>
                     <!-- Total Biaya -->
-                    <div class="mt-2 text-right font-semibold">
+                    <div class="mt-2 text-right font-semibold text-gray-700">
                         Total Biaya: Rp
                         {{
                             parameterList
@@ -215,15 +216,15 @@ function submit() {
 
                 <!-- Keterangan -->
                 <div>
-                    <label>Keterangan</label>
-                    <textarea v-model="form.keterangan" class="w-full rounded border" rows="3" disabled></textarea>
+                    <label class="block mb-1 font-medium text-gray-700">Keterangan</label>
+                    <textarea v-model="form.keterangan" class="w-full rounded border-gray-300 bg-gray-100" rows="3" disabled></textarea>
                 </div>
 
                 <!-- Submit -->
-                <div class="space-x-4">
+                <div class="flex justify-end">
                     <button
                         type="submit"
-                        class="rounded bg-blue-600 px-4 py-2 text-white"
+                        class="rounded bg-blue-600 px-4 py-2 text-white font-semibold hover:bg-blue-700 transition"
                         :disabled="form.processing || form.metode_pengambilan !== 'diambil'"
                     >
                         Simpan Perubahan

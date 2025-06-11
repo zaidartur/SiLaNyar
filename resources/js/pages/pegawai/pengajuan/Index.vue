@@ -65,10 +65,10 @@ const handleFilter = () => {
         <div class="p-6">
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-2xl text-black font-bold">DAFTAR PENGAJUAN</h1>
-                <Link :href="route('pegawai.pengajuan.create')"
+                <!-- <Link :href="route('pegawai.pengajuan.create')"
                     class="bg-customDarkGreen text-white px-4 py-2 rounded flex items-center gap-2">
                 <span>+</span> Tambah
-                </Link>
+                </Link> -->
             </div>
 
             <!-- Filter -->
@@ -112,7 +112,7 @@ const handleFilter = () => {
                     </thead>
                     <tbody>
                         <tr v-for="(item, index) in props.pengajuan" :key="item.id"
-                            :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
+                            :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-200'">
                             <td class="px-4 py-3 border-b">{{ item.kode_pengajuan }}</td>
                             <td class="px-4 py-3 border-b">{{ item.instansi.user.nama }}</td>
                             <td class="px-4 py-3 border-b">{{ item.instansi?.nama ?? '-' }}</td>

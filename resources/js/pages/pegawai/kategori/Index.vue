@@ -79,7 +79,7 @@ const handleDelete = () => {
             <div class="overflow-x-auto rounded-lg shadow-md">
                 <table class="min-w-full divide-y divide-gray-300 bg-white">
                     <thead>
-                        <tr class="bg-gray-500 text-left text-sm font-semibold uppercase tracking-wider text-white">
+                        <tr class="bg-customDarkGreen text-left text-sm font-semibold uppercase tracking-wider text-white">
                             <th class="px-6 py-3">ID Kategori</th>
                             <th class="px-6 py-3">Nama Kategori</th>
                             <th class="px-6 py-3">Sub Kategori</th>
@@ -92,7 +92,7 @@ const handleDelete = () => {
                         <tr
                             v-for="(item, index) in props.kategori"
                             :key="item.id"
-                            :class="[index % 2 === 0 ? 'bg-white' : 'bg-gray-50', 'transition-colors hover:bg-gray-100']"
+                            :class="[index % 2 === 0 ? 'bg-white' : 'bg-gray-200']"
                         >
                             <td class="px-6 py-4 text-black">{{ item.kode_kategori }}</td>
                             <td class="px-6 py-4 text-black">{{ item.nama }}</td>

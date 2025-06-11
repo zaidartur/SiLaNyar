@@ -101,7 +101,7 @@ const handleDelete = () => {
                     </thead>
                     <tbody>
                         <tr v-for="(item, index) in pengujian" :key="item.id"
-                            :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
+                            :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-200'">
                             <td class="px-4 py-3 border-b">{{ item.kode_pengujian ?? '-' }}</td>
                             <td class="px-4 py-3 border-b">{{ item.form_pengajuan.kode_pengajuan ?? '-' }}</td>
                             <td class="px-4 py-3 border-b">{{ item.user?.nama ?? '-' }}</td>

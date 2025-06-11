@@ -31,6 +31,7 @@ Route::prefix('customer')->middleware(['auth:web', 'role:customer'])->group(func
     Route::post('profile/instansi/store', [CustomerProfileController::class, 'storeInstansi']);
     Route::get('profile/instansi/edit/{instansi}', [CustomerProfileController::class, 'editInstansi'])->name('customer.profile.instansi.edit');
     Route::put('profile/instansi/{instansi}/edit', [CustomerProfileController::class, 'updateInstansi']);
+    Route::delete('profile/instansi/{id}', [CustomerProfileController::class, 'destroyInstansi']);
 });
 
 Route::get('/', function () {

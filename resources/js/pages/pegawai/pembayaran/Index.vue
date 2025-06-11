@@ -2,7 +2,6 @@
 import AdminLayout from '@/layouts/admin/AdminLayout.vue';
 import { defineProps } from 'vue';
 import { router } from '@inertiajs/vue3';
-
 interface User {
     id: number;
     nama: string;
