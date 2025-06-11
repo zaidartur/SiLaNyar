@@ -219,9 +219,7 @@ class PegawaiPembayaranControllerFeatureTest extends TestCase
 
     public function test_update_pembayaran_berhasil()
     {
-        $data = [
-            'status_pembayaran' => 'selesai',
-        ];
+        $data = ['status_pembayaran' => 'selesai'];
 
         $response = $this->actingAs($this->pegawai)
             ->put("/pegawai/pembayaran/{$this->pembayaranDiproses->id}/edit", $data);
@@ -231,15 +229,13 @@ class PegawaiPembayaranControllerFeatureTest extends TestCase
 
         $this->assertDatabaseHas('pembayaran', [
             'id' => $this->pembayaranDiproses->id,
-            'status_pembayaran' => 'selesai',
+            'status_pembayaran' => 'selesai'
         ]);
     }
 
     public function test_update_pembayaran_ke_status_gagal()
     {
-        $data = [
-            'status_pembayaran' => 'gagal',
-        ];
+        $data = ['status_pembayaran' => 'gagal'];
 
         $response = $this->actingAs($this->pegawai)
             ->put("/pegawai/pembayaran/{$this->pembayaranBelumDibayar->id}/edit", $data);
@@ -249,7 +245,7 @@ class PegawaiPembayaranControllerFeatureTest extends TestCase
 
         $this->assertDatabaseHas('pembayaran', [
             'id' => $this->pembayaranBelumDibayar->id,
-            'status_pembayaran' => 'gagal',
+            'status_pembayaran' => 'gagal'
         ]);
     }
 

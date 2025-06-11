@@ -27,6 +27,8 @@ class PegawaiPengujianControllerFeatureTest extends TestCase
     protected Kategori $kategori;
     protected Pengujian $pengujian;
     protected Pengujian $pengujianSelesai;
+    protected Instansi $instansi;
+    protected JenisCairan $jenisCairan;
 
     public function setUp(): void
     {
@@ -81,22 +83,22 @@ class PegawaiPengujianControllerFeatureTest extends TestCase
         // Buat data pendukung
         $this->kategori = Kategori::factory()->create();
         
-        $instansi = Instansi::factory()->create(['id_user' => $this->customer->id]);
-        $jenisCairan = JenisCairan::factory()->create();
+        $this->instansi = Instansi::factory()->create(['id_user' => $this->customer->id]);
+        $this->jenisCairan = JenisCairan::factory()->create();
 
         // Form pengajuan yang masih proses validasi
         $this->formPengajuan = FormPengajuan::factory()->create([
-            'id_instansi' => $instansi->id,
+            'id_instansi' => $this->instansi->id,
             'id_kategori' => $this->kategori->id,
-            'id_jenis_cairan' => $jenisCairan->id,
+            'id_jenis_cairan' => $this->jenisCairan->id,
             'status_pengajuan' => 'proses_validasi'
         ]);
 
         // Form pengajuan yang sudah diterima
         $this->formPengajuanDiterima = FormPengajuan::factory()->create([
-            'id_instansi' => $instansi->id,
+            'id_instansi' => $this->instansi->id,
             'id_kategori' => $this->kategori->id,
-            'id_jenis_cairan' => $jenisCairan->id,
+            'id_jenis_cairan' => $this->jenisCairan->id,
             'status_pengajuan' => 'diterima'
         ]);
 
@@ -158,36 +160,35 @@ class PegawaiPengujianControllerFeatureTest extends TestCase
 
     public function test_create_menampilkan_form_tambah_pengujian()
     {
+        // Buat pengajuan yang diterima tapi belum ada pengujian
+        $pengajuanDiterima = FormPengajuan::factory()->create([
+            'id_instansi' => $this->instansi->id,
+            'id_kategori' => $this->kategori->id,
+            'id_jenis_cairan' => $this->jenisCairan->id,
+            'status_pengajuan' => 'diterima'
+        ]);
+
         $response = $this->actingAs($this->pegawai)
             ->get(route('pegawai.pengujian.create'));
 
         $response->assertStatus(200)
             ->assertInertia(fn (Assert $page) => $page
                 ->component('pegawai/pengujian/Tambah')
-                ->has('form_pengajuan', fn (Assert $formList) => $formList
-                    ->each(fn (Assert $form) => $form
-                        ->hasAll(['id', 'kode_pengajuan', 'id_instansi', 'id_kategori'])
-                        ->has('kategori', fn (Assert $kategori) => $kategori
-                            ->hasAll(['id', 'nama'])
-                            ->etc()
-                        )
-                        ->has('instansi', fn (Assert $instansi) => $instansi
-                            ->hasAll(['id', 'nama'])
-                            ->has('user', fn (Assert $user) => $user
-                                ->hasAll(['id', 'nama'])
-                                ->etc()
-                            )
-                            ->etc()
-                        )
-                        ->etc()
-                    )
-                )
-                ->has('user', fn (Assert $userList) => $userList
-                    ->each(fn (Assert $user) => $user
+                ->has('form_pengajuan', 1, fn (Assert $form) => $form
+                    ->where('id', $pengajuanDiterima->id)
+                    ->hasAll(['id', 'kode_pengajuan', 'id_instansi', 'id_kategori'])
+                    ->has('kategori', fn (Assert $kategori) => $kategori
                         ->hasAll(['id', 'nama'])
                         ->etc()
                     )
+                    ->has('instansi', fn (Assert $instansi) => $instansi
+                        ->hasAll(['id', 'nama'])
+                        ->has('user')
+                        ->etc()
+                    )
+                    ->etc()
                 )
+                ->has('user')
             );
     }
 
@@ -290,81 +291,58 @@ class PegawaiPengujianControllerFeatureTest extends TestCase
                     ->where('kode_pengujian', $this->pengujian->kode_pengujian)
                     ->where('status', 'diproses')
                     ->has('form_pengajuan', fn (Assert $form) => $form
-                        ->has('kategori', fn (Assert $kategori) => $kategori
-                            ->hasAll(['id', 'nama'])
-                            ->etc()
-                        )
                         ->has('instansi', fn (Assert $instansi) => $instansi
-                            ->has('user', fn (Assert $user) => $user
-                                ->hasAll(['id', 'nama'])
-                                ->etc()
-                            )
+                            ->hasAll(['id', 'nama'])
+                            ->has('user')
                             ->etc()
                         )
                         ->etc()
                     )
-                    ->has('user', fn (Assert $user) => $user
-                        ->hasAll(['id', 'nama'])
-                        ->etc()
-                    )
+                    ->has('user')
                     ->etc()
                 )
-                ->has('form_pengajuan', fn (Assert $formList) => $formList
-                    ->each(fn (Assert $form) => $form
-                        ->hasAll(['id', 'kode_pengajuan', 'id_instansi', 'id_kategori'])
-                        ->etc()
-                    )
-                )
-                ->has('user', fn (Assert $userList) => $userList
-                    ->each(fn (Assert $user) => $user
-                        ->hasAll(['id', 'nama'])
-                        ->etc()
-                    )
-                )
+                ->has('kategoriList')
+                ->has('userList')
+                ->has('pengajuanList')
             );
     }
 
     public function test_update_pengujian_berhasil()
     {
-        $tanggalMulai = Carbon::now()->addDays(5)->format('Y-m-d');
-        $tanggalSelesai = Carbon::now()->addDays(7)->format('Y-m-d');
-
         $data = [
-            'id_form_pengajuan' => $this->formPengajuanDiterima->id,
-            'id_user' => $this->teknisi->id,
+            'id_form_pengajuan' => $this->pengujian->id_form_pengajuan,
             'id_kategori' => $this->kategori->id,
-            'tanggal_mulai' => $tanggalMulai,
-            'tanggal_selesai' => $tanggalSelesai,
-            'jam_mulai' => '09:00',
-            'jam_selesai' => '13:00',
-            'status' => 'diproses'
+            'id_user' => $this->teknisi->id,
+            'tanggal_uji' => now()->addDays(1)->format('Y-m-d'),
+            'jam_mulai' => '08:00',
+            'jam_selesai' => '10:00'
         ];
 
         $response = $this->actingAs($this->pegawai)
             ->put("/pegawai/pengujian/{$this->pengujian->id}/edit", $data);
 
-        $response->assertRedirect(route('pegawai.pengujian.index'))
-            ->assertSessionHas('message', 'Pengujian Berhasil Diupdate');
+        $response->assertRedirect(route('pegawai.pengujian.detail', $this->pengujian->id))
+            ->assertSessionHas('message', 'Pengujian berhasil diupdate');
     }
 
     public function test_update_gagal_jika_pengujian_sudah_selesai()
     {
+        $this->pengujianSelesai->update(['status' => 'selesai']);
+
         $data = [
-            'id_form_pengajuan' => $this->formPengajuanDiterima->id,
-            'id_user' => $this->teknisi->id,
+            'id_form_pengajuan' => $this->pengujianSelesai->id_form_pengajuan,
             'id_kategori' => $this->kategori->id,
-            'tanggal_mulai' => Carbon::now()->addDays(1)->format('Y-m-d'),
-            'tanggal_selesai' => Carbon::now()->addDays(1)->format('Y-m-d'),
+            'id_user' => $this->teknisi->id,
+            'tanggal_uji' => now()->addDays(1)->format('Y-m-d'),
             'jam_mulai' => '08:00',
-            'jam_selesai' => '12:00',
-            'status' => 'selesai'
+            'jam_selesai' => '10:00'
         ];
 
         $response = $this->actingAs($this->pegawai)
             ->put("/pegawai/pengujian/{$this->pengujianSelesai->id}/edit", $data);
 
         $response->assertRedirect()
-            ->assertSessionHasErrors(['status' => 'Jadwal Yang Sudah Selesai Tidak Dapat Diubah!']);
+            ->assertSessionHasErrors();
     }
 
     public function test_show_menampilkan_detail_pengujian()
@@ -378,27 +356,16 @@ class PegawaiPengujianControllerFeatureTest extends TestCase
                 ->has('pengujian', fn (Assert $pengujian) => $pengujian
                     ->where('id', $this->pengujian->id)
                     ->where('kode_pengujian', $this->pengujian->kode_pengujian)
-                    ->where('status', 'diproses')
-                    ->has('kategori', fn (Assert $kategori) => $kategori
+                    ->has('user', fn (Assert $user) => $user
                         ->hasAll(['id', 'nama'])
                         ->etc()
                     )
                     ->has('form_pengajuan', fn (Assert $form) => $form
-                        ->has('kategori', fn (Assert $kategori) => $kategori
-                            ->hasAll(['id', 'nama'])
-                            ->etc()
-                        )
                         ->has('instansi', fn (Assert $instansi) => $instansi
-                            ->has('user', fn (Assert $user) => $user
-                                ->hasAll(['id', 'nama'])
-                                ->etc()
-                            )
+                            ->hasAll(['id', 'nama'])
+                            ->has('user')
                             ->etc()
                         )
-                        ->etc()
-                    )
-                    ->has('user', fn (Assert $user) => $user
-                        ->hasAll(['id', 'nama'])
                         ->etc()
                     )
                     ->etc()

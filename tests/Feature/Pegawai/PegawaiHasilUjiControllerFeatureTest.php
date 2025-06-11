@@ -26,6 +26,7 @@ class PegawaiHasilUjiControllerFeatureTest extends TestCase
     protected User $pegawai;
     protected User $customer;
     protected Pengujian $pengujian;
+    protected Pengujian $pengujianTanpaHasilUji;
     protected HasilUji $hasilUji;
     protected ParameterUji $parameter;
     protected Kategori $kategori;
@@ -89,8 +90,21 @@ class PegawaiHasilUjiControllerFeatureTest extends TestCase
             'status_pengajuan' => 'diterima'
         ]);
 
+        $formPengajuan2 = FormPengajuan::factory()->create([
+            'id_instansi' => $instansi->id,
+            'id_kategori' => $this->kategori->id,
+            'id_jenis_cairan' => $jenisCairan->id,
+            'status_pengajuan' => 'diterima'
+        ]);
+
         $this->pengujian = Pengujian::factory()->create([
             'id_form_pengajuan' => $formPengajuan->id,
+            'id_user' => $this->pegawai->id
+        ]);
+
+        // Create pengujian tanpa hasil uji untuk test create form
+        $this->pengujianTanpaHasilUji = Pengujian::factory()->create([
+            'id_form_pengajuan' => $formPengajuan2->id,
             'id_user' => $this->pegawai->id
         ]);
 
@@ -133,9 +147,9 @@ class PegawaiHasilUjiControllerFeatureTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('pegawai/hasil_uji/Tambah')
                 ->has('pengujianList', 1, fn (Assert $pengujian) => $pengujian
-                    ->where('id', $this->pengujian->id)
-                    ->where('kode_pengujian', $this->pengujian->kode_pengujian)
-                    ->where('id_form_pengajuan', $this->pengujian->id_form_pengajuan)
+                    ->where('id', $this->pengujianTanpaHasilUji->id)
+                    ->where('kode_pengujian', $this->pengujianTanpaHasilUji->kode_pengujian)
+                    ->where('id_form_pengajuan', $this->pengujianTanpaHasilUji->id_form_pengajuan)
                     ->etc()
                 )
                 ->has('pilihPengujian')
@@ -146,13 +160,13 @@ class PegawaiHasilUjiControllerFeatureTest extends TestCase
     public function test_create_dengan_parameter_pengujian_menampilkan_form_lengkap()
     {
         $response = $this->actingAs($this->pegawai)
-            ->get(route('pegawai.hasil_uji.tambah', ['id_pengujian' => $this->pengujian->id]));
+            ->get(route('pegawai.hasil_uji.tambah', ['id_pengujian' => $this->pengujianTanpaHasilUji->id]));
 
         $response->assertStatus(200)
             ->assertInertia(fn (Assert $page) => $page
                 ->component('pegawai/hasil_uji/Tambah')
                 ->has('pilihPengujian', fn (Assert $pengujian) => $pengujian
-                    ->where('id', $this->pengujian->id)
+                    ->where('id', $this->pengujianTanpaHasilUji->id)
                     ->has('form_pengajuan.kategori.parameter')
                     ->has('form_pengajuan.instansi.user')
                     ->has('user')
@@ -171,7 +185,7 @@ class PegawaiHasilUjiControllerFeatureTest extends TestCase
     public function test_store_membuat_hasil_uji_berhasil()
     {
         $data = [
-            'id_pengujian' => $this->pengujian->id,
+            'id_pengujian' => $this->pengujianTanpaHasilUji->id,
             'hasil' => [
                 [
                     'id_parameter' => $this->parameter->id,
@@ -188,13 +202,13 @@ class PegawaiHasilUjiControllerFeatureTest extends TestCase
             ->assertSessionHas('message', 'Hasil Uji Berhasil Dibuat!');
 
         $this->assertDatabaseHas('hasil_uji', [
-            'id_pengujian' => $this->pengujian->id,
+            'id_pengujian' => $this->pengujianTanpaHasilUji->id,
             'status' => 'draf',
             'diupdate_oleh' => $this->pegawai->nama
         ]);
 
         $this->assertDatabaseHas('parameter_pengujian', [
-            'id_pengujian' => $this->pengujian->id,
+            'id_pengujian' => $this->pengujianTanpaHasilUji->id,
             'id_parameter' => $this->parameter->id,
             'nilai' => '15.5',
             'keterangan' => 'Melebihi baku mutu'

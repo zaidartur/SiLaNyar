@@ -249,4 +249,40 @@ class PegawaiPengajuanControllerFeatureTest extends TestCase
         $response->assertRedirect()
             ->assertSessionHas('error');
     }
+
+    public function test_update_pengajuan_diantar_berhasil()
+    {
+        $data = [
+            'status_pengajuan' => 'diterima',
+            'id_kategori' => $this->kategori->id,
+            'parameter' => [$this->parameter->id]
+        ];
+
+        $response = $this->actingAs($this->pegawai)
+            ->put(route('pegawai.pengajuan.update', $this->pengajuanDiantar->id), $data);
+
+        $response->assertRedirect(route('pegawai.pengajuan.index'))
+            ->assertSessionHas('message', 'Pengajuan Telah Diterima!');
+
+        $this->assertDatabaseHas('form_pengajuan', [
+            'id' => $this->pengajuanDiantar->id,
+            'status_pengajuan' => 'diterima'
+        ]);
+    }
+
+    public function test_update_pengajuan_ditolak_berhasil()
+    {
+        $data = ['status_pengajuan' => 'ditolak'];
+
+        $response = $this->actingAs($this->pegawai)
+            ->put(route('pegawai.pengajuan.update', $this->pengajuanDiantar->id), $data);
+
+        $response->assertRedirect(route('pegawai.pengajuan.index'))
+            ->assertSessionHas('message', 'Pengajuan Telah Ditolak!');
+
+        $this->assertDatabaseHas('form_pengajuan', [
+            'id' => $this->pengajuanDiantar->id,
+            'status_pengajuan' => 'ditolak'
+        ]);
+    }
 }
