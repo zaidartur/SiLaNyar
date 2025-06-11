@@ -83,8 +83,9 @@ class PembayaranController extends Controller
         $pengajuan = FormPengajuan::with([
             'kategori.parameter',
             'kategori.subkategori.parameter',
+            'jenis_cairan',
             'pembayaran',
-            'instansi.user'
+            'instansi.user',
         ])
             ->where('id', $id)
             ->whereIn('id_instansi', $idInstansi)
@@ -140,10 +141,16 @@ class PembayaranController extends Controller
 
         $validated = $request->validate([
             'metode_pembayaran' => 'required|in:tunai,transfer',
-            'bukti_pembayaran' => 'required_if:metode_pembayaran,transfer|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        if ($validated['metode_pembayaran'] === 'tunai' && $pengajuan->metode_pengantaran !== 'diantar') {
+        if ($validated['metode_pembayaran'] === 'transfer') {
+            $bukti = $request->file('bukti_pembayaran');
+            $buktiFileName = 'bukti_pembayaran' . $namaUser . '_' . $tanggal . '_' . $randomId . '.' . $bukti->getClientOriginalExtension();
+            $buktiPath = $bukti->storeAs('bukti_pembayaran', $buktiFileName, 'public');
+            $data['bukti_pembayaran'] = $buktiPath;
+        }
+
+        if ($validated['metode_pembayaran'] === 'tunai' && $pengajuan->metode_pengantaran === 'diambil') {
             return Redirect::back()->withErrors([
                 'metode_pembayaran' => 'Metode Pembayaran Tunai Hanya Tersedia Untuk Metode Pengantaran Diantar'
             ]);
@@ -163,7 +170,7 @@ class PembayaranController extends Controller
 
         if ($validated['metode_pembayaran'] === 'transfer' || $request->hasFile('bukti_pembayaran')) {
             $bukti = $request->file('bukti_pembayaran');
-            $buktiFileName = 'bukti_pembayaran'.$namaUser.'_'.$tanggal.'_'.$randomId.'.'.$bukti->getClientOriginalExtension();
+            $buktiFileName = 'bukti_pembayaran' . $namaUser . '_' . $tanggal . '_' . $randomId . '.' . $bukti->getClientOriginalExtension();
             $buktiPath = $bukti->storeAs('bukti_pembayaran', $buktiFileName, 'public');
             $data['bukti_pembayaran'] = $buktiPath;
         }

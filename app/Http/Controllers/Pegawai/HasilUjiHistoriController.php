@@ -41,7 +41,7 @@ class HasilUjiHistoriController extends Controller
 
         $parameterKategori = collect($histori->hasil_uji->pengujian->form_pengajuan->kategori->parameter)->map(function ($param) {
             return [
-                'id' => $param->id,
+                'id_parameter' => $param->id,
                 'nama' => $param->nama_parameter,
                 'satuan' => $param->satuan,
                 'baku_mutu' => $param->pivot->baku_mutu ?? null,
@@ -51,7 +51,7 @@ class HasilUjiHistoriController extends Controller
         $parameterSubKategori = collect($histori->hasil_uji->pengujian->form_pengajuan->kategori->subkategori)->flatMap(function ($sub) {
             return $sub->parameter->map(function ($param) {
                 return [
-                    'id' => $param->id,
+                    'id_parameter' => $param->id,
                     'nama' => $param->nama_parameter,
                     'satuan' => $param->satuan,
                     'baku_mutu' => $param->pivot->baku_mutu ?? null,

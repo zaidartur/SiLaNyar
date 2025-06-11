@@ -278,50 +278,40 @@ function getNamaKategori() {
         <div class="mb-5 flex p-6">
             <ol class="mb-8 flex w-full items-center justify-center">
                 <!-- Step 1 -->
-                <li
-                    class="flex w-full items-center after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:border-customLightGreen after:content-['']"
-                    :class="step > 1 ? 'text-customDarkGreen' : 'text-gray-400'"
-                >
-                    <div
-                        :class="[
-                            'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
-                            step === 1 ? 'bg-customDarkGreen text-white' : step > 1 ? 'bg-customDarkGreen text-white' : 'bg-gray-100 text-gray-400',
-                        ]"
-                    >
+                <li class="flex w-full items-center after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:content-['']"
+                    :class="[
+                        step > 1 ? 'text-customDarkGreen after:border-customLightGreen' : 'text-gray-400 after:border-gray-100'
+                    ]">
+                    <div :class="[
+                        'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
+                        step === 1 ? 'bg-customDarkGreen text-white' : step > 1 ? 'bg-customDarkGreen text-white' : 'bg-gray-100 text-gray-400',
+                    ]">
                         <span class="text-2xl font-bold">1</span>
                     </div>
                     <span class="mt-2 text-center text-xs font-semibold">Detail Sample</span>
                 </li>
                 <!-- Step 2 -->
-                <li
-                    class="flex w-full items-center after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:border-gray-100 after:content-['']"
-                    :class="step > 2 ? 'text-customDarkGreen' : 'text-gray-400'"
-                >
-                    <div
-                        :class="[
-                            'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
-                            step === 2 ? 'bg-customDarkGreen text-white' : step > 2 ? 'bg-customDarkGreen text-white' : 'bg-gray-100 text-gray-400',
-                        ]"
-                    >
+                <li class="flex w-full items-center after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:content-['']"
+                    :class="[
+                        step > 2 ? 'text-customDarkGreen after:border-customLightGreen' : 'text-gray-400 after:border-gray-100'
+                    ]">
+                    <div :class="[
+                        'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
+                        step === 2 ? 'bg-customDarkGreen text-white' : step > 2 ? 'bg-customDarkGreen text-white' : 'bg-gray-100 text-gray-400',
+                    ]">
                         <span class="text-2xl font-bold">2</span>
                     </div>
                     <span class="mt-2 text-center text-xs font-semibold">Parameter Pengujian</span>
                 </li>
                 <!-- Step 3 -->
-                <li
-                    class="flex w-full items-center after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:border-gray-100 after:content-['']"
-                    :class="step > 3 ? 'text-customDarkGreen' : 'text-gray-400'"
-                >
-                    <div
-                        :class="[
-                            'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
-                            step === 3
-                                ? 'bg-customDarkGreen text-white'
-                                : step > 3
-                                  ? 'bg-blue-100 text-customDarkGreen'
-                                  : 'bg-gray-100 text-gray-400',
-                        ]"
-                    >
+                <li class="flex w-full items-center after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:content-['']"
+                    :class="[
+                        step > 3 ? 'text-customDarkGreen after:border-customLightGreen' : 'text-gray-400 after:border-gray-100'
+                    ]">
+                    <div :class="[
+                        'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
+                        step === 3 ? 'bg-customDarkGreen text-white' : step > 3 ? 'bg-blue-100 text-customDarkGreen' : 'bg-gray-100 text-gray-400',
+                    ]">
                         <span class="text-2xl font-bold">3</span>
                     </div>
                     <span class="mt-2 text-center text-xs font-semibold">Periksa & Serahkan</span>
@@ -533,6 +523,28 @@ function getNamaKategori() {
                             {{ validationErrors.lokasi }}
                         </div>
                     </div>
+
+                    <div v-if="form.metode_pengambilan === 'diantar'"
+                        class="mt-2 rounded-lg border border-orange-300 bg-yellow-50 p-3 text-orange-700">
+                        <div class="font-semibold">Perhatian untuk Pengantaran Sampel</div>
+                        <div>
+                            Karena Anda memilih metode <b>"Diantar"</b>, sampel harus menggunakan wadah sejenis gelas
+                            untuk
+                            memastikan akurasi hasil uji dan mencegah kontaminasi.
+                        </div>
+                    </div>
+
+                    <div v-if="form.metode_pengambilan === 'diantar'" class="rounded-lg border border-gray-300 bg-white p-3">
+                        <div class="font-semibold mb-1">Persyaratan Wadah</div>
+                        <ul class="list-disc pl-5 text-sm text-gray-800">
+                            <li>Wadah harus dari bahan kaca/gelas</li>
+                            <li>Bersih dan steril (jika memungkinkan)</li>
+                            <li>Tutup rapat untuk mencegah kontaminasi</li>
+                            <li>Tidak retak atau rusak</li>
+                            <li>Kapasitas minimal sesuai volume sampel</li>
+                        </ul>
+                    </div>
+
                     <!-- Waktu Pengambilan (jika diantar) -->
                     <div v-if="form.metode_pengambilan === 'diantar'" class="md:col-span-2 lg:col-span-1">
                         <label class="mb-1 block font-semibold">Jadwal Pengantaran</label>

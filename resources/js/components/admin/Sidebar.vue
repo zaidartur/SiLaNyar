@@ -1,21 +1,11 @@
 <script setup lang="ts">
-import { ref, watchEffect } from 'vue'
+import { ref } from 'vue'
 import { usePage, Link } from '@inertiajs/vue3'
 
-const isSidebarOpen = ref(false)
-
-watchEffect(() => {
-    if (window.innerWidth >= 1024) {
-        isSidebarOpen.value = true
-    }
-    window.addEventListener('resize', () => {
-        if (window.innerWidth >= 1024) {
-            isSidebarOpen.value = true
-        } else {
-            isSidebarOpen.value = false
-        }
-    })
-})
+const props = defineProps<{
+    isSidebarOpen: boolean
+    windowWidth: number
+}>()
 
 const toggles = ref({
     daftar: false,
@@ -29,19 +19,14 @@ const can = (permission: string): boolean => {
     return permissions.includes(permission)
 }
 
-const toggleSidebar = () => {
-    isSidebarOpen.value = !isSidebarOpen.value
-}
-
 const toggle = (menu: 'daftar' | 'kategori') => {
     toggles.value[menu] = !toggles.value[menu]
 }
 </script>
 
 <template>
-    <button @click="toggleSidebar"
-        type="button"
-        class="inline-flex items-center p-2 mt-2 ms-3 text-sm text-white bg-customDarkGreen rounded-lg lg:hidden hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-200 fixed top-4 left-4 z-30">
+    <!-- <button @click="toggleSidebar" type="button"
+        class="inline-flex items-center p-2 mt-2 ms-3 text-sm text-white bg-customDarkGreen rounded-lg lg:hidden hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-200 fixed top-8 left-2 z-30">
         <span class="sr-only">Open sidebar</span>
         <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
             xmlns="http://www.w3.org/2000/svg">
@@ -49,11 +34,15 @@ const toggle = (menu: 'daftar' | 'kategori') => {
                 d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z">
             </path>
         </svg>
-    </button>
+    </button> -->
 
-    <aside :class="['fixed lg:static z-10 bg-customDarkGreen text-white transition-all duration-300 ease-in-out',
+    <aside :class="[
+        'fixed lg:static z-10 bg-customDarkGreen text-white transition-all duration-300 ease-in-out',
         'h-screen overflow-y-auto',
-        isSidebarOpen ? 'w-64 left-0' : '-left-64 lg:w-64']">
+        'w-64'
+    ]" :style="{
+        left: props.isSidebarOpen || props.windowWidth >= 1024 ? '0' : '-100%',
+    }">
         <div class="flex items-center px-4 font-bold text-xl mt-4 mb-6">
             <img src="/assets/assetsadmin/logodlh.png" alt="Logo" class="w-12 h-12" />
             <span class="ml-3">SiLaNyar</span>

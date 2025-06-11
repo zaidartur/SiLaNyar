@@ -144,14 +144,14 @@ function submit() {
 
 <template>
     <CustomerLayout>
-        <div class="mx-auto max-w-2xl space-y-6 rounded-lg bg-white p-8 shadow">
-            <h1 class="mb-4 text-2xl font-bold text-gray-800">Edit Pengajuan</h1>
+        <div class="max-w-2xl mx-auto bg-white rounded-lg shadow p-8 space-y-6">
+            <h1 class="text-2xl font-bold mb-4 text-gray-800">Edit Pengajuan</h1>
 
             <form @submit.prevent="submit" class="space-y-5">
-                <!-- Instansi (Disabled) -->
+                <!-- Instansi -->
                 <div>
-                    <label class="mb-1 block font-medium text-gray-700">Instansi</label>
-                    <select v-model="form.id_instansi" class="w-full rounded border-gray-300 bg-gray-100 px-3 py-2 text-base" disabled>
+                    <label class="block mb-1 font-medium text-gray-700">Instansi</label>
+                    <select v-model="form.id_instansi" class="w-full text-base px-3 py-2 rounded border-gray-300 bg-gray-100" disabled>
                         <option v-for="ins in instansiList" :key="ins.id" :value="ins.id">
                             {{ ins.nama }}
                         </option>
@@ -183,8 +183,8 @@ function submit() {
 
                 <!-- Metode Pengambilan (Disabled) -->
                 <div>
-                    <label class="mb-1 block font-medium text-gray-700">Metode Pengambilan</label>
-                    <select v-model="form.metode_pengambilan" class="w-full rounded border-gray-300 bg-gray-100 px-3 py-2 text-base" disabled>
+                    <label class="block mb-1 font-medium text-gray-700">Metode Pengambilan</label>
+                    <select v-model="form.metode_pengambilan" class="w-full text-base px-3 py-2 rounded border-gray-300 bg-gray-100" disabled>
                         <option value="diantar">Diantar</option>
                         <option value="diambil">Diambil</option>
                     </select>

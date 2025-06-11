@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import CustomerLayout from '@/layouts/customer/CustomerLayout.vue';
 import { ref } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { Head, router } from '@inertiajs/vue3'
 
 const props = defineProps<{ hasil_uji: any }>()
 
@@ -24,18 +24,25 @@ function submitAduan() {
 </script>
 
 <template>
+
+    <Head title="Tambah Aduan" />
     <CustomerLayout>
         <div class="p-6">
             <form @submit.prevent="submitAduan" class="space-y-6 max-w-3xl mx-auto">
                 <div>
+                    <h1 class="text-2xl font-bold mb-4">Tambah Aduan</h1>
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-semibold mb-1">ID Hasil Uji</label>
+                        <p class="text-gray-900">{{ props.hasil_uji.kode_hasil_uji }}</p>
+                    </div>
                     <h2 class="font-bold text-xl mb-2">Aduan Terkait</h2>
                     <div class="space-y-2">
                         <label class="flex items-center gap-2">
-                            <input type="radio" v-model="form.terkait" value="Administrasi" class="accent-blue-500" />
+                            <input type="radio" v-model="form.terkait" value="administrasi" class="accent-blue-500" />
                             <span>Administrasi</span>
                         </label>
                         <label class="flex items-center gap-2">
-                            <input type="radio" v-model="form.terkait" value="Pengujian" class="accent-blue-500" />
+                            <input type="radio" v-model="form.terkait" value="pengujian" class="accent-blue-500" />
                             <span>Pengujian</span>
                         </label>
                     </div>
@@ -49,7 +56,7 @@ function submitAduan() {
                 </div>
 
                 <div>
-                    <label class="font-bold text-lg block mb-1">Subjek Pengaduan</label>
+                    <label class="font-bold text-lg block mb-1">Detail Aduan</label>
                     <textarea v-model="form.perbaikan" maxlength="1000" rows="4"
                         placeholder="Jelaskan masalah anda secara detail"
                         class="w-full border rounded px-3 py-2"></textarea>

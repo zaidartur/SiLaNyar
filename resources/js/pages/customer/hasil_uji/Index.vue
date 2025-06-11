@@ -59,9 +59,9 @@ const verifikasi = (id: number) => {
                             <th class="px-4 py-3 text-left font-semibold">Tanggal</th>
                             <th class="px-4 py-3 text-left font-semibold">Lokasi</th>
                             <th class="px-4 py-3 text-left font-semibold">Metode Pengambilan</th>
+                            <th class="px-4 py-3 text-left font-semibold">Status Aduan</th>
                             <th class="px-4 py-3 text-left font-semibold">Status</th>
                             <th class="px-4 py-3 text-left font-semibold">Aduan</th>
-                            <!-- <th class="px-4 py-3 text-left font-semibold">Rating</th> -->
                             <th class="px-4 py-3 text-left font-semibold rounded-tr-xl">Aksi</th>
                         </tr>
                     </thead>
@@ -113,8 +113,8 @@ const verifikasi = (id: number) => {
                                 </Link>
                             </td>
                             <td class="px-4 py-3 border-b">
-                                <Link :href="`/customer/hasiluji/ ${item.id}`"
-                                    class="text-blue-500 hover:text-blue-700" title="Lihat Detail">
+                                <Link :href="`/customer/hasiluji/ ${item.id}`" class="text-blue-500 hover:text-blue-700"
+                                    title="Lihat Detail">
                                 👁
                                 </Link>
                             </td>

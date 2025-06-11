@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Log;
 
 class HasilUjiController extends Controller
 {
@@ -41,7 +42,10 @@ class HasilUjiController extends Controller
     // form tambah hasil uji
     public function create(Request $request)
     {
-        $pengujianList = Pengujian::with('form_pengajuan.instansi.user')->select('id', 'kode_pengujian', 'id_form_pengajuan')->get();;
+        $pengujianList = Pengujian::with('form_pengajuan.instansi.user')
+            ->whereDoesntHave('hasil_uji')
+            ->select('id', 'kode_pengujian', 'id_form_pengajuan')
+            ->get();
 
         $pengujian = null;
         $semuaParameter = [];
@@ -150,7 +154,64 @@ class HasilUjiController extends Controller
         }
     }
 
-    // proses update hasil uji (dari detail page)
+    // form edit hasil uji
+    public function edit($id)
+    {
+        $hasil_uji = HasilUji::with([
+            'pengujian.parameter_uji',
+            'pengujian.form_pengajuan.kategori.parameter',
+            'pengujian.form_pengajuan.kategori.subkategori.parameter',
+            'pengujian.form_pengajuan.instansi.user',
+            'pengujian.user',
+        ])->findOrFail($id);
+
+        if (!in_array($hasil_uji->status, ['draf', 'revisi'])) {
+            return Redirect::route('pegawai.hasil_uji.index')->withErrors(['status' => 'Hanya Status Hasil Uji Draf dan Revisi Yang Dapat Diedit']);
+        }
+
+        $pengujian = $hasil_uji->pengujian;
+        $kategori = $pengujian->form_pengajuan->kategori;
+
+        $parameterKategori = collect($kategori->parameter)->map(function ($param) {
+            return [
+                'id' => $param->id,
+                'nama' => $param->nama_parameter,
+                'satuan' => $param->satuan,
+                'baku_mutu' => $param->pivot->baku_mutu ?? null,
+            ];
+        });
+
+        $parameterSubKategori = collect($kategori->subkategori)->flatMap(function ($sub) {
+            return $sub->parameter->map(function ($param) {
+                return [
+                    'id' => $param->id,
+                    'nama' => $param->nama_parameter,
+                    'satuan' => $param->satuan,
+                    'baku_mutu' => $param->pivot->baku_mutu ?? null,
+                ];
+            });
+        });
+
+        $semuaParameter = $parameterKategori->merge($parameterSubKategori)->unique('id')->values();
+
+        $nilaiTersimpan = DB::table('parameter_pengujian')->where('id_pengujian', $pengujian->id)->get()->keyBy('id_parameter');
+
+        $parameterDenganNilai = $semuaParameter->map(function ($param) use ($nilaiTersimpan) {
+            $nilai = $nilaiTersimpan[$param['id']] ?? null;
+            return array_merge($param, [
+                'nilai' => $nilai->nilai ?? null,
+                'keterangan' => $nilai->keterangan ?? null,
+            ]);
+        });
+
+        return Inertia::render('pegawai/hasil_uji/Edit', [
+            'hasil_uji' => $hasil_uji,
+            'pengujian' => $pengujian,
+            'parameter' => $parameterDenganNilai
+        ]);
+    }
+
+    // proses update hasil uji
     public function update(HasilUji $hasil_uji, Request $request)
     {
         /** @var \App\Models\User */
@@ -253,6 +314,7 @@ class HasilUjiController extends Controller
 
             return Redirect::route('pegawai.hasil_uji.detail', $hasil_uji->id)->with('message', 'Hasil Uji Berhasil Diupdate!');
         } catch (\Exception $err) {
+            Log::error("Update error: " . $err->getMessage());
             DB::rollBack();
             return Redirect::back()->withErrors(['error' => 'Gagal Memperbarui Hasil Uji ' . $hasil_uji->kode_hasil_uji . ' Dengan Error ' . $err->getMessage()]);
         }

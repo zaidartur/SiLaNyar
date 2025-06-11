@@ -67,7 +67,7 @@ const handleDelete = () => {
             <div class="overflow-x-auto rounded-lg shadow-md">
                 <table class="min-w-full bg-white divide-y divide-gray-300">
                     <thead>
-                        <tr class="bg-gray-500 text-white text-left text-sm font-semibold uppercase tracking-wider">
+                        <tr class="bg-customDarkGreen text-white text-left text-sm font-semibold uppercase tracking-wider">
                             <th class="px-6 py-3">ID Sub Kategori</th>
                             <th class="px-6 py-3">Nama Sub Kategori</th>
                             <th class="px-6 py-3">Nama Parameter (Baku Mutu)</th>
@@ -88,6 +88,9 @@ const handleDelete = () => {
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex gap-2">
+                                    <Link :href="route('pegawai.subkategori.detail', item.id)" class="text-yellow-500">
+                                    <span>👁️</span>
+                                    </Link>
                                     <Link :href="route('pegawai.subkategori.edit', item.id)" class="text-yellow-500">
                                     <span>✏️</span>
                                     </Link>

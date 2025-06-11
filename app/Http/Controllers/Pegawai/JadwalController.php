@@ -177,7 +177,7 @@ class JadwalController extends Controller
         }
 
         if ($jadwal->form_pengajuan->metode_pengambilan === 'diantar') {
-            return Redirect::back()->withErrors('Jadwal Tidak Dapat Dihapus, Jika Status Masih Proses');
+            return Redirect::back()->withErrors('Jadwal Tidak Dapat Dihapus, Karena Metode Pengambilan Diantar');
         }
 
         $jadwal->delete();

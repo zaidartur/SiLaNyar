@@ -86,7 +86,8 @@ const handleDelete = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(item, index) in hasil_uji" :key="item.id" :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
+                        <tr v-for="(item, index) in hasil_uji" :key="item.id"
+                            :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-200'">
                             <td class="border-b px-4 py-3">{{ item.id }}</td>
                             <td class="border-b px-4 py-3">
                                 {{ item.pengujian?.form_pengajuan?.instansi?.nama ?? '-' }}
@@ -130,11 +131,12 @@ const handleDelete = () => {
                                     >
                                         🕓
                                     </Link>
-                                    <!-- <Link :href="route('pegawai.hasil_uji.edit', item.id)"
+                                    <Link :href="route('pegawai.hasil_uji.edit', item.id)"
                                         class="text-yellow-500 hover:text-yellow-700" title="Edit">
                                     ✏️
-                                    </Link> -->
-                                    <button @click="openDeleteModal(item)" class="text-red-500 hover:text-red-700" title="Hapus" type="button">
+                                    </Link>
+                                    <button @click="openDeleteModal(item)" class="text-red-500 hover:text-red-700"
+                                        title="Hapus" type="button">
                                         🗑️
                                     </button>
                                 </div>
