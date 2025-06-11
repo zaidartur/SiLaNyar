@@ -37,10 +37,12 @@ class VerifikasiAduanController extends Controller
 
         $request->validate([
             'status' => 'required|in:diterima_administrasi,diterima_pengujian,ditolak',
-            'diverifikasi_oleh' => $user->nama,
         ]);
 
-        $aduan->update($request->all());
+        $aduan->update([
+            'status' => $request->status,
+            'diverifikasi_oleh' => $user->nama,
+        ]);
 
         if ($aduan->status === 'diterima_administrasi') {
             $aduan->hasil_uji->update([
@@ -56,6 +58,6 @@ class VerifikasiAduanController extends Controller
             ]);
         }
 
-        return Redirect::route('pegawai/aduan/Index')->with('message', 'Aduan Berhasil Diverifikasi');
+        return Redirect::route('pegawai.aduan.index')->with('message', 'Aduan Berhasil Diverifikasi');
     }
 }

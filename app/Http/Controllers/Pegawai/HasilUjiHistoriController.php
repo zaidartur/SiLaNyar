@@ -69,7 +69,7 @@ class HasilUjiHistoriController extends Controller
 
                 return [
                     'id_parameter' => $item->id_parameter,
-                    'nama_parameter' => $parameter['nama'] ?? 'Tidak Ditemukan',
+                    'nama_parameter' => $parameter['nama_parameter'] ?? 'Tidak Ditemukan',
                     'satuan' => $parameter['satuan'] ?? null,
                     'nilai' => $item->nilai ?? null,
                     'baku_mutu' => $parameter['baku_mutu'] ?? null,

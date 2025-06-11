@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_parameter')->constrained('parameter_uji')->onDelete('cascade');
             $table->foreignId('id_pengujian')->constrained('pengujian')->onDelete('cascade');
-            $table->float('nilai')->nullable();
+            $table->string('nilai')->nullable();
             $table->string('keterangan')->nullable();
             $table->timestamps();
         });

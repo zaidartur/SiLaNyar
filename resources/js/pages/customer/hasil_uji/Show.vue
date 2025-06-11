@@ -1,73 +1,71 @@
 <script setup lang="ts">
-import CustomerLayout from '@/layouts/customer/CustomerLayout.vue'
-import { Head } from '@inertiajs/vue3'
+import CustomerLayout from '@/layouts/customer/CustomerLayout.vue';
+import { Head } from '@inertiajs/vue3';
 
 interface ParameterPengujian {
-    id_parameter: number
-    nama_parameter: string
-    satuan: string | null
-    nilai: string | null
-    baku_mutu: string | null
-    keterangan: string | null
+    id_parameter: number;
+    nama_parameter: string;
+    satuan: string | null;
+    nilai: string | null;
+    baku_mutu: string | null;
+    keterangan: string | null;
 }
 
 interface HasilUji {
-    id: number
-    status: string
-    created_at: string
+    id: number;
+    status: string;
+    created_at: string;
     pengujian: {
-        kode_pengujian: string
+        kode_pengujian: string;
         form_pengajuan: {
-            kode_pengajuan: string
+            kode_pengajuan: string;
             kategori: {
-                nama: string
-            }
+                nama: string;
+            };
             instansi: {
-                nama: string
+                nama: string;
                 user: {
-                    nama: string
-                }
-            }
-        }
+                    nama: string;
+                };
+            };
+        };
         user: {
-            nama: string
-        }
-    }
+            nama: string;
+        };
+    };
 }
 
-const props = defineProps<{
-    hasil_uji: HasilUji
-    parameter_pengujian: ParameterPengujian[]
-}>()
+defineProps<{
+    hasil_uji: HasilUji;
+    parameter_pengujian: ParameterPengujian[];
+}>();
 
 const statusLabels = {
     draf: 'Draf',
     revisi: 'Revisi',
     proses_review: 'Proses Review',
     proses_peresmian: 'Proses Peresmian',
-    selesai: 'Selesai'
-}
+    selesai: 'Selesai',
+};
 
 function kembali() {
-    window.history.back()
+    window.history.back();
 }
 </script>
 
 <template>
     <CustomerLayout>
-        <div class="bg-gray-200 min-h-screen py-8">
-
+        <div class="min-h-screen bg-gray-200 py-8">
             <Head title="Detail Hasil Uji" />
 
-            <div class="max-w-4xl mx-auto py-8 space-y-8">
-                <h1
-                    class="text-3xl font-bold border-b-2 border-customDarkGreen inline-block w-fit pb-2 mb-1 text-customDarkGreen">
+            <div class="mx-auto max-w-4xl space-y-8 py-8">
+                <h1 class="mb-1 inline-block w-fit border-b-2 border-customDarkGreen pb-2 text-3xl font-bold text-customDarkGreen">
                     Detail Hasil Uji
                 </h1>
 
                 <!-- Informasi Umum -->
-                <div class="bg-gray-50 rounded-xl border shadow-lg p-6 mb-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-8">
+                <div class="mb-4 rounded-xl border bg-gray-50 p-6 shadow-lg">
+                    <div class="grid grid-cols-1 gap-x-8 gap-y-2 md:grid-cols-2">
                         <div>
                             <span class="font-bold text-customDarkGreen">Kode Hasil Uji:</span>
                             <span class="ml-2">HU-{{ hasil_uji.id.toString().padStart(4, '0') }}</span>
@@ -88,8 +86,8 @@ function kembali() {
                 </div>
 
                 <!-- Informasi Pengajuan -->
-                <div class="bg-gray-50 rounded-xl border shadow-lg p-6 mb-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-8">
+                <div class="mb-4 rounded-xl border bg-gray-50 p-6 shadow-lg">
+                    <div class="grid grid-cols-1 gap-x-8 gap-y-2 md:grid-cols-2">
                         <div>
                             <span class="font-bold text-customDarkGreen">Kode Pengajuan:</span>
                             <span class="ml-2">{{ hasil_uji.pengujian.form_pengajuan.kode_pengajuan }}</span>
@@ -114,10 +112,10 @@ function kembali() {
                 </div>
 
                 <!-- Parameter Pengujian -->
-                <div class="bg-white rounded-xl border shadow p-6">
-                    <h2 class="text-xl font-semibold mb-4 text-customDarkGreen">Parameter Pengujian</h2>
+                <div class="rounded-xl border bg-white p-6 shadow">
+                    <h2 class="mb-4 text-xl font-semibold text-customDarkGreen">Parameter Pengujian</h2>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-sm border border-gray-200 rounded">
+                        <table class="w-full rounded border border-gray-200 text-sm">
                             <thead class="bg-customDarkGreen text-white">
                                 <tr>
                                     <th class="border px-4 py-2">No</th>
@@ -129,8 +127,7 @@ function kembali() {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(item, index) in parameter_pengujian" :key="item.id_parameter"
-                                    class="hover:bg-gray-50">
+                                <tr v-for="(item, index) in parameter_pengujian" :key="item.id_parameter" class="hover:bg-gray-50">
                                     <td class="border px-4 py-2 text-center">{{ index + 1 }}</td>
                                     <td class="border px-4 py-2">{{ item.nama_parameter }}</td>
                                     <td class="border px-4 py-2">{{ item.nilai ?? '-' }}</td>
@@ -146,9 +143,8 @@ function kembali() {
                     </div>
                 </div>
 
-                <div class="flex gap-2 justify-end">
-                    <button @click="kembali"
-                        class="bg-gray-200 text-black px-4 py-2 rounded font-semibold">Kembali</button>
+                <div class="flex justify-end gap-2">
+                    <button @click="kembali" class="rounded bg-gray-200 px-4 py-2 font-semibold text-black">Kembali</button>
                 </div>
             </div>
         </div>

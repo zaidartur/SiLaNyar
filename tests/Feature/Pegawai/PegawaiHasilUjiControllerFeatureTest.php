@@ -213,11 +213,11 @@ class PegawaiHasilUjiControllerFeatureTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->pegawai)
-            ->get(route('pegawai.hasil_uji.edit', $this->hasilUji->id));
+            ->get(route('pegawai.hasil_uji.detail', $this->hasilUji->id));
 
         $response->assertStatus(200)
             ->assertInertia(fn (Assert $page) => $page
-                ->component('pegawai/hasil_uji/Edit')
+                ->component('pegawai/hasil_uji/Detail')
                 ->has('hasil_uji', fn (Assert $hasilUji) => $hasilUji
                     ->where('id', $this->hasilUji->id)
                     ->where('status', 'draf')
@@ -225,14 +225,15 @@ class PegawaiHasilUjiControllerFeatureTest extends TestCase
                     ->has('pengujian.form_pengajuan.instansi.user')
                     ->etc()
                 )
-                ->has('pengujian')
-                ->has('parameter', 1, fn (Assert $param) => $param
-                    ->where('id', $this->parameter->id)
-                    ->where('nilai', 8.5)
+                ->has('parameter_pengujian', 1, fn (Assert $param) => $param
+                    ->where('id_parameter', $this->parameter->id)
+                    ->where('nilai', '8.5')
                     ->where('keterangan', 'Memenuhi baku mutu')
                     ->has('baku_mutu')
                     ->etc()
                 )
+                ->has('parameter', 1)
+                ->where('can_edit', true)
             );
     }
 
@@ -246,53 +247,14 @@ class PegawaiHasilUjiControllerFeatureTest extends TestCase
         $this->assertEquals('selesai', $this->hasilUji->status);
 
         $response = $this->actingAs($this->pegawai)
-            ->get(route('pegawai.hasil_uji.edit', $this->hasilUji->id));
+            ->get(route('pegawai.hasil_uji.detail', $this->hasilUji->id));
 
-        // Berdasarkan controller, harus redirect dengan pesan error yang spesifik
-        $response->assertRedirect(route('pegawai.hasil_uji.index'))
-            ->assertSessionHasErrors(['status' => 'Hanya Status Hasil Uji Draf dan Revisi Yang Dapat Diedit']);
-    }
-
-    public function test_update_mengubah_hasil_uji_dan_membuat_histori()
-    {
-        // Menyiapkan data yang sudah ada
-        DB::table('parameter_pengujian')->insert([
-            'id_pengujian' => $this->pengujian->id,
-            'id_parameter' => $this->parameter->id,
-            'nilai' => '8.5',
-            'keterangan' => 'Memenuhi baku mutu',
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-
-        $data = [
-            'hasil' => [
-                [
-                    'id_parameter' => $this->parameter->id,
-                    'nilai' => '12.0',
-                    'keterangan' => 'Updated keterangan'
-                ]
-            ]
-        ];
-
-        $response = $this->actingAs($this->pegawai)
-            ->put(route('pegawai.hasil_uji.index') . '/' . $this->hasilUji->id . '/edit', $data);
-
-        $response->assertRedirect(route('pegawai.hasil_uji.index'))
-            ->assertSessionHas('message', 'Hasil Uji Berhasil Diupdate!');
-
-        $this->assertDatabaseHas('parameter_pengujian', [
-            'id_pengujian' => $this->pengujian->id,
-            'id_parameter' => $this->parameter->id,
-            'nilai' => '12.0',
-            'keterangan' => 'Updated keterangan'
-        ]);
-
-        $this->assertDatabaseHas('hasil_uji_histori', [
-            'id_hasil_uji' => $this->hasilUji->id,
-            'status' => 'draf',
-            'diupdate_oleh' => $this->pegawai->nama
-        ]);
+        // Detail page tetap bisa diakses, tapi can_edit = false
+        $response->assertStatus(200)
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('pegawai/hasil_uji/Detail')
+                ->where('can_edit', false)
+            );
     }
 
     public function test_show_menampilkan_detail_hasil_uji()
@@ -324,29 +286,11 @@ class PegawaiHasilUjiControllerFeatureTest extends TestCase
                 ->has('parameter_pengujian', 1, fn (Assert $param) => $param
                     ->where('id_parameter', $this->parameter->id)
                     ->where('nama_parameter', $this->parameter->nama_parameter)
-                    ->where('nilai', 8.5)
+                    ->where('nilai', '8.5')
                     ->where('keterangan', 'Memenuhi baku mutu')
                     ->has('baku_mutu')
                     ->etc()
                 )
-            );
-    }
-
-    public function test_edit_verifikasi_menampilkan_form_verifikasi()
-    {
-        $response = $this->actingAs($this->pegawai)
-            ->get(route('pegawai.hasil_uji.verifikasi', $this->hasilUji->id));
-
-        $response->assertStatus(200)
-            ->assertInertia(fn (Assert $page) => $page
-                ->component('pegawai/hasil_uji/Verifikasi')
-                ->has('hasil_uji', fn (Assert $hasilUji) => $hasilUji
-                    ->where('id', $this->hasilUji->id)
-                    ->where('status', 'draf')
-                    ->etc()
-                )
-                ->has('pengujian')
-                ->has('parameter', 1)
             );
     }
 
@@ -438,23 +382,42 @@ class PegawaiHasilUjiControllerFeatureTest extends TestCase
         $response->assertStatus(302);
     }
 
-    public function test_update_memblokir_edit_status_selain_draf_dan_revisi()
+    public function test_show_menampilkan_detail_hasil_uji_dengan_kemampuan_edit()
     {
-        $this->hasilUji->update(['status' => 'proses_peresmian']);
-
-        $data = [
-            'hasil' => [
-                [
-                    'id_parameter' => $this->parameter->id,
-                    'nilai' => '12.0',
-                    'keterangan' => 'Test'
-                ]
-            ]
-        ];
+        // Menambahkan data parameter
+        DB::table('parameter_pengujian')->insert([
+            'id_pengujian' => $this->pengujian->id,
+            'id_parameter' => $this->parameter->id,
+            'nilai' => '8.5',
+            'keterangan' => 'Memenuhi baku mutu',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
 
         $response = $this->actingAs($this->pegawai)
-            ->put('/pegawai/hasiluji/' . $this->hasilUji->id . '/edit', $data);
+            ->get(route('pegawai.hasil_uji.detail', $this->hasilUji->id));
 
-        $response->assertRedirect(route('pegawai.hasil_uji.index'));
+        $response->assertStatus(200)
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('pegawai/hasil_uji/Detail')
+                ->has('hasil_uji', fn (Assert $hasilUji) => $hasilUji
+                    ->where('id', $this->hasilUji->id)
+                    ->where('status', 'draf')
+                    ->has('pengujian.form_pengajuan.kategori.parameter')
+                    ->has('pengujian.form_pengajuan.instansi.user')
+                    ->has('pengujian.user')
+                    ->etc()
+                )
+                ->has('parameter_pengujian', 1, fn (Assert $param) => $param
+                    ->where('id_parameter', $this->parameter->id)
+                    ->where('nama_parameter', $this->parameter->nama_parameter)
+                    ->where('nilai', '8.5')
+                    ->where('keterangan', 'Memenuhi baku mutu')
+                    ->has('baku_mutu')
+                    ->etc()
+                )
+                ->has('parameter', 1)
+                ->where('can_edit', true)
+            );
     }
 }

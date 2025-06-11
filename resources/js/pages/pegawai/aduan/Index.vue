@@ -4,30 +4,30 @@ import { Head, Link } from '@inertiajs/vue3'
 import { defineProps } from 'vue'
 
 interface Aduan {
-    id: number
-    masalah: string
-    perbaikan: string
-    status: string
-    created_at: string
+    id: number;
+    masalah: string;
+    perbaikan: string;
+    status: string;
+    created_at: string;
     user: {
-        nama: string
-    }
+        nama: string;
+    };
     hasil_uji?: {
         pengujian?: {
             form_pengajuan?: {
                 instansi?: {
                     user?: {
-                        nama: string
-                    }
-                }
-            }
-        }
-    }
+                        nama: string;
+                    };
+                };
+            };
+        };
+    };
 }
 
-const props = defineProps<{
-    aduan: Aduan[]
-}>()
+defineProps<{
+    aduan: Aduan[];
+}>();
 </script>
 
 <template>
