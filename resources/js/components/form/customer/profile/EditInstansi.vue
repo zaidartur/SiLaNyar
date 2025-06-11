@@ -402,7 +402,7 @@ function submit() {
                                 <p v-if="validationErrors.surat_keterangan_penugasan" class="mt-1 text-sm text-red-600">
                                     {{ validationErrors.surat_keterangan_penugasan }}
                                 </p>
-                                <p class="mt-1 text-xs text-gray-500">Format PDF, maksimal 2MB. Kosongkan jika tidak ingin mengubah.</p>
+                                <p class="mt-1 text-xs text-gray-500">Format PDF, maksimal 5MB. Kosongkan jika tidak ingin mengubah.</p>
                             </div>
 
                             <!-- Foto Kartu Identitas -->
@@ -419,7 +419,7 @@ function submit() {
                                     {{ validationErrors.foto_kartu_identitas }}
                                 </p>
                                 <p class="mt-1 text-xs text-gray-500">
-                                    Format JPG, PNG, atau PDF, maksimal 2MB. Kosongkan jika tidak ingin mengubah.
+                                    Format JPG, PNG, atau PDF, maksimal 5MB. Kosongkan jika tidak ingin mengubah.
                                 </p>
                             </div>
                         </div>

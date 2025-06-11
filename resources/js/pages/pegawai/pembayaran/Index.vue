@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue';
-import { defineProps } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { defineProps } from 'vue';
 interface User {
     id: number;
     nama: string;
@@ -30,7 +30,7 @@ interface Pembayaran {
 }
 
 const props = defineProps<{
-    pembayaran: Pembayaran[]
+    pembayaran: Pembayaran[];
 }>();
 
 function formatTanggal(tanggal: string | null) {
@@ -41,17 +41,21 @@ function formatTanggal(tanggal: string | null) {
 function lihatDetail(id: number) {
     router.visit(`/pegawai/pembayaran/${id}`);
 }
+
+function isPaymentCompleted(status: string): boolean {
+    return status === 'selesai';
+}
 </script>
 
 <template>
     <AdminLayout>
         <div class="p-6">
-            <h1 class="text-2xl text-black font-bold mb-6">DAFTAR PEMBAYARAN</h1>
+            <h1 class="mb-6 text-2xl font-bold text-black">DAFTAR PEMBAYARAN</h1>
             <div class="overflow-x-auto">
-                <table class="min-w-full bg-white rounded-xl shadow overflow-hidden">
+                <table class="min-w-full overflow-hidden rounded-xl bg-white shadow">
                     <thead>
                         <tr class="bg-customDarkGreen text-white">
-                            <th class="px-4 py-3 text-left font-semibold rounded-tl-xl">ID Order</th>
+                            <th class="rounded-tl-xl px-4 py-3 text-left font-semibold">ID Order</th>
                             <th class="px-4 py-3 text-left font-semibold">ID Form Pengajuan</th>
                             <th class="px-4 py-3 text-left font-semibold">Nama Pelanggan</th>
                             <th class="px-4 py-3 text-left font-semibold">Instansi</th>
@@ -60,41 +64,50 @@ function lihatDetail(id: number) {
                             <th class="px-4 py-3 text-left font-semibold">Metode Pembayaran</th>
                             <th class="px-4 py-3 text-left font-semibold">Status Pembayaran</th>
                             <th class="px-4 py-3 text-left font-semibold">Bukti Pembayaran</th>
-                            <th class="px-4 py-3 text-left font-semibold rounded-tr-xl">Aksi</th>
+                            <th class="rounded-tr-xl px-4 py-3 text-left font-semibold">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(item, index) in props.pembayaran" :key="item.id"
-                            :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
-                            <td class="px-4 py-3 border-b">{{ item.id_order }}</td>
-                            <td class="px-4 py-3 border-b">{{ item.form_pengajuan?.kode_pengajuan ?? '-' }}</td>
-                            <td class="px-4 py-3 border-b">{{ item.form_pengajuan?.instansi?.user?.nama ?? '-' }}</td>
-                            <td class="px-4 py-3 border-b">{{ item.form_pengajuan?.instansi?.nama ?? '-' }}</td>
-                            <td class="px-4 py-3 border-b">{{ item.total_biaya }}</td>
-                            <td class="px-4 py-3 border-b">{{ formatTanggal(item.tanggal_pembayaran) }}</td>
-                            <td class="px-4 py-3 border-b capitalize">{{ item.metode_pembayaran }}</td>
-                            <td class="px-4 py-3 border-b">
-                                <span :class="[
-                                'inline-block min-w-[90px] text-center px-2 py-1 rounded-full text-xs font-semibold',
-                                item.status_pembayaran === 'selesai'
-                                    ? 'bg-green-100 text-green-700 border border-green-400'
-                                    : item.status_pembayaran === 'gagal'
-                                        ? 'bg-red-100 text-red-700 border border-red-400'
-                                        : 'bg-yellow-100 text-yellow-800 border border-yellow-400'
-                            ]">
+                        <tr v-for="(item, index) in props.pembayaran" :key="item.id" :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
+                            <td class="border-b px-4 py-3">{{ item.id_order }}</td>
+                            <td class="border-b px-4 py-3">{{ item.form_pengajuan?.kode_pengajuan ?? '-' }}</td>
+                            <td class="border-b px-4 py-3">{{ item.form_pengajuan?.instansi?.user?.nama ?? '-' }}</td>
+                            <td class="border-b px-4 py-3">{{ item.form_pengajuan?.instansi?.nama ?? '-' }}</td>
+                            <td class="border-b px-4 py-3">{{ item.total_biaya }}</td>
+                            <td class="border-b px-4 py-3">{{ formatTanggal(item.tanggal_pembayaran) }}</td>
+                            <td class="border-b px-4 py-3 capitalize">{{ item.metode_pembayaran }}</td>
+                            <td class="border-b px-4 py-3">
+                                <span
+                                    :class="[
+                                        'inline-block min-w-[90px] rounded-full px-2 py-1 text-center text-xs font-semibold',
+                                        item.status_pembayaran === 'selesai'
+                                            ? 'border border-green-400 bg-green-100 text-green-700'
+                                            : item.status_pembayaran === 'gagal'
+                                              ? 'border border-red-400 bg-red-100 text-red-700'
+                                              : 'border border-yellow-400 bg-yellow-100 text-yellow-800',
+                                    ]"
+                                >
                                     {{ item.status_pembayaran.toUpperCase() }}
                                 </span>
                             </td>
-                            <td class="px-4 py-3 border-b">
+                            <td class="border-b px-4 py-3">
                                 <span v-if="item.bukti_pembayaran">
-                                    <a :href="`/storage/${item.bukti_pembayaran}`" target="_blank"
-                                        class="text-blue-600 underline">Lihat Bukti</a>
+                                    <a :href="`/storage/${item.bukti_pembayaran}`" target="_blank" class="text-blue-600 underline">Lihat Bukti</a>
                                 </span>
                                 <span v-else>-</span>
                             </td>
-                            <td class="px-4 py-3 border-b">
-                                <button @click="lihatDetail(item.id)" class="text-blue-500 hover:text-blue-700"
-                                    title="Detail">
+                            <td class="border-b px-4 py-3">
+                                <button
+                                    @click="!isPaymentCompleted(item.status_pembayaran) && lihatDetail(item.id)"
+                                    :class="[
+                                        'transition-colors duration-200',
+                                        isPaymentCompleted(item.status_pembayaran)
+                                            ? 'cursor-not-allowed text-gray-400 opacity-50'
+                                            : 'cursor-pointer text-blue-500 hover:text-blue-700',
+                                    ]"
+                                    :disabled="isPaymentCompleted(item.status_pembayaran)"
+                                    :title="isPaymentCompleted(item.status_pembayaran) ? 'Pembayaran sudah selesai' : 'Detail'"
+                                >
                                     <span>👁️</span>
                                 </button>
                             </td>

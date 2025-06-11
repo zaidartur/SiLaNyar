@@ -211,8 +211,7 @@ class HasilUjiController extends Controller
         ]);
     }
 
-    // proses update hasil uji
-    public function update(HasilUji $hasil_uji, Request $request)
+ public function update(HasilUji $hasil_uji, Request $request)
     {
         /** @var \App\Models\User */
         $user = Auth::user();

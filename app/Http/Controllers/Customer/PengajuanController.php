@@ -132,7 +132,7 @@ class PengajuanController extends Controller
             ->whereHas('instansi', function ($query) use ($user) {
                 $query->whereIn('id', $user->instansi()->pluck('id')->toArray());
             })
-            ->where('status_pengajuan', '!=', 'selesai')
+            ->whereNotIn('status_pengajuan', ['diterima', 'ditolak'])
             ->first();
 
         if ($pengajuanAktif) {

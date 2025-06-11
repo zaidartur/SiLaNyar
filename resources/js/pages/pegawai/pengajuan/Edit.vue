@@ -1,210 +1,405 @@
-<script setup lang="ts">
-import AdminLayout from '@/layouts/admin/AdminLayout.vue';
-import { Head, router } from '@inertiajs/vue3';
-import { computed, ref, watch } from 'vue';
-
-interface User {
-    id: number;
-    nama: string;
-}
-
-interface Instansi {
-    id: number;
-    nama: string;
-    user: User;
-}
-
-interface JenisCairan {
-    id: number;
-    nama: string;
-}
-
-interface Parameter {
-    id: number;
-    nama_parameter: string;
-}
-
-interface SubKategori {
-    id: number;
-    parameter: Parameter[];
-}
-
-interface Kategori {
-    id: number;
-    nama: string;
-    parameter: Parameter[];
-    subkategori: SubKategori[];
-}
-
-interface Pengajuan {
-    id: number;
-    kode_pengajuan: string;
-    volume_sampel: number;
-    status_pengajuan: string;
-    metode_pengambilan: string;
-    lokasi: string;
-    instansi: Instansi;
-    kategori: Kategori;
-    jenis_cairan: JenisCairan;
-    parameter: Parameter[];
-}
-
-const props = defineProps<{
-    pengajuan: Pengajuan;
-    kategoriList: Kategori[];
-    parameterList: Parameter[];
-}>();
-
-const form = ref({
-    kategori_id: props.pengajuan.kategori?.id ?? null,
-    parameter_ids: props.pengajuan.parameter?.map((p) => p.id) ?? [],
-    metode_pembayaran: '',
-});
-
-const kategoriTerpilih = computed(() => props.kategoriList.find((k) => k.id === form.value.kategori_id));
-
-const parameterGabungan = computed(() => {
-    const langsung = kategoriTerpilih.value?.parameter ?? [];
-    const dariSub = kategoriTerpilih.value?.subkategori.flatMap((s) => s.parameter) ?? [];
-    const all = [...langsung, ...dariSub];
-    const unique = Array.from(new Map(all.map((p) => [p.id, p])).values());
-    return unique;
-});
-
-watch(
-    () => form.value.kategori_id,
-    () => {
-        const newParams = parameterGabungan.value.map((p) => p.id);
-        const current = new Set(form.value.parameter_ids);
-
-        newParams.forEach((id) => current.add(id));
-
-        form.value.parameter_ids = Array.from(current);
-    },
-);
-
-watch(
-    () => props.pengajuan.metode_pengambilan,
-    (val) => {
-        if (val === 'diambil') {
-            form.value.metode_pembayaran = 'transfer';
-        }
-    },
-    { immediate: true },
-);
-
-watch(
-    () => props.pengajuan.metode_pengambilan,
-    (val) => {
-        if (val === 'diambil') {
-            form.value.metode_pembayaran = 'transfer'
-        }
-    },
-    { immediate: true }
-)
-
-const handleVerifikasi = (status: 'diterima' | 'ditolak') => {
-    const payload: Record<string, any> = {
-        status_pengajuan: status,
-    };
-
-    if (status === 'diterima' && props.pengajuan.metode_pengambilan === 'diantar') {
-        payload.id_kategori = form.value.kategori_id;
-        payload.parameter = form.value.parameter_ids;
-        payload.metode_pembayaran = form.value.metode_pembayaran;
-    }
-
-    router.put(`/pegawai/pengajuan/${props.pengajuan.id}/edit`, payload, {
-        onSuccess: () => {
-            router.visit('/pegawai/pengajuan') // arahkan ke halaman index pengajuan
-        }
-    })
-}
-</script>
-
 <template>
-
-    <Head title="Edit Pengajuan" />
     <AdminLayout>
-        <div class="mx-auto max-w-4xl rounded bg-white p-6 shadow">
-            <h1 class="mb-6 text-2xl font-bold">Edit Pengajuan</h1>
-
-            <div class="mb-4 grid grid-cols-2 gap-4">
-                <div>
-                    <label class="font-semibold">Kode Pengajuan</label>
-                    <input :value="props.pengajuan.kode_pengajuan" class="w-full" disabled />
+        <div class="container mx-auto px-4 py-6">
+            <div class="rounded-lg bg-white p-6 shadow-md">
+                <div class="mb-6 flex items-center justify-between">
+                    <h1 class="text-2xl font-bold text-gray-800">Edit Pengajuan</h1>
+                    <Link :href="route('pegawai.pengajuan.index')" class="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"> Kembali </Link>
                 </div>
 
-                <div>
-                    <label class="font-semibold">Status Pengajuan</label>
-                    <input :value="props.pengajuan.status_pengajuan" class="w-full capitalize" disabled />
+                <!-- Pengajuan Details -->
+                <div class="mb-6 rounded bg-gray-50 p-4">
+                    <h3 class="mb-2 font-semibold">Detail Pengajuan</h3>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div><strong>Instansi:</strong> {{ pengajuan.instansi.user.name }}</div>
+                        <div><strong>Email:</strong> {{ pengajuan.instansi.user.email }}</div>
+                        <div><strong>Alamat:</strong> {{ pengajuan.alamat_pengambilan }}</div>
+                        <div><strong>Metode Pengambilan:</strong> {{ pengajuan.metode_pengambilan }}</div>
+                        <div><strong>Jenis Cairan:</strong> {{ pengajuan.jenis_cairan?.nama || '-' }}</div>
+                        <div>
+                            <strong>Status Saat Ini:</strong>
+                            <span
+                                :class="{
+                                    'text-yellow-600': pengajuan.status_pengajuan === 'diproses',
+                                    'text-green-600': pengajuan.status_pengajuan === 'diterima',
+                                    'text-red-600': pengajuan.status_pengajuan === 'ditolak',
+                                }"
+                            >
+                                {{ pengajuan.status_pengajuan }}
+                            </span>
+                        </div>
+                    </div>
                 </div>
 
-                <div>
-                    <label class="font-semibold">Nama Pemohon</label>
-                    <input :value="props.pengajuan.instansi.user.nama" class="w-full" disabled />
-                </div>
+                <!-- Edit Form -->
+                <form @submit.prevent="submit">
+                    <!-- Status Selection with Buttons -->
+                    <div class="mb-6">
+                        <label class="mb-3 block text-sm font-medium text-gray-700">Status Pengajuan *</label>
+                        <div class="flex gap-4">
+                            <button
+                                type="button"
+                                @click="form.status_pengajuan = 'diterima'"
+                                :class="[
+                                    'rounded-lg px-6 py-3 font-medium transition-colors',
+                                    form.status_pengajuan === 'diterima'
+                                        ? 'bg-green-500 text-white shadow-lg'
+                                        : 'bg-gray-200 text-gray-700 hover:bg-green-100',
+                                ]"
+                            >
+                                ✓ Terima
+                            </button>
+                            <button
+                                type="button"
+                                @click="form.status_pengajuan = 'ditolak'"
+                                :class="[
+                                    'rounded-lg px-6 py-3 font-medium transition-colors',
+                                    form.status_pengajuan === 'ditolak'
+                                        ? 'bg-red-500 text-white shadow-lg'
+                                        : 'bg-gray-200 text-gray-700 hover:bg-red-100',
+                                ]"
+                            >
+                                ✗ Tolak
+                            </button>
+                        </div>
+                        <div v-if="errors.status_pengajuan" class="mt-2 text-sm text-red-500">
+                            {{ errors.status_pengajuan }}
+                        </div>
+                    </div>
 
-                <div>
-                    <label class="font-semibold">Instansi</label>
-                    <input :value="props.pengajuan.instansi.nama" class="w-full" disabled />
-                </div>
+                    <!-- Existing Customer Data Display -->
+                    <div v-if="pengajuan.kategori || pengajuan.parameter?.length > 0" class="mb-6 rounded bg-blue-50 p-4">
+                        <h3 class="mb-3 font-semibold text-blue-800">Data Asli yang Dipilih Customer</h3>
+                        <div class="grid grid-cols-1 gap-3 text-sm">
+                            <div v-if="pengajuan.kategori"><strong class="text-blue-700">Kategori Asli:</strong> {{ pengajuan.kategori.nama }}</div>
+                            <div v-if="pengajuan.parameter?.length > 0">
+                                <strong class="text-blue-700">Parameter Asli yang Dipilih:</strong>
+                                <ul class="ml-4 mt-1 list-disc">
+                                    <li v-for="param in pengajuan.parameter" :key="param.id">
+                                        {{ param.nama_parameter }}
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-xs text-blue-600">
+                            <strong>Catatan:</strong> Anda dapat mengubah kategori dan parameter di bawah ini sesuai kebutuhan.
+                        </div>
+                    </div>
 
-                <div>
-                    <label class="font-semibold">Jenis Cairan</label>
-                    <input :value="props.pengajuan.jenis_cairan?.nama" class="w-full" disabled />
-                </div>
+                    <!-- Additional Fields for Accepted Diantar Submissions -->
+                    <div v-if="showAdditionalFields" class="space-y-4">
+                        <!-- Category Selection -->
+                        <div>
+                            <label class="mb-2 block text-sm font-medium text-gray-700">
+                                Kategori *
+                                <span class="text-sm font-normal text-gray-500">(Dapat diubah)</span>
+                            </label>
+                            <select
+                                v-model="form.id_kategori"
+                                @change="onKategoriChange"
+                                class="w-full rounded border border-gray-300 p-2 hover:border-blue-400 focus:ring-2 focus:ring-blue-500"
+                                required
+                            >
+                                <option value="">Pilih Kategori</option>
+                                <option v-for="kategori in kategoriList" :key="kategori.id" :value="kategori.id">
+                                    {{ kategori.nama }}
+                                    <span v-if="pengajuan.kategori && pengajuan.kategori.id === kategori.id"> (Pilihan Customer) </span>
+                                </option>
+                            </select>
+                            <div v-if="errors.id_kategori" class="mt-1 text-sm text-red-500">
+                                {{ errors.id_kategori }}
+                            </div>
+                        </div>
 
-                <div>
-                    <label class="font-semibold">Volume Sampel</label>
-                    <input :value="props.pengajuan.volume_sampel" class="w-full" disabled />
-                </div>
+                        <!-- Parameter Selection -->
+                        <div>
+                            <label class="mb-2 block text-sm font-medium text-gray-700">
+                                Parameter Uji *
+                                <span class="text-sm font-normal text-gray-500"
+                                    >(Parameter yang tidak tersedia untuk kategori ini akan dinonaktifkan)</span
+                                >
+                            </label>
+                            <div class="max-h-48 overflow-y-auto rounded border border-gray-300 p-2 hover:border-blue-400">
+                                <div v-if="parameterList.length === 0" class="text-sm text-gray-500">Memuat parameter...</div>
+                                <div v-for="parameter in parameterList" :key="parameter.id" class="mb-2 flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        :id="`param-${parameter.id}`"
+                                        :value="parameter.id"
+                                        v-model="form.parameter"
+                                        :disabled="!isParameterAvailable(parameter.id) || !form.id_kategori"
+                                        class="mr-2 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                                    />
+                                    <label
+                                        :for="`param-${parameter.id}`"
+                                        class="flex-1 cursor-pointer text-sm"
+                                        :class="{
+                                            'text-gray-400': !isParameterAvailable(parameter.id) || !form.id_kategori,
+                                            'cursor-not-allowed': !isParameterAvailable(parameter.id) || !form.id_kategori,
+                                        }"
+                                    >
+                                        {{ parameter.nama_parameter }}
 
-                <div>
-                    <label class="font-semibold">Metode Pengambilan</label>
-                    <input :value="props.pengajuan.metode_pengambilan" class="w-full" disabled />
-                </div>
+                                        <!-- Original customer selection indicator -->
+                                        <span
+                                            v-if="isOriginalParameter(parameter.id)"
+                                            class="ml-2 inline-block rounded bg-blue-100 px-2 py-1 text-xs text-blue-700"
+                                        >
+                                            Dipilih Customer
+                                        </span>
 
-                <div>
-                    <label class="font-semibold">Lokasi</label>
-                    <input :value="props.pengajuan.lokasi" class="w-full" disabled />
-                </div>
-            </div>
+                                        <!-- Available/Not available indicator -->
+                                        <span
+                                            v-if="form.id_kategori"
+                                            :class="[
+                                                'ml-2 inline-block rounded px-2 py-1 text-xs',
+                                                isParameterAvailable(parameter.id) ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700',
+                                            ]"
+                                        >
+                                            {{ isParameterAvailable(parameter.id) ? 'Tersedia' : 'Tidak Tersedia' }}
+                                        </span>
 
-            <div v-if="props.pengajuan.metode_pengambilan === 'diambil'" class="mb-4">
-                <label class="font-semibold block mb-1">Metode Pembayaran</label>
-                <select v-model="form.metode_pembayaran" class="w-full border rounded px-2 py-1"
-                    :disabled="props.pengajuan.metode_pengambilan === 'diambil'">
-                    <option value="transfer">Transfer</option>
-                    <option value="tunai">Tunai</option>
-                </select>
-            </div>
+                                        <!-- No category selected indicator -->
+                                        <span v-if="!form.id_kategori" class="ml-2 inline-block rounded bg-gray-100 px-2 py-1 text-xs text-gray-500">
+                                            Pilih kategori dulu
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div v-if="errors.parameter" class="mt-1 text-sm text-red-500">
+                                {{ errors.parameter }}
+                            </div>
+                            <div class="mt-2 text-xs text-gray-600">
+                                <strong>Total parameter dipilih:</strong> {{ form.parameter.length }}
+                                <span v-if="form.id_kategori" class="ml-4">
+                                    <strong>Tersedia untuk kategori ini:</strong> {{ availableParameterIds.length }}
+                                </span>
+                            </div>
+                        </div>
 
-            <div class="mb-4">
-                <label class="mb-1 block font-semibold">Pilih Kategori</label>
-                <select
-                    v-model="form.kategori_id"
-                    class="w-full rounded border px-2 py-1"
-                    :disabled="props.pengajuan.metode_pengambilan !== 'diantar'"
-                >
-                    <option v-for="k in kategoriList" :key="k.id" :value="k.id">{{ k.nama }}</option>
-                </select>
-            </div>
+                        <!-- Show changes summary -->
+                        <div v-if="hasChanges" class="rounded border border-yellow-200 bg-yellow-50 p-3">
+                            <h4 class="mb-2 font-medium text-yellow-800">Perubahan yang Akan Diterapkan:</h4>
+                            <div class="space-y-1 text-sm text-yellow-700">
+                                <div v-if="kategoriChanged">
+                                    <strong>Kategori:</strong>
+                                    <span class="line-through">{{ pengajuan.kategori?.nama }}</span>
+                                    → {{ selectedKategoriName }}
+                                </div>
+                                <div v-if="parameterChanged">
+                                    <strong>Parameter:</strong>
+                                    <span v-if="addedParameters.length > 0"> Ditambah: {{ addedParameters.join(', ') }} </span>
+                                    <span v-if="removedParameters.length > 0" class="block"> Dihapus: {{ removedParameters.join(', ') }} </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-            <label v-for="param in parameterList" :key="param.id" class="flex items-center gap-2">
-                <input type="checkbox" :value="param.id" v-model="form.parameter_ids" :disabled="props.pengajuan.metode_pengambilan !== 'diantar'" />
-                {{ param.nama_parameter }}
-            </label>
+                    <!-- Submit Button -->
+                    <div class="mt-6 flex justify-end">
+                        <button
+                            type="submit"
+                            :disabled="form.processing || !isFormValid"
+                            class="rounded bg-blue-500 px-6 py-2 text-white hover:bg-blue-600 disabled:bg-blue-300"
+                        >
+                            {{ form.processing ? 'Memproses...' : 'Update Pengajuan' }}
+                        </button>
+                    </div>
 
-            <!-- Button Verifikasi -->
-            <div v-if="props.pengajuan.status_pengajuan === 'proses_validasi'" class="flex gap-4">
-                <button @click="handleVerifikasi('diterima')" class="rounded bg-green-600 px-4 py-2 text-white">✅ Terima Pengajuan</button>
-                <button @click="handleVerifikasi('ditolak')" class="rounded bg-red-600 px-4 py-2 text-white">❌ Tolak Pengajuan</button>
-            </div>
-
-            <div v-else>
-                <p class="text-sm italic text-gray-500">Pengajuan sudah diverifikasi</p>
+                    <!-- Debug info -->
+                    <!-- <div v-if="showDebugInfo" class="mt-4 rounded bg-gray-100 p-3 text-xs">
+                        <h4 class="font-semibold">Debug Info:</h4>
+                        <div>Status: {{ form.status_pengajuan }}</div>
+                        <div>Metode Pengambilan: {{ props.pengajuan.metode_pengambilan }}</div>
+                        <div>Show Additional Fields: {{ showAdditionalFields }}</div>
+                        <div>Kategori: {{ form.id_kategori }}</div>
+                        <div>Parameter Count: {{ form.parameter.length }}</div>
+                        <div>Form Valid: {{ isFormValid }}</div>
+                    </div> -->
+                </form>
             </div>
         </div>
     </AdminLayout>
 </template>
+
+<script setup>
+import AdminLayout from '@/layouts/admin/AdminLayout.vue';
+import { Link, useForm } from '@inertiajs/vue3';
+import { computed, ref, watch } from 'vue';
+
+const props = defineProps({
+    pengajuan: Object,
+    kategoriList: Array,
+    parameterList: Array,
+    errors: Object,
+});
+
+const form = useForm({
+    status_pengajuan: '',
+    id_kategori: props.pengajuan.id_kategori || '',
+    parameter: props.pengajuan.parameter?.map((p) => p.id) || [],
+});
+
+// Debug flag - you can remove this later
+const showDebugInfo = ref(true);
+
+const availableParameterIds = ref([]);
+
+// Store original customer selections for comparison
+const originalKategoriId = props.pengajuan.kategori?.id;
+const originalParameterIds = props.pengajuan.parameter?.map((p) => p.id) || [];
+
+// Form validation
+const isFormValid = computed(() => {
+    if (!form.status_pengajuan) {
+        return false;
+    }
+
+    if (form.status_pengajuan === 'ditolak') {
+        return true;
+    }
+
+    if (form.status_pengajuan === 'diterima') {
+        if (props.pengajuan.metode_pengambilan === 'diantar') {
+            return form.id_kategori && form.parameter.length > 0;
+        }
+        return true;
+    }
+
+    return false;
+});
+
+// Computed properties for existing data indicators
+const hasExistingKategori = computed(() => {
+    return props.pengajuan.kategori && props.pengajuan.kategori.id;
+});
+
+const hasExistingParameter = computed(() => {
+    return props.pengajuan.parameter && props.pengajuan.parameter.length > 0;
+});
+
+// Check if a parameter is available for the selected category
+const isParameterAvailable = (parameterId) => {
+    return availableParameterIds.value.includes(parameterId);
+};
+
+// Check if a parameter was originally selected by customer
+const isOriginalParameter = (parameterId) => {
+    return originalParameterIds.includes(parameterId);
+};
+
+// Show additional fields only for accepted "diantar" submissions
+const showAdditionalFields = computed(() => {
+    return form.status_pengajuan === 'diterima' && props.pengajuan.metode_pengambilan === 'diantar';
+});
+
+// Check if there are changes from original selections
+const hasChanges = computed(() => {
+    return kategoriChanged.value || parameterChanged.value;
+});
+
+const kategoriChanged = computed(() => {
+    return form.id_kategori != originalKategoriId;
+});
+
+const parameterChanged = computed(() => {
+    const currentParams = form.parameter.sort();
+    const originalParams = originalParameterIds.sort();
+    return JSON.stringify(currentParams) !== JSON.stringify(originalParams);
+});
+
+const selectedKategoriName = computed(() => {
+    const kategori = props.kategoriList.find((k) => k.id == form.id_kategori);
+    return kategori?.nama || '';
+});
+
+const addedParameters = computed(() => {
+    const added = form.parameter.filter((id) => !originalParameterIds.includes(id));
+    return added
+        .map((id) => {
+            const param = props.parameterList.find((p) => p.id === id);
+            return param?.nama_parameter || '';
+        })
+        .filter((name) => name);
+});
+
+const removedParameters = computed(() => {
+    const removed = originalParameterIds.filter((id) => !form.parameter.includes(id));
+    return removed
+        .map((id) => {
+            const param = props.pengajuan.parameter?.find((p) => p.id === id);
+            return param?.nama_parameter || '';
+        })
+        .filter((name) => name);
+});
+
+// Update available parameters when category changes
+const onKategoriChange = () => {
+    const selectedKategori = props.kategoriList.find((k) => k.id == form.id_kategori);
+
+    if (selectedKategori) {
+        let parameterIds = [];
+
+        // Add direct parameters from category
+        if (selectedKategori.parameter) {
+            parameterIds = [...selectedKategori.parameter.map((p) => p.id)];
+        }
+
+        // Add parameters from subcategories
+        if (selectedKategori.subkategori) {
+            selectedKategori.subkategori.forEach((sub) => {
+                if (sub.parameter) {
+                    parameterIds = [...parameterIds, ...sub.parameter.map((p) => p.id)];
+                }
+            });
+        }
+
+        // Remove duplicates and store available parameter IDs
+        availableParameterIds.value = [...new Set(parameterIds)];
+    } else {
+        availableParameterIds.value = [];
+    }
+
+    // Remove disabled parameters from selection
+    form.parameter = form.parameter.filter((id) => availableParameterIds.value.includes(id));
+};
+
+// Initialize available parameters if category is already selected
+if (form.id_kategori) {
+    onKategoriChange();
+    // Restore original parameter selection only for available parameters
+    const availableOriginalParams = originalParameterIds.filter((id) => availableParameterIds.value.includes(id));
+    form.parameter = [...availableOriginalParams];
+}
+
+// Watch for status changes
+watch(
+    () => form.status_pengajuan,
+    (newStatus) => {
+        console.log('Status changed to:', newStatus); // Debug log
+
+        if (newStatus === 'diterima' && props.pengajuan.metode_pengambilan === 'diantar') {
+            // When accepting "diantar" submission, load existing customer data as starting point
+            if (hasExistingKategori.value) {
+                form.id_kategori = originalKategoriId;
+                onKategoriChange();
+                // Restore original parameters after category change (only available ones)
+                setTimeout(() => {
+                    const availableOriginalParams = originalParameterIds.filter((id) => availableParameterIds.value.includes(id));
+                    form.parameter = [...availableOriginalParams];
+                }, 0);
+            }
+        } else if (newStatus === 'ditolak') {
+            // Reset fields when rejecting
+            form.id_kategori = '';
+            form.parameter = [];
+            availableParameterIds.value = [];
+        }
+    },
+);
+
+const submit = () => {
+    console.log('Submitting form with data:', form.data()); // Debug log
+    form.put(route('pegawai.pengajuan.update', props.pengajuan.id));
+};
+</script>

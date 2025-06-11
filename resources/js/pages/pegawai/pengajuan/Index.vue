@@ -72,8 +72,8 @@ const handleFilter = () => {
     <Head title="Daftar Pengujian" />
     <AdminLayout>
         <div class="p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl text-black font-bold">DAFTAR PENGAJUAN</h1>
+            <div class="mb-6 flex items-center justify-between">
+                <h1 class="text-2xl font-bold text-black">DAFTAR PENGAJUAN</h1>
                 <!-- <Link :href="route('pegawai.pengajuan.create')"
                     class="bg-customDarkGreen text-white px-4 py-2 rounded flex items-center gap-2">
                 <span>+</span> Tambah
@@ -129,15 +129,14 @@ const handleFilter = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(item, index) in props.pengajuan" :key="item.id"
-                            :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-200'">
-                            <td class="px-4 py-3 border-b">{{ item.kode_pengajuan }}</td>
-                            <td class="px-4 py-3 border-b">{{ item.instansi.user.nama }}</td>
-                            <td class="px-4 py-3 border-b">{{ item.instansi?.nama ?? '-' }}</td>
-                            <td class="px-4 py-3 border-b">{{ item.jenis_cairan.nama }}</td>
-                            <td class="px-4 py-3 border-b">{{ item.kategori?.nama }}</td>
-                            <td class="px-4 py-3 border-b">
-                                <ul class="list-disc ml-4">
+                        <tr v-for="(item, index) in props.pengajuan" :key="item.id" :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-200'">
+                            <td class="border-b px-4 py-3">{{ item.kode_pengajuan }}</td>
+                            <td class="border-b px-4 py-3">{{ item.instansi.user.nama }}</td>
+                            <td class="border-b px-4 py-3">{{ item.instansi?.nama ?? '-' }}</td>
+                            <td class="border-b px-4 py-3">{{ item.jenis_cairan.nama }}</td>
+                            <td class="border-b px-4 py-3">{{ item.kategori?.nama }}</td>
+                            <td class="border-b px-4 py-3">
+                                <ul class="ml-4 list-disc">
                                     <li v-for="param in item.parameter" :key="param.id">
                                         {{ param.nama_parameter }}
                                     </li>

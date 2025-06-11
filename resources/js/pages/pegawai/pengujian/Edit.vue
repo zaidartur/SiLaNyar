@@ -1,183 +1,211 @@
 <script setup lang="ts">
-import { useForm } from '@inertiajs/vue3'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { computed, watch } from 'vue'
+import AdminLayout from '@/layouts/admin/AdminLayout.vue';
+import { Head, Link, useForm } from '@inertiajs/vue3';
+
+interface Kategori {
+    id: number;
+    nama: string;
+}
 
 interface User {
-    id: number
-    nama: string
+    id: number;
+    nama: string;
 }
 
 interface Instansi {
-    id: number
-    nama: string
-    user: User
-}
-
-interface Kategori {
-    id: number
-    nama: string
+    id: number;
+    nama: string;
+    user: User;
 }
 
 interface Pengajuan {
-    id: number
-    kode_pengajuan: string
-    instansi: Instansi
-    kategori: Kategori
+    id: number;
+    kode_pengajuan: string;
+    instansi: Instansi;
 }
 
 interface Pengujian {
-    id: number
-    id_form_pengajuan: number
-    id_user: number
-    id_kategori: number
-    tanggal_mulai: string
-    tanggal_selesai: string
-    jam_mulai: string
-    jam_selesai: string
+    id: number;
+    kode_pengujian: string;
+    form_pengajuan: Pengajuan;
+    user: User;
+    kategori: Kategori;
+    tanggal_uji: string;
+    jam_mulai: string;
+    jam_selesai: string;
+    status: 'diproses' | 'selesai';
 }
 
 const props = defineProps<{
-    pengujian: Pengujian
-    form_pengajuan: Pengajuan[]
-    user: User[]
-}>()
+    pengujian: Pengujian;
+    kategoriList: any[];
+    userList: any[];
+    pengajuanList: any[];
+}>();
+
+// Convert date from YYYY-MM-DD to display format for input
+const formatDateForInput = (dateString: string) => {
+    if (!dateString) return '';
+    return dateString.split(' ')[0]; // Take only the date part if datetime
+};
 
 const form = useForm({
-    id_form_pengajuan: props.pengujian.id_form_pengajuan,
-    id_user: props.pengujian.id_user,
-    id_kategori: props.pengujian.id_kategori as number | null,
-    tanggal_mulai: formatDate(props.pengujian.tanggal_mulai),
-    tanggal_selesai: formatDate(props.pengujian.tanggal_selesai),
+    id_form_pengajuan: props.pengujian.form_pengajuan.id,
+    id_kategori: props.pengujian.kategori.id,
+    id_user: props.pengujian.user.id,
+    tanggal_uji: formatDateForInput(props.pengujian.tanggal_uji),
     jam_mulai: props.pengujian.jam_mulai,
     jam_selesai: props.pengujian.jam_selesai,
-    status: props.pengujian.status,
-})
+});
 
-const selectedPengajuan = computed(() =>
-    props.form_pengajuan.find(f => f.id === form.id_form_pengajuan)
-)
-
-const idKategori = computed(() => selectedPengajuan.value?.kategori.id ?? null)
-
-watch(() => form.id_form_pengajuan, () => {
-    form.id_kategori = idKategori.value
-})
-
-function formatDate(dateStr: string) {
-    if (!dateStr) return ''
-    const d = new Date(dateStr)
-    return d.toISOString().split('T')[0]
-}
 const submit = () => {
-    form.put(`/pegawai/pengujian/${props.pengujian.id}/edit`, {
-        only: ['status']
-    })
-}
+    form.put(route('pegawai.pengujian.update', props.pengujian.id));
+};
 </script>
 
 <template>
-    <div class="h-screen w-full bg-white lg:grid lg:grid-cols-3">
-        <!-- Left Side - Logo Section -->
-        <div
-            class="hidden h-screen flex-col bg-customDarkGreen lg:col-span-1 lg:flex lg:items-center lg:justify-center">
-            <img src="/assets/assetsadmin/logodlh.png" alt="Logo DLH" class="mx-auto h-48 w-auto object-contain" />
-            <div class="mt-6 text-center text-white">
-                <h2 class="mb-2 border-b border-white pb-2 text-2xl font-bold">SiLanYar</h2>
-                <p class="text-sm">Sistem Laboratoruim Karanganyar</p>
-            </div>
-        </div>
-
-        <!-- Right Side - Form Section -->
-        <div class="flex h-screen items-start justify-center overflow-y-auto bg-white lg:col-span-2">
-            <form @submit.prevent="submit" class="mx-auto grid w-full max-w-xl gap-6 p-6 md:p-12">
-                <div class="grid gap-2 text-center">
-                    <h1 class="text-3xl font-bold">Edit Jadwal Pengujian</h1>
+    <Head title="Edit Pengujian" />
+    <AdminLayout>
+        <div class="p-6">
+            <div class="rounded-lg bg-white p-6 shadow">
+                <div class="mb-6 flex items-center justify-between">
+                    <h1 class="text-2xl font-bold text-gray-800">Edit Pengujian</h1>
+                    <Link
+                        :href="route('pegawai.pengujian.detail', props.pengujian.id)"
+                        class="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+                    >
+                        Kembali
+                    </Link>
                 </div>
 
-                <div class="grid gap-4">
+                <!-- Current Status Display -->
+                <div class="mb-6 rounded-lg bg-gray-50 p-4">
+                    <h3 class="mb-2 font-semibold">Informasi Saat Ini</h3>
+                    <div class="grid grid-cols-1 gap-4 text-sm md:grid-cols-2">
+                        <div><strong>Kode Pengujian:</strong> {{ props.pengujian.kode_pengujian }}</div>
+                        <div>
+                            <strong>Status:</strong>
+                            <span class="ml-1 inline-block rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-800">
+                                {{ props.pengujian.status === 'diproses' ? 'Diproses' : 'Selesai' }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-xs text-gray-600">
+                        <strong>Catatan:</strong> Untuk mengubah status pengujian, silakan gunakan tombol pada halaman detail.
+                    </div>
+                </div>
+
+                <form @submit.prevent="submit" class="space-y-6">
                     <!-- Form Pengajuan -->
-                    <div class="grid gap-2">
-                        <Label for="id_form_pengajuan">Pilih Form Pengajuan</Label>
-                        <select v-model="form.id_form_pengajuan" id="id_form_pengajuan"
-                            class="w-full rounded border px-3 py-2 mt-1">
-                            <option :value="null" disabled>Pilih Pengajuan</option>
-                            <option v-for="item in form_pengajuan" :key="item.id" :value="item.id">
-                                {{ item.kode_pengajuan }} - {{ item.instansi.nama }}
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-gray-700"> Pengajuan * </label>
+                        <select
+                            v-model="form.id_form_pengajuan"
+                            class="w-full rounded border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500"
+                            required
+                        >
+                            <option value="">Pilih Pengajuan</option>
+                            <option v-for="pengajuan in pengajuanList" :key="pengajuan.id" :value="pengajuan.id">
+                                {{ pengajuan.kode_pengajuan }} - {{ pengajuan.instansi?.nama }}
                             </option>
                         </select>
-                        <span v-if="form.errors.id_form_pengajuan" class="text-sm text-red-600">
+                        <div v-if="form.errors.id_form_pengajuan" class="mt-1 text-sm text-red-500">
                             {{ form.errors.id_form_pengajuan }}
-                        </span>
+                        </div>
+                    </div>
+
+                    <!-- Kategori -->
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-gray-700"> Kategori * </label>
+                        <select
+                            v-model="form.id_kategori"
+                            class="w-full rounded border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500"
+                            required
+                        >
+                            <option value="">Pilih Kategori</option>
+                            <option v-for="kategori in kategoriList" :key="kategori.id" :value="kategori.id">
+                                {{ kategori.nama }}
+                            </option>
+                        </select>
+                        <div v-if="form.errors.id_kategori" class="mt-1 text-sm text-red-500">
+                            {{ form.errors.id_kategori }}
+                        </div>
                     </div>
 
                     <!-- Teknisi -->
-                    <div class="grid gap-2">
-                        <Label for="id_user">Pilih Teknisi</Label>
-                        <select v-model="form.id_user" id="id_user" class="w-full rounded border px-3 py-2 mt-1">
-                            <option :value="null" disabled>Pilih Teknisi</option>
-                            <option v-for="u in user" :key="u.id" :value="u.id">
-                                {{ u.nama }}
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-gray-700"> Teknisi * </label>
+                        <select v-model="form.id_user" class="w-full rounded border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500" required>
+                            <option value="">Pilih Teknisi</option>
+                            <option v-for="user in userList" :key="user.id" :value="user.id">
+                                {{ user.nama }}
                             </option>
                         </select>
-                        <span v-if="form.errors.id_user" class="text-sm text-red-600">
+                        <div v-if="form.errors.id_user" class="mt-1 text-sm text-red-500">
                             {{ form.errors.id_user }}
-                        </span>
-                    </div>
-
-                    <!-- Tanggal Mulai & Selesai -->
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="grid gap-2">
-                            <Label for="tanggal_mulai">Tanggal Mulai</Label>
-                            <Input type="date" id="tanggal_mulai" v-model="form.tanggal_mulai" />
-                            <span v-if="form.errors.tanggal_mulai" class="text-sm text-red-600">
-                                {{ form.errors.tanggal_mulai }}
-                            </span>
-                        </div>
-                        <div class="grid gap-2">
-                            <Label for="tanggal_selesai">Tanggal Selesai</Label>
-                            <Input type="date" id="tanggal_selesai" v-model="form.tanggal_selesai" />
-                            <span v-if="form.errors.tanggal_selesai" class="text-sm text-red-600">
-                                {{ form.errors.tanggal_selesai }}
-                            </span>
                         </div>
                     </div>
 
-                    <!-- Jam Mulai & Selesai -->
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="grid gap-2">
-                            <Label for="jam_mulai">Jam Mulai</Label>
-                            <Input type="time" id="jam_mulai" v-model="form.jam_mulai" />
-                            <span v-if="form.errors.jam_mulai" class="text-sm text-red-600">
-                                {{ form.errors.jam_mulai }}
-                            </span>
-                        </div>
-                        <div class="grid gap-2">
-                            <Label for="jam_selesai">Jam Selesai</Label>
-                            <Input type="time" id="jam_selesai" v-model="form.jam_selesai" />
-                            <span v-if="form.errors.jam_selesai" class="text-sm text-red-600">
-                                {{ form.errors.jam_selesai }}
-                            </span>
+                    <!-- Tanggal Uji -->
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-gray-700"> Tanggal Pengujian * </label>
+                        <input
+                            type="date"
+                            v-model="form.tanggal_uji"
+                            class="w-full rounded border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500"
+                            required
+                        />
+                        <div v-if="form.errors.tanggal_uji" class="mt-1 text-sm text-red-500">
+                            {{ form.errors.tanggal_uji }}
                         </div>
                     </div>
-                    <div class="grid gap-2">
-                        <Label for="status">Status</Label>
-                        <select id="status" v-model="form.status" class="w-full rounded border px-3 py-2 mt-1">
-                            <option value="proses">Proses</option>
-                            <option value="selesai">Selesai</option>
-                        </select>
-                        <span v-if="form.errors.status" class="text-sm text-red-600">
-                            {{ form.errors.status }}
-                        </span>
-                    </div>
-                </div>
 
-                <button type="submit" :disabled="form.processing"
-                    class="mb-8 w-full rounded bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700">
-                    Update Jadwal Pengujian
-                </button>
-            </form>
+                    <!-- Jam Mulai -->
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-gray-700"> Jam Mulai * </label>
+                        <input
+                            type="time"
+                            v-model="form.jam_mulai"
+                            class="w-full rounded border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500"
+                            required
+                        />
+                        <div v-if="form.errors.jam_mulai" class="mt-1 text-sm text-red-500">
+                            {{ form.errors.jam_mulai }}
+                        </div>
+                    </div>
+
+                    <!-- Jam Selesai -->
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-gray-700"> Jam Selesai * </label>
+                        <input
+                            type="time"
+                            v-model="form.jam_selesai"
+                            class="w-full rounded border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500"
+                            required
+                        />
+                        <div v-if="form.errors.jam_selesai" class="mt-1 text-sm text-red-500">
+                            {{ form.errors.jam_selesai }}
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex justify-end gap-4">
+                        <Link
+                            :href="route('pegawai.pengujian.detail', props.pengujian.id)"
+                            class="rounded bg-gray-500 px-6 py-2 text-white hover:bg-gray-600"
+                        >
+                            Batal
+                        </Link>
+                        <button
+                            type="submit"
+                            :disabled="form.processing"
+                            class="rounded bg-blue-600 px-6 py-2 text-white hover:bg-blue-700 disabled:bg-blue-300"
+                        >
+                            {{ form.processing ? 'Memproses...' : 'Update Pengujian' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
+    </AdminLayout>
 </template>
