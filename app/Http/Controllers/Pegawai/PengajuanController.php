@@ -28,15 +28,27 @@ class PengajuanController extends Controller
     }
 
     //lihat daftar pengajuan dari pegawai
-    public function index()
+    public function index(Request $request)
     {
-        $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'instansi.user', 'jenis_cairan'])
-            ->orderByDesc('updated_at')
-            ->get();
+        $query = FormPengajuan::with(['kategori', 'parameter', 'instansi.user', 'jenis_cairan']);
+
+        // Apply filters
+        if ($request->filled('status')) {
+            $query->where('status_pengajuan', $request->status);
+        }
+
+        if ($request->filled('tanggal')) {
+            $query->whereDate('created_at', $request->tanggal);
+        }
+
+        $pengajuan = $query->orderByDesc('updated_at')->get();
 
         return Inertia::render('pegawai/pengajuan/Index', [
             'pengajuan' => $pengajuan,
-            'filter' => request()->all()
+            'filter' => [
+                'status' => $request->status,
+                'tanggal' => $request->tanggal
+            ]
         ]);
     }
 
@@ -81,11 +93,11 @@ class PengajuanController extends Controller
 
             $pengajuan->status_pengajuan = $validated['status_pengajuan'];
 
-            if ($pengajuan->metode_pengambilan === 'diantar') {
-                $pengajuan->id_kategori = $validated['id_kategori'];
+            // if ($pengajuan->metode_pengambilan === 'diantar') {
+            //     $pengajuan->id_kategori = $validated['id_kategori'];
 
-                $pengajuan->parameter()->sync($validated['parameter']);
-            }
+            //     $pengajuan->parameter()->sync($validated['parameter']);
+            // }
 
             $pengajuan->save();
 

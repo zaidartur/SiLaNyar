@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import CustomerLayout from '@/layouts/customer/CustomerLayout.vue';
 import { Head, useForm, usePage } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 interface JenisCairan {
     id: number;
@@ -12,6 +12,7 @@ interface JenisCairan {
 interface Parameter {
     id: number;
     nama_parameter: string;
+    harga?: number;
 }
 interface SubKategori {
     id: number;
@@ -40,15 +41,163 @@ const pengajuanBerhasil = ref(false);
 
 const form = useForm({
     id_instansi: '',
-    id_jenis_cairan: null,
-    volume_sampel: null,
+    id_jenis_cairan: null as number | null,
+    volume_sampel: null as number | null,
     metode_pengambilan: '',
     lokasi: '',
-    waktu_pengambilan: null,
-    id_kategori: null,
+    waktu_pengambilan: null as string | null,
+    id_kategori: null as number | null,
     parameter: [] as number[],
     keterangan: '',
 });
+
+// Add validation state
+const validationErrors = ref<Record<string, string>>({});
+
+// Computed properties for dynamic validation
+const selectedJenisCairan = computed(() => jenisCairan.find((j) => j.id === form.id_jenis_cairan));
+
+const volumePlaceholder = computed(() => {
+    if (selectedJenisCairan.value) {
+        return `Min: ${selectedJenisCairan.value.batas_minimum} ml`;
+    }
+    return 'Pilih jenis cairan terlebih dahulu';
+});
+
+const isVolumeValid = computed(() => {
+    if (!form.volume_sampel || !selectedJenisCairan.value) return false;
+    return form.volume_sampel >= selectedJenisCairan.value.batas_minimum;
+});
+
+// Validation functions
+function validateStep1() {
+    const errors: Record<string, string> = {};
+
+    if (!form.id_jenis_cairan) {
+        errors.id_jenis_cairan = 'Jenis cairan harus dipilih';
+    }
+
+    if (!form.volume_sampel) {
+        errors.volume_sampel = 'Volume sampel harus diisi';
+    } else if (selectedJenisCairan.value && form.volume_sampel < selectedJenisCairan.value.batas_minimum) {
+        errors.volume_sampel = `Volume sampel minimal ${selectedJenisCairan.value.batas_minimum} ml`;
+    }
+
+    if (!form.id_instansi) {
+        errors.id_instansi = 'Instansi harus dipilih';
+    }
+
+    if (!form.metode_pengambilan) {
+        errors.metode_pengambilan = 'Metode pengambilan harus dipilih';
+    }
+
+    if (form.metode_pengambilan === 'diambil' && !form.lokasi?.trim()) {
+        errors.lokasi = 'Lokasi pengambilan harus diisi';
+    }
+
+    if (form.metode_pengambilan === 'diantar') {
+        if (!form.waktu_pengambilan) {
+            errors.waktu_pengambilan = 'Waktu pengambilan harus diisi';
+        } else {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
+            const selectedDate = new Date(form.waktu_pengambilan);
+
+            if (selectedDate < today) {
+                errors.waktu_pengambilan = 'Tanggal pengambilan tidak boleh sebelum hari ini';
+            }
+        }
+    }
+
+    validationErrors.value = errors;
+    return Object.keys(errors).length === 0;
+}
+
+function validateStep2() {
+    const errors: Record<string, string> = {};
+
+    if (!form.id_kategori) {
+        errors.id_kategori = 'Kategori harus dipilih';
+    }
+
+    if (form.parameter.length === 0) {
+        errors.parameter = 'Minimal satu parameter harus dipilih';
+    }
+
+    validationErrors.value = errors;
+    return Object.keys(errors).length === 0;
+}
+
+// Clear specific validation error
+function clearError(field: string) {
+    if (validationErrors.value[field]) {
+        delete validationErrors.value[field];
+    }
+}
+
+// Watch for changes to clear errors
+watch(
+    () => form.id_jenis_cairan,
+    () => {
+        clearError('id_jenis_cairan');
+        if (form.volume_sampel && selectedJenisCairan.value) {
+            clearError('volume_sampel');
+        }
+    },
+);
+
+watch(
+    () => form.volume_sampel,
+    () => {
+        if (form.volume_sampel && isVolumeValid.value) {
+            clearError('volume_sampel');
+        }
+    },
+);
+
+watch(
+    () => form.id_instansi,
+    () => clearError('id_instansi'),
+);
+watch(
+    () => form.metode_pengambilan,
+    () => {
+        clearError('metode_pengambilan');
+        clearError('lokasi');
+        clearError('waktu_pengambilan');
+        clearError('keterangan');
+    },
+);
+watch(
+    () => form.lokasi,
+    () => clearError('lokasi'),
+);
+watch(
+    () => form.waktu_pengambilan,
+    () => {
+        if (form.waktu_pengambilan) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const selectedDate = new Date(form.waktu_pengambilan);
+
+            if (selectedDate >= today) {
+                clearError('waktu_pengambilan');
+            }
+        }
+    },
+);
+watch(
+    () => form.id_kategori,
+    () => clearError('id_kategori'),
+);
+watch(
+    () => form.parameter,
+    () => clearError('parameter'),
+);
+watch(
+    () => form.keterangan,
+    () => clearError('keterangan'),
+);
 
 // Otomatis lokasi jika "diantar"
 watch(
@@ -84,7 +233,11 @@ watch(
 );
 
 function nextStep() {
-    if (step.value < 4) step.value += 1;
+    if (step.value === 1 && validateStep1()) {
+        step.value = 2;
+    } else if (step.value === 2 && validateStep2()) {
+        step.value = 3;
+    }
 }
 function prevStep() {
     if (step.value > 1) step.value -= 1;
@@ -104,7 +257,7 @@ function getNamaJenisCairan() {
     return jenisCairan.find((j) => j.id === form.id_jenis_cairan)?.nama || '-';
 }
 function getNamaInstansi() {
-    return instansiList.find((i) => i.id == form.id_instansi)?.nama || '-';
+    return instansiList.find((i) => i.id === Number(form.id_instansi))?.nama || '-';
 }
 function getNamaKategori() {
     return kategori.find((k) => k.id === form.id_kategori)?.nama || '-';
@@ -115,49 +268,63 @@ function getNamaKategori() {
 </script>
 
 <template>
-
     <Head title="Pengajuan Sampel" />
     <CustomerLayout>
         <!-- Stepper 4 langkah -->
         <div>
             <h1 class="mb-2 text-2xl font-bold text-customDarkGreen">Pengajuan Sampel</h1>
-            <p class="mb-6 text-gray-600 border-b-2 border-green-700 inline-block w-fit">Ikuti langkah-langkah berikut
-                untuk mengajukan sampel.</p>
+            <p class="mb-6 inline-block w-fit border-b-2 border-green-700 text-gray-600">Ikuti langkah-langkah berikut untuk mengajukan sampel.</p>
         </div>
-        <div class="flex p-6 mb-5">
+        <div class="mb-5 flex p-6">
             <ol class="mb-8 flex w-full items-center justify-center">
                 <!-- Step 1 -->
-                <li class="flex w-full items-center after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:border-customLightGreen after:content-['']"
-                    :class="step > 1 ? 'text-customDarkGreen' : 'text-gray-400'">
-                    <div :class="[
-                        'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
-                        step === 1 ? 'bg-customDarkGreen text-white' : step > 1 ? 'bg-customDarkGreen text-white' : 'bg-gray-100 text-gray-400',
-                    ]">
+                <li
+                    class="flex w-full items-center after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:border-customLightGreen after:content-['']"
+                    :class="step > 1 ? 'text-customDarkGreen' : 'text-gray-400'"
+                >
+                    <div
+                        :class="[
+                            'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
+                            step === 1 ? 'bg-customDarkGreen text-white' : step > 1 ? 'bg-customDarkGreen text-white' : 'bg-gray-100 text-gray-400',
+                        ]"
+                    >
                         <span class="text-2xl font-bold">1</span>
                     </div>
-                    <span class="mt-2 text-xs font-semibold text-center">Detail Sample</span>
+                    <span class="mt-2 text-center text-xs font-semibold">Detail Sample</span>
                 </li>
                 <!-- Step 2 -->
-                <li class="flex w-full items-center after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:border-gray-100 after:content-['']"
-                    :class="step > 2 ? 'text-customDarkGreen' : 'text-gray-400'">
-                    <div :class="[
-                        'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
-                        step === 2 ? 'bg-customDarkGreen text-white' : step > 2 ? 'bg-customDarkGreen text-white' : 'bg-gray-100 text-gray-400',
-                    ]">
+                <li
+                    class="flex w-full items-center after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:border-gray-100 after:content-['']"
+                    :class="step > 2 ? 'text-customDarkGreen' : 'text-gray-400'"
+                >
+                    <div
+                        :class="[
+                            'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
+                            step === 2 ? 'bg-customDarkGreen text-white' : step > 2 ? 'bg-customDarkGreen text-white' : 'bg-gray-100 text-gray-400',
+                        ]"
+                    >
                         <span class="text-2xl font-bold">2</span>
                     </div>
-                    <span class="mt-2 text-xs font-semibold text-center">Parameter Pengujian</span>
+                    <span class="mt-2 text-center text-xs font-semibold">Parameter Pengujian</span>
                 </li>
                 <!-- Step 3 -->
-                <li class="flex w-full items-center after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:border-gray-100 after:content-['']"
-                    :class="step > 3 ? 'text-customDarkGreen' : 'text-gray-400'">
-                    <div :class="[
-                        'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
-                        step === 3 ? 'bg-customDarkGreen text-white' : step > 3 ? 'bg-blue-100 text-customDarkGreen' : 'bg-gray-100 text-gray-400',
-                    ]">
+                <li
+                    class="flex w-full items-center after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:border-gray-100 after:content-['']"
+                    :class="step > 3 ? 'text-customDarkGreen' : 'text-gray-400'"
+                >
+                    <div
+                        :class="[
+                            'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
+                            step === 3
+                                ? 'bg-customDarkGreen text-white'
+                                : step > 3
+                                  ? 'bg-blue-100 text-customDarkGreen'
+                                  : 'bg-gray-100 text-gray-400',
+                        ]"
+                    >
                         <span class="text-2xl font-bold">3</span>
                     </div>
-                    <span class="mt-2 text-xs font-semibold text-center">Periksa & Serahkan</span>
+                    <span class="mt-2 text-center text-xs font-semibold">Periksa & Serahkan</span>
                 </li>
             </ol>
         </div>
@@ -166,44 +333,57 @@ function getNamaKategori() {
         <form v-if="step === 1" @submit.prevent="nextStep" class="space-y-4">
             <div class="rounded-lg border border-gray-300 bg-gray-100 p-6 shadow-sm">
                 <h3 class="mb-2 flex items-center gap-2 text-lg font-bold text-customDarkGreen">
-                    <svg width="33" height="30" viewBox="0 0 33 30" fill="none" xmlns="http://www.w3.org/2000/svg"
-                        xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <svg
+                        width="33"
+                        height="30"
+                        viewBox="0 0 33 30"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        xmlns:xlink="http://www.w3.org/1999/xlink"
+                    >
                         <rect width="33" height="30" fill="url(#pattern0_1392_980)" />
-                        <defs>
-                            <pattern id="pattern0_1392_980" patternContentUnits="objectBoundingBox" width="1"
-                                height="1">
-                                <use xlink:href="#image0_1392_980"
-                                    transform="matrix(0.00909091 0 0 0.01 0.0454545 0)" />
-                            </pattern>
-                            <image id="image0_1392_980" width="100" height="100" preserveAspectRatio="none"
-                                xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAAE0UlEQVR4nO2dXWhcRRiGj1dSUO8Keq13hbM2W7ZkIYlNmuRkz3f2zF5sS7G9shYRf6r1BwuJbWkikuJugmiKWoPWv607YxCSemFF2ysNRUEsFfW24GUFqVU7MqcpxM0mu9vdOd/snO+FF/YiOXvmfebnm9mLcRwSiUQikUgkEolEIpFICVCwEGwBwU7a6GAh2OJ0k7xF704Q4fcgmLTRPmc/FivFTU63CDibxQ4NdEMR4YzTDfJFOAqc3cAODHSbsxsBZ+CYLK9S3AwivPK/nlQN5UNv7bTCfjWsARP+nqsU73WMlHTu8EX4eW1Pys70S3e8xwpnZ/vrjZSzqu2OacqJ8Mnalx2cH0EP0e2wB98dWbuecPaEY5JUGeiL8M/VLzlWCeSDR7ehB+h22KpN3idB7Si5FiwErmNqieuLUGams+jhuZqceTUbtdHIUrheids/N4QemqvZA3ND5pXC9Urc0Y98mZpIowfmanbq5bQc+cA3pxSuW+LyUKantqOH5cbk9OR2Q0rh9UrcWXtKXLdJZ2cG8EthqBaeqn2JoXlPuhP4AbkIVuV9bR5qG4BY4ubl1mP2lbhuC6WwKvNrS2G/WkhpB+KL8Ijuc6KBGKq0gZOD2s+7VFZWANnxjv4d/uCptdMMAVknhOH3x7QDGT49RkCa7oGcaT122Xp0W/QdNEJamBZ6S33agPSW+7TDsGoNAbXj/9DXU0ZP9ESnCQTEkFHSW67zmwaNkOZCyH2al+njmY7B6DmekbkzeQLS7tSVOtL+Aq+eoZ4V1+iwbg2BVfY+9mV6MtPWyIgbhtVAQB3PnMlHa0pqvIWj/YmbFZWa+jDe2WogsGLV07PlvmgvsR4ItYdRfxNXNZVoIHDLnEW77R2nhqNfKJXV55HTuVg2fQRE4AdMQAR+qARE4AdJQAwIDwgIfmBAQPBDAgKCHwwQkO7wnqXd8vDyAW3PT9bGULTn3Yu75NLVKfmdLMljPzxOQPBhTMplWY6sCwqNENE6DJ1QCIhovGZ88ccra2CshjJ+8TECgjFNLdfx19em5SNfPkxAbIQBNGWxNmHs7XhHoDVE1FszpjaE8c1femBYByQQBfnmb8/L6UtPa5umzl+flge+2qetDdYACVZg3AquVSgmwLAGSCAK8o1fX1gTYLNQTIFhBZBgHRjNQjEJhhVAXvz20Q3DjKD8dLDu/+5Z2iXPXm28gO8/p2cBt3aEvP7Lcw2hnLh00OiRYQ0QuA0opsKwBgi0AGXm50MNp6nzMU9TVgKBFZcvP9sQiokjw1og0AYUbBjWAoHbgGICDKuBgGCy1CSUC9dPGAHDeiDQBBSTYCQCCGwAxTQYiQECgsnXLj9jPIxEAYFVUEyFkTggIFi0W99/zkwYiQQChpuACHwIBETgB09ABH7YBETgB0xABH6oBETgB0lADAgPCAh+YEBA8EMCAoIfDBAQ/DAgQUcnh7EbCl1in7OXtAMBEe7Dbih0iXOc7dUOZLRauM8X4T/YjQXTzdnfsd0j4nP2NnqDhdn2OZtz4lL+s/zdNt91C+3DuFisFO9y4pS36N3jc/ZeIq5ZFU2CEOG/IMJ51WEdLAULwQPRpZKclbCv1QYsc1ZSl0t6nN2PBoJEIpFIJBKJRCKRSCSS03n9B+yy/yvpNyiBAAAAAElFTkSuQmCC" />
-                        </defs>
+                        <defs />
+                        <pattern id="pattern0_1392_980" patternContentUnits="objectBoundingBox" width="1" height="1">
+                            <use xlink:href="#image0_1392_980" transform="matrix(0.00909091 0 0 0.01 0.0454545 0)" />
+                        </pattern>
+                        <image
+                            id="image0_1392_980"
+                            width="100"
+                            height="100"
+                            preserveAspectRatio="none"
+                            xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAAE0UlEQVR4nO2dXWhcRRiGj1dSUO8Keq13hbM2W7ZkIYlNmuRkz3f2zF5sS7G9shYRf6r1BwuJbWkikuJugmiKWoPWv607YxCSemFF2ysNRUEsFfW24GUFqVU7MqcpxM0mu9vdOd/snO+FF/YiOXvmfebnm9mLcRwSiUQikUgkEolEIpFICVCwEGwBwU7a6GAh2OJ0k7xF704Q4fcgmLTRPmc/FivFTU63CDibxQ4NdEMR4YzTDfJFOAqc3cAODHSbsxsBZ+CYLK9S3AwivPK/nlQN5UNv7bTCfjWsARP+nqsU73WMlHTu8EX4eW1Pys70S3e8xwpnZ/vrjZSzqu2OacqJ8Mnalx2cH0EP0e2wB98dWbuecPaEY5JUGeiL8M/VLzlWCeSDR7ehB+h22KpN3idB7Si5FiwErmNqieuLUGams+jhuZqceTUbtdHIUrheids/N4QemqvZA3ND5pXC9Urc0Y98mZpIowfmanbq5bQc+cA3pxSuW+LyUKantqOH5cbk9OR2Q0rh9UrcWXtKXLdJZ2cG8EthqBaeqn2JoXlPuhP4AbkIVuV9bR5qG4BY4ubl1mP2lbhuC6WwKvNrS2G/WkhpB+KL8Ijuc6KBGKq0gZOD2s+7VFZWANnxjv4d/uCptdMMAVknhOH3x7QDGT49RkCa7oGcaT122Xp0W/QdNEJamBZ6S33agPSW+7TDsGoNAbXj/9DXU0ZP9ESnCQTEkFHSW67zmwaNkOZCyH2al+njmY7B6DmekbkzeQLS7tSVOtL+Aq+eoZ4V1+iwbg2BVfY+9mV6MtPWyIgbhtVAQB3PnMlHa0pqvIWj/YmbFZWa+jDe2WogsGLV07PlvmgvsR4ItYdRfxNXNZVoIHDLnEW77R2nhqNfKJXV55HTuVg2fQRE4AdMQAR+qARE4AdJQAwIDwgIfmBAQPBDAgKCHwwQkO7wnqXd8vDyAW3PT9bGULTn3Yu75NLVKfmdLMljPzxOQPBhTMplWY6sCwqNENE6DJ1QCIhovGZ88ccra2CshjJ+8TECgjFNLdfx19em5SNfPkxAbIQBNGWxNmHs7XhHoDVE1FszpjaE8c1femBYByQQBfnmb8/L6UtPa5umzl+flge+2qetDdYACVZg3AquVSgmwLAGSCAK8o1fX1gTYLNQTIFhBZBgHRjNQjEJhhVAXvz20Q3DjKD8dLDu/+5Z2iXPXm28gO8/p2cBt3aEvP7Lcw2hnLh00OiRYQ0QuA0opsKwBgi0AGXm50MNp6nzMU9TVgKBFZcvP9sQiokjw1og0AYUbBjWAoHbgGICDKuBgGCy1CSUC9dPGAHDeiDQBBSTYCQCCGwAxTQYiQECgsnXLj9jPIxEAYFVUEyFkTggIFi0W99/zkwYiQQChpuACHwIBETgB09ABH7YBETgB0xABH6oBETgB0lADAgPCAh+YEBA8EMCAoIfDBAQ/DAgQUcnh7EbCl1in7OXtAMBEe7Dbih0iXOc7dUOZLRauM8X4T/YjQXTzdnfsd0j4nP2NnqDhdn2OZtz4lL+s/zdNt91C+3DuFisFO9y4pS36N3jc/ZeIq5ZFU2CEOG/IMJ51WEdLAULwQPRpZKclbCv1QYsc1ZSl0t6nN2PBoJEIpFIJBKJRCKRSCSS03n9B+yy/yvpNyiBAAAAAElFTkSuQmCC"
+                        />
                     </svg>
                     Informasi Dasar Sample
                 </h3>
                 <label class="mb-2 block font-semibold text-gray-600">Jenis Cairan</label>
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-                    <div v-for="jenis in jenisCairan" :key="jenis.id" @click="form.id_jenis_cairan = jenis.id" :class="[
-                        'cursor-pointer rounded-2xl border p-4 transition-all',
-                        form.id_jenis_cairan === jenis.id
-                            ? 'border-customDarkGreen bg-customDarkGreen text-white'
-                            : 'border-gray-300 bg-white text-customDarkGreen hover:bg-customLightGreen',
-                    ]">
-                        <div
-                            :class="['mb-1 text-2xl font-bold', form.id_jenis_cairan === jenis.id ? 'text-white' : 'text-customDarkGreen']">
+                    <div
+                        v-for="jenis in jenisCairan"
+                        :key="jenis.id"
+                        @click="form.id_jenis_cairan = jenis.id"
+                        :class="[
+                            'cursor-pointer rounded-2xl border p-4 transition-all',
+                            form.id_jenis_cairan === jenis.id
+                                ? 'border-customDarkGreen bg-customDarkGreen text-white'
+                                : 'border-gray-300 bg-white text-customDarkGreen hover:bg-customLightGreen',
+                            validationErrors.id_jenis_cairan ? 'border-red-500' : '',
+                        ]"
+                    >
+                        <div :class="['mb-1 text-2xl font-bold', form.id_jenis_cairan === jenis.id ? 'text-white' : 'text-customDarkGreen']">
                             {{ jenis.nama }}
                         </div>
-                        <div :class="form.id_jenis_cairan === jenis.id ? 'text-white' : 'text-gray-500'"
-                            class="text-xs">
+                        <div :class="form.id_jenis_cairan === jenis.id ? 'text-white' : 'text-gray-500'" class="text-xs">
                             Batas Minimum: {{ jenis.batas_minimum }}
                         </div>
-                        <div :class="form.id_jenis_cairan === jenis.id ? 'text-white' : 'text-gray-500'"
-                            class="text-xs">
-                            Batas Maksimum: {{ jenis.batas_maksimum ?? '-'}}
+                        <div :class="form.id_jenis_cairan === jenis.id ? 'text-white' : 'text-gray-500'" class="text-xs">
+                            Batas Maksimum: {{ jenis.batas_maksimum ?? '-' }}
                         </div>
-                        <div v-if="form.id_jenis_cairan === jenis.id" class="mt-2 text-xs font-semibold text-blue-400">
-                            Dipilih</div>
+                        <div v-if="form.id_jenis_cairan === jenis.id" class="mt-2 text-xs font-semibold text-blue-400">Dipilih</div>
                     </div>
+                </div>
+                <div v-if="validationErrors.id_jenis_cairan" class="mt-1 text-sm text-red-600">
+                    {{ validationErrors.id_jenis_cairan }}
                 </div>
                 <!-- Hidden select for validation fallback -->
                 <select v-model="form.id_jenis_cairan" class="hidden" required>
@@ -214,17 +394,26 @@ function getNamaKategori() {
             <div class="rounded-lg border border-gray-300 bg-gray-100 p-6 shadow-sm">
                 <div class="grid grid-cols-1 gap-4">
                     <h3 class="flex items-center gap-2 text-lg font-bold text-customDarkGreen">
-                        <svg width="35" height="26" viewBox="0 0 35 26" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <svg
+                            width="35"
+                            height="26"
+                            viewBox="0 0 35 26"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlns:xlink="http://www.w3.org/1999/xlink"
+                        >
                             <rect width="35" height="26" fill="url(#pattern0_1393_1239)" />
                             <defs>
-                                <pattern id="pattern0_1393_1239" patternContentUnits="objectBoundingBox" width="1"
-                                    height="1">
-                                    <use xlink:href="#image0_1393_1239"
-                                        transform="matrix(0.00742857 0 0 0.01 0.128571 0)" />
+                                <pattern id="pattern0_1393_1239" patternContentUnits="objectBoundingBox" width="1" height="1">
+                                    <use xlink:href="#image0_1393_1239" transform="matrix(0.00742857 0 0 0.01 0.128571 0)" />
                                 </pattern>
-                                <image id="image0_1393_1239" width="100" height="100" preserveAspectRatio="none"
-                                    xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB8klEQVR4nO2dsU0DARAEv9G9LkxMSOAGEJRABS9BLXRi9MFLhJbxaweYkT4De9i9JQHEsoiIiIj8Zeb14XL00/4afxVjISz2Qk5vT5fzx/Pdnu31XMgN7KFtIa6f73d7ttezkBuwEBjjQlhYCIxxISwsBMa4EBYWAmNcCAsLgTEuhIWFwBgXwsJCYIwLYWEhMIa0EH98uVgIjSEu5D//PHmIhSBkSqAyQMmUQGWAkimBygAlUwKVAUqmBCoDlEwJVAYomRKoDFAyJVAZoGRKoDJAyZRAZYCSKYHKACVTApUBSqYEKgOUTAlUBiiZEqgMUDIlUBmgZEqgMkDJlEBlgJIpgcoAJVMClQFKpgQqA5RMCVQGbZm8nB73jzvq2d6DnAFKJhbCLeR8x1/U+/7+LuTGQtY7HsT2WMgPF7JaCOtb1mohFkI4SpRMXIiF0I4SJRMXYiG0o0TJxIVYCO0oUTJxIRZCO0qUTFyIhdCOEiUTF2IhtKNEycSFWAjtKFEycSEWQjtKlExciIXQjhIlExdiIbSjRMnEhVgI7ShRMnEhFkI7SpRMXIiF0I4SJRMXYiG0o0TJxIVYCO0oUTJxIRZCO0qUTFyIhdCOEiUTF8L6hy4B/Z064p/a7J9w5HNtIXPQc20hrQxQMrEQERERWX45X3mFX7Fsubh8AAAAAElFTkSuQmCC" />
+                                <image
+                                    id="image0_1393_1239"
+                                    width="100"
+                                    height="100"
+                                    preserveAspectRatio="none"
+                                    xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB8klEQVR4nO2dsU0DARAEv9G9LkxMSOAGEJRABS9BLXRi9MFLhJbxaweYkT4De9i9JQHEsoiIiIj8Zeb14XL00/4afxVjISz2Qk5vT5fzx/Pdnu31XMgN7KFtIa6f73d7ttezkBuwEBjjQlhYCIxxISwsBMa4EBYWAmNcCAsLgTEuhIWFwBgXwsJCYIwLYWEhMIa0EH98uVgIjSEu5D//PHmIhSBkSqAyQMmUQGWAkimBygAlUwKVAUqmBCoDlEwJVAYomRKoDFAyJVAZoGRKoDJAyZRAZYCSKYHKACVTApUBSqYEKgOUTAlUBiiZEqgMUDIlUBmgZEqgMkDJlEBlgJIpgcoAJVMClQFKpgQqA5RMCVQGbZm8nB73jzvq2d6DnAFKJhbCLeR8x1/U+/7+LuTGQtY7HsT2WMgPF7JaCOtb1mohFkI4SpRMXIiF0I4SJRMXYiG0o0TJxIVYCO0oUTJxIRZCO0qUTFyIhdCOEiUTF2IhtKNEycSFWAjtKFEycSEWQjtKlExciIXQjhIlExdiIbSjRMnEhVgI7ShRMnEhFkI7SpRMXIihdCOEiUTFyIhtKNEycSFWAjtKFEycSEWQjtKlExciIXQjhIlEx8L6hy4B/Z064p/a7J9w5HNtIXPQc20hrQxQMrEQERERWX45X3mFX7Fsubh8AAAAAElFTkSuQmCC"
+                                />
                             </defs>
                         </svg>
                         Informasi Volume dan Pengambilan
@@ -235,63 +424,152 @@ function getNamaKategori() {
                         <div class="relative">
                             <!-- SVG Icon -->
                             <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                <svg width="21" height="21" viewBox="0 0 21 21" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                <svg
+                                    width="21"
+                                    height="21"
+                                    viewBox="0 0 21 21"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    xmlns:xlink="http://www.w3.org/1999/xlink"
+                                >
                                     <rect width="21" height="21" fill="url(#pattern0_1393_1242)" />
-                                    <defs>
-                                        <pattern id="pattern0_1393_1242" patternContentUnits="objectBoundingBox"
-                                            width="1" height="1">
-                                            <use xlink:href="#image0_1393_1242" transform="scale(0.01)" />
-                                        </pattern>
-                                        <image id="image0_1393_1242" width="100" height="100" preserveAspectRatio="none"
-                                            xlink:href="data:image/png;base64,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" />
-                                    </defs>
+                                    <defs />
+                                    <pattern id="pattern0_1393_1242" patternContentUnits="objectBoundingBox" width="1" height="1">
+                                        <use xlink:href="#image0_1393_1242" transform="scale(0.01)" />
+                                    </pattern>
+                                    <image
+                                        id="image0_1393_1242"
+                                        width="100"
+                                        height="100"
+                                        preserveAspectRatio="none"
+                                        xlink:href="data:image/png;base64,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"
+                                    />
                                 </svg>
                             </span>
-                            <input type="text" inputmode="numeric" v-model.number="form.volume_sampel"
-                                class="w-full rounded border px-3 py-2 pl-10" placeholder="Min : 2,5 ml" required />
+                            <input
+                                type="number"
+                                step="0.1"
+                                min="0"
+                                v-model.number="form.volume_sampel"
+                                :class="[
+                                    'w-full rounded border px-3 py-2 pl-10',
+                                    validationErrors.volume_sampel ? 'border-red-500' : 'border-gray-300',
+                                    !selectedJenisCairan ? 'cursor-not-allowed bg-gray-100' : '',
+                                ]"
+                                :placeholder="volumePlaceholder"
+                                :disabled="!selectedJenisCairan"
+                                required
+                            />
+                        </div>
+                        <div v-if="validationErrors.volume_sampel" class="mt-1 text-sm text-red-600">
+                            {{ validationErrors.volume_sampel }}
+                        </div>
+                        <div v-else-if="selectedJenisCairan" class="mt-1 text-xs text-gray-500">
+                            Minimum: {{ selectedJenisCairan.batas_minimum }} ml
+                            <span v-if="selectedJenisCairan.batas_maksimum"> | Maksimum: {{ selectedJenisCairan.batas_maksimum }} ml </span>
                         </div>
                     </div>
                     <!-- Instansi -->
                     <div>
                         <label class="mb-1 block font-semibold">Instansi</label>
-                        <select v-model="form.id_instansi" class="w-full rounded border px-3 py-2" required>
+                        <select
+                            v-model="form.id_instansi"
+                            :class="['w-full rounded border px-3 py-2', validationErrors.id_instansi ? 'border-red-500' : 'border-gray-300']"
+                            required
+                        >
                             <option value="">Pilih Instansi</option>
                             <option v-for="ins in instansiList" :key="ins.id" :value="ins.id">{{ ins.nama }}</option>
                         </select>
+                        <div v-if="validationErrors.id_instansi" class="mt-1 text-sm text-red-600">
+                            {{ validationErrors.id_instansi }}
+                        </div>
                     </div>
                     <!-- Metode Pengambilan -->
                     <div>
                         <label class="mb-1 block font-semibold">Metode Pengambilan</label>
                         <div class="flex gap-2">
-                            <button type="button" :class="[
-                                'flex-1 rounded border px-3 py-2 font-semibold transition',
-                                form.metode_pengambilan === 'diantar'
-                                    ? 'border-customdarkbg-customDarkGreen bg-customDarkGreen text-white'
-                                    : 'border-gray-300 bg-white text-customDarkGreen hover:bg-customLightGreen',
-                            ]" @click="form.metode_pengambilan = 'diantar'">
+                            <button
+                                type="button"
+                                :class="[
+                                    'flex-1 rounded border px-3 py-2 font-semibold transition',
+                                    form.metode_pengambilan === 'diantar'
+                                        ? 'border-customdarkbg-customDarkGreen bg-customDarkGreen text-white'
+                                        : 'border-gray-300 bg-white text-customDarkGreen hover:bg-customLightGreen',
+                                    validationErrors.metode_pengambilan ? 'border-red-500' : '',
+                                ]"
+                                @click="form.metode_pengambilan = 'diantar'"
+                            >
                                 Diantar
                             </button>
-                            <button type="button" :class="[
-                                'flex-1 rounded border px-3 py-2 font-semibold transition',
-                                form.metode_pengambilan === 'diambil'
-                                    ? 'border-customDarkGreen bg-customDarkGreen text-white'
-                                    : 'border-gray-300 bg-white text-customDarkGreen hover:bg-customLightGreen',
-                            ]" @click="form.metode_pengambilan = 'diambil'">
+                            <button
+                                type="button"
+                                :class="[
+                                    'flex-1 rounded border px-3 py-2 font-semibold transition',
+                                    form.metode_pengambilan === 'diambil'
+                                        ? 'border-customDarkGreen bg-customDarkGreen text-white'
+                                        : 'border-gray-300 bg-white text-customDarkGreen hover:bg-customLightGreen',
+                                    validationErrors.metode_pengambilan ? 'border-red-500' : '',
+                                ]"
+                                @click="form.metode_pengambilan = 'diambil'"
+                            >
                                 Diambil
                             </button>
+                        </div>
+                        <div v-if="validationErrors.metode_pengambilan" class="mt-1 text-sm text-red-600">
+                            {{ validationErrors.metode_pengambilan }}
                         </div>
                     </div>
                     <!-- Lokasi Pengambilan (jika diambil) -->
                     <div v-if="form.metode_pengambilan === 'diambil'" class="md:col-span-2 lg:col-span-1">
                         <label class="mb-1 block font-semibold">Lokasi Pengambilan</label>
-                        <input type="text" v-model="form.lokasi" class="w-full rounded border px-3 py-2" required />
+                        <input
+                            type="text"
+                            v-model="form.lokasi"
+                            :class="['w-full rounded border px-3 py-2', validationErrors.lokasi ? 'border-red-500' : 'border-gray-300']"
+                            placeholder="Masukkan lokasi pengambilan sampel"
+                            required
+                        />
+                        <div v-if="validationErrors.lokasi" class="mt-1 text-sm text-red-600">
+                            {{ validationErrors.lokasi }}
+                        </div>
                     </div>
                     <!-- Waktu Pengambilan (jika diantar) -->
                     <div v-if="form.metode_pengambilan === 'diantar'" class="md:col-span-2 lg:col-span-1">
-                        <label class="mb-1 block font-semibold">Waktu Pengambilan</label>
-                        <input type="date" v-model="form.waktu_pengambilan" class="w-full rounded border px-3 py-2"
-                            required />
+                        <label class="mb-1 block font-semibold">Jadwal Pengantaran</label>
+                        <input
+                            type="date"
+                            v-model="form.waktu_pengambilan"
+                            :class="['w-full rounded border px-3 py-2', validationErrors.waktu_pengambilan ? 'border-red-500' : 'border-gray-300']"
+                            :min="new Date().toISOString().split('T')[0]"
+                            required
+                        />
+                        <div v-if="validationErrors.waktu_pengambilan" class="mt-1 text-sm text-red-600">
+                            {{ validationErrors.waktu_pengambilan }}
+                        </div>
+                        <div v-else class="mt-1 text-xs text-gray-500">
+                            Pilih tanggal mulai dari hari ini ({{
+                                new Date().toLocaleDateString('id-ID', {
+                                    weekday: 'long',
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                })
+                            }})
+                        </div>
+                    </div>
+                    <!-- Keterangan (jika diantar) -->
+                    <div v-if="form.metode_pengambilan === 'diantar'" class="md:col-span-2 lg:col-span-1">
+                        <label class="mb-1 block font-semibold">Keterangan</label>
+                        <textarea
+                            v-model="form.keterangan"
+                            :class="['w-full rounded border px-3 py-2', validationErrors.keterangan ? 'border-red-500' : 'border-gray-300']"
+                            placeholder="Masukkan keterangan tambahan (opsional)"
+                            rows="3"
+                        ></textarea>
+                        <div v-if="validationErrors.keterangan" class="mt-1 text-sm text-red-600">
+                            {{ validationErrors.keterangan }}
+                        </div>
+                        <div class="mt-1 text-xs text-gray-500">Keterangan tambahan mengenai pengambilan sampel (opsional)</div>
                     </div>
                 </div>
             </div>
@@ -305,102 +583,134 @@ function getNamaKategori() {
                 <div>
                     <label class="mb-1 flex items-center gap-2 text-xl font-semibold text-customDarkGreen">
                         <!-- SVG Icon -->
-                        <svg width="33" height="30" viewBox="0 0 33 30" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <svg
+                            width="33"
+                            height="30"
+                            viewBox="0 0 33 30"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            xmlns:xlink="http://www.w3.org/1999/xlink"
+                        >
                             <rect width="33" height="30" fill="url(#pattern0_1392_980)" />
-                            <defs>
-                                <pattern id="pattern0_1392_980" patternContentUnits="objectBoundingBox" width="1"
-                                    height="1">
-                                    <use xlink:href="#image0_1392_980"
-                                        transform="matrix(0.00909091 0 0 0.01 0.0454545 0)" />
-                                </pattern>
-                                <image id="image0_1392_980" width="100" height="100" preserveAspectRatio="none"
-                                    xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAAE0UlEQVR4nO2dXWhcRRiGj1dSUO8Keq13hbM2W7ZkIYlNmuRkz3f2zF5sS7G9shYRf6r1BwuJbWkikuJugmiKWoPWv607YxCSemFF2ysNRUEsFfW24GUFqVU7MqcpxM0mu9vdOd/snO+FF/YiOXvmfebnm9mLcRwSiUQikUgkEolEIpFICVCwEGwBwU7a6GAh2OJ0k7xF704Q4fcgmLTRPmc/FivFTU63CDibxQ4NdEMR4YzTDfJFOAqc3cAODHSbsxsBZ+CYLK9S3AwivPK/nlQN5UNv7bTCfjWsARP+nqsU73WMlHTu8EX4eW1Pys70S3e8xwpnZ/vrjZSzqu2OacqJ8Mnalx2cH0EP0e2wB98dWbuecPaEY5JUGeiL8M/VLzlWCeSDR7ehB+h22KpN3idB7Si5FiwErmNqieuLUGams+jhuZqceTUbtdHIUrheids/N4QemqvZA3ND5pXC9Urc0Y98mZpIowfmanbq5bQc+cA3pxSuW+LyUKantqOH5cbk9OR2Q0rh9UrcWXtKXLdJZ2cG8EthqBaeqn2JoXlPuhP4AbkIVuV9bR5qG4BY4ubl1mP2lbhuC6WwKvNrS2G/WkhpB+KL8Ijuc6KBGKq0gZOD2s+7VFZWANnxjv4d/uCptdMMAVknhOH3x7QDGT49RkCa7oGcaT122Xp0W/QdNEJamBZ6S33agPSW+7TDsGoNAbXj/9DXU0ZP9ESnCQTEkFHSW67zmwaNkOZCyH2al+njmY7B6DmekbkzeQLS7tSVOtL+Aq+eoZ4V1+iwbg2BVfY+9mV6MtPWyIgbhtVAQB3PnMlHa0pqvIWj/YmbFZWa+jDe2WogsGLV07PlvmgvsR4ItYdRfxNXNZVoIHDLnEW77R2nhqNfKJXV55HTuVg2fQRE4AdMQAR+qARE4AdJQAwIDwgIfmBAQPBDAgKCHwwQkO7wnqXd8vDyAW3PT9bGULTn3Yu75NLVKfmdLMljPzxOQPBhTMplWY6sCwqNENE6DJ1QCIhovGZ88ccra2CshjJ+8TECgjFNLdfx19em5SNfPkxAbIQBNGWxNmHs7XhHoDVE1FszpjaE8c1femBYByQQBfnmb8/L6UtPa5umzl+flge+2qetDdYACVZg3AquVSgmwLAGSCAK8o1fX1gTYLNQTIFhBZBgHRjNQjEJhhVAXvz20Q3DjKD8dLDu/+5Z2iXPXm28gO8/p2cBt3aEvP7Lcw2hnLh00OiRYQ0QuA0opsKwBgi0AGXm50MNp6nzMU9TVgKBFZcvP9sQiokjw1og0AYUbBjWAoHbgGICDKuBgGCy1CSUC9dPGAHDeiDQBBSTYCQCCGwAxTQYiQECgsnXLj9jPIxEAYFVUEyFkTggIFi0W99/zkwYiQQChpuACHwIBETgB09ABH7YBETgB0xABH6oBETgB0lADAgPCAh+YEBA8EMCAoIfDBAQ/DAgQUcnh7EbCl1in7OXtAMBEe7Dbih0iXOc7dUOZLRauM8X4T/YjQXTzdnfsd0j4nP2NnqDhdn2OZtz4lL+s/zdNt91C+3DuFisFO9y4pS36N3jc/ZeIq5ZFU2CEOG/IMJ51WEdLAULwQPRpZKclbCv1QYsc1ZSl0t6nN2PBoJEIpFIJBKJRCKRSCSS03n9B+yy/yvpNyiBAAAAAElFTkSuQmCC" />
-                            </defs>
+                            <defs />
+                            <pattern id="pattern0_1392_980" patternContentUnits="objectBoundingBox" width="1" height="1">
+                                <use xlink:href="#image0_1392_980" transform="matrix(0.00909091 0 0 0.01 0.0454545 0)" />
+                            </pattern>
+                            <image
+                                id="image0_1392_980"
+                                width="100"
+                                height="100"
+                                preserveAspectRatio="none"
+                                xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAAE0UlEQVR4nO2dXWhcRRiGj1dSUO8Keq13hbM2W7ZkIYlNmuRkz3f2zF5sS7G9shYRf6r1BwuJbWkikuJugmiKWoPWv607YxCSemFF2ysNRUEsFfW24GUFqVU7MqcpxM0mu9vdOd/snO+FF/YiOXvmfebnm9mLcRwSiUQikUgkEolEIpFICVCwEGwBwU7a6GAh2OJ0k7xF704Q4fcgmLTRPmc/FivFTU63CDibxQ4NdEMR4YzTDfJFOAqc3cAODHSbsxsBZ+CYLK9S3AwivPK/nlQN5UNv7bTCfjWsARP+nqsU73WMlHTu8EX4eW1Pys70S3e8xwpnZ/vrjZSzqu2OacqJ8Mnalx2cH0EP0e2wB98dWbuecPaEY5JUGeiL8M/VLzlWCeSDR7ehB+h22KpN3idB7Si5FiwErmNqieuLUGams+jhuZqceTUbtdHIUrheids/N4QemqvZA3ND5pXC9Urc0Y98mZpIowfmanbq5bQc+cA3pxSuW+LyUKantqOH5cbk9OR2Q0rh9UrcWXtKXLdJZ2cG8EthqBaeqn2JoXlPuhP4AbkIVuV9bR5qG4BY4ubl1mP2lbhuC6WwKvNrS2G/WkhpB+KL8Ijuc6KBGKq0gZOD2s+7VFZWANnxjv4d/uCptdMMAVknhOH3x7QDGT49RkCa7oGcaT122Xp0W/QdNEJamBZ6S33agPSW+7TDsGoNAbXj/9DXU0ZP9ESnCQTEkFHSW67zmwaNkOZCyH2al+njmY7B6DmekbkzeQLS7tSVOtL+Aq+eoZ4V1+iwbg2BVfY+9mV6MtPWyIgbhtVAQB3PnMlHa0pqvIWj/YmbFZWa+jDe2WogsGLV07PlvmgvsR4ItYdRfxNXNZVoIHDLnEW77R2nhqNfKJXV55HTuVg2fQRE4AdMQAR+qARE4AdJQAwIDwgIfmBAQPBDAgKCHwwQkO7wnqXd8vDyAW3PT9bGULTn3Yu75NLVKfmdLMljPzxOQPBhTMplWY6sCwqNENE6DJ1QCIhovGZ88ccra2CshjJ+8TECgjFNLdfx19em5SNfPkxAbIQBNGWxNmHs7XhHoDVE1FszpjaE8c1femBYByQQBfnmb8/L6UtPa5umzl+flge+2qetDdYACVZg3AquVSgmwLAGSCAK8o1fX1gTYLNQTIFhBZBgHRjNQjEJhhVAXvz20Q3DjKD8dLDu/+5Z2iXPXm28gO8/p2cBt3aEvP7Lcw2hnLh00OiRYQ0QuA0opsKwBgi0AGXm50MNp6nzMU9TVgKBFZcvP9sQiokjw1og0AYUbBjWAoHbgGICDKuBgGCy1CSUC9dPGAHDeiDQBBSTYCQCCGwAxTQYiQECgsnXLj9jPIxEAYFVUEyFkTggIFi0W99/zkwYiQQChpuACHwIBETgB09ABH7YBETgB0xABH6oBETgB0lADAgPCAh+YEBA8EMCAoIfDBAQ/DAgQUcnh7EbCl1in7OXtAMBEe7Dbih0iXOc7dUOZLRauM8X4T/YjQXTzdnfsd0j4nP2NnqDhdn2OZtz4lL+s/zdNt91C+3DuFisFO9y4pS36N3jc/ZeIq5ZFU2CEOG/IMJ51WEdLAULwQPRpZKclbCv1QYsc1ZSl0t6nN2PBoJEIpFIJBKJRCKRSCSS03n9B+yy/yvpNyiBAAAAAElFTkSuQmCC"
+                            />
                         </svg>
                         Pilih Kategori Pengujian
                     </label>
-                    <select v-model="form.id_kategori" class="w-full rounded border px-3 py-2" required>
+                    <select
+                        v-model="form.id_kategori"
+                        :class="['w-full rounded border px-3 py-2', validationErrors.id_kategori ? 'border-red-500' : 'border-gray-300']"
+                        required
+                    >
                         <option value="">Pilih Kategori</option>
                         <option v-for="kat in kategori" :key="kat.id" :value="kat.id">{{ kat.nama }}</option>
                     </select>
+                    <div v-if="validationErrors.id_kategori" class="mt-1 text-sm text-red-600">
+                        {{ validationErrors.id_kategori }}
+                    </div>
                 </div>
                 <!-- Parameter -->
                 <div>
                     <label class="mb-1 block text-xl font-semibold text-customDarkGreen">Pilih Parameter</label>
-                    <div class="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
-                        <div v-for="param in semuaParameter" :key="param.id"
-                            class="flex items-center rounded p-2 transition hover:bg-blue-50">
-                            <input type="checkbox" :value="param.id" v-model="form.parameter"
-                                :disabled="form.id_kategori && !parameterIsInKategori(param.id)" class="mr-2" />
-                            <span :class="{
-                                'text-gray-400': form.id_kategori && !parameterIsInKategori(param.id),
-                                }">
+                    <div
+                        :class="[
+                            'grid grid-cols-1 gap-2 rounded border p-3 text-sm sm:grid-cols-2',
+                            validationErrors.parameter ? 'border-red-500 bg-red-50' : 'border-gray-200',
+                        ]"
+                    >
+                        <div v-for="param in semuaParameter" :key="param.id" class="flex items-center rounded p-2 transition hover:bg-blue-50">
+                            <input
+                                type="checkbox"
+                                :value="param.id"
+                                v-model="form.parameter"
+                                :disabled="form.id_kategori ? !parameterIsInKategori(param.id) : false"
+                                class="mr-2"
+                            />
+                            <span
+                                :class="{
+                                    'text-gray-400': form.id_kategori && !parameterIsInKategori(param.id),
+                                }"
+                            >
                                 {{ param.nama_parameter }}
-                                <span v-if="form.id_kategori && !parameterIsInKategori(param.id)"> (tidak termasuk
-                                    kategori) </span>
+                                <span v-if="form.id_kategori && !parameterIsInKategori(param.id)"> (tidak termasuk kategori) </span>
                             </span>
                         </div>
+                    </div>
+                    <div v-if="validationErrors.parameter" class="mt-1 text-sm text-red-600">
+                        {{ validationErrors.parameter }}
                     </div>
                 </div>
             </div>
             <!-- Ringkasan Pengujian dan Harga -->
             <div>
-                <div
-                    class="flex items-center gap-2 rounded-t-lg bg-green-700 px-4 py-2 text-base font-semibold text-white">
+                <div class="flex items-center gap-2 rounded-t-lg bg-green-700 px-4 py-2 text-base font-semibold text-white">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M7.5 20C8.32843 20 9 19.3284 9 18.5C9 17.6716 8.32843 17 7.5 17C6.67157 17 6 17.6716 6 18.5C6 19.3284 6.67157 20 7.5 20Z"
-                            fill="white" />
+                            fill="white"
+                        />
                         <path
                             d="M16.5 20C17.3284 20 18 19.3284 18 18.5C18 17.6716 17.3284 17 16.5 17C15.6716 17 15 17.6716 15 18.5C15 19.3284 15.6716 20 16.5 20Z"
-                            fill="white" />
+                            fill="white"
+                        />
                         <path d="M3 5H5L5.6 8M5.6 8L7 15H17L19 8H5.6Z" fill="white" />
-                        <path d="M3 5H5L5.6 8M5.6 8L7 15H17L19 8H5.6Z" stroke="white" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round" />
+                        <path
+                            d="M3 5H5L5.6 8M5.6 8L7 15H17L19 8H5.6Z"
+                            stroke="white"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        />
                     </svg>
                     Ringkasan Pengujian
                 </div>
-                <table
-                    class="w-full border-separate border-spacing-0 overflow-hidden rounded-b-lg border border-green-700">
+                <table class="w-full border-separate border-spacing-0 overflow-hidden rounded-b-lg border border-green-700">
                     <thead>
                         <tr>
-                            <th
-                                class="w-1/3 border-b border-green-700 bg-green-100 px-4 py-3 text-center font-semibold">
-                                Nama Parameter</th>
-                            <th
-                                class="w-1/3 border-b border-green-700 bg-green-100 px-4 py-3 text-center font-semibold">
-                                Harga</th>
+                            <th class="w-1/3 border-b border-green-700 bg-green-100 px-4 py-3 text-center font-semibold">Nama Parameter</th>
+                            <th class="w-1/3 border-b border-green-700 bg-green-100 px-4 py-3 text-center font-semibold">Harga</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="param in semuaParameter.filter((p) => form.parameter.includes(p.id))" :key="param.id"
-                            class="transition hover:bg-green-50">
+                        <tr
+                            v-for="param in semuaParameter.filter((p) => form.parameter.includes(p.id))"
+                            :key="param.id"
+                            class="transition hover:bg-green-50"
+                        >
                             <td class="border-green-2000 border-b px-4 py-3 text-left">
                                 {{ param.nama_parameter }}
                             </td>
-                            <td class="border-b border-green-200 px-4 py-3 text-right">Rp {{
-                                param.harga?.toLocaleString('id-ID') || '0' }}</td>
+                            <td class="border-b border-green-200 px-4 py-3 text-right">Rp {{ param.harga?.toLocaleString('id-ID') || '0' }}</td>
                         </tr>
                         <tr v-if="form.parameter.length === 0">
-                            <td colspan="2" class="border-b border-green-200 py-4 text-center text-gray-400">Belum ada
-                                parameter dipilih</td>
+                            <td colspan="2" class="border-b border-green-200 py-4 text-center text-gray-400">Belum ada parameter dipilih</td>
                         </tr>
                     </tbody>
                 </table>
                 <div
-                    class="mt-2 flex flex-col rounded-lg border border-gray-300 bg-gray-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-                    <span class="text-sm text-gray-600">Jumlah Parameter:<br /><b>{{ form.parameter.length }}
-                            item</b></span>
+                    class="mt-2 flex flex-col rounded-lg border border-gray-300 bg-gray-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+                >
+                    <span class="text-sm text-gray-600"
+                        >Jumlah Parameter:<br /><b>{{ form.parameter.length }} item</b></span
+                    >
                     <span class="mt-2 text-lg font-semibold text-gray-700 sm:mt-0">
                         Biaya:<br />
                         <span class="text-2xl font-bold text-green-700">
                             Rp
                             {{
-                            semuaParameter
-                            .filter((p) => form.parameter.includes(p.id))
-                            .reduce((sum, p) => sum + (p.harga || 0), 0)
-                            .toLocaleString('id-ID')
+                                semuaParameter
+                                    .filter((p) => form.parameter.includes(p.id))
+                                    .reduce((sum, p) => sum + (p.harga || 0), 0)
+                                    .toLocaleString('id-ID')
                             }}
                         </span>
                     </span>
@@ -456,15 +766,12 @@ function getNamaKategori() {
                                 <td class="py-2 pr-4 align-top font-semibold text-gray-600">Parameter</td>
                                 <td class="py-2 text-gray-800">
                                     <ul class="ml-5 list-disc">
-                                        <li v-for="param in semuaParameter.filter((p) => form.parameter.includes(p.id))"
-                                            :key="param.id">
+                                        <li v-for="param in semuaParameter.filter((p) => form.parameter.includes(p.id))" :key="param.id">
                                             {{ param.nama_parameter }}
-                                            <span class="ml-2 text-gray-500">Rp {{ param.harga?.toLocaleString('id-ID')
-                                                || '0' }}</span>
+                                            <span class="ml-2 text-gray-500">Rp {{ param.harga?.toLocaleString('id-ID') || '0' }}</span>
                                         </li>
                                     </ul>
-                                    <div v-if="form.parameter.length === 0" class="text-gray-400">Belum ada parameter
-                                        dipilih</div>
+                                    <div v-if="form.parameter.length === 0" class="text-gray-400">Belum ada parameter dipilih</div>
                                 </td>
                             </tr>
                             <tr v-if="form.keterangan">
@@ -473,19 +780,19 @@ function getNamaKategori() {
                             </tr>
                         </tbody>
                     </table>
-                    <div
-                        class="flex flex-col rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-                        <span class="text-sm text-gray-600">Jumlah Parameter: <b>{{ form.parameter.length }}
-                                item</b></span>
+                    <div class="flex flex-col rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                        <span class="text-sm text-gray-600"
+                            >Jumlah Parameter: <b>{{ form.parameter.length }} item</b></span
+                        >
                         <span class="mt-2 text-lg font-semibold text-gray-700 sm:mt-0">
                             Total Biaya:
                             <span class="ml-2 text-2xl font-bold text-green-700">
                                 Rp
                                 {{
-                                semuaParameter
-                                .filter((p) => form.parameter.includes(p.id))
-                                .reduce((sum, p) => sum + (p.harga || 0), 0)
-                                .toLocaleString('id-ID')
+                                    semuaParameter
+                                        .filter((p) => form.parameter.includes(p.id))
+                                        .reduce((sum, p) => sum + (p.harga || 0), 0)
+                                        .toLocaleString('id-ID')
                                 }}
                             </span>
                         </span>

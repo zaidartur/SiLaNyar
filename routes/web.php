@@ -93,7 +93,7 @@ Route::prefix('customer')->middleware(['auth:web', 'role:customer'])->group(func
     Route::post('pengajuan/store', [CustomerPengajuanController::class, 'store'])->name('customer.pengajuan.store');
     Route::get('pengajuan/{id}', [CustomerPengajuanController::class, 'show'])->name('customer.pengajuan.detail');
     Route::get('pengajuan/edit/{pengajuan}', [CustomerPengajuanController::class, 'edit'])->name('customer.pengajuan.edit');
-    Route::put('pengajuan/{id}/edit', [CustomerPengajuanController::class, 'update']);
+    Route::put('pengajuan/{pengajuan}/edit', [CustomerPengajuanController::class, 'update'])->name('customer.pengajuan.update');
     Route::delete('pengajuan/{id}', [CustomerPengajuanController::class, 'destroy'])->name('customer.pengajuan.delete');
 
     //fitur pembayaran
