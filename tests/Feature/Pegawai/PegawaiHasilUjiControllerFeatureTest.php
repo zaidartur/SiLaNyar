@@ -227,7 +227,7 @@ class PegawaiHasilUjiControllerFeatureTest extends TestCase
                 )
                 ->has('parameter_pengujian', 1, fn (Assert $param) => $param
                     ->where('id_parameter', $this->parameter->id)
-                    ->where('nilai', 8.5)
+                    ->where('nilai', '8.5')
                     ->where('keterangan', 'Memenuhi baku mutu')
                     ->has('baku_mutu')
                     ->etc()
@@ -286,7 +286,7 @@ class PegawaiHasilUjiControllerFeatureTest extends TestCase
                 ->has('parameter_pengujian', 1, fn (Assert $param) => $param
                     ->where('id_parameter', $this->parameter->id)
                     ->where('nama_parameter', $this->parameter->nama_parameter)
-                    ->where('nilai', 8.5)
+                    ->where('nilai', '8.5')
                     ->where('keterangan', 'Memenuhi baku mutu')
                     ->has('baku_mutu')
                     ->etc()
@@ -411,7 +411,7 @@ class PegawaiHasilUjiControllerFeatureTest extends TestCase
                 ->has('parameter_pengujian', 1, fn (Assert $param) => $param
                     ->where('id_parameter', $this->parameter->id)
                     ->where('nama_parameter', $this->parameter->nama_parameter)
-                    ->where('nilai', 8.5)
+                    ->where('nilai', '8.5')
                     ->where('keterangan', 'Memenuhi baku mutu')
                     ->has('baku_mutu')
                     ->etc()
