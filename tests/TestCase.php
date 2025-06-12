@@ -13,9 +13,7 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
         
-        if (!app()->environment('production')) {
-            Artisan::call('key:generate', ['--force' => true]);
-        }
+        // Key generation removed - use fixed key from .env.testing
     }
 
     protected function assertRedirectContains($response, $needle)

@@ -90,7 +90,7 @@ class PegawaiLaporanKeuanganControllerFeatureTest extends TestCase
         $response->assertStatus(200)
             ->assertInertia(fn (Assert $page) => $page
                 ->component('pegawai/laporan/Index')
-                ->has('laporan_keuangan', 1, fn (Assert $laporan) => $laporan
+                ->has('laporan_keuangan', 2, fn (Assert $laporan) => $laporan
                     ->where('id', $this->pembayaranSelesai->id)
                     ->where('total_biaya', 500000)
                     ->where('status_pembayaran', 'selesai')

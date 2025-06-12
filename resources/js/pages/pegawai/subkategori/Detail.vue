@@ -2,7 +2,7 @@
 import AdminLayout from '@/layouts/admin/AdminLayout.vue';
 import { defineProps } from 'vue';
 
-const props = defineProps({
+defineProps({
     subkategori: {
         type: Object,
         required: true,

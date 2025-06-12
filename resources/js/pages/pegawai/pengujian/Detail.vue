@@ -75,9 +75,9 @@ function updateStatus(newStatus: string) {
     });
 }
 
-function kembali() {
-    router.visit(route('pegawai.pengujian.index'));
-}
+// function kembali() {
+//     router.visit(route('pegawai.pengujian.index'));
+// }
 </script>
 
 <template>

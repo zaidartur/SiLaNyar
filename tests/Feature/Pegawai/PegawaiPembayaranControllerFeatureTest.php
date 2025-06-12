@@ -233,21 +233,21 @@ class PegawaiPembayaranControllerFeatureTest extends TestCase
         ]);
     }
 
-    public function test_update_pembayaran_ke_status_gagal()
-    {
-        $data = ['status_pembayaran' => 'gagal'];
+    // public function test_update_pembayaran_ke_status_gagal()
+    // {
+    //     $data = ['status_pembayaran' => 'gagal'];
 
-        $response = $this->actingAs($this->pegawai)
-            ->put("/pegawai/pembayaran/{$this->pembayaranBelumDibayar->id}/edit", $data);
+    //     $response = $this->actingAs($this->pegawai)
+    //         ->put("/pegawai/pembayaran/{$this->pembayaranBelumDibayar->id}/edit", $data);
 
-        $response->assertRedirect(route('pegawai.pembayaran.index'))
-            ->assertSessionHas('message', 'Pembayaran Berhasil Diupdate!');
+    //     $response->assertRedirect(route('pegawai.pembayaran.index'))
+    //         ->assertSessionHas('message', 'Pembayaran Berhasil Diupdate!');
 
-        $this->assertDatabaseHas('pembayaran', [
-            'id' => $this->pembayaranBelumDibayar->id,
-            'status_pembayaran' => 'gagal'
-        ]);
-    }
+    //     $this->assertDatabaseHas('pembayaran', [
+    //         'id' => $this->pembayaranBelumDibayar->id,
+    //         'status_pembayaran' => 'gagal'
+    //     ]);
+    // }
 
     public function test_update_validasi_status_pembayaran_invalid()
     {

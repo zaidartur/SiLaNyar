@@ -46,10 +46,10 @@ const form = useForm({
     keterangan: props.jadwal.keterangan || '',
 });
 
-const todayDate = computed(() => {
-    const today = new Date();
-    return today.toISOString().split('T')[0];
-});
+// const todayDate = computed(() => {
+//     const today = new Date();
+//     return today.toISOString().split('T')[0];
+// });
 
 const tomorrowDate = computed(() => {
     const tomorrow = new Date();

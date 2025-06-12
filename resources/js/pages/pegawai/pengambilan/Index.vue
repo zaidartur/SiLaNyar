@@ -88,10 +88,10 @@ watch([status, tanggal], () => {
 const showDeleteModal = ref(false);
 const deletingJadwal = ref<Jadwal | null>(null);
 
-const openDeleteModal = (item: Jadwal) => {
-    deletingJadwal.value = item;
-    showDeleteModal.value = true;
-};
+// const openDeleteModal = (item: Jadwal) => {
+//     deletingJadwal.value = item;
+//     showDeleteModal.value = true;
+// };
 
 const closeDeleteModal = () => {
     showDeleteModal.value = false;
