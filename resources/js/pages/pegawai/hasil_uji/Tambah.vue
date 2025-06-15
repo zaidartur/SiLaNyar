@@ -53,6 +53,9 @@ watch(
 
 const submit = () => {
     form.post('/pegawai/hasiluji/store', {
+        onSuccess: () => {
+            window.location.href = '/pegawai/hasiluji';
+        },
         onError: (errors) => {
             console.log('Validation errors:', errors);
         },

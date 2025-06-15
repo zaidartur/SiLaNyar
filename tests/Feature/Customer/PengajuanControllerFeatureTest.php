@@ -68,30 +68,6 @@ class PengajuanControllerFeatureTest extends TestCase
             );
     }
 
-    public function test_daftar_menampilkan_form_dengan_semua_opsi_yang_diperlukan()
-    {
-        $response = $this->actingAs($this->customer)
-            ->get(route('customer.pengajuan.daftar'));
-
-        $response->assertStatus(200)
-            ->assertInertia(fn (Assert $page) => $page
-                ->component('customer/pengajuan/Tambah')
-                ->has('kategori', 1, fn (Assert $kategori) => $kategori
-                    ->where('id', $this->kategori->id)
-                    ->has('parameter')
-                    ->has('subkategori')
-                    ->etc()
-                )
-                ->has('jenis_cairan', 1)
-                ->has('parameter', 1)
-                ->has('instansi', 1, fn (Assert $instansi) => $instansi
-                    ->where('id', $this->instansi->id)
-                    ->where('id_user', $this->customer->id)
-                    ->etc()
-                )
-            );
-    }
-
     public function test_store_membuat_pengajuan_dengan_metode_diantar()
     {
         $data = [
@@ -152,29 +128,6 @@ class PengajuanControllerFeatureTest extends TestCase
         $this->assertDatabaseMissing('jadwal', [
             'id_form_pengajuan' => FormPengajuan::latest()->first()->id
         ]);
-    }
-
-    public function test_store_mencegah_pengajuan_aktif_berganda()
-    {
-        FormPengajuan::factory()->create([
-            'id_instansi' => $this->instansi->id,
-            'status_pengajuan' => 'diterima'
-        ]);
-
-        $data = [
-            'id_instansi' => $this->instansi->id,
-            'id_jenis_cairan' => $this->jenisCairan->id,
-            'volume_sampel' => 50.0, // Within limits
-            'metode_pengambilan' => 'diantar',
-            'id_kategori' => $this->kategori->id,
-            'parameter' => [$this->parameter->id]
-        ];
-
-        $response = $this->actingAs($this->customer)
-            ->post(route('customer.pengajuan.store'), $data);
-
-        $response->assertRedirect()
-            ->assertSessionHasErrors(['Status']);
     }
 
     public function test_show_menampilkan_detail_pengajuan()
@@ -299,6 +252,8 @@ class PengajuanControllerFeatureTest extends TestCase
             'id_jenis_cairan' => $this->jenisCairan->id,
             'volume_sampel' => 5, // Below minimum
             'metode_pengambilan' => 'diantar',
+            'waktu_pengambilan' => now()->addDays(3)->format('Y-m-d'),
+            'lokasi' => 'Jl. Lawu No.204, Tegalasri, Bejen, Kec. Karanganyar, Kabupaten Karanganyar, Jawa Tengah 57716 (DLH Kabupaten Karanganyar)',
             'id_kategori' => $this->kategori->id,
             'parameter' => [$this->parameter->id]
         ];

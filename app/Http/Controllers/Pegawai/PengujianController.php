@@ -15,20 +15,44 @@ use Inertia\Inertia;
 class PengujianController extends Controller
 {
     //lihat daftar jadwal pengujian
-    public function index()
+    public function index(Request $request)
     {
-        $pengujian = Pengujian::with('form_pengajuan.instansi.user', 'user', 'kategori')->get();
+        $filterByStatus = $request->input('status');
+        $filterByTanggal = $request->input('tanggal');
+
+        $pengujian = Pengujian::with('form_pengajuan.instansi.user', 'user', 'kategori')
+            ->when($filterByTanggal, function ($query) use ($filterByTanggal) {
+                $query->whereDate('tanggal_uji', $filterByTanggal);
+            })
+            ->when($filterByStatus, function ($query) use ($filterByStatus) {
+                $query->where('status', 'like', '%' . $filterByStatus . '%');
+            })
+            ->get();
+
+        // Get pengajuan that are accepted but don't have pengujian scheduled yet
+        $unscheduled_pengajuan = FormPengajuan::with('instansi')
+            ->where('status_pengajuan', 'diterima')
+            ->whereDoesntHave('pengujian')
+            ->get();
 
         return Inertia::render('pegawai/pengujian/Index', [
             'pengujian' => $pengujian,
-            'filter' => request()->all()
+            'unscheduled_pengajuan' => $unscheduled_pengajuan,
+            'filter' => [
+                'status' => $filterByStatus,
+                'tanggal' => $filterByTanggal,
+            ]
         ]);
     }
 
     //form tambah jadwal pengujian
     public function create()
     {
-        $form_pengajuan = FormPengajuan::with('kategori.parameter', 'kategori.subkategori.parameter', 'instansi.user')->get();
+        $form_pengajuan = FormPengajuan::with('kategori.parameter', 'kategori.subkategori.parameter', 'instansi.user')
+            ->where('status_pengajuan', 'diterima')
+            ->whereDoesntHave('pengujian')
+            ->get();
+            
         $user = User::role('teknisi')->select('id', 'nama')->get();
 
         return Inertia::render('pegawai/pengujian/Tambah', [
@@ -91,126 +115,72 @@ class PengujianController extends Controller
     //form edit jadwal pengujian
     public function edit(Pengujian $pengujian)
     {
-        $pengujian->load(['form_pengajuan.kategori.parameter', 'form_pengajuan.kategori.subkategori.parameter', 'form_pengajuan.instansi.user', 'user']);
-
-        $form_pengajuan = FormPengajuan::select('id', 'kode_pengajuan', 'id_instansi', 'id_kategori')
-            ->with('kategori:id,nama')
-            ->with('instansi:id,nama')
-            ->with('instansi.user:id,nama')
+        $pengujian->load(['form_pengajuan.instansi.user', 'kategori', 'user']);
+        
+        $kategoriList = Kategori::select('id', 'nama')->get();
+        $userList = User::role('teknisi')->select('id', 'nama')->get();
+        $pengajuanList = FormPengajuan::with('instansi')
+            ->where('status_pengajuan', 'diterima')
+            ->select('id', 'kode_pengajuan', 'id_instansi')
             ->get();
-
-        $user = User::role('teknisi')->select('id', 'nama')->get();
 
         return Inertia::render('pegawai/pengujian/Edit', [
             'pengujian' => $pengujian,
-            'form_pengajuan' => $form_pengajuan,
-            'user' => $user,
+            'kategoriList' => $kategoriList,
+            'userList' => $userList,
+            'pengajuanList' => $pengajuanList
         ]);
     }
 
     //proses update daftar pengujian
     public function update(Pengujian $pengujian, Request $request)
     {
-        if ($pengujian->status === 'selesai') {
-            return Redirect::back()->withErrors([
-                'status' => 'Jadwal Yang Sudah Selesai Tidak Dapat Diubah!'
-            ]);
-        }
-
         $request->validate([
             'id_form_pengajuan' => 'required|exists:form_pengajuan,id',
-            'id_user' => 'required|exists:users,id',
             'id_kategori' => 'required|exists:kategori,id',
-            'tanggal_mulai' => 'required|date',
-            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
-            'jam_mulai' => 'required|date_format:H:i',
-            'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
-            'status' => 'required|in:diproses,selesai',
+            'id_user' => 'required|exists:users,id',
+            'tanggal_uji' => 'required|date',
+            'jam_mulai' => 'required',
+            'jam_selesai' => 'required',
         ]);
 
-        $pengajuan = FormPengajuan::find($request->id_form_pengajuan);
+        $pengujian->update([
+            'id_form_pengajuan' => $request->id_form_pengajuan,
+            'id_kategori' => $request->id_kategori,
+            'id_user' => $request->id_user,
+            'tanggal_uji' => $request->tanggal_uji,
+            'jam_mulai' => $request->jam_mulai,
+            'jam_selesai' => $request->jam_selesai,
+        ]);
 
-        if ($pengajuan->status_pengajuan !== 'diterima') {
-            return redirect()->back()->with('error', 'Sebelum Melakukan Pengujian Harap Verifikasi Pengajuan Terlebih Dahulu!');
-        }
-
-        // Hati-hati: delete semua pengujian dengan kombinasi ini
-        Pengujian::where('id_form_pengajuan', $pengujian->id_form_pengajuan)
-            ->where('id_kategori', $pengujian->id_kategori)
-            ->delete();
-
-        $tanggalMulai = Carbon::parse($request->tanggal_mulai);
-        $tanggalSelesai = Carbon::parse($request->tanggal_selesai);
-
-        $last = Pengujian::orderBy('kode_pengujian', 'desc')->first();
-        $lastNumber = 0;
-
-        if ($last && preg_match('/DJ-(\d+)/', $last->kode_pengujian, $matches)) {
-            $lastNumber = (int)$matches[1];
-        }
-
-        $tanggalSaatIni = $tanggalMulai->copy();
-
-        $sukses = false;
-
-        while ($tanggalSaatIni->lte($tanggalSelesai)) {
-            if (!in_array($tanggalSaatIni->dayOfWeek, [Carbon::SATURDAY, Carbon::SUNDAY])) {
-                $lastNumber++;
-                Pengujian::create([
-                    'id_form_pengajuan' => $request->id_form_pengajuan,
-                    'id_user' => $request->id_user,
-                    'id_kategori' => $request->id_kategori,
-                    'tanggal_uji' => $tanggalSaatIni->format('Y-m-d'),
-                    'jam_mulai' => $request->jam_mulai,
-                    'jam_selesai' => $request->jam_selesai,
-                    'status' => $request->status,
-                ]);
-                $sukses = true;
-            }
-
-            $tanggalSaatIni->addDay();
-        }
-
-        if (!$sukses) {
-            return back()->withErrors(['error' => 'Tidak ada hari kerja pada rentang tanggal yang dipilih.']);
-        }
-
-        return Redirect::route('pegawai.pengujian.index')->with('message', 'Pengujian Berhasil Diupdate');
+        return Redirect::route('pegawai.pengujian.detail', $pengujian->id)
+            ->with('message', 'Pengujian berhasil diupdate');
     }
-
 
     //lihat detail daftar pengujian
     public function show(Pengujian $pengujian)
     {
-        $pengujian->load(['kategori', 'form_pengajuan.kategori.parameter', 'form_pengajuan.kategori.subkategori.parameter', 'form_pengajuan.instansi.user', 'user']);
+        $pengujian->load(['form_pengajuan.instansi.user', 'kategori', 'user']);
 
-        // $kategori = $pengujian->form_pengajuan->kategori;
-
-        // $parameterKategori = $kategori->parameter->map(function ($param) {
-        //     return [
-        //         'id' => $param->id,
-        //         'nama' => $param->nama_parameter,
-        //         'satuan' => $param->satuan,
-        //         'baku_mutu' => $param->pivot->baku_mutu ?? null,
-        //     ];
-        // });
-
-        // $parameterSubKategori = $kategori->subkategori->flatMap(function ($sub) {
-        //     return $sub->parameter->map(function ($param) {
-        //         return [
-        //             'id' => $param->id,
-        //             'nama' => $param->nama_parameter,
-        //             'satuan' => $param->satuan,
-        //             'baku_mutu' => $param->pivot->baku_mutu ?? null,
-        //         ];
-        //     });
-        // });
-
-        // $semuaParameter = $parameterKategori->merge($parameterSubKategori)->unique('id')->values();
         return Inertia::render('pegawai/pengujian/Detail', [
-            'pengujian' => $pengujian,
-            // 'parameter' => $semuaParameter,
+            'pengujian' => $pengujian
         ]);
+    }
+
+    public function verifikasi($id, Request $request)
+    {
+        $pengujian = Pengujian::findOrFail($id);
+        
+        $request->validate([
+            'status' => 'required|in:selesai',
+        ]);
+
+        $pengujian->update([
+            'status' => $request->status,
+        ]);
+
+        return Redirect::route('pegawai.pengujian.detail', $pengujian->id)
+            ->with('message', 'Status pengujian berhasil diupdate');
     }
 
     //proses hapus daftar pengujian

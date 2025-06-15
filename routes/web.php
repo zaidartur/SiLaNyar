@@ -136,7 +136,8 @@ Route::prefix('pegawai')->group(function () {
     Route::get('pengujian/create', [PengujianController::class, 'create'])->middleware('check.permission:tambah pengujian')->name('pegawai.pengujian.create');
     Route::post('pengujian/store', [PengujianController::class, 'store'])->middleware('check.permission:tambah pengujian');
     Route::get('pengujian/edit/{pengujian}', [PengujianController::class, 'edit'])->middleware('check.permission:edit pengujian')->name('pegawai.pengujian.edit');
-    Route::put('pengujian/{pengujian}/edit', [PengujianController::class, 'update'])->middleware('check.permission:edit pengujian')->name('pegawai.pengujian.update');
+    Route::put('pengujian/{pengujian}/edit', [PengujianController::class, 'update'])->middleware('check.permission:edit pengujian');
+    Route::put('pengujian/verifikasi/{id}', [PengujianController::class, 'verifikasi'])->middleware('check.permission:edit pengujian');
     Route::get('pengujian/{pengujian}', [PengujianController::class, 'show'])->middleware('check.permission:detail pengujian')->name('pegawai.pengujian.detail');
     Route::delete('pengujian/{id}', [PengujianController::class, 'destroy'])->middleware('check.permission:hapus pengujian')->name('pegawai.pengujian.destroy');
 
@@ -185,7 +186,7 @@ Route::prefix('pegawai')->group(function () {
         Route::get('parameter/create', [ParameterController::class, 'create'])->name('pegawai.parameter.tambah');
         Route::post('parameter/store', [ParameterController::class, 'store']);
         // Route::get('parameter/edit/{parameter}', [ParameterController::class, 'edit'])->name('pegawai.parameter.edit');
-        // Route::put('parameter/{parameter}/edit', [ParameterController::class, 'update']);
+        Route::put('parameter/{parameter}/edit', [ParameterController::class, 'update']);
         Route::delete('parameter/{id}', [ParameterController::class, 'destroy'])->name('pegawai.parameter.destroy');
     });
 

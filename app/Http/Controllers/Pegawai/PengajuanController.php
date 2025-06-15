@@ -77,27 +77,59 @@ class PengajuanController extends Controller
                 'status_pengajuan' => 'required|in:diterima,ditolak'
             ];
 
+            if ($request->status_pengajuan === 'diterima' && $pengajuan->metode_pengambilan === 'diantar') {
+                $rules['id_kategori'] = 'required|exists:kategori,id';
+                $rules['parameter'] = 'required|array';
+                $rules['parameter.*'] = 'exists:parameter_uji,id';
+            }
+
             $validated = $request->validate($rules);
 
             $pengajuan->status_pengajuan = $validated['status_pengajuan'];
 
-            // if ($pengajuan->metode_pengambilan === 'diantar') {
-            //     $pengajuan->id_kategori = $validated['id_kategori'];
+            if ($pengajuan->metode_pengambilan === 'diantar' && $request->status_pengajuan === 'diterima') {
+                // Validate that all selected parameters belong to the selected category
+                $kategori = Kategori::with('parameter', 'subkategori.parameter')->find($validated['id_kategori']);
+                
+                $allowedParameterIds = collect();
+                if ($kategori) {
+                    // Get direct parameters from category
+                    $allowedParameterIds = $allowedParameterIds->merge($kategori->parameter->pluck('id'));
+                    
+                    // Get parameters from subcategories
+                    foreach ($kategori->subkategori as $subkategori) {
+                        $allowedParameterIds = $allowedParameterIds->merge($subkategori->parameter->pluck('id'));
+                    }
+                }
+                
+                $allowedParameterIds = $allowedParameterIds->unique();
+                
+                // Check if all selected parameters are allowed for this category
+                $invalidParameters = collect($validated['parameter'])->diff($allowedParameterIds);
+                
+                if ($invalidParameters->isNotEmpty()) {
+                    return redirect()->back()
+                        ->with('error', 'Beberapa parameter yang dipilih tidak sesuai dengan kategori yang dipilih.')
+                        ->withInput();
+                }
 
-            //     $pengajuan->parameter()->sync($validated['parameter']);
-            // }
+                // Update category and sync parameters
+                $pengajuan->id_kategori = $validated['id_kategori'];
+                $pengajuan->parameter()->sync($validated['parameter']);
+
+                // Create payment record with default transfer method
+                Pembayaran::updateOrCreate(
+                    ['id_form_pengajuan' => $pengajuan->id],
+                    [
+                        'id_order' => 'INV-' . strtoupper(Str::random(10)) . '-' . time(),
+                        'total_biaya' => $this->hitungTotalBiaya($pengajuan),
+                        'metode_pembayaran' => 'transfer', // Default to transfer
+                        'status_pembayaran' => 'diproses',
+                    ]
+                );
+            }
 
             $pengajuan->save();
-
-            if ($pengajuan->metode_pengambilan === 'diantar') {
-                Pembayaran::createOrUpdate([
-                    'id_order' => 'INV-' . strtoupper(Str::random(10)) . '-' . time(),
-                    'id_form_pengajuan' => $pengajuan->id,
-                    'total_biaya' => $this->hitungTotalBiaya($pengajuan),
-                    'metode_pembayaran' => $validated['metode_pembayaran'],
-                    'status_pembayaran' => 'diproses',
-                ]);
-            }
 
             return redirect()->route('pegawai.pengajuan.index')
                 ->with('message', 'Pengajuan Telah ' . ucfirst($request->status_pengajuan) . '!');
