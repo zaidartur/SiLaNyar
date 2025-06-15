@@ -132,7 +132,7 @@ class PengajuanController extends Controller
             ->whereHas('instansi', function ($query) use ($user) {
                 $query->whereIn('id', $user->instansi()->pluck('id')->toArray());
             })
-            ->where('status_pengajuan', '!=', 'selesai')
+            ->whereNotIn('status_pengajuan', ['diterima', 'ditolak'])
             ->first();
 
         if ($pengajuanAktif) {
@@ -238,7 +238,7 @@ class PengajuanController extends Controller
         $idInstansi = $user->instansi()->pluck('id')->toArray();
 
         $pengajuanAktif = FormPengajuan::where('id_instansi', $idInstansi)
-            ->where('status_pengajuan', 'selesai')
+            ->whereIn('status_pengajuan', ['diterima', 'ditolak'])
             ->where('id', '!=', $pengajuan->id)
             ->first();
 
@@ -286,7 +286,7 @@ class PengajuanController extends Controller
         ]);
 
         if (!empty($validated['parameter'] && !empty($validated['id_kategori']))) {
-        $pembayaran = $pengajuan->pembayaran;
+            $pembayaran = $pengajuan->pembayaran;
             if ($pembayaran) {
                 $pembayaran->update([
                     'total_biaya' => $this->hitungTotalBiaya($pengajuan),
@@ -331,8 +331,7 @@ class PengajuanController extends Controller
     {
         $pengajuan = FormPengajuan::where('status_pengajuan', ['proses_validasi', 'ditolak'])->findOrFail($id);
 
-        if($pengajuan->status_pengajuan === 'diterima')
-        {
+        if ($pengajuan->status_pengajuan === 'diterima') {
             return Redirect::back()->with('error', 'Hapus Pengajuan Anda Ditolak Karena Telah Melewati Proses Verifikasi');
         }
 

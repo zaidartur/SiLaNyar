@@ -61,7 +61,7 @@ class HasilUjiController extends Controller
             'pengujian.user',
         ]);
 
-        $parameterKategori = $hasil_uji->pengujian->form_pengajuan->kategori->parameter->map(function ($param) {
+        $parameterKategori = collect($hasil_uji->pengujian->form_pengajuan->kategori->parameter)->map(function ($param) {
             return [
                 'id_parameter' => $param->id,
                 'nama_parameter' => $param->nama_parameter,
@@ -70,7 +70,7 @@ class HasilUjiController extends Controller
             ];
         });
 
-        $parameterSubKategori = $hasil_uji->pengujian->form_pengajuan->kategori->subkategori->flatMap(function ($sub) {
+        $parameterSubKategori = collect($hasil_uji->pengujian->form_pengajuan->kategori->subkategori)->flatMap(function ($sub) {
             return $sub->parameter->map(function ($param) {
                 return [
                     'id_parameter' => $param->id,

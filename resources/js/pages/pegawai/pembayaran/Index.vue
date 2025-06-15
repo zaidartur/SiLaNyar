@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue';
 import { defineProps } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { router, Head } from '@inertiajs/vue3';
 interface User {
     id: number;
     nama: string;
@@ -44,6 +44,7 @@ function lihatDetail(id: number) {
 </script>
 
 <template>
+    <Head title="Daftar Pembayaran" />
     <AdminLayout>
         <div class="p-6">
             <h1 class="text-2xl text-black font-bold mb-6">DAFTAR PEMBAYARAN</h1>

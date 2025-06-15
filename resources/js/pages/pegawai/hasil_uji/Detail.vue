@@ -72,18 +72,16 @@ function perbaruiStatus(newStatus: string) {
   })
 }
 
-// function bukaPDF() {
-//   window.open(route('hasil_uji.convert', props.hasil_uji.id), '_blank')
-// }
+function bukaPDF() {
+  window.open(route('hasil_uji.convert', props.hasil_uji.id), '_blank')
+}
 </script>
 
 <template>
   <AdminLayout>
 
-    <div class="bg-gray-200 min-h-screen py-8">
-
+    <div class="bg-gray-200 min-h-screen py-8 overflow-x-hidden">
       <Head title="Detail Hasil Uji" />
-
       <div class="max-w-4xl mx-auto py-8 space-y-8">
         <h1
           class="text-3xl font-bold border-b-2 border-customDarkGreen inline-block w-fit pb-2 mb-1 text-customDarkGreen">
@@ -171,6 +169,15 @@ function perbaruiStatus(newStatus: string) {
               </tbody>
             </table>
           </div>
+            <div class="flex justify-end mt-8">
+              <button @click="bukaPDF"
+                class="flex items-center px-6 py-3 bg-customDarkGreen hover:bg-green-600 text-white font-semibold rounded-lg shadow transition duration-200">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Download PDF
+              </button>
+            </div>
         </div>
 
         <!-- Edit Status -->
