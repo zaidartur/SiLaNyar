@@ -27,6 +27,16 @@ const statusLabel = (status: string) => {
     return labels[status] ?? status
 }
 
+const aduanStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+        diterima_administrasi: 'Diterima Administrasi',
+        diterima_pengajuan: 'Diterima Pengajuan',
+        diproses: 'Diproses',
+        ditolak: 'Ditolak'
+    }
+    return labels[status] ?? status
+}
+
 const verifikasi = (id: number) => {
     if (confirm('Apakah Anda yakin ingin memverifikasi hasil uji ini?')) {
         router.put(route('customer.hasiluji.verifikasi', id), {
@@ -85,18 +95,32 @@ const verifikasi = (id: number) => {
                                 {{ item.pengujian?.form_pengajuan?.metode_pengambilan ?? '-' }}
                             </td>
                             <td class="px-4 py-3 border-b text-center">
-                                <span v-if="item.aduan && item.status === 'proses_review'" class="text-blue-500">
-                                    {{ item.aduan?.status }}
+                                <span v-if="item.aduan && item.aduan.status" :class="[
+                                    'inline-block text-xs font-semibold px-3 py-1 rounded-full border shadow-sm transition-colors duration-200',
+                                    item.aduan.status === 'diterima_administrasi'
+                                        ? 'bg-blue-100 text-blue-800 border-blue-400'
+                                        : item.aduan.status === 'diterima_pengajuan'
+                                            ? 'bg-green-100 text-green-800 border-green-400'
+                                            : item.aduan.status === 'diproses'
+                                                ? 'bg-yellow-100 text-yellow-800 border-yellow-400'
+                                                : item.aduan.status === 'ditolak'
+                                                    ? 'bg-red-100 text-red-800 border-red-400'
+                                                    : 'bg-gray-200 text-gray-700 border-gray-400'
+                                ]">
+                                    {{ aduanStatusLabel(item.aduan.status) }}
                                 </span>
                                 <span v-else>-</span>
                             </td>
                             <td class="px-4 py-3 border-b">
                                 <span :class="[
-                                    'text-xs px-2 py-1 rounded',
-                                    item.status === 'selesai' ? 'bg-green-500 text-white' :
-                                        item.status === 'proses_review' ? 'bg-yellow-500 text-white' :
-                                            item.status === 'proses_peresmian' ? 'bg-blue-500 text-white' :
-                                                'bg-gray-400 text-white'
+                                    'inline-block text-center text-xs font-semibold px-3 py-1 rounded-full border shadow-sm transition-colors duration-200',
+                                    item.status === 'selesai'
+                                        ? 'bg-green-100 text-green-800 border-green-400'
+                                        : item.status === 'proses_review'
+                                            ? 'bg-yellow-100 text-yellow-800 border-yellow-400'
+                                            : item.status === 'proses_peresmian'
+                                                ? 'bg-blue-100 text-blue-800 border-blue-400'
+                                                : 'bg-gray-200 text-gray-700 border-gray-400'
                                 ]">
                                     {{ statusLabel(item.status) }}
                                 </span>

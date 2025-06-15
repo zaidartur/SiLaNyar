@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue';
-import { router } from '@inertiajs/vue3';
 import { defineProps } from 'vue';
+import { router, Head } from '@inertiajs/vue3';
 interface User {
     id: number;
     nama: string;
@@ -48,6 +48,7 @@ function isPaymentCompleted(status: string): boolean {
 </script>
 
 <template>
+    <Head title="Daftar Pembayaran" />
     <AdminLayout>
         <div class="p-6">
             <h1 class="mb-6 text-2xl font-bold text-black">DAFTAR PEMBAYARAN</h1>

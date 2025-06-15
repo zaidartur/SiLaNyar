@@ -79,9 +79,9 @@ function perbaruiStatus(newStatus: string) {
     });
 }
 
-// function bukaPDF() {
-//   window.open(route('hasil_uji.convert', props.hasil_uji.id), '_blank')
-// }
+function bukaPDF() {
+  window.open(route('hasil_uji.convert', props.hasil_uji.id), '_blank')
+}
 </script>
 
 <template>
