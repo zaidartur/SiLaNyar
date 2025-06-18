@@ -65,6 +65,9 @@ class DashboardController extends Controller
                 ->last();
             $hasiluji = $pengujian?->hasil_uji
                 ->firstWhere('status', 'selesai');
+
+            // $pengajuanDiterima = $pilihPengajuan->status_pengajuan === 'diterima';
+            // $pembayaranSelesai = $pengajuanDiterima && $pilihPengajuan->pembayaran && $pilihPengajuan->pembayaran->status === 'selesai'
             $statusList = [
                 [
                     'label' => 'Pengajuan Diterima',

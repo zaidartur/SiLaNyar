@@ -51,18 +51,17 @@ class CustomerProfileController extends Controller
     {
         $user = Auth::user();
 
-        if(!$instansi->id_user !== $user->id)
-        {
+        if (!$instansi->id_user !== $user->id) {
             abort(403, 'Akses Tidak Diizinkan');
         }
 
         $instansi->surat_keterangan_penugasan_url = $instansi->surat_keterangan_penugasan
-                    ? asset('storage/'.$instansi->surat_keterangan_penugasan)
-                    : null;
+            ? asset('storage/' . $instansi->surat_keterangan_penugasan)
+            : null;
 
         $instansi->foto_kartu_identitas_url = $instansi->foto_kartu_identitas
-                    ? asset('storage/'.$instansi->foto_kartu_identitas)
-                    : null;
+            ? asset('storage/' . $instansi->foto_kartu_identitas)
+            : null;
 
         return Inertia::render('customer/profile/ShowInstansi', [
             'instansi' => $instansi
@@ -78,7 +77,7 @@ class CustomerProfileController extends Controller
         $randomId = Str::random(6);
 
         $request->validate([
-            'nama' => 'required|string|max:255',
+            'nama' => 'required|string|max:255|unique:instansi,nama',
             'tipe' => 'required|in:swasta,pemerintahan,pribadi',
             'alamat' => 'required|string|max:255',
             'wilayah' => 'required|string|max:255',
@@ -89,6 +88,36 @@ class CustomerProfileController extends Controller
             'departemen_divisi' => 'required|string|max:255',
             'surat_keterangan_penugasan' => 'required|file|mimes:pdf|max:2048',
             'foto_kartu_identitas' => 'required|file|mimes:pdf,jpeg,jpg,png|max:2048',
+        ], [
+            'nama.required' => 'Nama Wajib Diisi.',
+            'nama.max' => 'Nama Max 255 Karakter.',
+            'nama.unique' => 'Nama Sudah Dipakai.',
+            'tipe.required' => 'Tipe Wajib Diisi.',
+            'tipe.in' => 'Tipe Tidak Valid.',
+            'alamat.required' => 'Alamat Wajib Diisi.',
+            'alamat.max' => 'Alamat Max 255 Karakter.',
+            'wilayah.required' => 'Wilayah Wajib Diisi.',
+            'wilayah.max' => 'Wilayah Max 255 Karakter.',
+            'desa_kelurahan.required' => 'Desa Atau Kelurahan Wajib Diisi.',
+            'desa_kelurahan.max' => 'Desa Atau Kelurahan Max 255 Karakter.',
+            'email.required' => 'Email Wajib Diisi.',
+            'email.email' => 'Format Harus Berupa Email.',
+            'email.max' => 'Email Max 255 Karakter.',
+            'email.unique' => 'Email Sudah Dipakai.',
+            'no_telepon.required' => 'No Telepon Wajib Diisi.',
+            'no_telepon.regex' => 'No Telepon Harus Berformat +62, 62, atau 08.',
+            'posisi_jabatan.required' => 'Posisi Atau Jabatan Wajib Diisi.',
+            'posisi_jabatan.max' => 'Posisi Atau Jabatan Max 255 Karakter.',
+            'departemen_divisi.required' => 'Departemen Atau Divisi Wajib Diisi.',
+            'depertemen_divisi.max' => 'Departemen Atau Divisi Max 255 Karakter.',
+            'surat_keterangan_penugasan.required' => 'Surat Keterangan Penugasan Wajib Diisi.',
+            'surat_keterangan_penugasan.file' => 'Surat Keterangan Penugasan Harus Berupa File.',
+            'surat_keterangan_penugasan.mimes' => 'Surat Keterangan Penugasan Harus BerFormat PDF.',
+            'surat_keterangan_penugasan.max' => 'Surat Keterangan Penugasan Maksimal 2MB.',
+            'foto_kartu_identitas.required' => 'Foto Kartu Identitas Wajib Diisi.',
+            'foto_kartu_identitas.file' => 'Foto Kartu Identitas Harus Berupa File.',
+            'foto_kartu_identitas.mimes' => 'Foto Kartu Identitas Harus Berformat jpeg, jpg, png.',
+            'foto_kartu_identitas.max' => 'Foto Kartu Identitas Maksimal 2MB.',
         ]);
 
         if (!$request->hasFile('surat_keterangan_penugasan') || !$request->file('surat_keterangan_penugasan')->isValid()) {
@@ -153,18 +182,57 @@ class CustomerProfileController extends Controller
         $namaUser = Str::slug(strtolower($user->nama), '_');
         $randomId = Str::random(6);
 
-        $request->validate([
+        $rules = [
             'nama' => 'required|string|max:255',
             'tipe' => 'required|in:swasta,pemerintahan,pribadi',
             'alamat' => 'required|string|max:255',
             'wilayah' => 'required|string|max:255',
             'desa_kelurahan' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:instansi,email,' . $instansi->id,
+            'email' => 'required|string|lowercase|email|max:255',
             'no_telepon' => ['required', 'string', 'regex:/^(08|\+62|62)[0-9]{7,13}$/'],
             'posisi_jabatan' => 'required|string|max:255',
             'departemen_divisi' => 'required|string|max:255',
-            'surat_keterangan_penugasan' => 'nullable|file|mimes:pdf|max:2048',
-            'foto_kartu_identitas' => 'nullable|file|mimes:pdf,jpeg,jpg,png|max:2048',
+            'surat_keterangan_penugasan' => 'required|file|mimes:pdf|max:2048',
+            'foto_kartu_identitas' => 'required|file|mimes:jpeg,jpg,png|max:2048',
+        ];
+
+        if ($request->nama != $instansi->nama) {
+            $rules['nama'] .= '|unique:instansi,nama';
+        }
+
+        if ($request->email != $instansi->email) {
+            $rules['email'] .= '|unique:instansi,email';
+        }
+
+        $validatedData = $request->validate($rules, [
+            'nama.required' => 'Nama Wajib Diisi.',
+            'nama.max' => 'Nama Max 255 Karakter.',
+            'tipe.required' => 'Tipe Wajib Diisi.',
+            'tipe.in' => 'Tipe Tidak Valid.',
+            'alamat.required' => 'Alamat Wajib Diisi.',
+            'alamat.max' => 'Alamat Max 255 Karakter.',
+            'wilayah.required' => 'Wilayah Wajib Diisi.',
+            'wilayah.max' => 'Wilayah Max 255 Karakter.',
+            'desa_kelurahan.required' => 'Desa Atau Kelurahan Wajib Diisi.',
+            'desa_kelurahan.max' => 'Desa Atau Kelurahan Max 255 Karakter.',
+            'email.required' => 'Email Wajib Diisi.',
+            'email.email' => 'Format Harus Berupa Email.',
+            'email.max' => 'Email Max 255 Karakter.',
+            'email.unique' => 'Email Sudah Dipakai.',
+            'no_telepon.required' => 'No Telepon Wajib Diisi.',
+            'no_telepon.regex' => 'No Telepon Harus Berformat +62, 62, atau 08.',
+            'posisi_jabatan.required' => 'Posisi Atau Jabatan Wajib Diisi.',
+            'posisi_jabatan.max' => 'Posisi Atau Jabatan Max 255 Karakter.',
+            'departemen_divisi.required' => 'Departemen Atau Divisi Wajib Diisi.',
+            'depertemen_divisi.max' => 'Departemen Atau Divisi Max 255 Karakter.',
+            'surat_keterangan_penugasan.required' => 'Surat Keterangan Penugasan Wajib Diisi.',
+            'surat_keterangan_penugasan.file' => 'Surat Keterangan Penugasan Harus Berupa File.',
+            'surat_keterangan_penugasan.mimes' => 'Surat Keterangan Penugasan Harus BerFormat PDF.',
+            'surat_keterangan_penugasan.max' => 'Surat Keterangan Penugasan Maksimal 2MB.',
+            'foto_kartu_identitas.required' => 'Foto Kartu Identitas Wajib Diisi.',
+            'foto_kartu_identitas.file' => 'Foto Kartu Identitas Harus Berupa File.',
+            'foto_kartu_identitas.mimes' => 'Foto Kartu Identitas Harus Berformat jpeg, jpg, png.',
+            'foto_kartu_identitas.max' => 'Foto Kartu Identitas Maksimal 2MB.',
         ]);
 
         if ($request->hasFile('surat_keterangan_penugasan')) {
@@ -175,7 +243,7 @@ class CustomerProfileController extends Controller
 
             $surat = $request->file('surat_keterangan_penugasan');
             $suratFileName = 'surat_keterangan_' . $namaUser . '_' . $tanggal . '_' . $randomId . '.' . $surat->getClientOriginalExtension();
-            $instansi->surat_keterangan_penugasan = $surat->storeAs('surat_keterangan', $suratFileName, 'public');
+            $validatedData['surat_keterangan_penugasan'] = $surat->storeAs('surat_keterangan', $suratFileName, 'public');
         }
 
         if ($request->hasFile('foto_kartu_identitas')) {
@@ -185,25 +253,12 @@ class CustomerProfileController extends Controller
 
             $foto = $request->file('foto_kartu_identitas');
             $fotoFileName = 'foto_kartu_identitas_' . $namaUser . '_' . $tanggal . '_' . $randomId . '.'  . $foto->getClientOriginalExtension();
-            $instansi->foto_kartu_identitas = $foto->storeAs('foto_kartu_identitas', $fotoFileName, 'public');
+            $validatedData['foto_kartu_identitas'] = $foto->storeAs('foto_kartu_identitas', $fotoFileName, 'public');
         }
 
-        $instansi->update(
-            [
-                'id_user' => $user->id,
-                'nama' => $request->nama,
-                'tipe' => $request->tipe,
-                'alamat' => $request->alamat,
-                'wilayah' => $request->wilayah,
-                'desa_kelurahan' => $request->desa_kelurahan,
-                'email' => $request->email,
-                'no_telepon' => $request->no_telepon,
-                'posisi_jabatan' => $request->posisi_jabatan,
-                'departemen_divisi' => $request->departemen_divisi,
-                'surat_keterangan_penugasan' => $instansi->surat_keterangan_penugasan,
-                'foto_kartu_identitas' => $instansi->foto_kartu_identitas,
-            ]
-        );
+        $validatedData['id_user'] = $user->id;
+
+        $instansi->update($validatedData);
 
         return Redirect::route('customer.profile')->with('message', 'Data Instansi Berhasil Diupdate!');
     }

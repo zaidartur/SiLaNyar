@@ -31,9 +31,16 @@ class ParameterController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_parameter' => 'required|string|max:255|unique:parameter_uji,nama_parameter',
-            'satuan' => 'required|string|max:255',
-            'harga' => 'required|integer|min:0',
+            'nama_parameter' => 'required|string|unique:parameter_uji,nama_parameter',
+            'satuan' => 'required|string',
+            'harga' => 'required|numeric|min:0',
+        ], [
+            'nama_parameter.required' => 'Nama Parameter Wajib Diisi.',
+            'nama_parameter.unique' => 'Nama Parameter Sudah Digunakan. Harap Pilih Nama Lain.',
+            'satuan.required' => 'Satuan Wajib Diisi.',
+            'harga.required' => 'Harga Wajib Diisi.',
+            'harga.numeric' => 'Harga Harus Bertipe Angka.',
+            'harga.min' => 'Harga Tidak Boleh Kurang Dari 0.',
         ]);
 
         $parameter = ParameterUji::create($request->all());
@@ -54,13 +61,26 @@ class ParameterController extends Controller
     //proses update parameter
     public function update(ParameterUji $parameter, Request $request)
     {
-        $request->validate([
+        $rules =[
             'nama_parameter' => 'required|string',
             'satuan' => 'required|string',
             'harga' => 'required|numeric|min:0',
+        ];
+
+        if ($request->nama_parameter != $parameter->nama_parameter) {
+            $rules['nama_parameter'] .= '|unique:parameter_uji,nama_parameter';
+        }
+
+        $validatedData = $request->validate($rules, [
+            'nama_parameter.required' => 'Nama Parameter Wajib Diisi.',
+            'nama_parameter.unique' => 'Nama Parameter Sudah Digunakan. Harap Pilih Nama Lain.',
+            'satuan.required' => 'Satuan Wajib Diisi.',
+            'harga.required' => 'Harga Wajib Diisi.',
+            'harga.numeric' => 'Harga Harus Bertipe Angka.',
+            'harga.min' => 'Harga Tidak Boleh Kurang Dari 0.',
         ]);
 
-        $parameter->update($request->all());
+        $parameter->update($validatedData);
 
         if ($parameter) {
             return Redirect::route('pegawai.parameter.index')->with('message', 'Parameter Berhasil Diupdate!');

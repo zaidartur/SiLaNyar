@@ -21,7 +21,7 @@ class PengajuanController extends Controller
     private function hitungTotalBiaya(FormPengajuan $pengajuan)
     {
         $kategori = $pengajuan->kategori;
-        $parameterDipilih = $pengajuan->parameter; // parameter yang dipilih user
+        $parameterDipilih = $pengajuan->parameter;
 
         $subkategori = $kategori->subkategori;
 
@@ -61,31 +61,15 @@ class PengajuanController extends Controller
         $instansi = Instansi::where('id_user', $user->id)
             ->get();
 
+        if ($instansi->isEmpty()) {
+            return Redirect::back()->with('error', 'Anda Belum Memiliki Instansi. Silahkan Tambahkan Instansi Terlebih Dahulu');
+        }
+
         $jenis_cairan = JenisCairan::all();
         $kategori = Kategori::with('parameter', 'subkategori.parameter')->get();
         $parameter = ParameterUji::all();
 
         return Inertia::render('customer/pengajuan/Index', [
-            'kategori' => $kategori,
-            'jenis_cairan' => $jenis_cairan,
-            'parameter' => $parameter,
-            'instansi' => $instansi
-        ]);
-    }
-
-    //daftar pengajuan uji lab customer
-    public function daftar()
-    {
-        $user = Auth::user();
-
-        $instansi = Instansi::where('id_user', $user->id)
-            ->get();
-
-        $jenis_cairan = JenisCairan::all();
-        $kategori = Kategori::with('parameter', 'subkategori.parameter')->get();
-        $parameter = ParameterUji::all();
-
-        return Inertia::render('customer/pengajuan/Tambah', [
             'kategori' => $kategori,
             'jenis_cairan' => $jenis_cairan,
             'parameter' => $parameter,
@@ -119,6 +103,22 @@ class PengajuanController extends Controller
         }
 
         $validated = $request->validate($rules, [
+            'id_instansi.required' => 'Instansi Harus Diisi.',
+            'id_instansi.exists' => 'Instansi Data Tidak Valid.',
+            'id_jenis_cairan.required' => 'Jenis Cairan Harus Diisi.',
+            'id_jenis_cairan.exists' => 'Jenis Cairan Data Tidak Valid.',
+            'metode_pengambilan.required' => 'Metode Pengambilan Harus Diisi.',
+            'metode_pengambilan.in' => 'Status Tidak Valid.',
+            'lokasi.required_if' => 'Lokasi Wajib Diisi Jika Metode Pengambilan Diambil.',
+            'waktu_pengambilan.date' => 'Waktu Pengambilan Harus Bertipe Tanggal.',
+            'waktu_pengambilan.after_or_equal' => 'Waktu Pengambilan Tidak Boleh Sebelum Hari Ini.',
+            'id_kategori.required' => 'Kategori Wajib Diisi.',
+            'id_kategori.exists' => 'Kategori Data Tidak Valid.',
+            'parameter.required' => 'Parameter Wajib Diisi.',
+            'parameter.array' => 'Format Parameter Tidak Valid.',
+            'parameter.*.required' => 'Parameter Wajib Diisi.',
+            'parameter.*.exists' => 'Parameter Data Tidak Valid.',
+            'keterangan.max' => 'Keterangan Maksimal 255 Kata',
             'volume_sampel.min' => "Volume Sampel Harus Diantara {$jenisCairan->batas_minimum} atau {$jenisCairan->batas_maksimum} Untuk Jenis Cairan",
             'volume_sampel.max' => "Volume Sampel Harus Diantara {$jenisCairan->batas_minimum} atau {$jenisCairan->batas_maksimum} Untuk Jenis Cairan"
         ]);
@@ -132,7 +132,7 @@ class PengajuanController extends Controller
             ->whereHas('instansi', function ($query) use ($user) {
                 $query->whereIn('id', $user->instansi()->pluck('id')->toArray());
             })
-            ->where('status_pengajuan', '!=', 'selesai')
+            ->whereNotIn('status_pengajuan', ['diterima', 'ditolak'])
             ->first();
 
         if ($pengajuanAktif) {
@@ -155,8 +155,10 @@ class PengajuanController extends Controller
         }
 
         if (!empty($validated['parameter'] && !empty($validated['id_kategori']))) {
+            $idOrder = $pengajuan->pembayaran->id_order ?? 'ORD-' . strtoupper(Str::random(10));
+
             Pembayaran::create([
-                'id_order' => Str::upper(Str::random(10)),
+                'id_order' => $idOrder,
                 'id_form_pengajuan' => $pengajuan->id,
                 'total_biaya' => $this->hitungTotalBiaya($pengajuan),
                 'status_pembayaran' => 'belum_dibayar',
@@ -238,7 +240,7 @@ class PengajuanController extends Controller
         $idInstansi = $user->instansi()->pluck('id')->toArray();
 
         $pengajuanAktif = FormPengajuan::where('id_instansi', $idInstansi)
-            ->where('status_pengajuan', 'selesai')
+            ->whereIn('status_pengajuan', ['diterima', 'ditolak'])
             ->where('id', '!=', $pengajuan->id)
             ->first();
 
@@ -266,8 +268,24 @@ class PengajuanController extends Controller
         }
 
         $validated = $request->validate($rules, [
+            'id_instansi.required' => 'Instansi Harus Diisi.',
+            'id_instansi.exists' => 'Instansi Data Tidak Valid.',
+            'id_jenis_cairan.required' => 'Jenis Cairan Harus Diisi.',
+            'id_jenis_cairan.exists' => 'Jenis Cairan Data Tidak Valid.',
+            'metode_pengambilan.required' => 'Metode Pengambilan Harus Diisi.',
+            'metode_pengambilan.in' => 'Status Tidak Valid.',
+            'lokasi.required_if' => 'Lokasi Wajib Diisi Jika Metode Pengambilan Diambil.',
+            'waktu_pengambilan.date' => 'Waktu Pengambilan Harus Bertipe Tanggal.',
+            'waktu_pengambilan.after_or_equal' => 'Waktu Pengambilan Tidak Boleh Sebelum Hari Ini.',
+            'id_kategori.required' => 'Kategori Wajib Diisi.',
+            'id_kategori.exists' => 'Kategori Data Tidak Valid.',
+            'parameter.required' => 'Parameter Wajib Diisi.',
+            'parameter.array' => 'Format Parameter Tidak Valid.',
+            'parameter.*.required' => 'Parameter Wajib Diisi.',
+            'parameter.*.exists' => 'Parameter Data Tidak Valid.',
+            'keterangan.max' => 'Keterangan Maksimal 255 Kata',
             'volume_sampel.min' => "Volume Sampel Harus Diantara {$jenisCairan->batas_minimum} atau {$jenisCairan->batas_maksimum} Untuk Jenis Cairan",
-            'volume_sampel.max' => "Volume Sampel Harus Diantara {$jenisCairan->batas_minimum} atau {$jenisCairan->batas_maksimum} Untuk Jenis Cairan"
+            'volume_sampel.max' => "Volume Sampel Harus Diantara {$jenisCairan->batas_minimum} atau {$jenisCairan->batas_maksimum} Untuk Jenis Cairan",
         ]);
 
         if ($validated['metode_pengambilan'] === 'diantar') {
@@ -286,23 +304,16 @@ class PengajuanController extends Controller
         ]);
 
         if (!empty($validated['parameter'] && !empty($validated['id_kategori']))) {
-        // $pembayaran = $pengajuan->pembayaran;
-        //     if ($pembayaran) {
-        //         $pembayaran->update([
-        //             'total_biaya' => $this->hitungTotalBiaya($pengajuan),
-        //             'status_pembayaran' => 'belum_dibayar',
-        //         ]);
-        //     }
-            Pembayaran::update([
-                'id_order' => Str::upper(Str::random(10)),
-                'id_form_pengajuan' => $pengajuan->id,
-                'total_biaya' => $this->hitungTotalBiaya($pengajuan),
-                'metode_pembayaran' => 'transfer',
-                'status_pembayaran' => 'belum_dibayar',
-            ]);
+            $pembayaran = $pengajuan->pembayaran;
+            if ($pembayaran) {
+                $pembayaran->update([
+                    'total_biaya' => $this->hitungTotalBiaya($pengajuan),
+                    'status_pembayaran' => 'belum_dibayar',
+                ]);
+            }
         }
 
-        if ($validated['metode_pengambilan'] === 'diambil' && !empty($validated['parameter'])) {
+        if (!empty($validated['parameter'])) {
             $pengajuan->parameter()->sync($validated['parameter']);
         } else {
             $pengajuan->parameter()->detach();
@@ -338,8 +349,7 @@ class PengajuanController extends Controller
     {
         $pengajuan = FormPengajuan::where('status_pengajuan', ['proses_validasi', 'ditolak'])->findOrFail($id);
 
-        if($pengajuan->status_pengajuan === 'diterima')
-        {
+        if ($pengajuan->status_pengajuan === 'diterima') {
             return Redirect::back()->with('error', 'Hapus Pengajuan Anda Ditolak Karena Telah Melewati Proses Verifikasi');
         }
 

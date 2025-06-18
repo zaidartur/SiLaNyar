@@ -50,30 +50,6 @@ class PembayaranController extends Controller
         }
     }
 
-
-    // public function index()
-    // {
-    //     /** @var \App\Models\User */
-    //     $user = Auth::user();
-
-    //     $idInstansi = $user->instansi()->pluck('id')->toArray();
-
-    //     $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'user'])
-    //         ->where('id_instansi', $idInstansi)
-    //         ->get();
-
-    //     $totalBiaya = $this->hitungTotalBiaya($pengajuan->id);
-
-    //     return Inertia::render('customer/pembayaran/Index', [
-    //         'pengajuan' => $pengajuan,
-    //         'totalBiaya' => $totalBiaya,
-    //         'detailPembayaran' => [
-    //             'kategori' => $pengajuan->kategori,
-    //             'parameter' => $pengajuan->parameter,
-    //         ]
-    //     ]);
-    // }
-
     public function show($id)
     {
         /** @var \App\Models\User $user */
@@ -83,8 +59,9 @@ class PembayaranController extends Controller
         $pengajuan = FormPengajuan::with([
             'kategori.parameter',
             'kategori.subkategori.parameter',
+            'jenis_cairan',
             'pembayaran',
-            'instansi.user'
+            'instansi.user',
         ])
             ->where('id', $id)
             ->whereIn('id_instansi', $idInstansi)
@@ -140,10 +117,23 @@ class PembayaranController extends Controller
 
         $validated = $request->validate([
             'metode_pembayaran' => 'required|in:tunai,transfer',
-            'bukti_pembayaran' => 'required_if:metode_pembayaran,transfer|image|mimes:jpeg,png,jpg|max:2048',
+            'bukti_pembayaran' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
+        ], [
+            'metode_pembayaran.required' => 'Metode Pembayaran Wajib Diisi.',
+            'metode_pembayaran.in' => 'Metode Pembayaran Tidak Valid.',
+            'bukti_pembayaran.image' => 'Bukti Pembayaran Harus Berupa Gambar.',
+            'bukti_pembayaran.mimes' => 'Format Bukti Pembayaran Tidak Valid.',
+            'bukti_pembayaran.max' => 'Ukuran Bukti Pembayaran Maksimal 2MB.', 
         ]);
 
-        if ($validated['metode_pembayaran'] === 'tunai' && $pengajuan->metode_pengantaran !== 'diantar') {
+        if ($validated['metode_pembayaran'] === 'transfer') {
+            $bukti = $request->file('bukti_pembayaran');
+            $buktiFileName = 'bukti_pembayaran' . $namaUser . '_' . $tanggal . '_' . $randomId . '.' . $bukti->getClientOriginalExtension();
+            $buktiPath = $bukti->storeAs('bukti_pembayaran', $buktiFileName, 'public');
+            $data['bukti_pembayaran'] = $buktiPath;
+        }
+
+        if ($validated['metode_pembayaran'] === 'tunai' && $pengajuan->metode_pengantaran === 'diambil') {
             return Redirect::back()->withErrors([
                 'metode_pembayaran' => 'Metode Pembayaran Tunai Hanya Tersedia Untuk Metode Pengantaran Diantar'
             ]);
@@ -151,7 +141,7 @@ class PembayaranController extends Controller
 
         $totalBiaya = $this->hitungTotalBiaya($pengajuan);
 
-        $idOrder = $pengajuan->pembayaran->id_order ?? 'INV-' . strtoupper(Str::random(10));
+        $idOrder = $pengajuan->pembayaran->id_order ?? 'ORD-' . strtoupper(Str::random(10));
 
         $data = [
             'id_order' => $idOrder,
@@ -163,7 +153,7 @@ class PembayaranController extends Controller
 
         if ($validated['metode_pembayaran'] === 'transfer' || $request->hasFile('bukti_pembayaran')) {
             $bukti = $request->file('bukti_pembayaran');
-            $buktiFileName = 'bukti_pembayaran'.$namaUser.'_'.$tanggal.'_'.$randomId.'.'.$bukti->getClientOriginalExtension();
+            $buktiFileName = 'bukti_pembayaran' . $namaUser . '_' . $tanggal . '_' . $randomId . '.' . $bukti->getClientOriginalExtension();
             $buktiPath = $bukti->storeAs('bukti_pembayaran', $buktiFileName, 'public');
             $data['bukti_pembayaran'] = $buktiPath;
         }

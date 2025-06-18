@@ -86,6 +86,17 @@ class KategoriController extends Controller
             'parameter' => 'nullable|array',
             'parameter.*.id' => 'required|exists:parameter_uji,id',
             'parameter.*.baku_mutu' => 'required_with:parameter.*.id|string|max:255',
+        ], [
+            'nama.required' => 'Nama Kategori Wajib Diisi.',
+            'nama.unique' => 'Nama Kategori Tidak Boleh Sama.',
+            'harga.required' => 'Harga Wajib Diisi.',
+            'harga.numeric' => 'Harga Harus Berupa Angka.',
+            'harga.min' => 'Harga Tidak Boleh Kurang Dari 0.',
+            'subkategori.*.required' => 'Sub Kategori Tidak Valid.',
+            'subkategori.*.exists' => 'Sub Kategori Tidak Ditemukan.',
+            'parameter.*.id.required' => 'Parameter Wajib Dipilih.',
+            'parameter.*.id.exists' => 'Parameter Tidak Valid.',
+            'parameter.*.baku_mutu.required_with' => 'Baku Mutu Wajib Diisi Untuk Parameter Yang Dipilih.',
         ]);
 
         if (
@@ -152,7 +163,7 @@ class KategoriController extends Controller
     //proses update kategori
     public function update(Kategori $kategori, Request $request)
     {
-        $request->validate([
+        $rules = [
             'nama' => 'required|string',
             'harga' => 'required|numeric|min:0',
             'subkategori' => 'nullable|array',
@@ -160,7 +171,11 @@ class KategoriController extends Controller
             'parameter' => 'nullable|array',
             'parameter.*.id' => 'required|exists:parameter_uji,id',
             'parameter.*.baku_mutu' => 'required_with:parameter.*.id|string|max:255'
-        ]);
+        ];
+
+        if ($request->nama != $kategori->nama) {
+            $rules['nama'] .= '|unique:kategori,nama';
+        }
 
         if (
             empty($request->subkategori) && empty($request->parameter)
@@ -169,10 +184,23 @@ class KategoriController extends Controller
                 ->withErrors(['subkategori' => 'Pilih Minimal Satu Sub Kategori atau Parameter']);
         }
 
-        $kategori->update($request->only([
-            'nama',
-            'harga'
-        ]));
+        $validatedData = $request->validate($rules, [
+            'nama.required' => 'Nama Kategori Wajib Diisi.',
+            'nama.unique' => 'Nama Kategori Tidak Boleh Sama.',
+            'harga.required' => 'Harga Wajib Diisi.',
+            'harga.numeric' => 'Harga Harus Berupa Angka.',
+            'harga.min' => 'Harga Tidak Boleh Kurang Dari 0.',
+            'subkategori.*.required' => 'Sub Kategori Tidak Valid.',
+            'subkategori.*.exists' => 'Sub Kategori Tidak Ditemukan.',
+            'parameter.*.id.required' => 'Parameter Wajib Dipilih.',
+            'parameter.*.id.exists' => 'Parameter Tidak Valid.',
+            'parameter.*.baku_mutu.required' => 'Baku Mutu Wajib Diisi Untuk Parameter Yang Dipilih.',
+        ]);
+
+        $kategori->update([
+            'nama' => $validatedData['nama'],
+            'harga' => $validatedData['harga'],
+        ]);
 
         $kategori->subkategori()->sync($request->subkategori ?? []);
 

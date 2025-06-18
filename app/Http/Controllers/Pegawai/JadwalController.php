@@ -65,7 +65,15 @@ class JadwalController extends Controller
                 'unique:jadwal,id_form_pengajuan'
             ],
             'waktu_pengambilan' => 'required|date|after_or_equal:today',
-            'keterangan' => 'required|string|max:255'
+            'keterangan' => 'nullable|string|max:255'
+        ], [
+            'id_form_pengajuan.required' => 'Form Pengajuan Wajib Diisi.',
+            'id_form_pengajuan.exists' => 'Form Pengajuan Tidak Ditemukan.',
+            'id_form_pengajuan.unique' => 'Form Pengajuan Tidak Boleh Sama.',
+            'waktu_pengambilan.required' => 'Waktu Pengambilan Wajib Diisi.',
+            'waktu_pengambilan.date' => 'Waktu Pengambilan Harus Berupa Tanggal.',
+            'waktu_pengambilan.after_or_equal' => 'Waktu Pengambilan Tidak Boleh Lebih Lama Dari Hari Ini.',
+            'keterangan.max' => 'Keterangan Maksimal 255 Karakter.',
         ]);
 
         $pengajuan = FormPengajuan::findOrFail($request->id_form_pengajuan);
@@ -116,6 +124,9 @@ class JadwalController extends Controller
         if ($pengajuan->metode_pengambilan === 'diantar') {
             $request->validate([
                 'status' => 'required|in:diproses,selesai'
+            ], [
+                'status.required' => 'Status Wajib Dipilih.',
+                'status.in' => 'Status Tidak Valid.',
             ]);
 
             $jadwal->update([
@@ -142,7 +153,14 @@ class JadwalController extends Controller
             $rules['waktu_pengambilan'] = 'required|date';
         }
 
-        $request->validate($rules);
+        $request->validate($rules, [
+            'status.required' => 'Status Wajib Dipilih.',
+            'status.in' => 'Status Tidak Valid.',
+            'waktu_pengambilan.required' => 'Waktu Pengambilan Wajib Diisi.',
+            'waktu_pengambilan.date' => 'Waktu Pengambilan Berupa Tanggal.',
+            'waktu_pengambilan.after' => 'Watku Pengambilan Harus Lebih Dari Hari Ini.',
+            'keterangan.max' => 'Keterangan Maksimal 255 Karakter.',
+        ]);
 
         if ($isWaktuBerubah) {
             $jadwalLama = Carbon::parse($jadwal->waktu_pengambilan)->startOfDay();
