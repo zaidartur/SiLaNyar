@@ -191,7 +191,7 @@ class PengajuanController extends Controller
 
         $idInstansi = $user->instansi()->pluck('id')->toArray();
 
-        $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'jenis_cairan', 'instansi.user'])
+        $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'jenis_cairan', 'instansi.user', 'pembayaran'])
             ->where('id', $id)
             ->whereIn('id_instansi', $idInstansi)
             ->firstOrFail();
