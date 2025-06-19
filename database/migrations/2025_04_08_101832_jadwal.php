@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('id_form_pengajuan')->constrained('form_pengajuan')->onDelete('cascade');
             $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
             $table->date('waktu_pengambilan');
-            $table->enum('status', ['diproses', 'selesai'])->default('diproses');
+            $table->enum('status', ['diproses', 'diterima'])->default('diproses');
             $table->string('keterangan')->nullable();
             $table->timestamps();
         });

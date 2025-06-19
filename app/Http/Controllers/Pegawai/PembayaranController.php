@@ -45,9 +45,23 @@ class PembayaranController extends Controller
     {
         $user = Auth::user();
 
-        $request->validate([
+        $rules = [
             'status_pembayaran' => 'required|in:diproses,selesai,gagal',
+            'keterangan' => 'nullable|string|max:255',
+        ];
+
+        $validated = $request->validate($rules, [
+            'status_pembayaran.required' => 'Status Pembayaran Wajib Diisi.',
+            'status_pembayaran.in' => 'Status Pembayaran Tidak Valid.'
         ]);
+
+        if ($validated['status_pembayaran'] === 'gagal') {
+            $rules['keterangan'] = 'required|string|max:255';
+        }
+
+        if ($pembayaran->status_pembayaran === 'belum_dibayar') {
+            return Redirect::back()->with('error', 'Verifikasi Pembayaran Tidak Dapat Dilakukan');
+        }
 
         if ($pembayaran->form_pengajuan->status_pengajuan !== 'diterima') {
           return Redirect::back()->with('error', 'Verifikasi Pembayaran Hanya Bisa Dilakukan Jika Status Pengajuan Telah Diterima!');
@@ -59,7 +73,8 @@ class PembayaranController extends Controller
         }
 
         $pembayaran->update([
-            'status_pembayaran' => $request->status_pembayaran,
+            'status_pembayaran' => $validated['status_pembayaran'],
+            'keterangan' => $validated['keterangan'],
             'diverifikas_oleh' => $user->nama,
         ]);
 

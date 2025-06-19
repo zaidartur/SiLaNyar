@@ -21,6 +21,7 @@ return new class extends Migration
             $table->enum('status_pembayaran', ['belum_dibayar','diproses', 'selesai', 'gagal']);
             $table->string('bukti_pembayaran')->nullable();
             $table->string('diverifikasi_oleh')->nullable();
+            $table->string('keterangan')->nullable();
             $table->timestamps();
         });
     }

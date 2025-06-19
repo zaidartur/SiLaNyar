@@ -102,7 +102,7 @@ class JadwalController extends Controller
 
         $pengajuan = FormPengajuan::findOrFail($jadwal->id_form_pengajuan);
 
-        if ($jadwal->status === 'selesai') {
+        if ($jadwal->status === 'diterima') {
             return Redirect::back()->withErrors(['status' => 'Jadwal Yang Sudah Selesai Tidak Dapat Diubah!']);
         }
 
@@ -117,7 +117,7 @@ class JadwalController extends Controller
     // Proses update jadwal
     public function update(Jadwal $jadwal, Request $request)
     {
-        if ($jadwal->status === 'selesai') {
+        if ($jadwal->status === 'diterima') {
             return Redirect::back()->withErrors([
                 'status' => 'Jadwal Yang Sudah Selesai Tidak Dapat Diubah!'
             ]);
@@ -127,7 +127,7 @@ class JadwalController extends Controller
 
         if ($pengajuan->metode_pengambilan === 'diantar') {
             $request->validate([
-                'status' => 'required|in:diproses,selesai'
+                'status' => 'required|in:diproses,diterima'
             ], [
                 'status.required' => 'Status Wajib Dipilih.',
                 'status.in' => 'Status Tidak Valid.',
@@ -147,7 +147,7 @@ class JadwalController extends Controller
         $isWaktuBerubah = $tanggalBaru !== $tanggalLama;
 
         $rules = [
-            'status' => 'required|in:diproses,selesai',
+            'status' => 'required|in:diproses,diterima',
             'keterangan' => 'nullable|string|max:255'
         ];
 
