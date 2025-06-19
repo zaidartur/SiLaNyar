@@ -72,6 +72,21 @@ class PengujianController extends Controller
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'jam_mulai' => 'nullable|date_format:H:i',
             'jam_selesai' => 'nullable|date_format:H:i|after:jam_mulai',
+        ], [
+            'id_form_pengajuan.required' => 'Pengajuan Wajib Diisi.',
+            'id_form_pengajuan.exists' => 'Pengajuan Tidak Valid.',
+            'id_user.required' => 'User Wajib Diisi.',
+            'id_user.exists' => 'User Tidak Valid.',
+            'id_kategori.required' => 'Kategori Wajib Diisi.',
+            'id_kategori.exists' => 'Kategori Tidak Valid.',
+            'tanggal_mulai.required' => 'Tanggal Mulai Wajib Diisi.',
+            'tanggal_mulai.date' => 'Tanggal Mulai Bertipe Tanggal.',
+            'tanggal_selesai.required' => 'Tanggal Selesai Wajib Diisi.',
+            'tanggal_selesai.date' => 'Tanggal Selesai Bertipe Tanggal.',
+            'tanggal_selesai.after_or_equal' => 'Tanggal Selesai Tidak Boleh Sebelum Tanggal Mulai.',
+            'jam_mulai.date_format' => 'Format Jam Mulai Harus Dalam Format Jam:Menit.',
+            'jam_selesai.date_format' => 'Format Jam Selesai Harus Dalam Format Jam:Menit.',
+            'jam_selesai.after' => 'Format Jam Selesai Harus Setelah Jam Mulai.',
         ]);
 
         $form_pengajuan = FormPengajuan::find($request->id_form_pengajuan);
@@ -138,10 +153,26 @@ class PengujianController extends Controller
         $request->validate([
             'id_form_pengajuan' => 'required|exists:form_pengajuan,id',
             'id_kategori' => 'required|exists:kategori,id',
-            'id_user' => 'required|exists:users,id',
-            'tanggal_uji' => 'required|date',
-            'jam_mulai' => 'required',
-            'jam_selesai' => 'required',
+            'tanggal_mulai' => 'required|date',
+            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
+            'jam_mulai' => 'required|date_format:H:i',
+            'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
+            'status' => 'required|in:diproses,selesai',
+        ], [
+            'id_form_pengajuan.required' => 'Pengajuan Wajib Diisi.',
+            'id_form_pengajuan.exists' => 'Pengajuan Tidak Valid.',
+            'id_user.required' => 'User Wajib Diisi.',
+            'id_user.exists' => 'User Tidak Valid.',
+            'id_kategori.required' => 'Kategori Wajib Diisi.',
+            'id_kategori.exists' => 'Kategori Tidak Valid.',
+            'tanggal_mulai.required' => 'Tanggal Mulai Wajib Diisi.',
+            'tanggal_mulai.date' => 'Tanggal Mulai Bertipe Tanggal.',
+            'tanggal_selesai.required' => 'Tanggal Selesai Wajib Diisi.',
+            'tanggal_selesai.date' => 'Tanggal Selesai Bertipe Tanggal.',
+            'tanggal_selesai.after_or_equal' => 'Tanggal Selesai Tidak Boleh Sebelum Tanggal Mulai.',
+            'jam_mulai.date_format' => 'Format Jam Mulai Harus Dalam Format Jam:Menit.',
+            'jam_selesai.date_format' => 'Format Jam Selesai Harus Dalam Format Jam:Menit.',
+            'jam_selesai.after' => 'Format Jam Selesai Harus Setelah Jam Mulai.',
         ]);
 
         $pengujian->update([

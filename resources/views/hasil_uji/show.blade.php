@@ -13,7 +13,6 @@
             margin: 0;
             padding: 20px;
         }
-
         .container {
             max-width: 1000px;
             margin: 0 auto;
@@ -31,19 +30,16 @@
             padding-bottom: 5px;
             margin-bottom: 20px;
         }
-
         h2 {
             font-size: 20px;
             margin-top: 25px;
             margin-bottom: 15px;
         }
-
         h3 {
             font-size: 16px;
             margin-top: 20px;
             margin-bottom: 10px;
         }
-
         .info-box {
             background-color: #f8f8f8;
             border: 1px solid #ddd;
@@ -51,26 +47,22 @@
             padding: 15px;
             margin-bottom: 20px;
         }
-
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 10px;
         }
-
         .parameter-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
         }
-
         .parameter-table th,
         .parameter-table td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
         }
-
         .parameter-table th {
             background-color: #333;
             color: white;
@@ -98,7 +90,6 @@
     @if ($is_customer)
     <div class="confidential">CONFIDENTIAL - CUSTOMER</div>
     @endif
-
     <div class="container">
         <h1>Hasil Uji #{{ $hasil_uji->id }}</h1>
         <p>Tanggal: {{ $tanggal }}</p>

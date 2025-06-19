@@ -43,7 +43,7 @@ class PengajuanController extends Controller
     //lihat detail pengajuan dari pegawai
     public function show($id)
     {
-        $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'instansi.user', 'jenis_cairan'])
+        $pengajuan = FormPengajuan::with(['kategori.parameter', 'kategori.subkategori.parameter', 'parameter', 'instansi.user', 'jenis_cairan'])
             ->where('id', $id)
             ->firstOrFail();
 
@@ -131,6 +131,16 @@ class PengajuanController extends Controller
 
             $pengajuan->save();
 
+            $idOrder = $pengajuan->pembayaran->id_order ?? 'ORD-' . strtoupper(Str::random(10));
+
+            if ($pengajuan->metode_pengambilan === 'diantar') {
+                Pembayaran::createOrUpdate([
+                    'id_order' => $idOrder,
+                    'id_form_pengajuan' => $pengajuan->id,
+                    'total_biaya' => $this->hitungTotalBiaya($pengajuan),
+                    'status_pembayaran' => 'belum_dibayar',
+                ]);
+            }
             return redirect()->route('pegawai.pengajuan.index')
                 ->with('message', 'Pengajuan Telah ' . ucfirst($request->status_pengajuan) . '!');
         } catch (\Exception $e) {
@@ -139,6 +149,44 @@ class PengajuanController extends Controller
                 ->withInput();
         }
     }
+
+    public function updateKategoriParameter($id, Request $request)
+    {
+        try {
+            $pengajuan = FormPengajuan::with(['kategori.parameter', 'kategori.subkategori.parameter', 'parameter'])->findOrFail($id);
+
+            if ($pengajuan->metode_pengambilan !== 'diantar' && $pengajuan->status_pengajuan !== 'diterima') {
+                return redirect()->back()->with('error', 'Kategori dan parameter hanya bisa diubah jika pengajuan sudah diterima dan metode pengambilan adalah "diantar".');
+            }
+
+            $validated = $request->validate([
+                'id_kategori' => 'required|exists:kategori,id',
+                'parameter' => 'required|array|min:1',
+                'parameter.*' => 'exists:parameter,id',
+            ]);
+
+            $pengajuan->id_kategori = $validated['id_kategori'];
+            $pengajuan->parameter()->sync($validated['parameter']);
+            $pengajuan->save();
+
+            $idOrder = $pengajuan->pembayaran->id_order ?? 'ORD-' . strtoupper(Str::random(10));
+
+            // Update biaya jika dibutuhkan
+            Pembayaran::updateOrCreate(
+                ['id_form_pengajuan' => $pengajuan->id],
+                [
+                    'id_order' => $idOrder,
+                    'total_biaya' => $this->hitungTotalBiaya($pengajuan),
+                    'status_pembayaran' => 'belum_dibayar',
+                ]
+            );
+
+            return redirect()->back()->with('message', 'Kategori dan parameter berhasil diperbarui.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
 
     public function destroy(FormPengajuan $pengajuan)
     {

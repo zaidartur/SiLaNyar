@@ -41,6 +41,15 @@ class SubKategoriController extends Controller
             'parameter' => 'required|array',
             'parameter.*.id' => 'required|exists:parameter_uji,id',
             'parameter.*.baku_mutu' => 'required|string|max:255',
+        ], [
+            'nama.required' => 'Nama Sub Kategori Wajib Diisi.',
+            'nama.unique' => 'Nama Sub Kategori Tidak Boleh Sama.',
+            'parameter.required' => 'Pilih Minimal Satu Parameter.',
+            'parameter.array' => 'Format Parameter Tidak Valid.',
+            'parameter.*.id.required' => 'Parameter Wajib Dipilih.',
+            'parameter.*.id.exists' => 'Parameter Tidak Ditemukan.',
+            'parameter.*.baku_mutu.required' => 'Baku Mutu Wajib Diisi.',
+            'parameter.*.baku_mutu.max' => 'Baku Mutu Maksimal 255 Karakter.',
         ]);
 
         $subkategori = SubKategori::create($request->only([
@@ -87,16 +96,31 @@ class SubKategoriController extends Controller
 
     public function update(SubKategori $subkategori, Request $request)
     {
-        $request->validate([
+        $rules = [
             'nama' => 'required|string',
             'parameter' => 'required|array',
             'parameter.*.id' => 'required|exists:parameter_uji,id',
             'parameter.*.baku_mutu' => 'required|string|max:255',
+        ];
+
+        if ($request->nama != $subkategori->nama) {
+            $rules['nama'] .= '|unique:subkategori,nama';
+        }
+
+        $validatedData = $request->validate($rules, [
+            'nama.required' => 'Nama Sub Kategori Wajib Diisi.',
+            'nama.unique' => 'Nama Sub Kategori Tidak Boleh Sama.',
+            'parameter.required' => 'Pilih Minimal Satu Parameter.',
+            'parameter.array' => 'Format Parameter Tidak Valid.',
+            'parameter.*.id.required' => 'Parameter Wajib Dipilih.',
+            'parameter.*.id.exists' => 'Parameter Tidak Ditemukan.',
+            'parameter.*.baku_mutu.required' => 'Baku Mutu Wajib Diisi Untuk Parameter Yang Dipilih.',
+            'parameter.*.baku_mutu.max' => 'Baku Mutu Maksimal 255 Karakter.',
         ]);
 
-        $subkategori->update($request->only([
-            'nama'
-        ]));
+        $subkategori->update([
+            'nama' => $validatedData['nama'],
+        ]);
 
         $syncData = [];
         foreach ($request->parameter as $param) {

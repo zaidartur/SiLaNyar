@@ -89,7 +89,6 @@ Route::prefix('customer')->middleware(['auth:web', 'role:customer'])->group(func
 
     //fitur pengajuan
     Route::get('pengajuan', [CustomerPengajuanController::class, 'index'])->name('customer.pengajuan.index');
-    Route::get('pengajuan/create', [CustomerPengajuanController::class, 'daftar'])->name('customer.pengajuan.daftar');
     Route::post('pengajuan/store', [CustomerPengajuanController::class, 'store'])->name('customer.pengajuan.store');
     Route::get('pengajuan/{id}', [CustomerPengajuanController::class, 'show'])->name('customer.pengajuan.detail');
     Route::get('pengajuan/edit/{pengajuan}', [CustomerPengajuanController::class, 'edit'])->name('customer.pengajuan.edit');
@@ -121,6 +120,7 @@ Route::prefix('pegawai')->group(function () {
     Route::get('pengajuan/{id}', [PegawaiPengajuanController::class, 'show'])->middleware('check.permission:detail pengajuan')->name('pegawai.pengajuan.detail');
     Route::get('pengajuan/edit/{pengajuan}', [PegawaiPengajuanController::class, 'edit'])->middleware('check.permission:edit pengajuan')->name('pegawai.pengajuan.edit');
     Route::put('pengajuan/{id}/edit', [PegawaiPengajuanController::class, 'update'])->middleware('check.permission:edit pengajuan')->name('pegawai.pengajuan.update');
+    Route::put('pengajuan/{id}/edit-parameter-kategori', [PegawaiPengajuanController::class, 'updateKategoriParameter'])->middleware('check.permission:edit pengajuan')->name('pegawai.pengajuan.update');
     Route::delete('pengajuan/{pengajuan}', [PegawaiPengajuanController::class, 'destroy'])->middleware('check.permission:hapus pengajuan')->name('pegawai.pengajuan.destroy');
 
     //fitur pembayaran

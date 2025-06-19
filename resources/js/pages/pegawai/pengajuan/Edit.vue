@@ -237,7 +237,6 @@ interface JenisCairan {
     id: number;
     nama: string;
 }
-
 interface User {
     id: number;
     name: string;

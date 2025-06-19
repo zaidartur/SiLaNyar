@@ -50,30 +50,6 @@ class PembayaranController extends Controller
         }
     }
 
-
-    // public function index()
-    // {
-    //     /** @var \App\Models\User */
-    //     $user = Auth::user();
-
-    //     $idInstansi = $user->instansi()->pluck('id')->toArray();
-
-    //     $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'user'])
-    //         ->where('id_instansi', $idInstansi)
-    //         ->get();
-
-    //     $totalBiaya = $this->hitungTotalBiaya($pengajuan->id);
-
-    //     return Inertia::render('customer/pembayaran/Index', [
-    //         'pengajuan' => $pengajuan,
-    //         'totalBiaya' => $totalBiaya,
-    //         'detailPembayaran' => [
-    //             'kategori' => $pengajuan->kategori,
-    //             'parameter' => $pengajuan->parameter,
-    //         ]
-    //     ]);
-    // }
-
     public function show($id)
     {
         /** @var \App\Models\User $user */
@@ -141,6 +117,13 @@ class PembayaranController extends Controller
 
         $validated = $request->validate([
             'metode_pembayaran' => 'required|in:tunai,transfer',
+            'bukti_pembayaran' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
+        ], [
+            'metode_pembayaran.required' => 'Metode Pembayaran Wajib Diisi.',
+            'metode_pembayaran.in' => 'Metode Pembayaran Tidak Valid.',
+            'bukti_pembayaran.image' => 'Bukti Pembayaran Harus Berupa Gambar.',
+            'bukti_pembayaran.mimes' => 'Format Bukti Pembayaran Tidak Valid.',
+            'bukti_pembayaran.max' => 'Ukuran Bukti Pembayaran Maksimal 2MB.', 
         ]);
 
         if ($validated['metode_pembayaran'] === 'transfer') {
@@ -158,7 +141,7 @@ class PembayaranController extends Controller
 
         $totalBiaya = $this->hitungTotalBiaya($pengajuan);
 
-        $idOrder = $pengajuan->pembayaran->id_order ?? 'INV-' . strtoupper(Str::random(10));
+        $idOrder = $pengajuan->pembayaran->id_order ?? 'ORD-' . strtoupper(Str::random(10));
 
         $data = [
             'id_order' => $idOrder,

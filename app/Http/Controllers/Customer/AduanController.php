@@ -16,7 +16,6 @@ use Inertia\Inertia;
 
 class AduanController extends Controller
 {
-
     public function create(HasilUji $hasil_uji)
     {
         $user = Auth::user();
@@ -42,6 +41,11 @@ class AduanController extends Controller
             'masalah' => 'required|string',
             'perbaikan' => 'required|string',
             'terkait' => 'required|in:administrasi,pengujian',
+        ], [
+            'masalah.required' => 'Masalah Wajib Diisi.',
+            'perbaikan.required' => 'Perbaikan Wajib Diisi.',
+            'terkait.required' => 'Terkait Wajib Diisi.',
+            'terkait.in' => 'Terkait Tidak Valid.',
         ]);
 
         Aduan::create([

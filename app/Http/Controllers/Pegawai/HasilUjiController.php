@@ -102,6 +102,14 @@ class HasilUjiController extends Controller
             'hasil.*.id_parameter' => 'required|exists:parameter_uji,id',
             'hasil.*.nilai' => 'nullable|string',
             'hasil.*.keterangan' => 'nullable|string|max:255',
+        ], [
+            'id_pengujian.required' => 'Pengujian Wajib Diisi.',
+            'id_pengujian.exists' => 'Data Pengujian Tidak Ditemukan.',
+            'hasil.required' => 'Data Hasil Wajib Diisi.',
+            'hasil.array' => 'Format Hasil Uji Tidak Valid.',
+            'hasil.*.id_parameter.required' => 'Parameter Wajib Diisi.',
+            'hasil.*.id_parameter.exists' => 'Parameter Tidak Ditemukan.',
+            'hasil.*.keterangan.max' => 'Keterangan Maksimal 255 Karakter.',
         ]);
 
         DB::beginTransaction();
@@ -225,6 +233,12 @@ class HasilUjiController extends Controller
             'hasil.*.id_parameter' => 'required|exists:parameter_uji,id',
             'hasil.*.nilai' => 'nullable|string',
             'hasil.*.keterangan' => 'nullable|string|max:255',
+        ], [
+            'hasil.required' => 'Data Hasil Wajib Diisi.',
+            'hasil.array' => 'Format Hasil Uji Tidak Valid.',
+            'hasil.*.id_parameter.required' => 'Parameter Wajib Diisi.',
+            'hasil.*.id_parameter.exists' => 'Parameter Tidak Ditemukan.',
+            'hasil.*.keterangan.max' => 'Keterangan Maksimal 255 Karakter.',
         ]);
 
         DB::beginTransaction();

@@ -28,7 +28,7 @@ class KategoriSeeder extends Seeder
         // $airLindi = Kategori::firstOrCreate(['nama' => 'Baku Mutu Air Lindi Berdasarkan Permen LHK No.59 Tahun 2016']);
         $tahuTempe = Kategori::firstOrCreate(['nama' => 'Baku Mutu Air Limbah Tahu dan Tempe Berdasarkan Perda Jateng No.5 Tahun 2012', 'harga' => 250000]);
         // $sungai = Kategori::firstOrCreate(['nama' => 'Baku Mutu Air Sungai Berdasarkan PP No.22 Tahun 2021']);
-        $kayuLapis = Kategori::firstOrCreate(['nama' => 'Baku Mutu Industri Kayu Lapis Berdasarkan Permen LHK No.5 Tahun 2014', 'harga' => 490000]);
+        // $kayuLapis = Kategori::firstOrCreate(['nama' => 'Baku Mutu Industri Kayu Lapis Berdasarkan Permen LHK No.5 Tahun 2014', 'harga' => 490000]);
 
         $bihun = SubKategori::where('nama', 'Bihun')->first();
         $soun = SubKategori::where('nama', 'Soun')->first();
