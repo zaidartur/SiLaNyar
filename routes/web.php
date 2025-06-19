@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Auth;
 
 if (app()->environment('local')) {
     Route::get('/dev-login', function () {
-        $user = \App\Models\User::find(3);
+        $user = \App\Models\User::find(1);
 
         if (!$user) {
             abort(404, 'User not found');
