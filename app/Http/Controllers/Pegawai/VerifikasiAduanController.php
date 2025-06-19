@@ -52,6 +52,9 @@ class VerifikasiAduanController extends Controller
             $aduan->hasil_uji->pengujian->update([
                 'status' => 'diproses',
             ]);
+            $aduan->hasil_uji->update([
+                'status' => 'revisi',
+            ]);
         } else {
             $aduan->hasil_uji->update([
                 'status' => 'proses_peresmian'

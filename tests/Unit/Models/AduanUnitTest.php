@@ -64,6 +64,7 @@ class AduanUnitTest extends TestCase
             'kode_aduan',
             'id_hasil_uji',
             'id_user',
+            'terkait',
             'masalah',
             'perbaikan',
             'status',

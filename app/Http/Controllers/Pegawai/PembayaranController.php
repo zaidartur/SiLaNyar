@@ -49,11 +49,12 @@ class PembayaranController extends Controller
             'status_pembayaran' => 'required|in:diproses,selesai,gagal',
         ]);
 
-        if ($pembayaran->status_pembayaran === 'belum_dibayar') {
-            return Redirect::back()->with('error', 'Verifikasi Pembayaran Tidak Dapat Dilakukan');
-        }
-
         if ($pembayaran->form_pengajuan->status_pengajuan !== 'diterima') {
+          return Redirect::back()->with('error', 'Verifikasi Pembayaran Hanya Bisa Dilakukan Jika Status Pengajuan Telah Diterima!');
+        }
+        // Only prevent verification if status is 'belum_dibayar' and trying to change to 'selesai'
+        if($pembayaran->status_pembayaran === 'belum_dibayar' && $request->status_pembayaran === 'selesai') 
+        {
             return Redirect::back()->with('error', 'Verifikasi Pembayaran Tidak Dapat Dilakukan');
         }
 

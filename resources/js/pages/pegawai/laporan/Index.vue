@@ -1,58 +1,92 @@
 <script setup lang="ts">
-import { Bar } from 'vue-chartjs'
-import {
-    Chart as ChartJS,
-    Title,
-    Tooltip,
-    Legend,
-    BarElement,
-    CategoryScale,
-    LinearScale,
-} from 'chart.js'
+import BarChart from '@/components/BarChart.vue';
+import AdminLayout from '@/layouts/admin/AdminLayout.vue';
+import { Head, usePage } from '@inertiajs/vue3';
 
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
-
-// Contoh data, ganti dengan data dari backend jika ada
-const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun']
-const dataKeuangan = [1200000, 1500000, 900000, 2000000, 1700000, 2100000]
-
-const chartData = {
-    labels,
-    datasets: [
-        {
-            label: 'Pendapatan (Rp)',
-            backgroundColor: '#16a34a',
-            data: dataKeuangan,
-        },
-    ],
+interface LaporanKeuanganItem {
+    id: number;
+    tanggal_pembayaran: string | null;
+    total_biaya: number;
+    form_pengajuan?: {
+        kode_pengajuan?: string;
+        instansi?: {
+            nama?: string;
+        };
+    };
 }
 
-const chartOptions = {
-    responsive: true,
-    plugins: {
-        legend: { display: true },
-        title: {
-            display: true,
-            text: 'Laporan Keuangan per Bulan',
-            font: { size: 18 }
-        },
-    },
-    scales: {
-        y: {
-            beginAtZero: true,
-            ticks: {
-                callback: (value: number) => 'Rp ' + value.toLocaleString('id-ID')
-            }
-        }
-    }
+interface DiagramData {
+    label: string[];
+    data: {
+        label: string;
+        backgroundColor: string;
+        borderColor: string;
+        data: number[];
+        fill: boolean;
+        tension: number;
+    };
 }
+
+const page = usePage();
+
+const laporanKeuangan = (page.props.laporan_keuangan as LaporanKeuanganItem[]) || [];
+const totalPemasukan = (page.props.total_pemasukan as number) || 0;
+const diagram = (page.props.diagram as DiagramData) || { label: [], data: {} };
 </script>
 
 <template>
-    <div class="p-8 max-w-3xl mx-auto">
-        <h1 class="text-2xl font-bold mb-6 text-customDarkGreen">Laporan Keuangan</h1>
-        <div class="bg-white rounded-xl shadow p-6">
-            <Bar :data="chartData" :options="chartOptions" />
+    <Head title="Laporan Keuangan" />
+    <AdminLayout>
+        <div class="container mx-auto p-4">
+            <h1 class="mb-4 text-2xl font-bold">Laporan Keuangan</h1>
+
+            <!-- Total Pemasukan -->
+            <div class="mb-6">
+                <span class="font-semibold">Total Pemasukan:</span>
+                <span class="text-lg font-bold text-green-700">Rp {{ totalPemasukan.toLocaleString('id-ID') }}</span>
+            </div>
+
+            <!-- Diagram -->
+            <div class="mb-8 rounded bg-white p-4 shadow" style="height: 350px">
+                <BarChart
+                    :data="{
+                        labels: diagram.label,
+                        datasets: [
+                            {
+                                ...diagram.data,
+                                backgroundColor: 'rgba(46, 125, 50, 0.6)',
+                                borderColor: 'rgba(46, 125, 50, 1)',
+                                borderWidth: 3,
+                            },
+                        ],
+                    }"
+                    :options="{ responsive: true, maintainAspectRatio: false }"
+                />
+            </div>
+
+            <!-- Tabel Laporan -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full rounded bg-white shadow">
+                    <thead>
+                        <tr>
+                            <th class="border px-4 py-2">Tanggal</th>
+                            <th class="border px-4 py-2">Kode Pengajuan</th>
+                            <th class="border px-4 py-2">Instansi</th>
+                            <th class="border px-4 py-2">Total Biaya</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="item in laporanKeuangan" :key="item.id">
+                            <td class="border px-4 py-2">
+                                {{ item.tanggal_pembayaran ? new Date(item.tanggal_pembayaran).toLocaleDateString('id-ID') : '-' }}
+                            </td>
+                            <td class="border px-4 py-2">{{ item.form_pengajuan?.kode_pengajuan || '-' }}</td>
+                            <td class="border px-4 py-2">{{ item.form_pengajuan?.instansi?.nama || '-' }}</td>
+                            <td class="border px-4 py-2 text-right">Rp {{ Number(item.total_biaya).toLocaleString('id-ID') }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
+    </AdminLayout>
 </template>

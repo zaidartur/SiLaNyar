@@ -139,8 +139,9 @@ class SubKategoriController extends Controller
                 $query->withPivot('baku_mutu');
             }
         ])
-            ->findOrFail($id)
-            ->get();
+
+            ->get()
+            ->findOrFail($id);
 
         return Inertia::render('pegawai/subkategori/Detail', [
             'subkategori' => $subkategori

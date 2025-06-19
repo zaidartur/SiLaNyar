@@ -44,7 +44,11 @@ class JadwalController extends Controller
     //form tambah jadwal
     public function create()
     {
-        $form_pengajuan = FormPengajuan::with('instansi')->where('metode_pengambilan', 'diambil')->get();
+        $form_pengajuan = FormPengajuan::with('instansi')
+            ->where('metode_pengambilan', 'diambil')
+            ->whereDoesntHave('jadwal') // Exclude pengajuan that already have jadwal
+            ->get();
+            
         $user = User::whereHas('roles', function ($query) {
             $query->where('name', 'teknisi');
         })->get();
@@ -195,7 +199,7 @@ class JadwalController extends Controller
         }
 
         if ($jadwal->form_pengajuan->metode_pengambilan === 'diantar') {
-            return Redirect::back()->withErrors('Jadwal Tidak Dapat Dihapus, Jika Status Masih Proses');
+            return Redirect::back()->withErrors('Jadwal Tidak Dapat Dihapus, Karena Metode Pengambilan Diantar');
         }
 
         $jadwal->delete();

@@ -13,35 +13,33 @@
             margin: 0;
             padding: 20px;
         }
-        
         .container {
             max-width: 1000px;
             margin: 0 auto;
         }
-        
-        h1, h2, h3 {
+
+        h1,
+        h2,
+        h3 {
             color: #333;
         }
-        
+
         h1 {
             font-size: 24px;
             border-bottom: 2px solid #333;
             padding-bottom: 5px;
             margin-bottom: 20px;
         }
-        
         h2 {
             font-size: 20px;
             margin-top: 25px;
             margin-bottom: 15px;
         }
-        
         h3 {
             font-size: 16px;
             margin-top: 20px;
             margin-bottom: 10px;
         }
-        
         .info-box {
             background-color: #f8f8f8;
             border: 1px solid #ddd;
@@ -49,35 +47,31 @@
             padding: 15px;
             margin-bottom: 20px;
         }
-        
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 10px;
         }
-        
         .parameter-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
         }
-        
         .parameter-table th,
         .parameter-table td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
         }
-        
         .parameter-table th {
             background-color: #333;
             color: white;
         }
-        
+
         .parameter-table tr:nth-child(even) {
             background-color: #f2f2f2;
         }
-        
+
         .confidential {
             position: fixed;
             top: 40%;
@@ -94,9 +88,8 @@
 
 <body>
     @if ($is_customer)
-        <div class="confidential">CONFIDENTIAL - CUSTOMER</div>
+    <div class="confidential">CONFIDENTIAL - CUSTOMER</div>
     @endif
-    
     <div class="container">
         <h1>Hasil Uji #{{ $hasil_uji->id }}</h1>
         <p>Tanggal: {{ $tanggal }}</p>
@@ -161,19 +154,19 @@
                 </thead>
                 <tbody>
                     @foreach ($hasil_uji->pengujian->parameter_uji as $index => $param)
-                        <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td>{{ $param->nama_parameter ?? '-' }}</td>
-                            <td>{{ $param->pivot->nilai ?? '-' }}</td>
-                            <td>{{ $param->satuan ?? '-' }}</td>
-                            <td>{{ $param->baku_mutu ?? '-' }}</td>
-                            <td>{{ $param->pivot->keterangan ?? '-' }}</td>
-                        </tr>
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $param->nama_parameter ?? '-' }}</td>
+                        <td>{{ $param->pivot->nilai ?? '-' }}</td>
+                        <td>{{ $param->satuan ?? '-' }}</td>
+                        <td>{{ $param->baku_mutu ?? '-' }}</td>
+                        <td>{{ $param->pivot->keterangan ?? '-' }}</td>
+                    </tr>
                     @endforeach
                     @if(count($hasil_uji->pengujian->parameter_uji) === 0)
-                        <tr>
-                            <td colspan="6" style="text-align: center;">Tidak ada parameter.</td>
-                        </tr>
+                    <tr>
+                        <td colspan="6" style="text-align: center;">Tidak ada parameter.</td>
+                    </tr>
                     @endif
                 </tbody>
             </table>

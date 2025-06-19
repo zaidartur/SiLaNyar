@@ -76,11 +76,11 @@ class DashboardController extends Controller
                 ],
                 [
                     'label' => 'Pembayaran',
-                    'status' => $pilihPengajuan->pembayaran && $pilihPengajuan->pembayaran->status === 'lunas',
-                    'tanggal' => $pilihPengajuan->pembayaran && $pilihPengajuan->pembayaran->status === 'lunas' ? $pilihPengajuan->pembayaran->updated_at->format('d-m-Y') : 'menunggu',
+                    'status' => $pilihPengajuan->pembayaran && $pilihPengajuan->pembayaran->status === 'diterima',
+                    'tanggal' => $pilihPengajuan->pembayaran && $pilihPengajuan->pembayaran->status === 'diterima' ? $pilihPengajuan->pembayaran->updated_at->format('d-m-Y') : 'menunggu',
                 ],
                 [
-                    'label' => 'Proses Pengantaran/pengambilan',
+                    'label' => 'Jadwal Sampel',
                     'status' => $pilihPengajuan->status_pengajuan === 'diterima' && $pilihPengajuan->jadwal && $pilihPengajuan->jadwal->status === 'diproses',
                     'tanggal' => $pilihPengajuan->jadwal && $pilihPengajuan->jadwal->status === 'diproses' ? $pilihPengajuan->jadwal->created_at->format('d-m-Y') : 'menunggu'
                 ],

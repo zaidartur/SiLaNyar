@@ -21,7 +21,6 @@ const formatTanggal = (tanggalStr: string) => {
 
     <Head title="Detail Histori Hasil Uji" />
     <AdminLayout>
-        <pre>{{ JSON.stringify(data_parameter, null, 2) }}</pre>
         <div class="max-w-4xl mx-auto p-6">
             <h1 class="text-2xl font-bold mb-4 text-customDarkGreen">Detail Histori Hasil Uji</h1>
             <div class="bg-white rounded-xl border shadow p-6 mb-6">
@@ -69,23 +68,25 @@ const formatTanggal = (tanggalStr: string) => {
                     <table class="min-w-full rounded border">
                         <thead class="bg-customDarkGreen text-white">
                             <tr>
-                                <th class="px-4 py-2">No</th>
+                                <th class="px-4 py-2 text-center">No</th>
                                 <th class="px-4 py-2">Parameter</th>
-                                <th class="px-4 py-2">Nilai</th>
-                                <th class="px-4 py-2">Baku Mutu</th>
+                                <th class="px-4 py-2 text-center">Nilai</th>
+                                <th class="px-4 py-2 text-center">Satuan</th>
+                                <th class="px-4 py-2 text-center">Baku Mutu</th>
                                 <th class="px-4 py-2">Keterangan</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-if="!data_parameter || data_parameter.length === 0">
-                                <td colspan="5" class="py-4 text-center text-gray-400">Tidak ada data parameter.</td>
+                                <td colspan="6" class="py-4 text-center text-gray-400">Tidak ada data parameter.</td>
                             </tr>
-                            <tr v-for="(param, idx) in data_parameter" :key="idx">
+                            <tr v-for="(param, idx) in data_parameter" :key="param.id_parameter ?? idx">
                                 <td class="px-4 py-2 text-center">{{ idx + 1 }}</td>
                                 <td class="px-4 py-2">{{ param.nama_parameter }}</td>
-                                <td class="px-4 py-2">{{ param.nilai ?? '-' }}</td>
-                                <td class="px-4 py-2">{{ param.baku_mutu ?? '-' }}</td>
-                                <td class="px-4 py-2">{{ param.keterangan ?? '-' }}</td>
+                                <td class="px-4 py-2 text-center">{{ param.nilai ?? '-' }}</td>
+                                <td class="px-4 py-2 text-center">{{ param.satuan ?? '-' }}</td>
+                                <td class="px-4 py-2 text-center">{{ param.baku_mutu ?? '-' }}</td>
+                                <td class="px-4 py-2 text-center">{{ param.keterangan ?? '-' }}</td>
                             </tr>
                         </tbody>
                     </table>

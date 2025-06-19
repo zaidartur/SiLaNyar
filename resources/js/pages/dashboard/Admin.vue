@@ -15,9 +15,10 @@ defineProps<{
 </script>
 
 <template>
+
     <Head title="Admin" />
     <AdminLayout>
-        <div class="bg-[#D9D9D9] h-full p-6 rounded-xl">
+        <div class="bg-[#D9D9D9] min-h-screen w-full mx-auto p-4 sm:p-6 lg:p-8 rounded-xl">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8">
                 <!-- Card Pengajuan -->
                 <div class="bg-white p-8 rounded-xl shadow-md flex items-center gap-6 min-h-[120px]">

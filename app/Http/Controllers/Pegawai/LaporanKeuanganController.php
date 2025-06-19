@@ -113,9 +113,48 @@ class LaporanKeuanganController extends Controller
             }
         }
 
-        // Get the actual data list (not grouped) and total income
-        $laporanKeuangan = $query->orderByDesc('tanggal_pembayaran')->get();
-        $totalPemasukan = (clone $query)->sum('total_biaya');
+        // pisahkan query utama diagram (biarkan seperti semula)
+        $laporanKeuangan = Pembayaran::with([
+            'form_pengajuan:id,kode_pengajuan,id_instansi',
+            'form_pengajuan.instansi:id,nama',
+            'form_pengajuan.instansi.user:id,nama',
+        ])
+            ->where('status_pembayaran', 'selesai');
+
+        // tambahkan kembali filter sesuai periode
+        if ($periode === 'bulanan' && $request->filled(['bulan', 'tahun_bulanan'])) {
+            $bulan = $request->input('bulan');
+            $tahun = $request->input('tahun_bulanan');
+            $laporanKeuangan->whereYear('tanggal_pembayaran', $tahun)
+                ->whereMonth('tanggal_pembayaran', $bulan);
+        } elseif ($periode === 'tahunan' && $request->filled('tahun_tahunan')) {
+            $tahun = $request->input('tahun_tahunan');
+            $laporanKeuangan->whereYear('tanggal_pembayaran', $tahun);
+        } elseif ($periode === 'rentang_tanggal' && $request->filled(['tanggal_mulai', 'tanggal_akhir'])) {
+            $tanggalMulai = $request->input('tanggal_mulai');
+            $tanggalAkhir = $request->input('tanggal_akhir');
+            $laporanKeuangan->whereBetween('tanggal_pembayaran', [$tanggalMulai, $tanggalAkhir]);
+        }
+
+        $laporanKeuangan = $laporanKeuangan->orderByDesc('tanggal_pembayaran')->get();
+
+        $totalPemasukanQuery = Pembayaran::where('status_pembayaran', 'selesai');
+
+        if ($periode === 'bulanan' && $request->filled(['bulan', 'tahun_bulanan'])) {
+            $bulan = $request->input('bulan');
+            $tahun = $request->input('tahun_bulanan');
+            $totalPemasukanQuery->whereYear('tanggal_pembayaran', $tahun)
+                ->whereMonth('tanggal_pembayaran', $bulan);
+        } elseif ($periode === 'tahunan' && $request->filled('tahun_tahunan')) {
+            $tahun = $request->input('tahun_tahunan');
+            $totalPemasukanQuery->whereYear('tanggal_pembayaran', $tahun);
+        } elseif ($periode === 'rentang_tanggal' && $request->filled(['tanggal_mulai', 'tanggal_akhir'])) {
+            $tanggalMulai = $request->input('tanggal_mulai');
+            $tanggalAkhir = $request->input('tanggal_akhir');
+            $totalPemasukanQuery->whereBetween('tanggal_pembayaran', [$tanggalMulai, $tanggalAkhir]);
+        }
+
+        $totalPemasukan = $totalPemasukanQuery->sum('total_biaya');
 
         // Prepare filter data with proper data types
         $filterData = $request->all();

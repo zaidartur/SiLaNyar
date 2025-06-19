@@ -13,8 +13,9 @@ class AduanFactory extends Factory
         return [
             'id_hasil_uji' => HasilUji::factory(),
             'id_user' => User::factory(),
-            'masalah' => fake()->sentence(8), // Lebih pendek
-            'perbaikan' => fake()->sentence(15), // Lebih pendek dari paragraph
+            'terkait' => fake()->randomElement(['administrasi', 'pengujian']),
+            'masalah' => fake()->sentence(8),
+            'perbaikan' => fake()->sentence(15),
             'status' => fake()->randomElement(['diterima_administrasi', 'diterima_pengujian', 'ditolak']),
             'diverifikasi_oleh' => fake()->optional()->name(),
         ];

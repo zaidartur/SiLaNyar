@@ -35,7 +35,7 @@ interface HasilUji {
     };
 }
 
-defineProps<{
+const props = defineProps<{
     hasil_uji: HasilUji;
     parameter_pengujian: ParameterPengujian[];
 }>();
@@ -51,15 +51,21 @@ const statusLabels = {
 function kembali() {
     window.history.back();
 }
+
+function bukaPDF() {
+    window.open(route('hasil_uji.convert', props.hasil_uji.id), '_blank')
+}
 </script>
 
 <template>
     <CustomerLayout>
         <div class="min-h-screen bg-gray-200 py-8">
+
             <Head title="Detail Hasil Uji" />
 
             <div class="mx-auto max-w-4xl space-y-8 py-8">
-                <h1 class="mb-1 inline-block w-fit border-b-2 border-customDarkGreen pb-2 text-3xl font-bold text-customDarkGreen">
+                <h1
+                    class="mb-1 inline-block w-fit border-b-2 border-customDarkGreen pb-2 text-3xl font-bold text-customDarkGreen">
                     Detail Hasil Uji
                 </h1>
 
@@ -127,7 +133,8 @@ function kembali() {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(item, index) in parameter_pengujian" :key="item.id_parameter" class="hover:bg-gray-50">
+                                <tr v-for="(item, index) in parameter_pengujian" :key="item.id_parameter"
+                                    class="hover:bg-gray-50">
                                     <td class="border px-4 py-2 text-center">{{ index + 1 }}</td>
                                     <td class="border px-4 py-2">{{ item.nama_parameter }}</td>
                                     <td class="border px-4 py-2">{{ item.nilai ?? '-' }}</td>
@@ -141,10 +148,21 @@ function kembali() {
                             </tbody>
                         </table>
                     </div>
+                    <div class="flex justify-end mt-8">
+                        <button @click="bukaPDF"
+                            class="flex items-center px-6 py-3 bg-customDarkGreen hover:bg-green-600 text-white font-semibold rounded-lg shadow transition duration-200">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Download PDF
+                        </button>
+                    </div>
                 </div>
 
                 <div class="flex justify-end gap-2">
-                    <button @click="kembali" class="rounded bg-gray-200 px-4 py-2 font-semibold text-black">Kembali</button>
+                    <button @click="kembali"
+                        class="rounded bg-customDarkGreen px-4 py-2 font-semibold text-white">Kembali</button>
                 </div>
             </div>
         </div>
