@@ -231,7 +231,7 @@ class PengajuanController extends Controller
         ]);
     }
 
-    //proses update pengajuan uji lab customer
+//proses update pengajuan uji lab customer
     public function update(Request $request, FormPengajuan $pengajuan)
     {
         /** @var \App\Models\User $user */
@@ -326,7 +326,7 @@ class PengajuanController extends Controller
                     'id_user' => $user->id,
                     'waktu_pengambilan' => $validated['waktu_pengambilan'],
                     'keterangan' => $validated['keterangan'] ?? null,
-                    'status' => 'selesai'
+                    'status' => 'diproses'
                 ]);
             } else {
                 Jadwal::create([
@@ -334,7 +334,7 @@ class PengajuanController extends Controller
                     'id_user' => $user->id,
                     'waktu_pengambilan' => $validated['waktu_pengambilan'],
                     'keterangan' => $validated['keterangan'] ?? null,
-                    'status' => 'selesai'
+                    'status' => 'diproses'
                 ]);
             }
         } else {
