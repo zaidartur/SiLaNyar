@@ -1,25 +1,20 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuUserDashboard } from '@/components/ui/dropdown-menu';
 import CustomerLayout from '@/layouts/customer/CustomerLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 const props = defineProps<{
     jadwalAmbilTerbaru: any[];
 }>();
 
-const filterOptions = ref([
-    { label: 'Belum Dijadwalkan', value: 'belum dijadwalkan' },
-    { label: 'Diproses', value: 'diproses' },
-    { label: 'Selesai', value: 'selesai' },
-]);
-
 const selectedFilter = ref('all');
 
-const handleFilterChange = (value: string) => {
-    selectedFilter.value = value;
-};
+const filteredJadwal = computed(() => {
+    if (selectedFilter.value === 'all') return props.jadwalAmbilTerbaru;
+    return props.jadwalAmbilTerbaru.filter(
+        item => item.status === selectedFilter.value
+    );
+});
 
 const formatTanggal = (tanggalStr: string) => {
     if (!tanggalStr) return '-';
@@ -59,27 +54,13 @@ const formatTanggal = (tanggalStr: string) => {
             <!-- Header -->
             <div class="mb-4 flex items-center justify-between">
                 <h1 class="text-2xl font-bold">Jadwal Penjemputan</h1>
-                <DropdownMenu>
-                    <DropdownMenuTrigger :as-child="true">
-                        <Button variant="ghost"
-                            class="flex items-center gap-2 rounded-lg border bg-white px-4 py-2 hover:bg-gray-50">
-                            <span>Filter</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuUserDashboard align="end" class="bg-customDarkGreen z-40 w-36">
-                        <div class="py-1">
-                            <button v-for="option in filterOptions" :key="option.value"
-                                @click="handleFilterChange(option.value)"
-                                class="flex w-full items-center gap-2 rounded-lg px-4 py-2 text-left hover:bg-customDarkGreen"
-                                :class="{ 'bg-customDarkGreen': selectedFilter === option.value }">
-                                <i v-if="selectedFilter === option.value" class="fas fa-check w-4 text-green-500"></i>
-                                <span v-else class="w-4"></span>
-                                {{ option.label }}
-                            </button>
-                        </div>
-                    </DropdownMenuUserDashboard>
-                </DropdownMenu>
+                <div class="mb-4 flex items-center justify-between">
+                    <select v-model="selectedFilter" class="rounded-md border px-4 py-2 text-sm">
+                        <option value="all">Semua Status</option>
+                        <option value="diproses">Diproses</option>
+                        <option value="diterima">Diterima</option>
+                    </select>
+                </div>
             </div>
 
             <!-- Table Jadwal Penjemputan -->
@@ -101,10 +82,10 @@ const formatTanggal = (tanggalStr: string) => {
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
-                        <tr v-if="!props.jadwalAmbilTerbaru || props.jadwalAmbilTerbaru.length === 0">
+                        <tr v-if="!filteredJadwal.length">
                             <td colspan="9" class="py-4 text-center text-gray-400">Tidak ada data penjemputan.</td>
                         </tr>
-                        <tr v-for="(item, index) in props.jadwalAmbilTerbaru" :key="item.id || index">
+                        <tr v-for="(item, index) in filteredJadwal" :key="item.id || index">
                             <td class="px-6 py-4">{{ item.kode_pengambilan }}</td>
                             <td class="px-6 py-4">{{ item.form_pengajuan?.kode_pengajuan }}</td>
                             <td class="px-6 py-4">{{ item.form_pengajuan?.instansi?.nama }}</td>
@@ -115,7 +96,7 @@ const formatTanggal = (tanggalStr: string) => {
                             <td class="px-6 py-4">
                                 <span :class="[
                                     'rounded px-2 py-1 text-xs font-semibold',
-                                    item.status === 'selesai' ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white',
+                                    item.status === 'diterima' ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white',
                                 ]">
                                     {{ item.status }}
                                 </span>

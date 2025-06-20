@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 interface User {
     id: number;
@@ -46,29 +46,31 @@ const props = defineProps<{
     pengajuan: Pengajuan[];
     filter: {
         status: string;
-        tanggal: string;
     };
 }>();
 
 const status = ref(props.filter.status ?? '');
-const tanggal = ref(props.filter.tanggal ?? '');
 
 const handleFilter = () => {
     router.get(
         '/pegawai/pengajuan',
         {
-            status: status.value,
-            tanggal: tanggal.value,
+            status: status.value || undefined,
         },
         {
             preserveState: true,
-            preserveScroll: true,
+            replace: true,
         },
     );
 };
+
+watch([status], () => {
+    handleFilter();
+});
 </script>
 
 <template>
+
     <Head title="Daftar Pengujian" />
     <AdminLayout>
         <div class="p-6">
@@ -83,31 +85,15 @@ const handleFilter = () => {
             <!-- Filter -->
             <div class="mb-6 flex items-end gap-4">
                 <!-- Status Filter -->
-                <div class="flex w-40 flex-col">
-                    <label for="status" class="mb-1 text-sm font-medium text-gray-700">Pilih Status:</label>
-                    <select
-                        id="status"
-                        v-model="status"
-                        class="rounded border-gray-300 bg-customDarkGreen px-2 py-1 text-white"
-                        @change="handleFilter"
-                    >
-                        <option disabled value="">Pilih Status</option>
+                <div class="flex flex-col">
+                    <label for="status" class="mb-1 text-sm font-medium text-gray-700">Status</label>
+                    <select id="status" v-model="status"
+                        class="rounded border-gray-300 bg-customDarkGreen px-2 py-1 text-white">
+                        <option value="">Semua Status</option>
                         <option value="proses_validasi">Proses Validasi</option>
-                        <option value="diterima">Di Terima</option>
-                        <option value="ditolak">Di Tolak</option>
+                        <option value="diterima">Diterima</option>
+                        <option value="ditolak">Ditolak</option>
                     </select>
-                </div>
-
-                <!-- Tanggal Filter -->
-                <div class="flex w-40 flex-col">
-                    <label for="tanggal" class="mb-1 text-sm font-medium text-gray-700">Tanggal:</label>
-                    <input
-                        id="tanggal"
-                        type="date"
-                        v-model="tanggal"
-                        class="rounded border-gray-300 bg-customDarkGreen px-2 py-1 text-white"
-                        @change="handleFilter"
-                    />
                 </div>
             </div>
 
@@ -129,7 +115,8 @@ const handleFilter = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(item, index) in props.pengajuan" :key="item.id" :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-200'">
+                        <tr v-for="(item, index) in props.pengajuan" :key="item.id"
+                            :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-200'">
                             <td class="border-b px-4 py-3">{{ item.kode_pengajuan }}</td>
                             <td class="border-b px-4 py-3">{{ item.instansi.user.nama }}</td>
                             <td class="border-b px-4 py-3">{{ item.instansi?.nama ?? '-' }}</td>
@@ -145,26 +132,26 @@ const handleFilter = () => {
                             <td class="border-b px-4 py-3">{{ item.volume_sampel }}</td>
                             <td class="border-b px-4 py-3">{{ item.metode_pengambilan }}</td>
                             <td class="border-b px-4 py-3">
-                                <span
-                                    :class="[
+                                <span :class="[
                                         'inline-block min-w-[110px] rounded-full px-2 py-1 text-center text-xs font-semibold',
                                         item.status_pengajuan === 'diterima'
                                             ? 'border border-green-400 bg-green-100 text-green-700'
                                             : item.status_pengajuan === 'ditolak'
                                               ? 'border border-red-400 bg-red-100 text-red-700'
                                               : 'border border-yellow-400 bg-yellow-100 text-yellow-800',
-                                    ]"
-                                >
+                                    ]">
                                     {{ item.status_pengajuan.replace('_', ' ').toUpperCase() }}
                                 </span>
                             </td>
                             <td class="border-b px-4 py-3">
                                 <div class="flex gap-2">
-                                    <Link :href="route('pegawai.pengajuan.detail', item.id)" class="text-blue-500 hover:text-blue-700" title="Lihat">
-                                        <span>👁️</span>
+                                    <Link :href="route('pegawai.pengajuan.detail', item.id)"
+                                        class="text-blue-500 hover:text-blue-700" title="Lihat">
+                                    <span>👁️</span>
                                     </Link>
-                                    <Link :href="route('pegawai.pengajuan.edit', item.id)" class="text-yellow-500 hover:text-yellow-700" title="Edit">
-                                        <span>✏️</span>
+                                    <Link :href="route('pegawai.pengajuan.edit', item.id)"
+                                        class="text-yellow-500 hover:text-yellow-700" title="Edit">
+                                    <span>✏️</span>
                                     </Link>
                                 </div>
                             </td>

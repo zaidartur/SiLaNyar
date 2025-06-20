@@ -28,15 +28,22 @@ class PengajuanController extends Controller
     }
 
     //lihat daftar pengajuan dari pegawai
-    public function index()
+    public function index(Request $request)
     {
+        $searchByStatus = $request->input('status');
+
         $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'instansi.user', 'jenis_cairan'])
+            ->when($searchByStatus, function ($query, $status) {
+                $query->where('status_pengajuan', $status);
+            })
             ->orderByDesc('updated_at')
             ->get();
 
         return Inertia::render('pegawai/pengajuan/Index', [
             'pengajuan' => $pengajuan,
-            'filter' => request()->all()
+            'filter' => [
+                'status' => $searchByStatus
+            ]
         ]);
     }
 
@@ -77,7 +84,7 @@ class PengajuanController extends Controller
                 'status_pengajuan' => 'required|in:diterima,ditolak'
             ];
 
-            if ($request->status_pengajuan === 'diterima' && $pengajuan->metode_pengambilan === 'diantar') {
+            if ($pengajuan->metode_pengambilan === 'diantar') {
                 $rules['id_kategori'] = 'required|exists:kategori,id';
                 $rules['parameter'] = 'required|array';
                 $rules['parameter.*'] = 'exists:parameter_uji,id';
@@ -87,16 +94,13 @@ class PengajuanController extends Controller
 
             $pengajuan->status_pengajuan = $validated['status_pengajuan'];
 
-            if ($pengajuan->metode_pengambilan === 'diantar' && $request->status_pengajuan === 'diterima') {
-                // Validate that all selected parameters belong to the selected category
+            if ($pengajuan->metode_pengambilan === 'diantar') {
                 $kategori = Kategori::with('parameter', 'subkategori.parameter')->find($validated['id_kategori']);
                 
                 $allowedParameterIds = collect();
                 if ($kategori) {
-                    // Get direct parameters from category
                     $allowedParameterIds = $allowedParameterIds->merge($kategori->parameter->pluck('id'));
                     
-                    // Get parameters from subcategories
                     foreach ($kategori->subkategori as $subkategori) {
                         $allowedParameterIds = $allowedParameterIds->merge($subkategori->parameter->pluck('id'));
                     }
@@ -104,7 +108,6 @@ class PengajuanController extends Controller
                 
                 $allowedParameterIds = $allowedParameterIds->unique();
                 
-                // Check if all selected parameters are allowed for this category
                 $invalidParameters = collect($validated['parameter'])->diff($allowedParameterIds);
                 
                 if ($invalidParameters->isNotEmpty()) {
@@ -113,80 +116,30 @@ class PengajuanController extends Controller
                         ->withInput();
                 }
 
-                // Update category and sync parameters
                 $pengajuan->id_kategori = $validated['id_kategori'];
                 $pengajuan->parameter()->sync($validated['parameter']);
 
-                // Create payment record with default transfer method
                 Pembayaran::updateOrCreate(
                     ['id_form_pengajuan' => $pengajuan->id],
                     [
                         'id_order' => 'INV-' . strtoupper(Str::random(10)) . '-' . time(),
                         'total_biaya' => $this->hitungTotalBiaya($pengajuan),
-                        'metode_pembayaran' => 'transfer', // Default to transfer
-                        'status_pembayaran' => 'diproses',
+                        'metode_pembayaran' => 'transfer',
+                        'status_pembayaran' => 'belum_dibayar',
                     ]
                 );
             }
 
             $pengajuan->save();
 
-            $idOrder = $pengajuan->pembayaran->id_order ?? 'ORD-' . strtoupper(Str::random(10));
-
-            if ($pengajuan->metode_pengambilan === 'diantar') {
-                Pembayaran::createOrUpdate([
-                    'id_order' => $idOrder,
-                    'id_form_pengajuan' => $pengajuan->id,
-                    'total_biaya' => $this->hitungTotalBiaya($pengajuan),
-                    'status_pembayaran' => 'belum_dibayar',
-                ]);
-            }
             return redirect()->route('pegawai.pengajuan.index')
                 ->with('message', 'Pengajuan Telah ' . ucfirst($request->status_pengajuan) . '!');
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', 'Terjadi kesalahan saat memproses pengajuan: ' . $e->getMessage())
                 ->withInput();
-        }
-    }
-
-    public function updateKategoriParameter($id, Request $request)
-    {
-        try {
-            $pengajuan = FormPengajuan::with(['kategori.parameter', 'kategori.subkategori.parameter', 'parameter'])->findOrFail($id);
-
-            if ($pengajuan->metode_pengambilan !== 'diantar' && $pengajuan->status_pengajuan !== 'diterima') {
-                return redirect()->back()->with('error', 'Kategori dan parameter hanya bisa diubah jika pengajuan sudah diterima dan metode pengambilan adalah "diantar".');
             }
-
-            $validated = $request->validate([
-                'id_kategori' => 'required|exists:kategori,id',
-                'parameter' => 'required|array|min:1',
-                'parameter.*' => 'exists:parameter,id',
-            ]);
-
-            $pengajuan->id_kategori = $validated['id_kategori'];
-            $pengajuan->parameter()->sync($validated['parameter']);
-            $pengajuan->save();
-
-            $idOrder = $pengajuan->pembayaran->id_order ?? 'ORD-' . strtoupper(Str::random(10));
-
-            // Update biaya jika dibutuhkan
-            Pembayaran::updateOrCreate(
-                ['id_form_pengajuan' => $pengajuan->id],
-                [
-                    'id_order' => $idOrder,
-                    'total_biaya' => $this->hitungTotalBiaya($pengajuan),
-                    'status_pembayaran' => 'belum_dibayar',
-                ]
-            );
-
-            return redirect()->back()->with('message', 'Kategori dan parameter berhasil diperbarui.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-    }
-
 
     public function destroy(FormPengajuan $pengajuan)
     {
