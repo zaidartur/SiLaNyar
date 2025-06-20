@@ -25,7 +25,7 @@ interface Jadwal {
     form_pengajuan: Pengajuan;
     user: User;
     waktu_pengambilan: string;
-    status: 'diproses' | 'selesai';
+    status: 'diproses' | 'diterima';
     keterangan: string;
 }
 
@@ -130,7 +130,7 @@ const submit = () => {
                     <label class="block text-sm font-medium">Status</label>
                     <select v-model="form.status" class="w-full rounded border border-gray-300 p-2">
                         <option value="diproses">Diproses</option>
-                        <option value="selesai">Diterima</option>
+                        <option value="diterima">Diterima</option>
                     </select>
                     <div v-if="form.errors.status" class="mt-1 text-sm text-red-500">
                         {{ form.errors.status }}

@@ -29,7 +29,7 @@ interface Jadwal {
     form_pengajuan: Pengajuan;
     user: User;
     waktu_pengambilan: string;
-    status: 'diproses' | 'selesai';
+    status: 'diproses' | 'diterima';
     keterangan: string;
 }
 
@@ -125,7 +125,7 @@ const can = (permission: string): boolean => {
     <AdminLayout>
         <div class="p-6">
             <div class="mb-6 flex items-center justify-between">
-                <h1 class="text-2xl font-bold text-black">DAFTAR PENGAMBILAN</h1>
+                <h1 class="text-2xl font-bold text-black">JADWAL PENGAMBILAN DAN PENGANTARAN</h1>
                 <Link
                     v-if="can('tambah pengambilan')"
                     href="/pegawai/pengambilan/create"
@@ -147,7 +147,7 @@ const can = (permission: string): boolean => {
                     <select id="status" v-model="status" class="rounded border-gray-300 bg-customDarkGreen px-2 py-1 text-white">
                         <option value="">Semua Status</option>
                         <option value="diproses">Diproses</option>
-                        <option value="selesai">Selesai</option>
+                        <option value="diterima">Diterima</option>
                     </select>
                 </div>
                 <div class="flex flex-col">
@@ -186,7 +186,7 @@ const can = (permission: string): boolean => {
                                 <span
                                     :class="[
                                         'rounded px-2 py-1 text-xs font-semibold',
-                                        item.status === 'selesai' ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white',
+                                        item.status === 'diterima' ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white',
                                     ]"
                                 >
                                     {{ item.status }}

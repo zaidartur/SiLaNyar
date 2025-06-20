@@ -8,6 +8,12 @@ const props = defineProps<{
     from: string;
 }>();
 
+const isPengantaran = computed(() => props.from === 'pengantaran');
+
+const labelWaktu = computed(() =>
+    isPengantaran.value ? 'Waktu Pengantaran:' : 'Waktu Pengambilan:'
+);
+
 const formatTanggal = (tanggalStr: string) => {
     if (!tanggalStr) return '-';
     const date = new Date(tanggalStr);
@@ -23,6 +29,7 @@ const backLink = computed(() => `/customer/jadwal/${props.from}`);
 </script>
 
 <template>
+
     <Head title="Detail Jadwal" />
     <CustomerLayout>
         <div class="mx-auto max-w-3xl p-4">
@@ -54,7 +61,9 @@ const backLink = computed(() => `/customer/jadwal/${props.from}`);
                         <span class="ml-2">{{ props.jadwal.form_pengajuan?.metode_pengambilan ?? '-' }}</span>
                     </div>
                     <div>
-                        <span class="font-bold text-customDarkGreen">Waktu Pengantaran:</span>
+                        <span class="font-bold text-customDarkGreen">
+                            {{ labelWaktu }}
+                        </span>
                         <span class="ml-2">{{ formatTanggal(props.jadwal.waktu_pengambilan) }}</span>
                     </div>
                     <div>
@@ -68,7 +77,8 @@ const backLink = computed(() => `/customer/jadwal/${props.from}`);
                 </div>
             </div>
             <div class="flex justify-end">
-                <Link :href="backLink" class="mr-2 rounded bg-gray-200 px-4 py-2 font-semibold text-black">Kembali</Link>
+                <Link :href="backLink" class="mr-2 rounded bg-gray-200 px-4 py-2 font-semibold text-black">Kembali
+                </Link>
             </div>
         </div>
     </CustomerLayout>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue'
+import { Link } from '@inertiajs/vue3'
 import { defineProps } from 'vue'
 
 interface User {
@@ -97,6 +98,14 @@ const props = defineProps<{
                         {{ param.nama_parameter }}
                     </li>
                 </ul>
+            </div>
+
+            <!-- Button Kembali -->
+            <div class="mt-8">
+                <Link href="/pegawai/pengajuan"
+                    class="inline-block rounded bg-gray-300 px-4 py-2 font-semibold text-black hover:bg-gray-400">
+                Kembali ke Daftar Pengajuan
+                </Link>
             </div>
         </div>
     </AdminLayout>
