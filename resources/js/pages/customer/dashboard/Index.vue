@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import CustomerLayout from '@/layouts/customer/CustomerLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { defineProps } from 'vue';
+import { defineProps, ref, computed } from 'vue';
 
 interface StatusItem {
     label: string;
@@ -71,6 +71,15 @@ interface PilihPengajuan {
 
 // const showStepPembayaran = ref(false)
 
+const statusFilter = ref<string>(''); // '' = semua
+
+const filteredPengajuan = computed(() => {
+    if (!statusFilter.value) return props.pengajuan;
+    return props.pengajuan.filter(
+        (item) => item.status_pengajuan === statusFilter.value
+    );
+});
+
 const props = defineProps<{
     statusList: StatusItem[];
     statistik: Statistik;
@@ -81,6 +90,7 @@ const props = defineProps<{
 </script>
 
 <template>
+
     <Head title="Dashboard" />
     <CustomerLayout>
         <div class="mx-auto max-w-7xl space-y-6 p-6">
@@ -111,10 +121,12 @@ const props = defineProps<{
                     <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
                         <div class="flex items-center justify-between border-b p-4">
                             <div class="relative">
-                                <button class="rounded-md border px-4 py-2 text-sm">
-                                    Filter
-                                    <span class="ml-2">▼</span>
-                                </button>
+                                <select v-model="statusFilter" class="rounded-md border px-4 py-2 text-sm">
+                                    <option value="">Semua Status</option>
+                                    <option value="proses_validasi">Belum Terverifikasi</option>
+                                    <option value="diterima">Diterima</option>
+                                    <option value="ditolak">Ditolak</option>
+                                </select>
                             </div>
                         </div>
                         <div class="relative overflow-x-auto">
@@ -122,24 +134,28 @@ const props = defineProps<{
                                 <thead class="bg-green-50">
                                     <tr>
                                         <th class="border px-4 py-3 text-left text-sm font-bold text-green-700">ID</th>
-                                        <th class="border px-4 py-3 text-left text-sm font-bold text-green-700">Jenis Cairan</th>
-                                        <th class="border px-4 py-3 text-left text-sm font-bold text-green-700">Volume Sampel</th>
-                                        <th class="border px-4 py-3 text-left text-sm font-bold text-green-700">Kategori</th>
-                                        <th class="border px-4 py-3 text-left text-sm font-bold text-green-700">Metode Pengambilan</th>
-                                        <th class="border px-4 py-3 text-left text-sm font-bold text-green-700">Lokasi</th>
-                                        <th class="border px-4 py-3 text-left text-sm font-bold text-green-700">Status</th>
-                                        <th class="border px-4 py-3 text-left text-sm font-bold text-green-700">Aksi</th>
+                                        <th class="border px-4 py-3 text-left text-sm font-bold text-green-700">Jenis
+                                            Cairan</th>
+                                        <th class="border px-4 py-3 text-left text-sm font-bold text-green-700">Volume
+                                            Sampel</th>
+                                        <th class="border px-4 py-3 text-left text-sm font-bold text-green-700">Kategori
+                                        </th>
+                                        <th class="border px-4 py-3 text-left text-sm font-bold text-green-700">Metode
+                                            Pengambilan</th>
+                                        <th class="border px-4 py-3 text-left text-sm font-bold text-green-700">Lokasi
+                                        </th>
+                                        <th class="border px-4 py-3 text-left text-sm font-bold text-green-700">Status
+                                        </th>
+                                        <th class="border px-4 py-3 text-left text-sm font-bold text-green-700">Aksi
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200">
-                                    <tr v-for="item in props.pengajuan" :key="item.id">
+                                    <tr v-for="item in filteredPengajuan" :key="item.id">
                                         <td class="px-6 py-4 text-black">
-                                            <Link
-                                                :href="route('customer.dashboard', { id: item.id })"
-                                                class="text-blue-600 hover:underline"
-                                                preserve-scroll
-                                            >
-                                                {{ item.kode_pengajuan }}
+                                            <Link :href="route('customer.dashboard', { id: item.id })"
+                                                class="text-blue-600 hover:underline" preserve-scroll>
+                                            {{ item.kode_pengajuan }}
                                             </Link>
                                         </td>
                                         <td class="border px-4 py-3 text-sm">{{ item.jenis_cairan?.nama }}</td>
@@ -148,26 +164,29 @@ const props = defineProps<{
                                         <td class="border px-4 py-3 text-sm">{{ item.metode_pengambilan }}</td>
                                         <td class="border px-4 py-3 text-sm">{{ item.lokasi }}</td>
                                         <td class="border px-4 py-3 text-sm">
-                                            <span
-                                                :class="{
+                                            <span :class="{
                                                     'bg-yellow-100 text-yellow-600': item.status_pengajuan === 'proses_validasi',
                                                     'bg-red-100 text-red-600': item.status_pengajuan === 'ditolak',
                                                     'bg-green-100 text-green-600': item.status_pengajuan === 'diterima',
-                                                }"
-                                                class="rounded-full px-2 py-1 text-xs"
-                                            >
+                                                }" class="rounded-full px-2 py-1 text-xs">
                                                 {{ item.status_pengajuan }}
                                             </span>
                                         </td>
                                         <td class="border px-4 py-3 text-sm">
                                             <div class="flex space-x-2">
-                                                <Link :href="route('customer.pengajuan.detail', item.id)" class="text-blue-500">
-                                                    <span>👁️</span>
+                                                <Link :href="route('customer.pengajuan.detail', item.id)"
+                                                    class="text-blue-500">
+                                                <span>👁️</span>
                                                 </Link>
-                                                <Link :href="route('customer.pengajuan.edit', item.id)" class="text-yellow-500">
-                                                    <span>✏️</span>
+                                                <Link :href="route('customer.pengajuan.edit', item.id)"
+                                                    class="text-yellow-500">
+                                                <span>✏️</span>
                                                 </Link>
                                             </div>
+                                        </td>
+                                    </tr>
+                                    <tr v-if="filteredPengajuan.length === 0">
+                                        <td colspan="8" class="text-center py-6 text-gray-500">Tidak ada data pengajuan.
                                         </td>
                                     </tr>
                                 </tbody>
@@ -176,7 +195,7 @@ const props = defineProps<{
                     </div>
                     <!-- Ringkasan Pembayaran Card -->
                     <div class="rounded bg-white p-4 shadow">
-                        <h2 class="mb-4 text-lg font-semibold">Rincian Pembayaran</h2>
+                        <h2 class="mb-4 text-lg font-semibold">Pembayaran</h2>
 
                         <div v-if="props.pembayaran.length > 0">
                             <div class="relative overflow-x-auto">
@@ -195,46 +214,42 @@ const props = defineProps<{
                                         <tr v-for="p in props.pembayaran" :key="p.id" class="hover:bg-gray-50">
                                             <td class="border p-2">#{{ p.id_order }}</td>
                                             <td class="border p-2">Rp {{ p.total_biaya.toLocaleString() }}</td>
-                                            <td
-                                                class="border p-2 capitalize"
-                                                :class="{
+                                            <td class="border p-2 capitalize" :class="{
                                                     'text-green-600': p.status_pembayaran === 'selesai',
                                                     'text-yellow-600': p.status_pembayaran === 'diproses',
                                                     'text-red-600': p.status_pembayaran === 'gagal',
-                                                }"
-                                            >
+                                                }">
                                                 {{ p.status_pembayaran }}
                                             </td>
                                             <td class="border p-2">{{ p.metode_pembayaran ?? '-' }}</td>
-                                            <td class="border p-2">{{ new Date(p.updated_at).toLocaleDateString('id-ID') }}</td>
+                                            <td class="border p-2">{{ new Date(p.updated_at).toLocaleDateString('id-ID')
+                                                }}</td>
                                             <td class="border p-2">
                                                 <!-- Button aktif hanya untuk status yang bukan 'selesai' dan 'diproses' -->
                                                 <Link
                                                     v-if="p.status_pembayaran !== 'selesai' && p.status_pembayaran !== 'diproses'"
                                                     :href="route('customer.pembayaran.show', p.id)"
-                                                    class="rounded bg-customDarkGreen px-3 py-1 text-xs text-white hover:bg-green-600"
-                                                >
-                                                    Bayar
+                                                    class="rounded bg-customDarkGreen px-3 py-1 text-xs text-white hover:bg-green-600">
+                                                Bayar
                                                 </Link>
 
                                                 <!-- Button disabled untuk status 'diproses' -->
-                                                <span
-                                                    v-else-if="p.status_pembayaran === 'diproses'"
+                                                <span v-else-if="p.status_pembayaran === 'diproses'"
                                                     class="cursor-not-allowed rounded bg-gray-400 px-3 py-1 text-xs text-white"
-                                                    title="Pembayaran sedang diproses"
-                                                >
+                                                    title="Pembayaran sedang diproses">
                                                     Diproses
                                                 </span>
 
                                                 <!-- Status lunas -->
-                                                <span v-else class="text-xs text-gray-400">Lunas</span>
+                                                <span v-else class="text-xs text-blue-400">Lunas</span>
                                             </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-                        <div v-else class="text-gray-500">Belum ada pembayaran atau status pengajuan belum diterima!</div>
+                        <div v-else class="text-gray-500">Belum ada pembayaran atau status pengajuan belum diterima!
+                        </div>
                     </div>
                 </div>
 

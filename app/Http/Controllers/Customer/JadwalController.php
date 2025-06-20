@@ -112,10 +112,12 @@ class JadwalController extends Controller
     {
         $user = Auth::user();
 
-        $jadwal = Jadwal::whereHas('form_pengajuan', function ($query) use ($user) {
-            $query->where('id_user', $user->id);
+        $jadwal = Jadwal::whereHas('form_pengajuan.instansi', function ($query) use ($user) {
+            $query->whereHas('user', function ($q) use ($user) {
+                $q->where('id', $user->id);
+            });
         })
-        ->with([
+            ->with([
                 'form_pengajuan',
                 'form_pengajuan.kategori',
                 'form_pengajuan.instansi',
@@ -124,7 +126,8 @@ class JadwalController extends Controller
             ->findOrFail($id);
 
         return Inertia::render('customer/jadwal/Detail', [
-            'jadwal' => $jadwal
+            'jadwal' => $jadwal,
+            'from' => request()->query('from', 'penjemputan')
         ]);
     }
 }

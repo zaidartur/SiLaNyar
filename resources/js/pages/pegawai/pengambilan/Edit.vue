@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue';
-import { router, useForm } from '@inertiajs/vue3';
+import { router, useForm, Head } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 interface User {
@@ -84,6 +84,7 @@ const submit = () => {
 </script>
 
 <template>
+    <Head title="Edit Jadwal Pengambilan" />
     <AdminLayout>
         <div class="space-y-6 p-6">
             <h1 class="text-2xl font-bold text-black">Edit Jadwal Pengambilan</h1>
@@ -129,7 +130,7 @@ const submit = () => {
                     <label class="block text-sm font-medium">Status</label>
                     <select v-model="form.status" class="w-full rounded border border-gray-300 p-2">
                         <option value="diproses">Diproses</option>
-                        <option value="selesai">Selesai</option>
+                        <option value="selesai">Diterima</option>
                     </select>
                     <div v-if="form.errors.status" class="mt-1 text-sm text-red-500">
                         {{ form.errors.status }}

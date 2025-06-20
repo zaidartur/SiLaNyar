@@ -55,6 +55,7 @@ const props = defineProps<{
 </script>
 
 <template>
+
     <Head title="Detail Pengajuan" />
     <CustomerLayout>
         <div class="mx-auto max-w-3xl rounded-xl bg-white p-6 shadow-lg">
@@ -74,30 +75,27 @@ const props = defineProps<{
                 <div class="flex flex-col gap-1 rounded-lg bg-gray-50 p-4 shadow-lg">
                     <span class="text-xs text-gray-500">Status Pengajuan</span>
                     <span class="flex items-center gap-2 text-lg font-semibold capitalize">
-                        <span
-                            v-if="props.pengajuan.status_pengajuan === 'diterima'"
-                            class="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-sm font-semibold text-green-700"
-                        >
-                            <svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <span v-if="props.pengajuan.status_pengajuan === 'diterima'"
+                            class="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-sm font-semibold text-green-700">
+                            <svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" stroke-width="2"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                             </svg>
                             diterima
                         </span>
-                        <span
-                            v-else-if="props.pengajuan.status_pengajuan === 'proses_validasi'"
-                            class="inline-flex items-center rounded-full bg-yellow-100 px-2 py-1 text-sm font-semibold text-yellow-700"
-                        >
-                            <svg class="mr-1 h-4 w-4 animate-spin" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <span v-else-if="props.pengajuan.status_pengajuan === 'proses_validasi'"
+                            class="inline-flex items-center rounded-full bg-yellow-100 px-2 py-1 text-sm font-semibold text-yellow-700">
+                            <svg class="mr-1 h-4 w-4 animate-spin" fill="none" stroke="currentColor" stroke-width="2"
+                                viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" />
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                             </svg>
                             Proses
                         </span>
-                        <span
-                            v-else-if="props.pengajuan.status_pengajuan === 'ditolak'"
-                            class="inline-flex items-center rounded-full bg-red-100 px-2 py-1 text-sm font-semibold text-red-700"
-                        >
-                            <svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <span v-else-if="props.pengajuan.status_pengajuan === 'ditolak'"
+                            class="inline-flex items-center rounded-full bg-red-100 px-2 py-1 text-sm font-semibold text-red-700">
+                            <svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" stroke-width="2"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                             </svg>
                             Ditolak
@@ -144,16 +142,22 @@ const props = defineProps<{
                 <ul class="ml-2 list-inside list-disc text-black">
                     <li v-for="param in props.pengajuan.parameter" :key="param.id">
                         {{ param.nama_parameter }}
-                        <span class="ml-2 text-xs text-gray-500"> Rp {{ Number(param.harga ?? 0).toLocaleString('id-ID') }} </span>
+                        <span class="ml-2 text-xs text-gray-500"> Rp {{ Number(param.harga ?? 0).toLocaleString('id-ID')
+                            }} </span>
                     </li>
                     <li v-if="!props.pengajuan.parameter.length" class="text-gray-400">Tidak ada parameter</li>
                 </ul>
+                <div class="mt-4 flex justify-end font-semibold text-green-800">
+                    Total Harga: Rp {{
+                        props.pengajuan.parameter
+                            .reduce((total, param) => total + Number(param.harga ?? 0), 0)
+                            .toLocaleString('id-ID')
+                    }}
+                </div>
             </div>
             <div class="mt-8 flex justify-end">
-                <a
-                    href="/customer/dashboard"
-                    class="inline-flex items-center rounded-lg bg-customDarkGreen px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-green-800"
-                >
+                <a href="/customer/dashboard"
+                    class="inline-flex items-center rounded-lg bg-customDarkGreen px-4 py-2 text-sm font-semibold text-white shadow transition hover:bg-green-800">
                     <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                     </svg>

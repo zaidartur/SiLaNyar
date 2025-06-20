@@ -114,15 +114,16 @@ const formatTanggal = (tanggalStr: string) => {
                             <td class="px-6 py-4">{{ item.keterangan }}</td>
                             <td class="px-6 py-4">
                                 <span :class="[
-                                            'rounded px-2 py-1 text-xs font-semibold',
-                                            item.status === 'selesai' ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white',
-                                        ]">
+                                    'rounded px-2 py-1 text-xs font-semibold',
+                                    item.status === 'selesai' ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white',
+                                ]">
                                     {{ item.status }}
                                 </span>
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex gap-2">
-                                    <Link :href="route('customer.jadwal.detail', [item.id]) + '?from=penjemputan'" class="text-blue-500">
+                                    <Link :href="route('customer.jadwal.detail', { id: item.id, from: 'penjemputan' })"
+                                        class="text-blue-500">
                                     <span>👁️</span>
                                     </Link>
                                 </div>
