@@ -86,7 +86,7 @@ Route::prefix('customer')->middleware(['auth:web', 'role:customer'])->group(func
     Route::get('jadwal/penjemputan', [CustomerJadwalController::class, 'penjemputan'])->name('customer.jadwal.penjemputan');
     Route::get('jadwal/pengantaran', [CustomerJadwalController::class, 'pengantaran'])->name('customer.jadwal.pengantaran');
     Route::get('jadwal/{id}', [CustomerJadwalController::class, 'show'])->name('customer.jadwal.detail');
-
+    
     //fitur pengajuan
     Route::get('pengajuan', [CustomerPengajuanController::class, 'index'])->name('customer.pengajuan.index');
     Route::post('pengajuan/store', [CustomerPengajuanController::class, 'store'])->name('customer.pengajuan.store');

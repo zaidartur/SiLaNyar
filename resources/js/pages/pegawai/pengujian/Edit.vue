@@ -71,7 +71,7 @@ const submit = () => {
                 <div class="mb-6 flex items-center justify-between">
                     <h1 class="text-2xl font-bold text-gray-800">Edit Pengujian</h1>
                     <Link
-                        :href="route('pegawai.pengujian.detail', props.pengujian.id)"
+                        :href="route('pegawai.pengujian.index')"
                         class="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
                     >
                         Kembali

@@ -57,25 +57,25 @@ function afterEditInstansi() {
     // opsional: reload data instansi
 }
 
-const showDeleteInstansiModal = ref(false);
-const deletingInstansi = ref<any | null>(null);
+// const showDeleteInstansiModal = ref(false);
+// const deletingInstansi = ref<any | null>(null);
 
-function openDeleteInstansiModal(item) {
-    deletingInstansi.value = item;
-    showDeleteInstansiModal.value = true;
-}
-function closeDeleteInstansiModal() {
-    showDeleteInstansiModal.value = false;
-    deletingInstansi.value = null;
-}
-function handleDeleteInstansi() {
-    if (!deletingInstansi.value) return;
-    router.delete(`/customer/profile/instansi/${deletingInstansi.value.id}`, {
-        onSuccess: () => {
-            closeDeleteInstansiModal();
-        },
-    });
-}
+// function openDeleteInstansiModal(item) {
+//     deletingInstansi.value = item;
+//     showDeleteInstansiModal.value = true;
+// }
+// function closeDeleteInstansiModal() {
+//     showDeleteInstansiModal.value = false;
+//     deletingInstansi.value = null;
+// }
+// function handleDeleteInstansi() {
+//     if (!deletingInstansi.value) return;
+//     router.delete(`/customer/profile/instansi/${deletingInstansi.value.id}`, {
+//         onSuccess: () => {
+//             closeDeleteInstansiModal();
+//         },
+//     });
+// }
 
 const showEditProfileModal = ref(false);
 
@@ -186,7 +186,7 @@ const toggleEditProfileModal = () => {
                                                             </defs>
                                                         </svg>
                                                     </button>
-                                                    <button class="p-1 text-red-400 hover:text-red-600" @click="openDeleteInstansiModal(item)">
+                                                    <!-- <button class="p-1 text-red-400 hover:text-red-600" @click="openDeleteInstansiModal(item)">
                                                         <svg
                                                             width="25"
                                                             height="25"
@@ -214,7 +214,7 @@ const toggleEditProfileModal = () => {
                                                                 />
                                                             </defs>
                                                         </svg>
-                                                    </button>
+                                                    </button> -->
                                                 </div>
                                             </div>
                                         </div>
@@ -254,7 +254,7 @@ const toggleEditProfileModal = () => {
                         </div>
 
                         <!-- Modal Delete Instansi -->
-                        <Dialog :open="showDeleteInstansiModal" @update:open="closeDeleteInstansiModal">
+                        <!-- <Dialog :open="showDeleteInstansiModal" @update:open="closeDeleteInstansiModal">
                             <DialogContent
                                 class="fixed left-1/2 top-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 transform rounded-lg bg-white p-6 shadow-xl"
                             >
@@ -293,7 +293,7 @@ const toggleEditProfileModal = () => {
                                     </button>
                                 </div>
                             </DialogContent>
-                        </Dialog>
+                        </Dialog> -->
 
                         <!-- Modal Edit Profile -->
                         <Dialog :open="showEditProfileModal" @update:open="showEditProfileModal = false">

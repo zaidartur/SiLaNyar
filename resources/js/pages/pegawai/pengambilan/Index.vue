@@ -136,7 +136,7 @@ const can = (permission: string): boolean => {
             </div>
             <div class="mb-4">
                 <div class="rounded border-l-4 border-yellow-500 bg-yellow-100 p-3 text-yellow-700">
-                    Jika metode pengambilan <span class="font-bold">diambil</span>, maka harus tambah dulu.
+                    Jika metode pengambilan <span class="font-bold">diambil</span>, maka harus tambah pengambilan terlebih dahulu.
                 </div>
             </div>
 

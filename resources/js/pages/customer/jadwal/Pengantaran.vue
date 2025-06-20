@@ -21,7 +21,6 @@ const handleFilterChange = (value: string) => {
     selectedFilter.value = value;
 };
 
-
 const formatTanggal = (tanggalStr: string) => {
     if (!tanggalStr) return '-'
     const date = new Date(tanggalStr)
@@ -134,7 +133,7 @@ const formatTanggal = (tanggalStr: string) => {
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex gap-2">
-                                    <Link :href="route('customer.jadwal.detail', [item.id]) + '?from=pengantaran'" class="text-blue-500">
+                                    <Link :href="`/customer/jadwal/${item.id}?from=pengantaran`" class="text-blue-500">
                                     <span>👁️</span>
                                     </Link>
                                 </div>

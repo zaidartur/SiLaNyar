@@ -5,6 +5,7 @@ import { computed } from 'vue';
 
 const props = defineProps<{
     jadwal: any;
+    from: string;
 }>();
 
 const formatTanggal = (tanggalStr: string) => {
@@ -18,11 +19,7 @@ const formatTanggal = (tanggalStr: string) => {
 };
 
 // Ambil query parameter "from" dari URL
-const from = computed(() => {
-    const url = new URL(window.location.href);
-    const value = url.searchParams.get('from');
-    return ['penjemputan', 'pengantaran'].includes(value ?? '') ? value : 'penjemputan';
-});
+const backLink = computed(() => `/customer/jadwal/${props.from}`);
 </script>
 
 <template>
@@ -57,7 +54,7 @@ const from = computed(() => {
                         <span class="ml-2">{{ props.jadwal.form_pengajuan?.metode_pengambilan ?? '-' }}</span>
                     </div>
                     <div>
-                        <span class="font-bold text-customDarkGreen">Waktu Pengambilan:</span>
+                        <span class="font-bold text-customDarkGreen">Waktu Pengantaran:</span>
                         <span class="ml-2">{{ formatTanggal(props.jadwal.waktu_pengambilan) }}</span>
                     </div>
                     <div>
@@ -71,7 +68,7 @@ const from = computed(() => {
                 </div>
             </div>
             <div class="flex justify-end">
-                <Link :href="`/customer/jadwal/${from}`" class="mr-2 rounded bg-gray-200 px-4 py-2 font-semibold text-black">Kembali</Link>
+                <Link :href="backLink" class="mr-2 rounded bg-gray-200 px-4 py-2 font-semibold text-black">Kembali</Link>
             </div>
         </div>
     </CustomerLayout>
