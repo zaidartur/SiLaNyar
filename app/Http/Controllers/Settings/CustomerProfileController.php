@@ -174,7 +174,7 @@ class CustomerProfileController extends Controller
         ]);
     }
 
-    public function updateInstansi(Instansi $instansi, Request $request)
+public function updateInstansi(Instansi $instansi, Request $request)
     {
         $user = Auth::user();
 
@@ -192,8 +192,8 @@ class CustomerProfileController extends Controller
             'no_telepon' => ['required', 'string', 'regex:/^(08|\+62|62)[0-9]{7,13}$/'],
             'posisi_jabatan' => 'required|string|max:255',
             'departemen_divisi' => 'required|string|max:255',
-            'surat_keterangan_penugasan' => 'required|file|mimes:pdf|max:2048',
-            'foto_kartu_identitas' => 'required|file|mimes:jpeg,jpg,png|max:2048',
+            'surat_keterangan_penugasan' => 'nullable|file|mimes:pdf|max:2048',
+            'foto_kartu_identitas' => 'nullable|file|mimes:jpeg,jpg,png|max:2048',
         ];
 
         if ($request->nama != $instansi->nama) {
@@ -225,11 +225,9 @@ class CustomerProfileController extends Controller
             'posisi_jabatan.max' => 'Posisi Atau Jabatan Max 255 Karakter.',
             'departemen_divisi.required' => 'Departemen Atau Divisi Wajib Diisi.',
             'depertemen_divisi.max' => 'Departemen Atau Divisi Max 255 Karakter.',
-            'surat_keterangan_penugasan.required' => 'Surat Keterangan Penugasan Wajib Diisi.',
             'surat_keterangan_penugasan.file' => 'Surat Keterangan Penugasan Harus Berupa File.',
             'surat_keterangan_penugasan.mimes' => 'Surat Keterangan Penugasan Harus BerFormat PDF.',
             'surat_keterangan_penugasan.max' => 'Surat Keterangan Penugasan Maksimal 2MB.',
-            'foto_kartu_identitas.required' => 'Foto Kartu Identitas Wajib Diisi.',
             'foto_kartu_identitas.file' => 'Foto Kartu Identitas Harus Berupa File.',
             'foto_kartu_identitas.mimes' => 'Foto Kartu Identitas Harus Berformat jpeg, jpg, png.',
             'foto_kartu_identitas.max' => 'Foto Kartu Identitas Maksimal 2MB.',
@@ -242,8 +240,10 @@ class CustomerProfileController extends Controller
             }
 
             $surat = $request->file('surat_keterangan_penugasan');
-            $suratFileName = 'surat_keterangan_' . $namaUser . '_' . $tanggal . '_' . $randomId . '.' . $surat->getClientOriginalExtension();
+            $suratFileName = 'surat_keterangan_' . $namaUser . '' . $tanggal . '' . $randomId . '.' . $surat->getClientOriginalExtension();
             $validatedData['surat_keterangan_penugasan'] = $surat->storeAs('surat_keterangan', $suratFileName, 'public');
+        } else {
+            $validatedData['surat_keterangan_penugasan'] = $instansi->surat_keterangan_penugasan;
         }
 
         if ($request->hasFile('foto_kartu_identitas')) {
@@ -252,8 +252,10 @@ class CustomerProfileController extends Controller
             }
 
             $foto = $request->file('foto_kartu_identitas');
-            $fotoFileName = 'foto_kartu_identitas_' . $namaUser . '_' . $tanggal . '_' . $randomId . '.'  . $foto->getClientOriginalExtension();
+            $fotoFileName = 'foto_kartu_identitas_' . $namaUser . '' . $tanggal . '' . $randomId . '.'  . $foto->getClientOriginalExtension();
             $validatedData['foto_kartu_identitas'] = $foto->storeAs('foto_kartu_identitas', $fotoFileName, 'public');
+        } else {
+            $validatedData['foto_kartu_identitas'] = $instansi->foto_kartu_identitas;
         }
 
         $validatedData['id_user'] = $user->id;
