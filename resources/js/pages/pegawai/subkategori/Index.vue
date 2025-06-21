@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue'
 import { Link, Head, router } from '@inertiajs/vue3'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 interface Parameter {
@@ -25,6 +25,34 @@ interface SubKategori {
 const props = defineProps<{
     subkategori: SubKategori[]
 }>()
+
+// Search & Pagination
+const search = ref('')
+const currentPage = ref(1)
+const pageSize = 5
+
+const filteredSubkategori = computed(() => {
+    if (!search.value) return props.subkategori
+    return props.subkategori.filter((item: SubKategori) =>
+        item.nama.toLowerCase().includes(search.value.toLowerCase()) ||
+        item.kode_subkategori.toLowerCase().includes(search.value.toLowerCase())
+    )
+})
+
+const paginatedSubkategori = computed(() => {
+    const start = (currentPage.value - 1) * pageSize
+    return filteredSubkategori.value.slice(start, start + pageSize)
+})
+
+const totalPages = computed(() =>
+    Math.ceil(filteredSubkategori.value.length / pageSize)
+)
+
+function goToPage(page: number) {
+    if (page >= 1 && page <= totalPages.value) {
+        currentPage.value = page
+    }
+}
 
 // Modal Delete
 const showDeleteModal = ref(false)
@@ -57,17 +85,22 @@ const handleDelete = () => {
         <div class="p-6">
             <div class="mb-6 flex items-center justify-between">
                 <h1 class="text-2xl font-bold text-black">SUBKATEGORI</h1>
-                <Link href="/pegawai/subkategori/create"
-                    class="flex items-center gap-2 rounded bg-green-600 px-4 py-2 text-white">
-                <span>+</span> Tambah
-                </Link>
+                <div class="flex flex-col md:flex-row gap-2 md:items-center">
+                    <input v-model="search" type="text" placeholder="Cari subkategori..."
+                        class="rounded border border-gray-300 px-3 py-2 text-sm" />
+                    <Link href="/pegawai/subkategori/create"
+                        class="flex items-center gap-2 rounded bg-green-600 px-4 py-2 text-white">
+                    <span>+</span> Tambah
+                    </Link>
+                </div>
             </div>
 
             <!-- Table -->
             <div class="overflow-x-auto rounded-lg shadow-md">
                 <table class="min-w-full bg-white divide-y divide-gray-300">
                     <thead>
-                        <tr class="bg-customDarkGreen text-white text-left text-sm font-semibold uppercase tracking-wider">
+                        <tr
+                            class="bg-customDarkGreen text-white text-left text-sm font-semibold uppercase tracking-wider">
                             <th class="px-6 py-3">ID Sub Kategori</th>
                             <th class="px-6 py-3">Nama Sub Kategori</th>
                             <th class="px-6 py-3">Nama Parameter (Baku Mutu)</th>
@@ -75,7 +108,7 @@ const handleDelete = () => {
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
-                        <tr v-for="(item, index) in props.subkategori" :key="item.id"
+                        <tr v-for="(item, index) in paginatedSubkategori" :key="item.id"
                             :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-200'">
                             <td class="px-6 py-4 text-black">{{ item.kode_subkategori }}</td>
                             <td class="px-6 py-4 text-black">{{ item.nama }}</td>
@@ -100,8 +133,26 @@ const handleDelete = () => {
                                 </div>
                             </td>
                         </tr>
+                        <tr v-if="paginatedSubkategori.length === 0">
+                            <td colspan="4" class="text-center text-gray-400 py-6">Tidak ada data subkategori.</td>
+                        </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-center items-center gap-2 mt-6">
+                <button class="px-3 py-1 rounded border text-sm"
+                    :class="currentPage === 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                    :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">
+                    Prev
+                </button>
+                <span class="text-sm">Halaman {{ currentPage }} dari {{ totalPages }}</span>
+                <button class="px-3 py-1 rounded border text-sm"
+                    :class="currentPage === totalPages ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                    :disabled="currentPage === totalPages" @click="goToPage(currentPage + 1)">
+                    Next
+                </button>
             </div>
 
             <!-- Delete Confirmation Modal -->

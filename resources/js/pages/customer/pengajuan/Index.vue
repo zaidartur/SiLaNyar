@@ -66,7 +66,11 @@ const volumePlaceholder = computed(() => {
 
 const isVolumeValid = computed(() => {
     if (!form.volume_sampel || !selectedJenisCairan.value) return false;
-    return form.volume_sampel >= selectedJenisCairan.value.batas_minimum;
+    return (
+        form.volume_sampel >= selectedJenisCairan.value.batas_minimum &&
+        (selectedJenisCairan.value.batas_maksimum === null ||
+            form.volume_sampel <= selectedJenisCairan.value.batas_maksimum)
+    );
 });
 
 // Validation functions
@@ -79,8 +83,15 @@ function validateStep1() {
 
     if (!form.volume_sampel) {
         errors.volume_sampel = 'Volume sampel harus diisi';
-    } else if (selectedJenisCairan.value && form.volume_sampel < selectedJenisCairan.value.batas_minimum) {
-        errors.volume_sampel = `Volume sampel minimal ${selectedJenisCairan.value.batas_minimum} ml`;
+    } else if (selectedJenisCairan.value) {
+        if (form.volume_sampel < selectedJenisCairan.value.batas_minimum) {
+            errors.volume_sampel = `Volume sampel minimal ${selectedJenisCairan.value.batas_minimum} ml`;
+        } else if (
+            selectedJenisCairan.value.batas_maksimum !== null &&
+            form.volume_sampel > selectedJenisCairan.value.batas_maksimum
+        ) {
+            errors.volume_sampel = `Volume sampel maksimal ${selectedJenisCairan.value.batas_maksimum} ml`;
+        }
     }
 
     if (!form.id_instansi) {

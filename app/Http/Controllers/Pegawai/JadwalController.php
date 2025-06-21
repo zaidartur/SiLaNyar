@@ -133,11 +133,11 @@ class JadwalController extends Controller
                 'status.in' => 'Status Tidak Valid.',
             ]);
 
-            $jadwal->update([
+            $update = $jadwal->update([
                 'status' => $request->status,
             ]);
 
-            return $jadwal->update
+            return $update
                 ? Redirect::route('pegawai.pengambilan.index')->with('message', 'Jadwal Berhasil Diupdate')
                 : Redirect::back()->withErrors('error', 'Gagal Melakukan Edit Jadwal');
         }
