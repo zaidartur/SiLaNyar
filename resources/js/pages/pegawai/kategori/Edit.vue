@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useForm } from '@inertiajs/vue3';
+import { useForm, Head } from '@inertiajs/vue3';
 // import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -86,9 +86,12 @@ const submit = () => {
 </script>
 
 <template>
+
+    <Head title="Edit Kategori" />
     <div class="h-screen w-full bg-white lg:grid lg:grid-cols-3">
         <!-- Left Side - Logo Section -->
-        <div class="hidden h-screen flex-col bg-customDarkGreen lg:col-span-1 lg:flex lg:items-center lg:justify-center">
+        <div
+            class="hidden h-screen flex-col bg-customDarkGreen lg:col-span-1 lg:flex lg:items-center lg:justify-center">
             <img src="/assets/assetsadmin/logodlh.png" alt="Logo DLH" class="mx-auto h-48 w-auto object-contain" />
             <div class="mt-6 text-center text-white">
                 <h2 class="mb-2 border-b border-white pb-2 text-2xl font-bold">SiLanYar</h2>
@@ -107,7 +110,8 @@ const submit = () => {
                     <!-- Nama Kategori -->
                     <div class="grid gap-2">
                         <Label for="nama">Nama Kategori</Label>
-                        <Input id="nama" v-model="form.nama" type="text" placeholder="Masukkan nama kategori" required />
+                        <Input id="nama" v-model="form.nama" type="text" placeholder="Masukkan nama kategori"
+                            required />
                         <span v-if="form.errors.nama" class="text-sm text-red-600">
                             {{ form.errors.nama }}
                         </span>
@@ -116,16 +120,8 @@ const submit = () => {
                     <!-- Harga -->
                     <div class="grid gap-2">
                         <Label for="harga">Harga</Label>
-                        <input
-                            id="harga"
-                            v-model="displayValue"
-                            @input="handleInput"
-                            @blur="formatOnBlur"
-                            type="text"
-                            placeholder="Harga"
-                            required
-                            class="w-full rounded border px-3 py-2"
-                        />
+                        <input id="harga" v-model="displayValue" @input="handleInput" @blur="formatOnBlur" type="text"
+                            placeholder="Harga" required class="w-full rounded border px-3 py-2" />
                         <div v-if="form.errors.harga" class="text-sm text-red-500">
                             {{ form.errors.harga }}
                         </div>
@@ -144,26 +140,31 @@ const submit = () => {
                     <!-- Parameter dan Baku Mutu -->
                     <div class="grid gap-2">
                         <Label>Parameter dan Baku Mutu</Label>
-                        <div v-for="(param, index) in form.parameter" :key="param.id" class="mb-2 flex items-center gap-2">
+                        <div v-for="(param, index) in form.parameter" :key="param.id"
+                            class="mb-2 flex items-center gap-2">
                             <input type="checkbox" v-model="param.checked" :id="'param-' + param.id" />
                             <label :for="'param-' + param.id" class="text-sm font-semibold">
                                 {{ props.parameter[index].nama_parameter }}
                             </label>
-                            <input
-                                v-model="param.baku_mutu"
-                                type="text"
-                                class="w-48 rounded border px-3 py-2"
-                                :disabled="!param.checked"
-                                placeholder="Baku Mutu"
-                            />
+                            <input v-model="param.baku_mutu" type="text" class="w-48 rounded border px-3 py-2"
+                                :disabled="!param.checked" placeholder="Baku Mutu" />
                             <div class="text-sm text-red-500">
-                                {{ param.checked ? (form.errors as any)[`parameter.${index}.baku_mutu`] : '' }}
+                                <template v-if="param.checked">
+                                    <template v-if="(form.errors as any)[`parameter.${index}.baku_mutu`]">
+                                        {{
+                                            (form.errors as any)[`parameter.${index}.baku_mutu`].includes('required')
+                                                ? 'Baku Mutu wajib diisi untuk parameter yang dipilih.'
+                                                : (form.errors as any)[`parameter.${index}.baku_mutu`]
+                                        }}
+                                    </template>
+                                </template>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <button type="submit" class="mb-8 w-full rounded bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700">Simpan</button>
+                <button type="submit"
+                    class="mb-8 w-full rounded bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700">Simpan</button>
             </form>
         </div>
     </div>

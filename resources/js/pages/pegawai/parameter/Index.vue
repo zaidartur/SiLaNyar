@@ -3,7 +3,7 @@ import AdminLayout from '@/layouts/admin/AdminLayout.vue'
 import TambahParameter from '@/components/form/admin/parameter/Tambah.vue'
 import EditParameter from '@/components/form/admin/parameter/Edit.vue'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 
 interface Parameter {
@@ -21,6 +21,33 @@ const props = defineProps<{
         tanggal: string;
     };
 }>();
+
+const search = ref('');
+const currentPage = ref(1);
+const pageSize = 10;
+
+const filteredParameter = computed(() => {
+    if (!search.value) return props.parameter;
+    return props.parameter.filter((item: Parameter) =>
+        item.nama_parameter.toLowerCase().includes(search.value.toLowerCase()) ||
+        item.kode_parameter?.toLowerCase().includes(search.value.toLowerCase())
+    );
+});
+
+const paginatedParameter = computed(() => {
+    const start = (currentPage.value - 1) * pageSize;
+    return filteredParameter.value.slice(start, start + pageSize);
+});
+
+const totalPages = computed(() =>
+    Math.ceil(filteredParameter.value.length / pageSize)
+);
+
+function goToPage(page: number) {
+    if (page >= 1 && page <= totalPages.value) {
+        currentPage.value = page;
+    }
+}
 
 // Modal Tambah
 const showTambahModal = ref(false)
@@ -71,10 +98,14 @@ const handleDelete = () => {
         <div class="p-6">
             <div class="mb-6 flex items-center justify-between">
                 <h1 class="text-2xl font-bold text-black">PARAMETER</h1>
-                <button @click="openTambahModal"
-                    class="flex items-center gap-2 rounded bg-green-600 px-4 py-2 text-white">
-                    <span>+</span> Tambah
-                </button>
+                <div class="flex flex-col md:flex-row gap-2 md:items-center">
+                    <input v-model="search" type="text" placeholder="Cari parameter..."
+                        class="rounded border border-gray-300 px-3 py-2 text-sm" />
+                    <button @click="openTambahModal"
+                        class="flex items-center gap-2 rounded bg-green-600 px-4 py-2 text-white">
+                        <span>+</span> Tambah
+                    </button>
+                </div>
                 <TambahParameter v-if="showTambahModal" @close="closeTambahModal" />
             </div>
 
@@ -82,7 +113,8 @@ const handleDelete = () => {
             <div class="overflow-x-auto rounded-lg shadow-md">
                 <table class="min-w-full bg-white divide-y divide-gray-300">
                     <thead>
-                        <tr class="bg-customDarkGreen text-white text-left text-sm font-semibold uppercase tracking-wider">
+                        <tr
+                            class="bg-customDarkGreen text-white text-left text-sm font-semibold uppercase tracking-wider">
                             <th class="px-6 py-3">ID Parameter</th>
                             <th class="px-6 py-3">Nama Parameter</th>
                             <th class="px-6 py-3">Satuan</th>
@@ -91,11 +123,12 @@ const handleDelete = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(item, index) in props.parameter" :key="item.id" :class="[
+                        <tr v-for="(item, index) in paginatedParameter" :key="item.id" :class="[
                             index % 2 === 0 ? 'bg-white' : 'bg-gray-200',
                         ]">
-                            <td class="px-6 py-4 text-gray-800 whitespace-nowrap">PR-{{ String(item.id).padStart(3, '0')
-                                }}</td>
+                            <td class="px-6 py-4 text-gray-800 whitespace-nowrap">
+                                PR-{{ String(item.id).padStart(3, '0') }}
+                            </td>
                             <td class="px-6 py-4 text-gray-800">{{ item.nama_parameter }}</td>
                             <td class="px-6 py-4 text-gray-800">{{ item.satuan }}</td>
                             <td class="px-6 py-4 text-gray-800">
@@ -114,9 +147,28 @@ const handleDelete = () => {
                                 </div>
                             </td>
                         </tr>
+                        <tr v-if="paginatedParameter.length === 0">
+                            <td colspan="5" class="text-center text-gray-400 py-6">Tidak ada data parameter.</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-center items-center gap-2 mt-6">
+                <button class="px-3 py-1 rounded border text-sm"
+                    :class="currentPage === 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                    :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">
+                    Prev
+                </button>
+                <span class="text-sm">Halaman {{ currentPage }} dari {{ totalPages }}</span>
+                <button class="px-3 py-1 rounded border text-sm"
+                    :class="currentPage === totalPages ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-100'"
+                    :disabled="currentPage === totalPages" @click="goToPage(currentPage + 1)">
+                    Next
+                </button>
+            </div>
+
             <EditParameter v-if="showEditModal" :parameter="editingParameter" @close="closeEditModal" />
             <!-- Delete Confirmation Modal -->
             <Dialog :open="showDeleteModal" @update:open="closeDeleteModal">
