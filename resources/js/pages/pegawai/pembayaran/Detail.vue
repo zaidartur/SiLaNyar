@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue'
-import { defineProps } from 'vue'
+import { defineProps, ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 
 interface Instansi {
@@ -27,11 +27,14 @@ interface Pembayaran {
     created_at: string
     form_pengajuan: FormPengajuan
     status_pembayaran: string
+    keterangan?: string | null
 }
 
 const props = defineProps<{
     pembayaran: Pembayaran
 }>()
+
+const keterangan = ref(props.pembayaran.keterangan ?? '')
 
 function kembaliKeIndex() {
     router.visit('/pegawai/pembayaran')
@@ -40,6 +43,7 @@ function kembaliKeIndex() {
 function updateStatus(status: string) {
     router.put(`/pegawai/pembayaran/${props.pembayaran.id}/edit`, {
         status_pembayaran: status,
+        keterangan: keterangan.value
     }, {
         onSuccess: () => kembaliKeIndex()
     })
@@ -105,6 +109,11 @@ function updateStatus(status: string) {
                                     <span class="text-gray-500 text-xl">Photo Bukti Pembayaran</span>
                                 </template>
                             </div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="block text-xs text-gray-500 mb-1">Keterangan (Opsional):</label>
+                            <textarea v-model="keterangan" class="w-full bg-gray-100 rounded px-2 py-1" rows="3"
+                                placeholder="Isi keterangan jika diperlukan"></textarea>
                         </div>
                         <div class="flex justify-end gap-2 mt-4">
                             <button class="px-4 py-1 rounded bg-gray-200 text-gray-700 text-sm"

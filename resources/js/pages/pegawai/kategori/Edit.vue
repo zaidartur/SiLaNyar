@@ -3,7 +3,7 @@ import { useForm, Head } from '@inertiajs/vue3';
 // import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 interface Parameter {
     id: number;
@@ -72,6 +72,9 @@ if (form.harga) {
     displayValue.value = formatCurrency(form.harga);
 }
 
+const isSubkategoriSelected = computed(() => form.subkategori.length > 0);
+const isParameterSelected = computed(() => form.parameter.some(p => p.checked));
+
 const submit = () => {
     const filterParam = form.parameter.filter((p) => p.checked);
 
@@ -131,7 +134,8 @@ const submit = () => {
                     <div class="grid gap-2">
                         <Label>Subkategori</Label>
                         <div v-for="sub in props.subkategori" :key="sub.id" class="mb-2 flex items-center gap-2">
-                            <input type="checkbox" :value="sub.id" v-model="form.subkategori" :id="'sub-' + sub.id" />
+                            <input type="checkbox" :value="sub.id" v-model="form.subkategori" :id="'sub-' + sub.id"
+                                :disabled="isParameterSelected" />
                             <label :for="'sub-' + sub.id" class="text-sm font-semibold">{{ sub.nama }}</label>
                         </div>
                         <div class="text-sm text-red-500">{{ form.errors.subkategori }}</div>
@@ -142,12 +146,13 @@ const submit = () => {
                         <Label>Parameter dan Baku Mutu</Label>
                         <div v-for="(param, index) in form.parameter" :key="param.id"
                             class="mb-2 flex items-center gap-2">
-                            <input type="checkbox" v-model="param.checked" :id="'param-' + param.id" />
+                            <input type="checkbox" v-model="param.checked" :id="'param-' + param.id"
+                                :disabled="isSubkategoriSelected" />
                             <label :for="'param-' + param.id" class="text-sm font-semibold">
                                 {{ props.parameter[index].nama_parameter }}
                             </label>
                             <input v-model="param.baku_mutu" type="text" class="w-48 rounded border px-3 py-2"
-                                :disabled="!param.checked" placeholder="Baku Mutu" />
+                                :disabled="!param.checked || isSubkategoriSelected" placeholder="Baku Mutu" />
                             <div class="text-sm text-red-500">
                                 <template v-if="param.checked">
                                     <template v-if="(form.errors as any)[`parameter.${index}.baku_mutu`]">

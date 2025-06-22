@@ -30,7 +30,7 @@ class PengujianController extends Controller
             ->get();
 
         // Get pengajuan that are accepted but don't have pengujian scheduled yet
-        $unscheduled_pengajuan = FormPengajuan::with('instansi')
+        $unscheduled_pengajuan = FormPengajuan::with('instansi', 'jadwal')
             ->where('status_pengajuan', 'diterima')
             ->whereDoesntHave('pengujian')
             ->get();
@@ -50,9 +50,12 @@ class PengujianController extends Controller
     {
         $form_pengajuan = FormPengajuan::with('kategori.parameter', 'kategori.subkategori.parameter', 'instansi.user')
             ->where('status_pengajuan', 'diterima')
+            ->whereHas('jadwal', function ($query) {
+                $query->where('status', 'diterima');
+            })
             ->whereDoesntHave('pengujian')
             ->get();
-            
+
         $user = User::role('teknisi')->select('id', 'nama')->get();
 
         return Inertia::render('pegawai/pengujian/Tambah', [

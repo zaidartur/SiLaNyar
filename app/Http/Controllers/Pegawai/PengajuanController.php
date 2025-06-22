@@ -124,7 +124,7 @@ class PengajuanController extends Controller
                     [
                         'id_order' => 'INV-' . strtoupper(Str::random(10)) . '-' . time(),
                         'total_biaya' => $this->hitungTotalBiaya($pengajuan),
-                        'metode_pembayaran' => 'transfer',
+                        'metode_pembayaran' => null,
                         'status_pembayaran' => 'belum_dibayar',
                     ]
                 );

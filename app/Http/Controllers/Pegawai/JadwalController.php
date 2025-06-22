@@ -206,9 +206,7 @@ class JadwalController extends Controller
 
         $jadwal->delete();
 
-        if ($jadwal) {
-            return Redirect::route('pegawai.pengambilan.index')->with('message', 'Jadwal Berhasil Dihapus!');
-        }
+        return Redirect::route('pegawai.pengambilan.index')->with('message', 'Jadwal Berhasil Dihapus!');
     }
 
     //lihat detail jadwal
