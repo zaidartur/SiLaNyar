@@ -46,6 +46,7 @@ class JadwalController extends Controller
     {
         $form_pengajuan = FormPengajuan::with('instansi')
             ->where('metode_pengambilan', 'diambil')
+            ->where('status_pengajuan', 'diterima')
             ->whereDoesntHave('jadwal') // Exclude pengajuan that already have jadwal
             ->get();
             
@@ -82,10 +83,11 @@ class JadwalController extends Controller
 
         $pengajuan = FormPengajuan::findOrFail($request->id_form_pengajuan);
 
+        if ($pengajuan->status_pengajuan !== 'diterima') {
+            return Redirect::back()->with('error', 'Jadwal Hanya Bisa Dibuat Jika Pengajuan Telah Diterima!.');
+        }
         if ($pengajuan->metode_pengambilan !== 'diambil') {
-            return Redirect::back()->withErrors([
-                'metode_pengambilan' => 'Jadwal Hanya Bisa Dibuat Ketika Customer Memilih Diambil'
-            ]);
+            return Redirect::back()->with('error', 'Jadwal Hanya Bisa Dibuat Ketika Customer Memilih Diambil!.');
         }
 
         $jadwal = Jadwal::create($request->all());
