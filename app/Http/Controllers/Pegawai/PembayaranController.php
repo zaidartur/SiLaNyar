@@ -73,7 +73,7 @@ class PembayaranController extends Controller
 
         $pembayaran->update([
             'status_pembayaran' => $validated['status_pembayaran'],
-            'keterangan' => $validated['keterangan'],
+            'keterangan' => $validated['keterangan'] ?? null,
             'diverifikas_oleh' => $user->nama,
         ]);
 
