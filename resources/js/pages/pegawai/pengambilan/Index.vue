@@ -88,10 +88,10 @@ watch([status, tanggal], () => {
 const showDeleteModal = ref(false);
 const deletingJadwal = ref<Jadwal | null>(null);
 
-// const openDeleteModal = (item: Jadwal) => {
-//     deletingJadwal.value = item;
-//     showDeleteModal.value = true;
-// };
+const openDeleteModal = (item: Jadwal) => {
+    deletingJadwal.value = item;
+    showDeleteModal.value = true;
+};
 
 const closeDeleteModal = () => {
     showDeleteModal.value = false;
@@ -215,11 +215,10 @@ const can = (permission: string): boolean => {
                                         :title="isStatusCompleted(item.status) ? 'Status sudah selesai' : 'Edit'">
                                         <span>✏️</span>
                                     </button>
-                                    <Link v-if="can('hapus pengambilan')" :href="`/pegawai/pengambilan/${item.id}`"
-                                        method="delete" class="text-red-500 hover:text-red-700" as="button"
-                                        type="button" title="Hapus">
+                                    <button v-if="can('hapus pengambilan')" @click="openDeleteModal(item)"
+                                        class="text-red-500 hover:text-red-700" as="button" type="button" title="Hapus">
                                     <span>🗑️</span>
-                                    </Link>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
