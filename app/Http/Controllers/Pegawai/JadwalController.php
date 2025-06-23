@@ -127,6 +127,10 @@ class JadwalController extends Controller
 
         $pengajuan = FormPengajuan::findOrFail($jadwal->id_form_pengajuan);
 
+        if ($pengajuan->status_pengajuan !== 'diterima') {
+            return Redirect::back()->with('error', 'Jadwal Hanya Bisa Diupdate Jika Pengajuan Telah Diterima!.');
+        }
+
         if ($pengajuan->metode_pengambilan === 'diantar') {
             $request->validate([
                 'status' => 'required|in:diproses,diterima'
