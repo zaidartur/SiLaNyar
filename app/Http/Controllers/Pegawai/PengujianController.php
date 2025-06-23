@@ -10,6 +10,7 @@ use App\Models\Pengujian;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class PengujianController extends Controller
@@ -150,35 +151,39 @@ class PengujianController extends Controller
     //proses update daftar pengujian
     public function update(Pengujian $pengujian, Request $request)
     {
+        $user = Auth::user();
+
         $request->validate([
             'id_form_pengajuan' => 'required|exists:form_pengajuan,id',
-            'id_kategori' => 'required|exists:kategori,id',
-            'tanggal_mulai' => 'required|date',
-            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
+            'tanggal_uji' => 'required|date',
             'jam_mulai' => 'required|date_format:H:i',
             'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
             'status' => 'required|in:diproses,selesai',
         ], [
             'id_form_pengajuan.required' => 'Pengajuan Wajib Diisi.',
             'id_form_pengajuan.exists' => 'Pengajuan Tidak Valid.',
-            'id_user.required' => 'User Wajib Diisi.',
-            'id_user.exists' => 'User Tidak Valid.',
-            'id_kategori.required' => 'Kategori Wajib Diisi.',
-            'id_kategori.exists' => 'Kategori Tidak Valid.',
-            'tanggal_mulai.required' => 'Tanggal Mulai Wajib Diisi.',
-            'tanggal_mulai.date' => 'Tanggal Mulai Bertipe Tanggal.',
-            'tanggal_selesai.required' => 'Tanggal Selesai Wajib Diisi.',
-            'tanggal_selesai.date' => 'Tanggal Selesai Bertipe Tanggal.',
-            'tanggal_selesai.after_or_equal' => 'Tanggal Selesai Tidak Boleh Sebelum Tanggal Mulai.',
+            'tanggal_uji.required' => 'Tanggal Mulai Wajib Diisi.',
+            'tanggal_uji.date' => 'Tanggal Mulai Bertipe Tanggal.',
             'jam_mulai.date_format' => 'Format Jam Mulai Harus Dalam Format Jam:Menit.',
             'jam_selesai.date_format' => 'Format Jam Selesai Harus Dalam Format Jam:Menit.',
             'jam_selesai.after' => 'Format Jam Selesai Harus Setelah Jam Mulai.',
         ]);
 
+        $form_pengajuan = FormPengajuan::with('jadwal')->find($request->id_form_pengajuan);
+        $id_kategori = $form_pengajuan->id_kategori;
+
+        if ($form_pengajuan->status_pengajuan !== 'diterima') {
+            return redirect()->back()->with('error', 'Sebelum Melakukan Pengujian Harap Verifikasi Pengajuan Terlebih Dahulu!');
+        }
+
+        if ($form_pengajuan->jadwal || $form_pengajuan->jadwal->status !== 'diterima') {
+            return redirect()->back()->with('error', 'Jadwal Belum Diterima. Tidak Bisa Menambahkan Pengujian.');
+        }
+
         $pengujian->update([
             'id_form_pengajuan' => $request->id_form_pengajuan,
-            'id_kategori' => $request->id_kategori,
-            'id_user' => $request->id_user,
+            'id_kategori' => $id_kategori,
+            'id_user' => $user->id,
             'tanggal_uji' => $request->tanggal_uji,
             'jam_mulai' => $request->jam_mulai,
             'jam_selesai' => $request->jam_selesai,
