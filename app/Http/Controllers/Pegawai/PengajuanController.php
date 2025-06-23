@@ -117,6 +117,7 @@ class PengajuanController extends Controller
                 }
 
                 $pengajuan->id_kategori = $validated['id_kategori'];
+                $pengajuan->save();
                 $pengajuan->parameter()->sync($validated['parameter']);
                 $pengajuan->refresh();
 
