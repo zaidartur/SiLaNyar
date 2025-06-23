@@ -158,7 +158,6 @@ class PengujianController extends Controller
             'tanggal_uji' => 'required|date',
             'jam_mulai' => 'required|date_format:H:i',
             'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
-            'status' => 'required|in:diproses,selesai',
         ], [
             'id_form_pengajuan.required' => 'Pengajuan Wajib Diisi.',
             'id_form_pengajuan.exists' => 'Pengajuan Tidak Valid.',
@@ -172,11 +171,17 @@ class PengujianController extends Controller
         $form_pengajuan = FormPengajuan::with('jadwal')->find($request->id_form_pengajuan);
         $id_kategori = $form_pengajuan->id_kategori;
 
+        if ($pengujian->status === 'selesai') {
+            return redirect()->back()->with('error', 'Anda Tidak Bisa Mengupdate Pengujian Jika Status Pengujian Sudah Selesai');
+        }
+
         if ($form_pengajuan->status_pengajuan !== 'diterima') {
+            dd('Redirected because pengajuan not accepted');
             return redirect()->back()->with('error', 'Sebelum Melakukan Pengujian Harap Verifikasi Pengajuan Terlebih Dahulu!');
         }
 
-        if ($form_pengajuan->jadwal || $form_pengajuan->jadwal->status !== 'diterima') {
+        if (!$form_pengajuan->jadwal || $form_pengajuan->jadwal->status !== 'diterima') {
+            dd('Redirected because jadwal not accepted or not exists');
             return redirect()->back()->with('error', 'Jadwal Belum Diterima. Tidak Bisa Menambahkan Pengujian.');
         }
 
