@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue'
 import { defineProps, ref } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { router, Head } from '@inertiajs/vue3'
 
 interface Instansi {
     nama: string
@@ -51,6 +51,7 @@ function updateStatus(status: string) {
 </script>
 
 <template>
+    <Head title="Detail Pembayaran" />
     <AdminLayout>
         <div class="p-6 bg-gray-50 min-h-screen">
             <div class="max-w-4xl mx-auto">
@@ -119,9 +120,19 @@ function updateStatus(status: string) {
                             <button class="px-4 py-1 rounded bg-gray-200 text-gray-700 text-sm"
                                 @click="kembaliKeIndex">Tutup</button>
                             <button class="px-4 py-1 rounded bg-red-500 text-white text-sm"
-                                @click="updateStatus('gagal')">Tolak</button>
+                                @click="updateStatus('gagal')"
+                                :disabled="pembayaran.status_pembayaran === 'belum_dibayar'"
+                                :class="pembayaran.status_pembayaran === 'belum_dibayar' ? 'opacity-50 cursor-not-allowed' : ''"
+                                :title="pembayaran.status_pembayaran === 'belum_dibayar' ? 'Menunggu customer membayar' : 'Tolak Pembayaran'">Tolak</button>
                             <button class="px-4 py-1 rounded bg-green-600 text-white text-sm"
-                                @click="updateStatus('selesai')">Verifikasi</button>
+                                @click="updateStatus('selesai')"
+                                :disabled="pembayaran.status_pembayaran === 'belum_dibayar'"
+                                :class="pembayaran.status_pembayaran === 'belum_dibayar' ? 'opacity-50 cursor-not-allowed' : ''"
+                                :title="pembayaran.status_pembayaran === 'belum_dibayar' ? 'Menunggu customer membayar' : 'Verifikasi Pembayaran'">Verifikasi</button>
+                        </div>
+                        <div v-if="pembayaran.status_pembayaran === 'belum_dibayar'"
+                            class="text-xs text-yellow-600 mt-2 text-right">
+                            Harap menunggu customer membayar sebelum dapat mengupdate status pembayaran.
                         </div>
                     </div>
                 </div>

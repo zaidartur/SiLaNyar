@@ -11,6 +11,7 @@ const props = defineProps<{
         status: string;
         tanggal: string;
     };
+    userRole: string;
 }>();
 
 const status = ref(props.filter.status ?? '');
@@ -81,11 +82,17 @@ const handleDelete = () => {
 
 // Add permissions check
 const page = usePage();
-const permissions = page.props.auth.permissions as string[];
+
+const permissions =
+    (page.props.auth && Array.isArray((page.props.auth as any).permissions))
+        ? ((page.props.auth as any).permissions as string[])
+        : [];
 
 const can = (permission: string): boolean => {
     return permissions.includes(permission);
 };
+
+const userRole = props.userRole;
 </script>
 
 <template>
@@ -101,8 +108,8 @@ const can = (permission: string): boolean => {
                 </Link>
             </div>
 
-            <!-- Warning for unscheduled pengajuan -->
-            <div v-if="unscheduled_pengajuan && unscheduled_pengajuan.length > 0" class="mb-4">
+            <!-- Warning for unscheduled pengajuan (khusus admin) -->
+            <div v-if="userRole === 'admin' && unscheduled_pengajuan && unscheduled_pengajuan.length > 0" class="mb-4">
                 <div class="rounded border-l-4 border-orange-500 bg-orange-100 p-3 text-orange-700">
                     <div class="flex">
                         <div class="ml-3">
@@ -124,11 +131,19 @@ const can = (permission: string): boolean => {
                                 <li v-for="item in unscheduled_pengajuan.filter(i => i.jadwal && i.jadwal.status !== 'diterima')"
                                     :key="item.id">
                                     {{ item.kode_pengajuan }} - {{ item.instansi?.nama }} (Jadwal: {{
-                                    item.jadwal?.status }})
+                                        item.jadwal?.status }})
                                 </li>
                             </ul>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Info: Untuk mengubah status pengujian (selalu tampil) -->
+            <div v-if="userRole !== 'admin' && unscheduled_pengajuan && unscheduled_pengajuan.length > 0" class="mb-2">
+                <div class="rounded border-l-4 border-yellow-400 bg-yellow-50 p-2 text-yellow-800 text-xs">
+                    <strong>ℹ️ Info:</strong> Untuk mengubah status pengujian, silakan buka detail pengujian
+                    dan lakukan update status di halaman detail.
                 </div>
             </div>
 
@@ -180,9 +195,9 @@ const can = (permission: string): boolean => {
                             <td class="border-b px-4 py-3">{{ item.kategori?.nama ?? '-' }}</td>
                             <td class="border-b px-4 py-3">
                                 <span :class="[
-                                        'rounded px-2 py-1 text-xs font-semibold',
-                                        item.status === 'selesai' ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white',
-                                    ]">
+                                    'rounded px-2 py-1 text-xs font-semibold',
+                                    item.status === 'selesai' ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white',
+                                ]">
                                     {{ item.status ? item.status.charAt(0).toUpperCase() + item.status.slice(1) : '-' }}
                                 </span>
                             </td>
@@ -193,7 +208,10 @@ const can = (permission: string): boolean => {
                                     <span>👁️</span>
                                     </Link>
                                     <Link :href="route('pegawai.pengujian.edit', item.id)"
-                                        class="text-yellow-500 hover:text-yellow-700" title="Edit">
+                                        class="text-yellow-500 hover:text-yellow-700" title="Edit"
+                                        :aria-disabled="item.status === 'selesai'"
+                                        :tabindex="item.status === 'selesai' ? -1 : 0"
+                                        :class="item.status === 'selesai' ? 'pointer-events-none opacity-50' : ''">
                                     <span>✏️</span>
                                     </Link>
                                     <button @click="openDeleteModal(item)" class="text-red-500 hover:text-red-700"

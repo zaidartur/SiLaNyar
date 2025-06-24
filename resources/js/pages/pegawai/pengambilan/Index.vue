@@ -33,6 +33,21 @@ interface Jadwal {
     keterangan: string;
 }
 
+interface AuthUser {
+    id: number;
+    nama: string;
+    role: string;
+    permissions: string[];
+}
+
+interface AuthProps {
+    user: AuthUser;
+    permissions: string[];
+}
+
+const page = usePage();
+const auth = page.props.auth as AuthProps;
+
 const props = defineProps<{
     jadwal: Jadwal[];
     filter: {
@@ -85,6 +100,12 @@ watch([status, tanggal], () => {
     handleFilter();
 });
 
+const showAlertModal = ref(false);
+
+const showCannotDeleteAlert = () => {
+    showAlertModal.value = true;
+};
+
 const showDeleteModal = ref(false);
 const deletingJadwal = ref<Jadwal | null>(null);
 
@@ -108,12 +129,11 @@ const handleDelete = () => {
 };
 
 const isStatusCompleted = (status: string): boolean => {
-    return status === 'selesai';
+    return status === 'diterima';
 };
 
 // Add permissions check
-const page = usePage();
-const permissions = page.props.auth.permissions as string[];
+const permissions = auth.permissions as string[];
 
 const can = (permission: string): boolean => {
     return permissions.includes(permission);
@@ -132,7 +152,7 @@ const can = (permission: string): boolean => {
                 <span>+</span> Tambah
                 </Link>
             </div>
-            <div class="mb-4">
+            <div v-if="auth.user && auth.user.role === 'admin'" class="mb-4">
                 <div class="rounded border-l-4 border-yellow-500 bg-yellow-100 p-3 text-yellow-700">
                     Jika metode pengambilan <span class="font-bold">diambil</span>, maka harus tambah pengambilan
                     terlebih dahulu.<br>
@@ -215,9 +235,16 @@ const can = (permission: string): boolean => {
                                         :title="isStatusCompleted(item.status) ? 'Status sudah selesai' : 'Edit'">
                                         <span>✏️</span>
                                     </button>
-                                    <button v-if="can('hapus pengambilan')" @click="openDeleteModal(item)"
-                                        class="text-red-500 hover:text-red-700" as="button" type="button" title="Hapus">
-                                    <span>🗑️</span>
+                                    <!-- Tombol Delete -->
+                                    <button v-if="can('hapus pengambilan')"
+                                        @click="item.status === 'diproses' ? showCannotDeleteAlert() : openDeleteModal(item)"
+                                        class="text-red-500 hover:text-red-700" as="button" type="button" title="Hapus"
+                                        :class="[
+                                            item.status === 'diproses'
+                                                ? 'cursor-not-allowed opacity-50'
+                                                : 'cursor-pointer'
+                                        ]">
+                                        <span>🗑️</span>
                                     </button>
                                 </div>
                             </td>
@@ -225,6 +252,26 @@ const can = (permission: string): boolean => {
                     </tbody>
                 </table>
             </div>
+
+            <!-- Alert Modal -->
+            <Dialog :open="showAlertModal" @update:open="showAlertModal = false">
+                <DialogContent
+                    class="fixed left-1/2 top-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 transform rounded-lg bg-white p-6 shadow-xl">
+                    <DialogHeader>
+                        <DialogTitle class="text-center text-xl font-bold text-yellow-500">
+                            Tidak Bisa Menghapus
+                        </DialogTitle>
+                    </DialogHeader>
+                    <div class="text-center mt-2 mb-4">
+                        Jadwal dengan status <b>diproses</b> tidak dapat dihapus.
+                    </div>
+                    <div class="flex justify-center">
+                        <button @click="showAlertModal = false"
+                            class="rounded bg-yellow-500 px-4 py-2 text-white hover:bg-yellow-600">Tutup</button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
             <!-- Delete Confirmation Modal -->
             <Dialog :open="showDeleteModal" @update:open="closeDeleteModal">
                 <DialogContent

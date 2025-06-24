@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Pengujian;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
@@ -41,7 +42,8 @@ class PengujianController extends Controller
             'filter' => [
                 'status' => $filterByStatus,
                 'tanggal' => $filterByTanggal,
-            ]
+            ],
+            'userRole' => Auth::user()->roles->pluck('name')->first(),
         ]);
     }
 
@@ -134,7 +136,7 @@ class PengujianController extends Controller
     public function edit(Pengujian $pengujian)
     {
         $pengujian->load(['form_pengajuan.instansi.user', 'kategori', 'user']);
-        
+
         $kategoriList = Kategori::select('id', 'nama')->get();
         $userList = User::role('teknisi')->select('id', 'nama')->get();
         $pengajuanList = FormPengajuan::with('instansi')
@@ -204,7 +206,7 @@ class PengujianController extends Controller
     public function verifikasi($id, Request $request)
     {
         $pengujian = Pengujian::findOrFail($id);
-        
+
         $request->validate([
             'status' => 'required|in:selesai',
         ]);

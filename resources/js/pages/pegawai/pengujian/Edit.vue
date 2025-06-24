@@ -41,6 +41,7 @@ const props = defineProps<{
     kategoriList: any[];
     userList: any[];
     pengajuanList: any[];
+    userRole: string;
 }>();
 
 // Convert date from YYYY-MM-DD to display format for input
@@ -48,6 +49,8 @@ const formatDateForInput = (dateString: string) => {
     if (!dateString) return '';
     return dateString.split(' ')[0]; // Take only the date part if datetime
 };
+
+const userRole = props.userRole;
 
 const form = useForm({
     id_form_pengajuan: props.pengujian.form_pengajuan.id,
@@ -64,17 +67,16 @@ const submit = () => {
 </script>
 
 <template>
+
     <Head title="Edit Pengujian" />
     <AdminLayout>
         <div class="p-6">
             <div class="rounded-lg bg-white p-6 shadow">
                 <div class="mb-6 flex items-center justify-between">
                     <h1 class="text-2xl font-bold text-gray-800">Edit Pengujian</h1>
-                    <Link
-                        :href="route('pegawai.pengujian.index')"
-                        class="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
-                    >
-                        Kembali
+                    <Link :href="route('pegawai.pengujian.index')"
+                        class="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600">
+                    Kembali
                     </Link>
                 </div>
 
@@ -85,13 +87,16 @@ const submit = () => {
                         <div><strong>Kode Pengujian:</strong> {{ props.pengujian.kode_pengujian }}</div>
                         <div>
                             <strong>Status:</strong>
-                            <span class="ml-1 inline-block rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-800">
+                            <span class="ml-1 inline-block rounded px-2 py-1 text-xs" :class="props.pengujian.status === 'selesai'
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-yellow-100 text-yellow-800'">
                                 {{ props.pengujian.status === 'diproses' ? 'Diproses' : 'Selesai' }}
                             </span>
                         </div>
                     </div>
                     <div class="mt-2 text-xs text-gray-600">
-                        <strong>Catatan:</strong> Untuk mengubah status pengujian, silakan gunakan tombol pada halaman detail.
+                        <strong>Catatan:</strong> Untuk mengubah status pengujian, silakan gunakan tombol pada halaman
+                        detail.
                     </div>
                 </div>
 
@@ -99,11 +104,9 @@ const submit = () => {
                     <!-- Form Pengajuan -->
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700"> Pengajuan * </label>
-                        <select
-                            v-model="form.id_form_pengajuan"
+                        <select v-model="form.id_form_pengajuan"
                             class="w-full rounded border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500"
-                            required
-                        >
+                            :disabled="userRole !== 'admin'" required>
                             <option value="">Pilih Pengajuan</option>
                             <option v-for="pengajuan in pengajuanList" :key="pengajuan.id" :value="pengajuan.id">
                                 {{ pengajuan.kode_pengajuan }} - {{ pengajuan.instansi?.nama }}
@@ -117,11 +120,9 @@ const submit = () => {
                     <!-- Kategori -->
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700"> Kategori * </label>
-                        <select
-                            v-model="form.id_kategori"
+                        <select v-model="form.id_kategori"
                             class="w-full rounded border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500"
-                            required
-                        >
+                            :disabled="userRole !== 'admin'" required>
                             <option value="">Pilih Kategori</option>
                             <option v-for="kategori in kategoriList" :key="kategori.id" :value="kategori.id">
                                 {{ kategori.nama }}
@@ -135,7 +136,9 @@ const submit = () => {
                     <!-- Teknisi -->
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700"> Teknisi * </label>
-                        <select v-model="form.id_user" class="w-full rounded border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500" required>
+                        <select v-model="form.id_user"
+                            class="w-full rounded border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500"
+                            :disabled="userRole === 'admin'" required>
                             <option value="">Pilih Teknisi</option>
                             <option v-for="user in userList" :key="user.id" :value="user.id">
                                 {{ user.nama }}
@@ -149,12 +152,9 @@ const submit = () => {
                     <!-- Tanggal Uji -->
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700"> Tanggal Pengujian * </label>
-                        <input
-                            type="date"
-                            v-model="form.tanggal_uji"
+                        <input type="date" v-model="form.tanggal_uji"
                             class="w-full rounded border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500"
-                            required
-                        />
+                            :disabled="userRole === 'admin'" required />
                         <div v-if="form.errors.tanggal_uji" class="mt-1 text-sm text-red-500">
                             {{ form.errors.tanggal_uji }}
                         </div>
@@ -163,12 +163,9 @@ const submit = () => {
                     <!-- Jam Mulai -->
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700"> Jam Mulai * </label>
-                        <input
-                            type="time"
-                            v-model="form.jam_mulai"
+                        <input type="time" v-model="form.jam_mulai"
                             class="w-full rounded border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500"
-                            required
-                        />
+                            :disabled="userRole === 'admin'" required />
                         <div v-if="form.errors.jam_mulai" class="mt-1 text-sm text-red-500">
                             {{ form.errors.jam_mulai }}
                         </div>
@@ -177,12 +174,9 @@ const submit = () => {
                     <!-- Jam Selesai -->
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700"> Jam Selesai * </label>
-                        <input
-                            type="time"
-                            v-model="form.jam_selesai"
+                        <input type="time" v-model="form.jam_selesai"
                             class="w-full rounded border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500"
-                            required
-                        />
+                            :disabled="userRole === 'admin'" required />
                         <div v-if="form.errors.jam_selesai" class="mt-1 text-sm text-red-500">
                             {{ form.errors.jam_selesai }}
                         </div>
@@ -190,17 +184,8 @@ const submit = () => {
 
                     <!-- Submit Button -->
                     <div class="flex justify-end gap-4">
-                        <Link
-                            :href="route('pegawai.pengujian.detail', props.pengujian.id)"
-                            class="rounded bg-gray-500 px-6 py-2 text-white hover:bg-gray-600"
-                        >
-                            Batal
-                        </Link>
-                        <button
-                            type="submit"
-                            :disabled="form.processing"
-                            class="rounded bg-blue-600 px-6 py-2 text-white hover:bg-blue-700 disabled:bg-blue-300"
-                        >
+                        <button type="submit" :disabled="form.processing"
+                            class="rounded bg-blue-600 px-6 py-2 text-white hover:bg-blue-700 disabled:bg-blue-300">
                             {{ form.processing ? 'Memproses...' : 'Update Pengujian' }}
                         </button>
                     </div>

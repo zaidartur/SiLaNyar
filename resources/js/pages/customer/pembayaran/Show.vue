@@ -188,7 +188,11 @@ const props = defineProps<{
                         <tr class="border-t font-bold">
                             <td class="p-2">Total Biaya</td>
                             <td class="p-2 text-right">
-                                {{ pembayaran ? pembayaran.total_biaya.toLocaleString('id-ID') : 0 }}
+                                {{
+                                    detailPembayaran.parameter
+                                        .reduce((sum, param) => sum + (param.harga || 0), 0)
+                                .toLocaleString('id-ID')
+                                }}
                             </td>
                         </tr>
                     </tbody>
