@@ -71,7 +71,7 @@ watch([status], () => {
 
 <template>
 
-    <Head title="Daftar Pengujian" />
+    <Head title="Daftar Pengajuan" />
     <AdminLayout>
         <div class="p-6">
             <div class="mb-6 flex items-center justify-between">

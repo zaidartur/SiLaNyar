@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useForm } from '@inertiajs/vue3'
+import { useForm, Head } from '@inertiajs/vue3'
 
 interface Parameter {
     id: number
@@ -47,6 +47,7 @@ const submit = () => {
 </script>
 
 <template>
+    <Head title="Edit Sub Kategori" />
     <div class="w-full h-screen lg:grid lg:grid-cols-3 bg-white">
         <!-- Left Side - Logo Section -->
         <div

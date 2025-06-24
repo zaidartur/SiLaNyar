@@ -85,7 +85,10 @@ const handleDelete = () => {
                             <td class="px-6 py-4 text-left text-black">{{ item.kode_jenis_cairan }}</td>
                             <td class="px-6 py-4 text-left text-black">{{ item.nama }}</td>
                             <td class="px-6 py-4 text-left text-black">{{ item.batas_minimum }}</td>
-                            <td class="px-6 py-4 text-left text-black">{{ item.batas_maksimum }}</td>
+                            <td class="px-6 py-4 text-left text-black">
+                                {{ item.batas_maksimum !== null && item.batas_maksimum !== undefined ?
+                                item.batas_maksimum : '-' }}
+                            </td>
                             <td class="px-6 py-4 text-left">
                                 <div class="flex gap-2">
                                     <button @click="openEditModal(item)" class="text-yellow-500">✏️</button>
