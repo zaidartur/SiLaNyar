@@ -100,9 +100,19 @@ watch([status, tanggal], () => {
     handleFilter();
 });
 
+const isDeleteDisabled = (item: Jadwal): boolean => {
+    // Tidak bisa hapus jika metode diantar
+    return (
+        item.form_pengajuan?.metode_pengambilan === 'diantar' ||
+        (item.form_pengajuan?.metode_pengambilan === 'diambil' && item.status === 'diproses')
+    );
+};
+
 const showAlertModal = ref(false);
 
-const showCannotDeleteAlert = () => {
+const showCannotDeleteAlert = (item?: Jadwal) => {
+    // Simpan info jadwal yang tidak bisa dihapus untuk pesan
+    deletingJadwal.value = item ?? null;
     showAlertModal.value = true;
 };
 
@@ -237,10 +247,10 @@ const can = (permission: string): boolean => {
                                     </button>
                                     <!-- Tombol Delete -->
                                     <button v-if="can('hapus pengambilan')"
-                                        @click="item.status === 'diproses' ? showCannotDeleteAlert() : openDeleteModal(item)"
+                                        @click="isDeleteDisabled(item) ? showCannotDeleteAlert(item) : openDeleteModal(item)"
                                         class="text-red-500 hover:text-red-700" as="button" type="button" title="Hapus"
                                         :class="[
-                                            item.status === 'diproses'
+                                            isDeleteDisabled(item)
                                                 ? 'cursor-not-allowed opacity-50'
                                                 : 'cursor-pointer'
                                         ]">
@@ -263,7 +273,12 @@ const can = (permission: string): boolean => {
                         </DialogTitle>
                     </DialogHeader>
                     <div class="text-center mt-2 mb-4">
-                        Jadwal dengan status <b>diproses</b> tidak dapat dihapus.
+                        <template v-if="deletingJadwal?.form_pengajuan?.metode_pengambilan === 'diantar'">
+                            Jadwal dengan <b>metode diantar</b> tidak dapat dihapus.
+                        </template>
+                        <template v-else>
+                            Jadwal dengan status <b>diproses</b> tidak dapat dihapus.
+                        </template>
                     </div>
                     <div class="flex justify-center">
                         <button @click="showAlertModal = false"

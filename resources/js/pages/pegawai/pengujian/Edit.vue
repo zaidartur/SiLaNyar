@@ -139,7 +139,7 @@ const submit = () => {
                         <label class="mb-2 block text-sm font-medium text-gray-700"> Teknisi * </label>
                         <select v-model="form.id_user"
                             class="w-full rounded border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500"
-                            :disabled="userRole === 'admin'" required>
+                            :disabled="userRole !== 'admin'" required>
                             <option value="">Pilih Teknisi</option>
                             <option v-for="user in userList" :key="user.id" :value="user.id">
                                 {{ user.nama }}
@@ -155,7 +155,7 @@ const submit = () => {
                         <label class="mb-2 block text-sm font-medium text-gray-700"> Tanggal Pengujian * </label>
                         <input type="date" v-model="form.tanggal_uji"
                             class="w-full rounded border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500"
-                            :disabled="userRole === 'admin'" required />
+                            :disabled="userRole !== 'admin'" required />
                         <div v-if="form.errors.tanggal_uji" class="mt-1 text-sm text-red-500">
                             {{ form.errors.tanggal_uji }}
                         </div>

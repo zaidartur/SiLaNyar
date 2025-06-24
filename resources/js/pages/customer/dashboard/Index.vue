@@ -128,6 +128,17 @@ const props = defineProps<{
                                     <option value="diterima">Diterima</option>
                                     <option value="ditolak">Ditolak</option>
                                 </select>
+                                <!-- Warning untuk status diterima/ditolak -->
+                                <div class="mt-2 text-xs text-yellow-600 flex items-center space-x-1">
+                                    <span>⚠️</span>
+                                    <span>
+                                        Pengajuan dengan status
+                                        <b class="text-green-600">diterima</b>
+                                        atau
+                                        <b class="text-red-600">ditolak</b>
+                                        tidak bisa diedit.
+                                    </span>
+                                </div>
                             </div>
                         </div>
                         <div class="relative overflow-x-auto">
@@ -179,10 +190,15 @@ const props = defineProps<{
                                                     class="text-blue-500">
                                                 <span>👁️</span>
                                                 </Link>
-                                                <Link :href="route('customer.pengajuan.edit', item.id)"
-                                                    class="text-yellow-500">
+                                                <Link v-if="item.status_pengajuan === 'proses_validasi'"
+                                                    :href="route('customer.pengajuan.edit', item.id)"
+                                                    class="text-yellow-500 hover:text-yellow-700" title="Edit">
                                                 <span>✏️</span>
                                                 </Link>
+                                                <span v-else class="text-gray-400 cursor-not-allowed"
+                                                    :title="item.status_pengajuan === 'diterima' ? 'Pengajuan sudah diterima, tidak bisa diedit' : 'Pengajuan sudah ditolak, tidak bisa diedit'">
+                                                    <span>✏️</span>
+                                                </span>
                                             </div>
                                         </td>
                                     </tr>

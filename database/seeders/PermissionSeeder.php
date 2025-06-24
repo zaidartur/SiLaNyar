@@ -33,6 +33,7 @@ class PermissionSeeder extends Seeder
             'detail pengujian',
             'edit status pengujian',
             'edit pengujian',
+            'edit status pengujian',
             'hapus pengujian',
             'lihat pengambilan',
             'tambah pengambilan',

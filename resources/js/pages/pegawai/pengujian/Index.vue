@@ -131,7 +131,7 @@ const userRole = props.userRole;
                                 <li v-for="item in unscheduled_pengajuan.filter(i => i.jadwal && i.jadwal.status !== 'diterima')"
                                     :key="item.id">
                                     {{ item.kode_pengajuan }} - {{ item.instansi?.nama }} (Jadwal: {{
-                                        item.jadwal?.status }})
+                                    item.jadwal?.status }})
                                 </li>
                             </ul>
                         </div>
@@ -207,17 +207,19 @@ const userRole = props.userRole;
                                         class="text-blue-500 hover:text-blue-700" title="Lihat">
                                     <span>👁️</span>
                                     </Link>
-                                    <Link :href="route('pegawai.pengujian.edit', item.id)"
-                                        class="text-yellow-500 hover:text-yellow-700" title="Edit"
-                                        :aria-disabled="item.status === 'selesai'"
-                                        :tabindex="item.status === 'selesai' ? -1 : 0"
-                                        :class="item.status === 'selesai' ? 'pointer-events-none opacity-50' : ''">
-                                    <span>✏️</span>
-                                    </Link>
-                                    <button @click="openDeleteModal(item)" class="text-red-500 hover:text-red-700"
-                                        type="button" title="Hapus">
-                                        <span>🗑️</span>
-                                    </button>
+                                    <template v-if="userRole !== 'teknisi'">
+                                        <Link :href="route('pegawai.pengujian.edit', item.id)"
+                                            class="text-yellow-500 hover:text-yellow-700" title="Edit"
+                                            :aria-disabled="item.status === 'selesai'"
+                                            :tabindex="item.status === 'selesai' ? -1 : 0"
+                                            :class="item.status === 'selesai' ? 'pointer-events-none opacity-50' : ''">
+                                        <span>✏️</span>
+                                        </Link>
+                                        <button @click="openDeleteModal(item)" class="text-red-500 hover:text-red-700"
+                                            type="button" title="Hapus">
+                                            <span>🗑️</span>
+                                        </button>
+                                    </template>
                                 </div>
                             </td>
                         </tr>
