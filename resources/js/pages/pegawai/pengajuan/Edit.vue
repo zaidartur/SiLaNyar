@@ -57,7 +57,7 @@ const props = defineProps<{
 }>();
 
 const form = useForm({
-    status_pengajuan: '',
+    status_pengajuan: props.pengajuan?.status_pengajuan || '',
     id_kategori: props.pengajuan?.id_kategori || '',
     parameter: props.pengajuan?.parameter?.map((p: Parameter) => p.id) || [],
 });
@@ -146,6 +146,13 @@ const removedParameters = computed(() => {
             return param?.nama_parameter || '';
         })
         .filter((name: string) => name);
+});
+
+const isStatusChangeDisabled = computed(() => {
+    return (
+        props.pengajuan?.metode_pengambilan === 'diambil' &&
+        props.pengajuan?.status_pengajuan === 'ditolak'
+    );
 });
 
 // Update available parameters when category changes
@@ -297,22 +304,22 @@ const submit = () => {
                         <label class="mb-3 block text-sm font-medium text-gray-700">Status Pengajuan *</label>
                         <div class="flex gap-4">
                             <button type="button" @click="form.status_pengajuan = 'diterima'"
-                                :disabled="pengajuan?.status_pengajuan === 'diterima'" :class="[
+                                :disabled="pengajuan?.status_pengajuan === 'diterima' || isStatusChangeDisabled" :class="[
                                     'rounded-lg px-6 py-3 font-medium transition-colors',
                                     form.status_pengajuan === 'diterima'
                                         ? 'bg-green-500 text-white shadow-lg'
                                         : 'bg-gray-200 text-gray-700 hover:bg-green-100',
-                                    pengajuan?.status_pengajuan === 'diterima' ? 'opacity-60 cursor-not-allowed' : ''
+                                    pengajuan?.status_pengajuan === 'diterima' || isStatusChangeDisabled ? 'opacity-60 cursor-not-allowed' : ''
                                 ]">
                                 ✓ Terima
                             </button>
                             <button type="button" @click="form.status_pengajuan = 'ditolak'"
-                                :disabled="pengajuan?.status_pengajuan === 'diterima'" :class="[
+                                :disabled="pengajuan?.status_pengajuan === 'diterima' || isStatusChangeDisabled" :class="[
                                     'rounded-lg px-6 py-3 font-medium transition-colors',
                                     form.status_pengajuan === 'ditolak'
                                         ? 'bg-red-500 text-white shadow-lg'
                                         : 'bg-gray-200 text-gray-700 hover:bg-red-100',
-                                    pengajuan?.status_pengajuan === 'diterima' ? 'opacity-60 cursor-not-allowed' : ''
+                                    pengajuan?.status_pengajuan === 'diterima' || isStatusChangeDisabled ? 'opacity-60 cursor-not-allowed' : ''
                                 ]">
                                 ✗ Tolak
                             </button>
@@ -322,6 +329,9 @@ const submit = () => {
                         </div>
                         <div v-if="pengajuan?.status_pengajuan === 'diterima'" class="mt-2 text-sm text-yellow-600">
                             Status pengajuan sudah <b>DITERIMA</b> dan tidak dapat diubah lagi.
+                        </div>
+                        <div v-else-if="isStatusChangeDisabled" class="mt-2 text-sm text-yellow-600">
+                            Status pengajuan sudah <b>DITOLAK</b> dan tidak dapat diubah lagi.
                         </div>
                     </div>
 

@@ -78,13 +78,13 @@ class PengajuanController extends Controller
     public function update($id, Request $request)
     {
         try {
-            $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'instansi.user'])->findOrFail($id);
+            $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'instansi.user', 'jadwal'])->findOrFail($id);
 
             $rules = [
                 'status_pengajuan' => 'required|in:diterima,ditolak'
             ];
 
-            if ($pengajuan->metode_pengambilan === 'diantar') {
+            if ($pengajuan->metode_pengambilan === 'diantar' && $request->input('status_pengajuan') === 'diterima') {
                 $rules['id_kategori'] = 'required|exists:kategori,id';
                 $rules['parameter'] = 'required|array';
                 $rules['parameter.*'] = 'exists:parameter_uji,id';
@@ -94,22 +94,22 @@ class PengajuanController extends Controller
 
             $pengajuan->status_pengajuan = $validated['status_pengajuan'];
 
-            if ($pengajuan->metode_pengambilan === 'diantar') {
+            if ($pengajuan->metode_pengambilan === 'diantar' && $validated['status_pengajuan'] === 'diterima') {
                 $kategori = Kategori::with('parameter', 'subkategori.parameter')->find($validated['id_kategori']);
-                
+
                 $allowedParameterIds = collect();
                 if ($kategori) {
                     $allowedParameterIds = $allowedParameterIds->merge($kategori->parameter->pluck('id'));
-                    
+
                     foreach ($kategori->subkategori as $subkategori) {
                         $allowedParameterIds = $allowedParameterIds->merge($subkategori->parameter->pluck('id'));
                     }
                 }
-                
+
                 $allowedParameterIds = $allowedParameterIds->unique();
-                
+
                 $invalidParameters = collect($validated['parameter'])->diff($allowedParameterIds);
-                
+
                 if ($invalidParameters->isNotEmpty()) {
                     return redirect()->back()
                         ->with('error', 'Beberapa parameter yang dipilih tidak sesuai dengan kategori yang dipilih.')
@@ -117,7 +117,9 @@ class PengajuanController extends Controller
                 }
 
                 $pengajuan->id_kategori = $validated['id_kategori'];
+                $pengajuan->save();
                 $pengajuan->parameter()->sync($validated['parameter']);
+                $pengajuan->refresh();
 
                 Pembayaran::updateOrCreate(
                     ['id_form_pengajuan' => $pengajuan->id],
@@ -138,8 +140,8 @@ class PengajuanController extends Controller
             return redirect()->back()
                 ->with('error', 'Terjadi kesalahan saat memproses pengajuan: ' . $e->getMessage())
                 ->withInput();
-            }
         }
+    }
 
     public function destroy(FormPengajuan $pengajuan)
     {

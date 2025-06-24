@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 class JadwalController extends Controller
 {
@@ -20,17 +21,35 @@ class JadwalController extends Controller
         $filterByTanggal = $request->input('waktu_pengambilan');
         $filterByMetode = $request->input('metode_pengambilan');
 
-        $jadwal = Jadwal::with('form_pengajuan.instansi.user', 'user')
-            ->when($filterByTanggal, function ($query) use ($filterByTanggal) {
-                $query->whereDate('waktu_pengambilan', $filterByTanggal);
-            })
-            ->when($filterByStatus, function ($query) use ($filterByStatus) {
-                $query->where('status', 'like', '%' . $filterByStatus . '%');
-            })
-            ->when($filterByMetode, function ($query) use ($filterByMetode) {
-                $query->where('metode_pengambilan', 'like', '%' . $filterByMetode . '%');
-            })
-            ->get();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($user->hasRole('teknisi')) {
+            $jadwal = Jadwal::with('form_pengajuan.instansi.user', 'user')
+                ->where('id_user', $user->id)
+                ->when($filterByTanggal, function ($query) use ($filterByTanggal) {
+                    $query->whereDate('waktu_pengambilan', $filterByTanggal);
+                })
+                ->when($filterByStatus, function ($query) use ($filterByStatus) {
+                    $query->where('status', 'like', '%' . $filterByStatus . '%');
+                })
+                ->when($filterByMetode, function ($query) use ($filterByMetode) {
+                    $query->where('metode_pengambilan', 'like', '%' . $filterByMetode . '%');
+                })
+                ->get();
+        } else {
+            $jadwal = Jadwal::with('form_pengajuan.instansi.user', 'user')
+                ->when($filterByTanggal, function ($query) use ($filterByTanggal) {
+                    $query->whereDate('waktu_pengambilan', $filterByTanggal);
+                })
+                ->when($filterByStatus, function ($query) use ($filterByStatus) {
+                    $query->where('status', 'like', '%' . $filterByStatus . '%');
+                })
+                ->when($filterByMetode, function ($query) use ($filterByMetode) {
+                    $query->where('metode_pengambilan', 'like', '%' . $filterByMetode . '%');
+                })
+                ->get();
+        }
 
         return Inertia::render('pegawai/pengambilan/Index', [
             'jadwal' => $jadwal,

@@ -21,6 +21,6 @@ class DatabaseSeeder extends Seeder
             SubKategoriSeeder::class,
             KategoriSeeder::class,
             JenisCairanSeeder::class,
-        ]);        
+        ]);
     }
 }

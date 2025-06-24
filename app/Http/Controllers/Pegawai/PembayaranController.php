@@ -74,7 +74,7 @@ class PembayaranController extends Controller
         $pembayaran->update([
             'status_pembayaran' => $validated['status_pembayaran'],
             'keterangan' => $validated['keterangan'] ?? null,
-            'diverifikas_oleh' => $user->nama,
+            'diverifikasi_oleh' => $user->nama,
         ]);
 
         return Redirect::route('pegawai.pembayaran.index')->with('message', 'Pembayaran Berhasil Diupdate!');

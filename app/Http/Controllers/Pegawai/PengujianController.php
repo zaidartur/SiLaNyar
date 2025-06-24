@@ -21,16 +21,30 @@ class PengujianController extends Controller
         $filterByStatus = $request->input('status');
         $filterByTanggal = $request->input('tanggal');
 
-        $pengujian = Pengujian::with('form_pengajuan.instansi.user', 'user', 'kategori')
-            ->when($filterByTanggal, function ($query) use ($filterByTanggal) {
-                $query->whereDate('tanggal_uji', $filterByTanggal);
-            })
-            ->when($filterByStatus, function ($query) use ($filterByStatus) {
-                $query->where('status', 'like', '%' . $filterByStatus . '%');
-            })
-            ->get();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
-        // Get pengajuan that are accepted but don't have pengujian scheduled yet
+        if ($user->hasRole('teknisi')) {
+            $pengujian = Pengujian::with('form_pengajuan.instansi.user', 'user', 'kategori')
+                ->where('id_user', $user->id)
+                ->when($filterByTanggal, function ($query) use ($filterByTanggal) {
+                    $query->whereDate('tanggal_uji', $filterByTanggal);
+                })
+                ->when($filterByStatus, function ($query) use ($filterByStatus) {
+                    $query->where('status', 'like', '%' . $filterByStatus . '%');
+                })
+                ->get();
+        } else {
+            $pengujian = Pengujian::with('form_pengajuan.instansi.user', 'user', 'kategori')
+                ->when($filterByTanggal, function ($query) use ($filterByTanggal) {
+                    $query->whereDate('tanggal_uji', $filterByTanggal);
+                })
+                ->when($filterByStatus, function ($query) use ($filterByStatus) {
+                    $query->where('status', 'like', '%' . $filterByStatus . '%');
+                })
+                ->get();
+        }
+
         $unscheduled_pengajuan = FormPengajuan::with('instansi', 'jadwal')
             ->where('status_pengajuan', 'diterima')
             ->whereDoesntHave('pengujian')

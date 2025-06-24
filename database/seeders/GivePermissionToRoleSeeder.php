@@ -18,6 +18,6 @@ class GivePermissionToRoleSeeder extends Seeder
         $role = Roles::findByName('admin');
         $role->givePermissionTo(['kelola pembayaran', 'kelola jenis cairan', 'kelola kategori', 'kelola subkategori','kelola parameter', 'kelola aduan', 'lihat pengajuan', 'tambah pengajuan', 'detail pengajuan', 'edit pengajuan', 'hapus pengajuan', 'lihat pengujian', 'tambah pengujian', 'edit pengujian', 'detail pengujian', 'hapus pengujian', 'lihat pengambilan', 'tambah pengambilan', 'detail pengambilan', 'edit pengambilan', 'hapus pengambilan', 'lihat hasil uji', 'detail hasil uji', 'edit status hasil uji', 'hapus hasil uji', 'riwayat hasil uji', 'laporan keuangan']);
         $role = Roles::findByName('teknisi');
-        $role->givePermissionTo(['lihat hasil uji', 'tambah hasil uji', 'edit hasil uji', 'detail hasil uji', 'hapus hasil uji', 'riwayat hasil uji', 'lihat pengujian', 'detail pengujian', 'edit pengujian', 'hapus pengujian', 'lihat pengambilan', 'detail pengambilan', 'edit pengambilan']);
+        $role->givePermissionTo(['lihat hasil uji', 'tambah hasil uji', 'edit hasil uji', 'detail hasil uji', 'hapus hasil uji', 'riwayat hasil uji', 'lihat pengujian', 'detail pengujian', 'edit pengujian', 'edit status pengujian', 'hapus pengujian', 'lihat pengambilan', 'detail pengambilan', 'edit pengambilan']);
     }
 }
