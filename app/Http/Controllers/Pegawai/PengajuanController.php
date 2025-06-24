@@ -84,7 +84,7 @@ class PengajuanController extends Controller
                 'status_pengajuan' => 'required|in:diterima,ditolak'
             ];
 
-            if ($pengajuan->metode_pengambilan === 'diantar') {
+            if ($pengajuan->metode_pengambilan === 'diantar' && $request->input('status_pengajuan') === 'diterima') {
                 $rules['id_kategori'] = 'required|exists:kategori,id';
                 $rules['parameter'] = 'required|array';
                 $rules['parameter.*'] = 'exists:parameter_uji,id';
@@ -94,7 +94,7 @@ class PengajuanController extends Controller
 
             $pengajuan->status_pengajuan = $validated['status_pengajuan'];
 
-            if ($pengajuan->metode_pengambilan === 'diantar') {
+            if ($pengajuan->metode_pengambilan === 'diantar' && $validated['status_pengajuan'] === 'diterima') {
                 $kategori = Kategori::with('parameter', 'subkategori.parameter')->find($validated['id_kategori']);
 
                 $allowedParameterIds = collect();
