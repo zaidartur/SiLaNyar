@@ -41,6 +41,7 @@ const props = defineProps<{
     kategoriList: any[];
     userList: any[];
     pengajuanList: any[];
+    authRole: string;
 }>();
 
 // Convert date from YYYY-MM-DD to display format for input
@@ -101,6 +102,7 @@ const submit = () => {
                         <label class="mb-2 block text-sm font-medium text-gray-700"> Pengajuan * </label>
                         <select
                             v-model="form.id_form_pengajuan"
+                            :disabled="props.authRole === 'admin'"
                             class="w-full rounded border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500"
                             required
                         >
