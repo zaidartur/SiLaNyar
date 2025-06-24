@@ -8,6 +8,7 @@ use App\Models\Jadwal;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
@@ -145,6 +146,10 @@ class JadwalController extends Controller
         }
 
         $pengajuan = FormPengajuan::findOrFail($jadwal->id_form_pengajuan);
+
+        if ($pengajuan->status_pengajuan !== 'diterima') {
+            return Redirect::back()->with('error', 'Jadwal Hanya Bisa Diupdate Jika Pengajuan Telah Diterima!.');
+        }
 
         if ($pengajuan->metode_pengambilan === 'diantar') {
             $request->validate([
