@@ -104,6 +104,7 @@ const submit = () => {
                     <!-- Form Pengajuan -->
                     <div>
                         <label class="mb-2 block text-sm font-medium text-gray-700"> Pengajuan * </label>
+
                         <select v-model="form.id_form_pengajuan"
                             class="w-full rounded border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500"
                             :disabled="userRole !== 'admin'" required>

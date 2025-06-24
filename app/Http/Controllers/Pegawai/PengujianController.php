@@ -149,7 +149,7 @@ class PengujianController extends Controller
             'pengujian' => $pengujian,
             'kategoriList' => $kategoriList,
             'userList' => $userList,
-            'pengajuanList' => $pengajuanList
+            'pengajuanList' => $pengajuanList,
         ]);
     }
 
