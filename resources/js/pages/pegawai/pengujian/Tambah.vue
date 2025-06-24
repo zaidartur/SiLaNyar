@@ -20,11 +20,16 @@ interface Kategori {
     nama: string;
 }
 
+interface Jadwal {
+    status: string;
+}
+
 interface Pengajuan {
     id: number;
     kode_pengajuan: string;
     instansi: Instansi;
     kategori: Kategori;
+    jadwal?: Jadwal | null;
 }
 
 const props = defineProps<{
@@ -70,7 +75,8 @@ const submit = () => {
 <template>
     <div class="h-screen w-full bg-white lg:grid lg:grid-cols-3">
         <!-- Left Side - Logo Section -->
-        <div class="hidden h-screen flex-col bg-customDarkGreen lg:col-span-1 lg:flex lg:items-center lg:justify-center">
+        <div
+            class="hidden h-screen flex-col bg-customDarkGreen lg:col-span-1 lg:flex lg:items-center lg:justify-center">
             <img src="/assets/assetsadmin/logodlh.png" alt="Logo DLH" class="mx-auto h-48 w-auto object-contain" />
             <div class="mt-6 text-center text-white">
                 <h2 class="mb-2 border-b border-white pb-2 text-2xl font-bold">SiLanYar</h2>
@@ -89,9 +95,12 @@ const submit = () => {
                     <!-- Form Pengajuan -->
                     <div class="grid gap-2">
                         <Label for="id_form_pengajuan">Pilih Form Pengajuan</Label>
-                        <select v-model="form.id_form_pengajuan" id="id_form_pengajuan" class="mt-1 w-full rounded border px-3 py-2">
+                        <select v-model="form.id_form_pengajuan" id="id_form_pengajuan"
+                            class="mt-1 w-full rounded border px-3 py-2">
                             <option :value="null" disabled>Pilih Pengajuan</option>
-                            <option v-for="item in form_pengajuan" :key="item.id" :value="item.id">
+                            <option
+                                v-for="item in form_pengajuan.filter(f => !f.jadwal || f.jadwal.status === 'diterima')"
+                                :key="item.id" :value="item.id">
                                 {{ item.kode_pengajuan }} - {{ item.instansi.nama }}
                             </option>
                         </select>
@@ -118,7 +127,8 @@ const submit = () => {
                     <div class="grid grid-cols-2 gap-4">
                         <div class="grid gap-2">
                             <Label for="tanggal_mulai">Tanggal Mulai</Label>
-                            <Input type="date" id="tanggal_mulai" v-model="form.tanggal_mulai" :min="todayDate" required />
+                            <Input type="date" id="tanggal_mulai" v-model="form.tanggal_mulai" :min="todayDate"
+                                required />
                             <span v-if="form.errors.tanggal_mulai" class="text-sm text-red-600">
                                 {{ form.errors.tanggal_mulai }}
                             </span>
@@ -126,7 +136,8 @@ const submit = () => {
                         </div>
                         <div class="grid gap-2">
                             <Label for="tanggal_selesai">Tanggal Selesai</Label>
-                            <Input type="date" id="tanggal_selesai" v-model="form.tanggal_selesai" :min="form.tanggal_mulai || todayDate" required />
+                            <Input type="date" id="tanggal_selesai" v-model="form.tanggal_selesai"
+                                :min="form.tanggal_mulai || todayDate" required />
                             <span v-if="form.errors.tanggal_selesai" class="text-sm text-red-600">
                                 {{ form.errors.tanggal_selesai }}
                             </span>
@@ -155,16 +166,14 @@ const submit = () => {
 
                     <!-- Peringatan Weekend -->
                     <div class="rounded border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-700">
-                        <strong>Catatan:</strong> Pengujian hanya akan dijadwalkan pada hari kerja (Senin-Jumat). Weekend akan dilewati secara
+                        <strong>Catatan:</strong> Pengujian hanya akan dijadwalkan pada hari kerja (Senin-Jumat).
+                        Weekend akan dilewati secara
                         otomatis.
                     </div>
                 </div>
 
-                <button
-                    type="submit"
-                    :disabled="form.processing || !isFormValid"
-                    class="mb-8 w-full rounded bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
-                >
+                <button type="submit" :disabled="form.processing || !isFormValid"
+                    class="mb-8 w-full rounded bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400">
                     Simpan Jadwal Pengujian
                 </button>
             </form>

@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Pengujian;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -31,7 +32,7 @@ class PengujianController extends Controller
             ->get();
 
         // Get pengajuan that are accepted but don't have pengujian scheduled yet
-        $unscheduled_pengajuan = FormPengajuan::with('instansi')
+        $unscheduled_pengajuan = FormPengajuan::with('instansi', 'jadwal')
             ->where('status_pengajuan', 'diterima')
             ->whereDoesntHave('pengujian')
             ->get();
@@ -42,7 +43,8 @@ class PengujianController extends Controller
             'filter' => [
                 'status' => $filterByStatus,
                 'tanggal' => $filterByTanggal,
-            ]
+            ],
+            'userRole' => Auth::user()->roles->pluck('name')->first(),
         ]);
     }
 
@@ -51,9 +53,12 @@ class PengujianController extends Controller
     {
         $form_pengajuan = FormPengajuan::with('kategori.parameter', 'kategori.subkategori.parameter', 'instansi.user')
             ->where('status_pengajuan', 'diterima')
+            ->whereHas('jadwal', function ($query) {
+                $query->where('status', 'diterima');
+            })
             ->whereDoesntHave('pengujian')
             ->get();
-            
+
         $user = User::role('teknisi')->select('id', 'nama')->get();
 
         return Inertia::render('pegawai/pengujian/Tambah', [
@@ -132,7 +137,7 @@ class PengujianController extends Controller
     public function edit(Pengujian $pengujian)
     {
         $pengujian->load(['form_pengajuan.instansi.user', 'kategori', 'user']);
-        
+
         $kategoriList = Kategori::select('id', 'nama')->get();
         $userList = User::role('teknisi')->select('id', 'nama')->get();
         $pengajuanList = FormPengajuan::with('instansi')
@@ -211,7 +216,7 @@ class PengujianController extends Controller
     public function verifikasi($id, Request $request)
     {
         $pengujian = Pengujian::findOrFail($id);
-        
+
         $request->validate([
             'status' => 'required|in:selesai',
         ]);

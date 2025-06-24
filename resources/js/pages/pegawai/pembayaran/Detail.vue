@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue'
-import { defineProps } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { defineProps, ref } from 'vue'
+import { router, Head } from '@inertiajs/vue3'
 
 interface Instansi {
     nama: string
@@ -27,11 +27,14 @@ interface Pembayaran {
     created_at: string
     form_pengajuan: FormPengajuan
     status_pembayaran: string
+    keterangan?: string | null
 }
 
 const props = defineProps<{
     pembayaran: Pembayaran
 }>()
+
+const keterangan = ref(props.pembayaran.keterangan ?? '')
 
 function kembaliKeIndex() {
     router.visit('/pegawai/pembayaran')
@@ -40,6 +43,7 @@ function kembaliKeIndex() {
 function updateStatus(status: string) {
     router.put(`/pegawai/pembayaran/${props.pembayaran.id}/edit`, {
         status_pembayaran: status,
+        keterangan: keterangan.value
     }, {
         onSuccess: () => kembaliKeIndex()
     })
@@ -47,6 +51,7 @@ function updateStatus(status: string) {
 </script>
 
 <template>
+    <Head title="Detail Pembayaran" />
     <AdminLayout>
         <div class="p-6 bg-gray-50 min-h-screen">
             <div class="max-w-4xl mx-auto">
@@ -106,13 +111,28 @@ function updateStatus(status: string) {
                                 </template>
                             </div>
                         </div>
+                        <div class="mb-2">
+                            <label class="block text-xs text-gray-500 mb-1">Keterangan (Opsional):</label>
+                            <textarea v-model="keterangan" class="w-full bg-gray-100 rounded px-2 py-1" rows="3"
+                                placeholder="Isi keterangan jika diperlukan"></textarea>
+                        </div>
                         <div class="flex justify-end gap-2 mt-4">
                             <button class="px-4 py-1 rounded bg-gray-200 text-gray-700 text-sm"
                                 @click="kembaliKeIndex">Tutup</button>
                             <button class="px-4 py-1 rounded bg-red-500 text-white text-sm"
-                                @click="updateStatus('gagal')">Tolak</button>
+                                @click="updateStatus('gagal')"
+                                :disabled="pembayaran.status_pembayaran === 'belum_dibayar'"
+                                :class="pembayaran.status_pembayaran === 'belum_dibayar' ? 'opacity-50 cursor-not-allowed' : ''"
+                                :title="pembayaran.status_pembayaran === 'belum_dibayar' ? 'Menunggu customer membayar' : 'Tolak Pembayaran'">Tolak</button>
                             <button class="px-4 py-1 rounded bg-green-600 text-white text-sm"
-                                @click="updateStatus('selesai')">Verifikasi</button>
+                                @click="updateStatus('selesai')"
+                                :disabled="pembayaran.status_pembayaran === 'belum_dibayar'"
+                                :class="pembayaran.status_pembayaran === 'belum_dibayar' ? 'opacity-50 cursor-not-allowed' : ''"
+                                :title="pembayaran.status_pembayaran === 'belum_dibayar' ? 'Menunggu customer membayar' : 'Verifikasi Pembayaran'">Verifikasi</button>
+                        </div>
+                        <div v-if="pembayaran.status_pembayaran === 'belum_dibayar'"
+                            class="text-xs text-yellow-600 mt-2 text-right">
+                            Harap menunggu customer membayar sebelum dapat mengupdate status pembayaran.
                         </div>
                     </div>
                 </div>

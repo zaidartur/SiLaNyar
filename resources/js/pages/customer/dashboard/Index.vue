@@ -45,6 +45,7 @@ interface Pembayaran {
     metode_pembayaran: 'transfer' | 'tunai';
     status_pembayaran: 'diproses' | 'selesai' | 'gagal';
     updated_at: string;
+    keterangan?: string | null;
 }
 
 interface PilihPengajuan {
@@ -205,6 +206,7 @@ const props = defineProps<{
                                             <th class="border p-2">Kode</th>
                                             <th class="border p-2">Total Bayar</th>
                                             <th class="border p-2">Status</th>
+                                            <th class="border p-2">Keterangan</th>
                                             <th class="border p-2">Metode</th>
                                             <th class="border p-2">Tanggal</th>
                                             <th class="border p-2">Aksi</th>
@@ -221,6 +223,7 @@ const props = defineProps<{
                                                 }">
                                                 {{ p.status_pembayaran }}
                                             </td>
+                                            <td class="border p-2">{{ p.keterangan ?? '-' }}</td>
                                             <td class="border p-2">{{ p.metode_pembayaran ?? '-' }}</td>
                                             <td class="border p-2">{{ new Date(p.updated_at).toLocaleDateString('id-ID')
                                                 }}</td>

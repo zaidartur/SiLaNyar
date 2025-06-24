@@ -42,7 +42,10 @@ const props = defineProps<{
 }>();
 
 const page = usePage();
-const permissions = page.props.auth.permissions as string[];
+const permissions =
+    (page.props.auth && Array.isArray((page.props.auth as any).permissions))
+        ? ((page.props.auth as any).permissions as string[])
+        : [];
 
 const can = (permission: string): boolean => {
     return permissions.includes(permission);
@@ -57,7 +60,7 @@ const formatTanggal = (tanggalStr: string) => {
     });
 };
 
-const statusLabels = {
+const statusLabels: Record<string, string> = {
     diproses: 'Diproses',
     selesai: 'Selesai',
 };
@@ -117,7 +120,7 @@ function updateStatus(newStatus: string) {
             </div>
 
             <!-- Edit Status -->
-            <div class="rounded-lg bg-white p-6 shadow" v-if="can('edit pengujian') && availableStatus.length > 0">
+            <div class="rounded-lg bg-white p-6 shadow" v-if="can('edit status pengujian') && availableStatus.length > 0">
                 <h2 class="mb-4 text-xl font-semibold">Ubah Status Pengujian</h2>
                 <div class="mb-4">
                     <label class="mb-2 block text-sm font-medium text-gray-700">Status Saat Ini:</label>
@@ -139,17 +142,6 @@ function updateStatus(newStatus: string) {
                         </button>
                     </div>
                 </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex gap-4">
-                <Link
-                    v-if="can('edit pengujian')"
-                    :href="route('pegawai.pengujian.edit', props.pengujian.id)"
-                    class="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                >
-                    Edit Pengujian
-                </Link>
             </div>
         </div>
     </AdminLayout>

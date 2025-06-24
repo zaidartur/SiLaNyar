@@ -18,6 +18,7 @@ interface Pengajuan {
     kode_pengajuan: string;
     instansi: Instansi;
     metode_pengambilan: string;
+    status_pengajuan: string;
 }
 
 interface Jadwal {
@@ -84,6 +85,7 @@ const submit = () => {
 </script>
 
 <template>
+
     <Head title="Edit Jadwal Pengambilan" />
     <AdminLayout>
         <div class="space-y-6 p-6">
@@ -92,31 +94,21 @@ const submit = () => {
             <form @submit.prevent="submit" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium">Kode Form Pengajuan</label>
-                    <input
-                        :value="props.jadwal.form_pengajuan?.kode_pengajuan"
-                        class="w-full rounded border border-gray-300 bg-gray-100 px-3 py-2"
-                        disabled
-                    />
+                    <input :value="props.jadwal.form_pengajuan?.kode_pengajuan"
+                        class="w-full rounded border border-gray-300 bg-gray-100 px-3 py-2" disabled />
                 </div>
 
                 <div>
                     <label class="mb-1 block text-sm font-medium text-gray-700">Nama Pengambil/Penerima</label>
-                    <input
-                        :value="props.jadwal.user?.nama"
-                        class="w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 text-gray-600"
-                        disabled
-                    />
+                    <input :value="props.jadwal.user?.nama"
+                        class="w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 text-gray-600" disabled />
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium">Waktu Pengambilan</label>
-                    <input
-                        type="date"
-                        v-model="form.waktu_pengambilan"
-                        :min="minDate"
+                    <input type="date" v-model="form.waktu_pengambilan" :min="minDate"
                         class="w-full rounded border border-gray-300 p-2"
-                        :disabled="metode === 'diantar' || metode === 'diambil'"
-                    />
+                        :disabled="metode === 'diantar' || metode === 'diambil'" />
                     <div v-if="form.errors.waktu_pengambilan" class="mt-1 text-sm text-red-500">
                         {{ form.errors.waktu_pengambilan }}
                     </div>
@@ -128,10 +120,15 @@ const submit = () => {
 
                 <div>
                     <label class="block text-sm font-medium">Status</label>
-                    <select v-model="form.status" class="w-full rounded border border-gray-300 p-2">
+                    <select v-model="form.status" class="w-full rounded border border-gray-300 p-2"
+                        :disabled="props.jadwal.form_pengajuan?.metode_pengambilan === 'diantar' && props.jadwal.form_pengajuan?.status_pengajuan === 'proses_validasi'">
                         <option value="diproses">Diproses</option>
                         <option value="diterima">Diterima</option>
                     </select>
+                    <div v-if="props.jadwal.form_pengajuan?.metode_pengambilan === 'diantar' && props.jadwal.form_pengajuan?.status_pengajuan === 'proses_validasi'"
+                        class="mt-1 text-xs text-yellow-600">
+                        Status tidak bisa diubah sebelum pengajuan diterima.
+                    </div>
                     <div v-if="form.errors.status" class="mt-1 text-sm text-red-500">
                         {{ form.errors.status }}
                     </div>
@@ -139,18 +136,15 @@ const submit = () => {
 
                 <div>
                     <label class="block text-sm font-medium">Keterangan</label>
-                    <textarea
-                        v-model="form.keterangan"
-                        class="w-full rounded border border-gray-300 p-2"
-                        :disabled="metode === 'diantar'"
-                        rows="3"
-                    ></textarea>
+                    <textarea v-model="form.keterangan" class="w-full rounded border border-gray-300 p-2"
+                        :disabled="metode === 'diantar'" rows="3"></textarea>
                     <div v-if="form.errors.keterangan" class="mt-1 text-sm text-red-500">
                         {{ form.errors.keterangan }}
                     </div>
                 </div>
 
-                <button type="submit" class="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">Simpan</button>
+                <button type="submit"
+                    class="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">Simpan</button>
             </form>
         </div>
     </AdminLayout>

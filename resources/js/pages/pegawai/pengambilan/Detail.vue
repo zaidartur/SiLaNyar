@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue'
-import { Link } from '@inertiajs/vue3'
+import { Link, Head } from '@inertiajs/vue3'
 
 interface User {
     id: number
@@ -46,6 +46,7 @@ const formatTanggal = (tanggalStr: string) => {
 </script>
 
 <template>
+    <Head title="Detail Jadwal Pengambilan" />
     <AdminLayout>
         <div class="p-6 max-w-3xl mx-auto">
             <h1 class="text-2xl font-bold text-customDarkGreen mb-6 flex items-center gap-2">

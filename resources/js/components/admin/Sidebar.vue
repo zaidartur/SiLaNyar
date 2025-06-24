@@ -158,7 +158,7 @@ const toggle = (menu: 'daftar' | 'kategori') => {
             </a>
 
             <!-- Menu User -->
-            <a v-if="can('kelola user')" href="/superadmin/users" class="flex items-center gap-3 rounded px-3 py-3 hover:bg-green-700">
+            <!-- <a v-if="can('kelola user')" href="/superadmin/users" class="flex items-center gap-3 rounded px-3 py-3 hover:bg-green-700">
                 <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <mask id="mask0_1549_918" style="mask-type: alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="40" height="40">
                         <rect y="0.326172" width="40" height="39.3477" fill="#D9D9D9" />
@@ -171,7 +171,7 @@ const toggle = (menu: 'daftar' | 'kategori') => {
                     </g>
                 </svg>
                 <span>User</span>
-            </a>
+            </a> -->
 
             <!-- Menu Daftar -->
             <div class="space-y-1" v-if="can('lihat pengambilan') || can('lihat pengajuan') || can('lihat pengujian')">
@@ -283,7 +283,7 @@ const toggle = (menu: 'daftar' | 'kategori') => {
                             href="/pegawai/kategori"
                             class="flex items-center gap-3 rounded px-3 py-3 hover:bg-green-700"
                         >
-                            <span>Detail Kategori</span>
+                            <span>Kategori</span>
                         </Link>
                         <Link
                             v-if="can('kelola subkategori')"

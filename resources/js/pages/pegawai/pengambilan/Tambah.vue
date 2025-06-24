@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useForm, usePage } from '@inertiajs/vue3';
+import { useForm, usePage, Head } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 interface User {
@@ -39,9 +39,11 @@ const submit = () => {
 </script>
 
 <template>
+    <Head title="Tambah Jadwal" />
     <div class="h-screen w-full bg-white lg:grid lg:grid-cols-3">
         <!-- Left Side - Logo Section -->
-        <div class="hidden h-screen flex-col bg-customDarkGreen lg:col-span-1 lg:flex lg:items-center lg:justify-center">
+        <div
+            class="hidden h-screen flex-col bg-customDarkGreen lg:col-span-1 lg:flex lg:items-center lg:justify-center">
             <img src="/assets/assetsadmin/logodlh.png" alt="Logo DLH" class="mx-auto h-48 w-auto object-contain" />
             <div class="mt-6 text-center text-white">
                 <h2 class="mb-2 border-b border-white pb-2 text-2xl font-bold">SiLanYar</h2>
@@ -60,16 +62,20 @@ const submit = () => {
                     <!-- Kode Form Pengajuan -->
                     <div class="grid gap-2">
                         <label for="id_form_pengajuan" class="font-semibold">Kode Form Pengajuan</label>
-                        <select id="id_form_pengajuan" v-model="form.id_form_pengajuan" required class="w-full rounded border px-3 py-2">
+                        <select id="id_form_pengajuan" v-model="form.id_form_pengajuan" required
+                            class="w-full rounded border px-3 py-2">
                             <option value="">Pilih Kode Form Pengajuan</option>
-                            <option v-for="fp in form_pengajuan" :key="fp.id" :value="fp.id">{{ fp.kode_pengajuan }} - {{ fp.instansi.nama }}</option>
+                            <option v-for="fp in form_pengajuan" :key="fp.id" :value="fp.id">{{ fp.kode_pengajuan }} -
+                                {{ fp.instansi.nama }}</option>
                         </select>
                         <span v-if="form.errors.id_form_pengajuan" class="text-sm text-red-600">
                             {{ form.errors.id_form_pengajuan }}
                         </span>
-                        <div v-if="form_pengajuan.length === 0" class="rounded border border-yellow-200 bg-yellow-50 p-2 text-sm text-yellow-600">
-                            Tidak ada form pengajuan yang tersedia. Semua pengajuan dengan metode "diambil" sudah memiliki jadwal atau belum ada
-                            pengajuan dengan metode "diambil".
+                        <div v-if="form_pengajuan.length === 0"
+                            class="rounded border border-yellow-200 bg-yellow-50 p-2 text-sm text-yellow-600">
+                            Tidak ada form pengajuan yang tersedia. Hanya pengajuan dengan metode <b>"diambil"</b> dan
+                            status <b>"diterima"</b> yang bisa dijadwalkan. Jika status pengujian masih
+                            <b>proses_validasi</b>, jadwal tidak dapat dibuat.
                         </div>
                     </div>
 
@@ -90,14 +96,8 @@ const submit = () => {
                     <!-- Waktu Pengambilan -->
                     <div class="grid gap-2">
                         <label for="waktu_pengambilan" class="font-semibold">Waktu Pengambilan</label>
-                        <input
-                            id="waktu_pengambilan"
-                            type="date"
-                            v-model="form.waktu_pengambilan"
-                            :min="todayDate"
-                            required
-                            class="w-full rounded border px-3 py-2"
-                        />
+                        <input id="waktu_pengambilan" type="date" v-model="form.waktu_pengambilan" :min="todayDate"
+                            required class="w-full rounded border px-3 py-2" />
                         <span v-if="form.errors.waktu_pengambilan" class="text-sm text-red-600">
                             {{ form.errors.waktu_pengambilan }}
                         </span>
@@ -106,15 +106,18 @@ const submit = () => {
 
                     <!-- Keterangan -->
                     <div class="grid gap-2">
-                        <label for="keterangan" class="font-semibold">Keterangan <span class="text-xs text-gray-400">(Opsional)</span></label>
-                        <textarea id="keterangan" v-model="form.keterangan" class="w-full rounded border px-3 py-2" rows="3"></textarea>
+                        <label for="keterangan" class="font-semibold">Keterangan <span
+                                class="text-xs text-gray-400">(Opsional)</span></label>
+                        <textarea id="keterangan" v-model="form.keterangan" class="w-full rounded border px-3 py-2"
+                            rows="3"></textarea>
                         <span v-if="form.errors.keterangan" class="text-sm text-red-600">
                             {{ form.errors.keterangan }}
                         </span>
                     </div>
                 </div>
 
-                <button type="submit" class="mb-8 w-full rounded bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700">Simpan</button>
+                <button type="submit"
+                    class="mb-8 w-full rounded bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700">Simpan</button>
             </form>
         </div>
     </div>

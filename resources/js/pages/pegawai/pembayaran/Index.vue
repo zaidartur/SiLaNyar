@@ -84,8 +84,8 @@ function isPaymentCompleted(status: string): boolean {
                                         item.status_pembayaran === 'selesai'
                                             ? 'border border-green-400 bg-green-100 text-green-700'
                                             : item.status_pembayaran === 'gagal'
-                                              ? 'border border-red-400 bg-red-100 text-red-700'
-                                              : 'border border-yellow-400 bg-yellow-100 text-yellow-800',
+                                            ? 'border border-red-400 bg-red-100 text-red-700'
+                                            : 'border border-yellow-400 bg-yellow-100 text-yellow-800',
                                     ]"
                                 >
                                     {{ item.status_pembayaran.toUpperCase() }}

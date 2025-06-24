@@ -85,7 +85,7 @@ class KategoriController extends Controller
             'subkategori.*' => 'required|exists:subkategori,id',
             'parameter' => 'nullable|array',
             'parameter.*.id' => 'required|exists:parameter_uji,id',
-            'parameter.*.baku_mutu' => 'required_with:parameter.*.id|string|max:255',
+            'parameter..baku_mutu' => 'required_with:parameter..id|string|max:255',
         ], [
             'nama.required' => 'Nama Kategori Wajib Diisi.',
             'nama.unique' => 'Nama Kategori Tidak Boleh Sama.',
@@ -99,11 +99,11 @@ class KategoriController extends Controller
             'parameter.*.baku_mutu.required_with' => 'Baku Mutu Wajib Diisi Untuk Parameter Yang Dipilih.',
         ]);
 
-        if (
-            empty($request->subkategori) && empty($request->parameter)
-        ) {
-            return Redirect::back()
-                ->withErrors(['subkategori' => 'Pilih Minimal Satu Sub Kategori atau Parameter']);
+        if (!empty($request->subkategori) && !empty($request->parameter)) {
+            return Redirect::back()->withErrors(['subkategori' => 'Anda Tidak Bisa Menambah Sub Kategori, Jika Parameter Diisi!.', 'parameter' => 'Anda Tidak Bisa Menambah Parameter, Jika Sub Kategori Diisi!.'])->withInput();
+        }
+        if (empty($request->subkategori) && empty($request->parameter)) {
+            return Redirect::back()->withErrors(['subkategori' => 'Pilih Minimal Satu Sub Kategori atau Parameter', 'parameter' => 'Pilih Minimal Satu Sub Kategori atau Parameter'])->withInput();
         }
 
         $kategori = Kategori::create($request->only([
@@ -170,18 +170,18 @@ class KategoriController extends Controller
             'subkategori.*' => 'required|exists:subkategori,id',
             'parameter' => 'nullable|array',
             'parameter.*.id' => 'required|exists:parameter_uji,id',
-            'parameter.*.baku_mutu' => 'required_with:parameter.*.id|string|max:255'
+            'parameter..baku_mutu' => 'required_with:parameter..id|string|max:255'
         ];
 
         if ($request->nama != $kategori->nama) {
             $rules['nama'] .= '|unique:kategori,nama';
         }
 
-        if (
-            empty($request->subkategori) && empty($request->parameter)
-        ) {
-            return Redirect::back()
-                ->withErrors(['subkategori' => 'Pilih Minimal Satu Sub Kategori atau Parameter']);
+        if (!empty($request->subkategori) && !empty($request->parameter)) {
+            return Redirect::back()->withErrors(['subkategori' => 'Anda Tidak Bisa Menambah Sub Kategori, Jika Parameter Diisi!.', 'parameter' => 'Anda Tidak Bisa Menambah Parameter, Jika Sub Kategori Diisi!.'])->withInput();
+        }
+        if (empty($request->subkategori) && empty($request->parameter)) {
+            return Redirect::back()->withErrors(['subkategori' => 'Pilih Minimal Satu Sub Kategori atau Parameter', 'parameter' => 'Pilih Minimal Satu Sub Kategori atau Parameter'])->withInput();
         }
 
         $validatedData = $request->validate($rules, [
