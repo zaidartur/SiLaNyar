@@ -66,38 +66,42 @@ class DashboardController extends Controller
             $hasiluji = $pengujian?->hasil_uji
                 ->firstWhere('status', 'selesai');
 
-            // $pengajuanDiterima = $pilihPengajuan->status_pengajuan === 'diterima';
-            // $pembayaranSelesai = $pengajuanDiterima && $pilihPengajuan->pembayaran && $pilihPengajuan->pembayaran->status === 'selesai'
+            $pengajuanDiterima = $pilihPengajuan->status_pengajuan === 'diterima';
+            $pembayaranDiterima = $pengajuanDiterima && $pilihPengajuan->pembayaran && $pilihPengajuan->pembayaran->status === 'selesai';
+            $jadwalDiproses = $pembayaranDiterima && $pilihPengajuan->jadwal && ($pilihPengajuan->jadwal->status === 'diproses' || $pilihPengajuan->jadwal->status === 'diterima');
+            $sampelDiterima = $jadwalDiproses && $pilihPengajuan->jadwal && $pilihPengajuan->jadwal->status === 'diterima';
+            $pengujianBerjalan = $sampelDiterima && $pengujian && ($pengujian->status === 'diproses' || $pengujian->status === 'selesai');
+            $hasilUjiTersedia = $pengujianBerjalan && $hasiluji && ($hasiluji->status === 'selesai' || $hasiluji->status === 'proses_review' || $hasiluji->status === 'proses_peresmian');
             $statusList = [
                 [
                     'label' => 'Pengajuan Diterima',
-                    'status' => $pilihPengajuan->status_pengajuan === 'diterima',
-                    'tanggal' => $pilihPengajuan->status_pengajuan === 'diterima' ? $pilihPengajuan->updated_at->format('d-m-Y') : 'menunggu',
+                    'status' => $pengajuanDiterima,
+                    'tanggal' => $pengajuanDiterima ? $pilihPengajuan->updated_at->format('d-m-Y') : 'menunggu',
                 ],
                 [
                     'label' => 'Pembayaran',
-                    'status' => $pilihPengajuan->pembayaran && $pilihPengajuan->pembayaran->status === 'diterima',
-                    'tanggal' => $pilihPengajuan->pembayaran && $pilihPengajuan->pembayaran->status === 'diterima' ? $pilihPengajuan->pembayaran->updated_at->format('d-m-Y') : 'menunggu',
+                    'status' => $pembayaranDiterima,
+                    'tanggal' => $pembayaranDiterima ? $pilihPengajuan->pembayaran->updated_at->format('d-m-Y') : 'menunggu',
                 ],
                 [
                     'label' => 'Jadwal Sampel',
-                    'status' => $pilihPengajuan->status_pengajuan === 'diterima' && $pilihPengajuan->jadwal && $pilihPengajuan->jadwal->status === 'diproses',
-                    'tanggal' => $pilihPengajuan->jadwal && $pilihPengajuan->jadwal->status === 'diproses' ? $pilihPengajuan->jadwal->created_at->format('d-m-Y') : 'menunggu'
+                    'status' => $jadwalDiproses,
+                    'tanggal' => $jadwalDiproses ? $pilihPengajuan->jadwal->created_at->format('d-m-Y') : 'menunggu'
                 ],
                 [
                     'label' => 'Sampel Diterima Lab',
-                    'status' => $pilihPengajuan->jadwal && $pilihPengajuan->jadwal->status === 'selesai',
-                    'tanggal' => $pilihPengajuan->jadwal && $pilihPengajuan->jadwal->status === 'selesai' ? $pilihPengajuan->jadwal->updated_at->format('d-m-Y') : 'menunggu',
+                    'status' => $sampelDiterima,
+                    'tanggal' => $sampelDiterima ? $pilihPengajuan->jadwal->updated_at->format('d-m-Y') : 'menunggu',
                 ],
                 [
                     'label' => 'Pengujian Berjalan',
-                    'status' => $pengujian && $pengujian->status === 'diproses',
-                    'tanggal' => $pengujian && $pengujian->status === 'diproses' ? $pengujian->created_at->format('d-m-Y') : 'menunggu',
+                    'status' => $pengujianBerjalan,
+                    'tanggal' => $pengujianBerjalan ? $pengujian->created_at->format('d-m-Y') : 'menunggu',
                 ],
                 [
                     'label' => 'Hasil Tersedia',
-                    'status' => $hasiluji && $hasiluji->status === 'selesai',
-                    'tanggal' => $hasiluji && $hasiluji->status === 'selesai' ? $hasiluji->updated_at->format('d-m-Y') : 'menunggu'
+                    'status' => $hasilUjiTersedia,
+                    'tanggal' => $hasilUjiTersedia ? $hasiluji->updated_at->format('d-m-Y') : 'menunggu'
                 ]
             ];
         } else {

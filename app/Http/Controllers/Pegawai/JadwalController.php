@@ -8,6 +8,7 @@ use App\Models\Jadwal;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
@@ -20,7 +21,13 @@ class JadwalController extends Controller
         $filterByTanggal = $request->input('waktu_pengambilan');
         $filterByMetode = $request->input('metode_pengambilan');
 
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
         $jadwal = Jadwal::with('form_pengajuan.instansi.user', 'user')
+            ->when($user->hasRole('teknisi'), function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
             ->when($filterByTanggal, function ($query) use ($filterByTanggal) {
                 $query->whereDate('waktu_pengambilan', $filterByTanggal);
             })
