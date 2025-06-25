@@ -79,7 +79,7 @@ class JadwalController extends Controller
             ->where('status_pengajuan', 'diterima')
             ->whereDoesntHave('jadwal') // Exclude pengajuan that already have jadwal
             ->get();
-            
+
         $user = User::whereHas('roles', function ($query) {
             $query->where('name', 'teknisi');
         })->get();
