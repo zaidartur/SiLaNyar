@@ -2,8 +2,8 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useForm } from '@inertiajs/vue3';
-import { watch } from 'vue';
+import { useForm, Head } from '@inertiajs/vue3';
+import { watch, computed } from 'vue';
 
 interface Parameter {
     id: number;
@@ -15,6 +15,7 @@ interface Parameter {
 interface Pengujian {
     id: number;
     kode_pengujian: string;
+    status: string;
     form_pengajuan: {
         kode_pengajuan: string;
         instansi: {
@@ -37,6 +38,10 @@ const form = useForm({
         keterangan: '',
     })),
 });
+
+const pengujianSelesai = computed(() =>
+    props.pengujianList.filter(item => item.status === 'selesai')
+);
 
 // const selectedPengujian = computed(() =>
 //     props.pengujianList.find(p => p.id === form.id_pengujian)
@@ -64,6 +69,7 @@ const submit = () => {
 </script>
 
 <template>
+    <Head title="Tambah Hasil Uji" />
     <div class="h-screen w-full bg-white lg:grid lg:grid-cols-3">
         <!-- Left Side - Logo Section -->
         <div class="hidden h-screen flex-col bg-customDarkGreen lg:col-span-1 lg:flex lg:items-center lg:justify-center">
@@ -86,7 +92,7 @@ const submit = () => {
                     <Label for="id_pengujian">Pilih Pengujian</Label>
                     <select v-model="form.id_pengujian" id="id_pengujian" class="mt-1 w-full rounded border p-2">
                         <option :value="null" disabled>Pilih Pengujian</option>
-                        <option v-for="item in pengujianList" :key="item.id" :value="item.id">
+                        <option v-for="item in pengujianSelesai" :key="item.id" :value="item.id">
                             {{ item.kode_pengujian }} - {{ item.form_pengajuan.instansi.nama }}
                         </option>
                     </select>

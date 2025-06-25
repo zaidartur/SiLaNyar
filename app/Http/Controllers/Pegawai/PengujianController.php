@@ -206,7 +206,7 @@ class PengujianController extends Controller
         $pengujian->update([
             'id_form_pengajuan' => $request->id_form_pengajuan,
             'id_kategori' => $id_kategori,
-            'id_user' => $user->id,
+            'id_user' => $pengujian->id_user,
             'tanggal_uji' => $request->tanggal_uji,
             'jam_mulai' => $request->jam_mulai,
             'jam_selesai' => $request->jam_selesai,

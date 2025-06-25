@@ -54,6 +54,7 @@ class HasilUjiController extends Controller
         return Inertia::render('pegawai/hasil_uji/Index', [
             'hasil_uji' => $hasil_uji,
             'unscheduled_pengujian' => $unscheduled_pengujian,
+            'userRole' => Auth::user()->roles->pluck('name')->first(),
         ]);
     }
 

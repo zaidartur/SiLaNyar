@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Auth;
 
 class JadwalController extends Controller
 {
@@ -24,10 +23,12 @@ class JadwalController extends Controller
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
-
         if ($user->hasRole('teknisi')) {
             $jadwal = Jadwal::with('form_pengajuan.instansi.user', 'user')
                 ->where('id_user', $user->id)
+                ->whereHas('form_pengajuan', function ($q) {
+                    $q->where('metode_pengambilan', 'diambil');
+                })
                 ->when($filterByTanggal, function ($query) use ($filterByTanggal) {
                     $query->whereDate('waktu_pengambilan', $filterByTanggal);
                 })
@@ -57,6 +58,15 @@ class JadwalController extends Controller
             'filter' => [
                 'status' => $filterByStatus,
                 'tanggal' => $filterByTanggal,
+            ],
+            'auth' => [
+                'user' => [
+                    'id' => $user->id,
+                    'nama' => $user->nama,
+                    'role' => $user->roles->pluck('name')->first(),
+                    'permissions' => $user->getAllPermissions()->pluck('name'),
+                ],
+                'permissions' => $user->getAllPermissions()->pluck('name'),
             ],
         ]);
     }

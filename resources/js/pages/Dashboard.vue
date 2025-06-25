@@ -74,7 +74,7 @@ const workflowSteps = ref([
                             Karanganyar.
                         </p>
                         <div class="mt-10">
-                            <Link :href="route('customer.pengajuan.index')"
+                            <Link :href="route('customer.dashboard')"
                                 class="rounded-lg bg-orange-400 px-6 py-3 text-lg font-semibold text-white transition-colors hover:bg-orange-500">
                                 Pelajari Sistem Lab
                             </Link>
