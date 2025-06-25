@@ -10,7 +10,7 @@ import { ref } from 'vue';
 
 // const { hasil_uji } = defineProps<{ hasil_uji: any[] }>();
 
-const { hasil_uji, unscheduled_pengujian = [] } = defineProps<{ hasil_uji: any[], unscheduled_pengujian?: any[] }>();
+const { hasil_uji, unscheduled_pengujian = [], userRole } = defineProps<{ hasil_uji: any[], unscheduled_pengujian?: any[], userRole: string }>();
 
 const page = usePage();
 const permissions =
@@ -66,7 +66,7 @@ const handleDelete = () => {
     <AdminLayout>
         <div class="p-6">
             <!-- Warning for pengujian without hasil uji -->
-            <div v-if="unscheduled_pengujian && unscheduled_pengujian.filter(item => item.status === 'selesai').length > 0"
+            <div v-if="userRole === 'teknisi' && unscheduled_pengujian && unscheduled_pengujian.filter(item => item.status === 'selesai').length > 0"
                 class="mb-4">
                 <div class="rounded border-l-4 border-orange-500 bg-orange-100 p-3 text-orange-700">
                     <div class="flex">

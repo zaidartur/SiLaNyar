@@ -100,7 +100,7 @@ const props = defineProps<{
                 <h1 class="border-b p-4 text-2xl font-semibold">Dashboard Pengajuan</h1>
             </div>
 
-            <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-4">
                 <div class="space-y-6 lg:col-span-3">
                     <!-- Status Cards -->
                     <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -273,7 +273,7 @@ const props = defineProps<{
                 </div>
 
                 <!-- Right Section - Status Pengujian -->
-                <!-- <div class="lg:col-span-1">
+                <div class="lg:col-span-1">
                     <div class="sticky top-4 rounded-lg border border-gray-200 bg-white p-4 shadow-lg">
                         <h2 class="mb-4 flex items-center text-lg font-semibold">
                             <svg
@@ -325,7 +325,7 @@ const props = defineProps<{
                             </div>
                         </div>
                     </div>
-                </div> -->
+                </div>
             </div>
         </div>
     </CustomerLayout>

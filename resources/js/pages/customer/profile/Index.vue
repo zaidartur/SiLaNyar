@@ -3,7 +3,7 @@ import EditInstansi from '@/components/form/customer/profile/EditInstansi.vue';
 import TambahInstansi from '@/components/form/customer/profile/TambahInstansi.vue';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import CustomerLayout from '@/layouts/customer/CustomerLayout.vue';
-import { Head, router } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 import moment from 'moment';
 import { ref } from 'vue';
 

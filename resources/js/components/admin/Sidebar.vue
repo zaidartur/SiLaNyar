@@ -220,7 +220,7 @@ const toggle = (menu: 'daftar' | 'kategori') => {
                             :href="route('pegawai.pengambilan.index')"
                             class="flex items-center gap-3 rounded px-3 py-3 hover:bg-green-700"
                         >
-                            <span>Pengambilan</span>
+                            <span>Jadwal</span>
                         </Link>
                         <Link
                             v-if="can('lihat pengujian')"

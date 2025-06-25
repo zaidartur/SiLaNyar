@@ -103,8 +103,8 @@ watch([status, tanggal], () => {
 const isDeleteDisabled = (item: Jadwal): boolean => {
     // Tidak bisa hapus jika metode diantar
     return (
-        item.form_pengajuan?.metode_pengambilan === 'diantar' ||
-        (item.form_pengajuan?.metode_pengambilan === 'diambil' && item.status === 'diproses')
+        item.form_pengajuan?.metode_pengambilan === 'diantar' &&
+        item.status === 'diproses'
     );
 };
 
@@ -156,7 +156,12 @@ const can = (permission: string): boolean => {
     <AdminLayout>
         <div class="p-6">
             <div class="mb-6 flex items-center justify-between">
-                <h1 class="text-2xl font-bold text-black">JADWAL PENGAMBILAN DAN PENGANTARAN</h1>
+                <h1 class="text-2xl font-bold text-black">
+                    {{ auth.user && auth.user.role === 'admin'
+                    ? 'JADWAL PENGAMBILAN DAN PENGANTARAN'
+                    : 'JADWAL PENGAMBILAN'
+                    }}
+                </h1>
                 <Link v-if="can('tambah pengambilan')" href="/pegawai/pengambilan/create"
                     class="flex items-center gap-2 rounded bg-green-600 px-4 py-2 text-white transition hover:bg-green-700">
                 <span>+</span> Tambah
@@ -273,12 +278,7 @@ const can = (permission: string): boolean => {
                         </DialogTitle>
                     </DialogHeader>
                     <div class="text-center mt-2 mb-4">
-                        <template v-if="deletingJadwal?.form_pengajuan?.metode_pengambilan === 'diantar'">
-                            Jadwal dengan <b>metode diantar</b> tidak dapat dihapus.
-                        </template>
-                        <template v-else>
-                            Jadwal dengan status <b>diproses</b> tidak dapat dihapus.
-                        </template>
+                        Jadwal dengan <b>metode diantar</b> dan status <b>diproses</b> tidak dapat dihapus.
                     </div>
                     <div class="flex justify-center">
                         <button @click="showAlertModal = false"

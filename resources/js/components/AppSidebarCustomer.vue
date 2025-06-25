@@ -9,7 +9,7 @@ function toggleSidebar() {
 }
 
 defineProps<{
-    breadcrumbs?: any
+    breadcrumbs?: any,
 }>()
 </script>
 
