@@ -110,8 +110,6 @@ Route::prefix('customer')->middleware(['auth:web', 'role:customer'])->group(func
 Route::prefix('pegawai')->group(function () {
     //fitur pengajuan
     Route::get('pengajuan', [PegawaiPengajuanController::class, 'index'])->middleware('check.permission:lihat pengajuan')->name('pegawai.pengajuan.index');
-    Route::get('pengajuan/create', [PegawaiPengajuanController::class, 'create'])->middleware('check.permission:tambah pengajuan')->name('pegawai.pengajuan.create');
-    Route::get('pengajuan/store', [PegawaiPengajuanController::class, 'store'])->middleware('check.permission:tambah pengajuan');
     Route::get('pengajuan/{id}', [PegawaiPengajuanController::class, 'show'])->middleware('check.permission:detail pengajuan')->name('pegawai.pengajuan.detail');
     Route::get('pengajuan/edit/{pengajuan}', [PegawaiPengajuanController::class, 'edit'])->middleware('check.permission:edit pengajuan')->name('pegawai.pengajuan.edit');
     Route::put('pengajuan/{id}/edit', [PegawaiPengajuanController::class, 'update'])->middleware('check.permission:edit pengajuan')->name('pegawai.pengajuan.update');
@@ -177,9 +175,7 @@ Route::prefix('pegawai')->group(function () {
     //fitur parameter
     Route::middleware('check.permission:kelola parameter')->group(function () {
         Route::get('parameter/', [ParameterController::class, 'index'])->name('pegawai.parameter.index');
-        Route::get('parameter/create', [ParameterController::class, 'create'])->name('pegawai.parameter.tambah');
         Route::post('parameter/store', [ParameterController::class, 'store']);
-        // Route::get('parameter/edit/{parameter}', [ParameterController::class, 'edit'])->name('pegawai.parameter.edit');
         Route::put('parameter/{parameter}/edit', [ParameterController::class, 'update']);
         Route::delete('parameter/{id}', [ParameterController::class, 'destroy'])->name('pegawai.parameter.destroy');
     });
