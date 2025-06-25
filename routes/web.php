@@ -54,11 +54,6 @@ Route::prefix('superadmin')->middleware(['auth:web'])->group(function () {
     //fitur permission
     Route::middleware(['check.permission:kelola permission'])->group(function () {
         Route::get('permission', [PermissionController::class, 'index'])->name('superadmin.permission.index');
-        Route::get('permission/create', [PermissionController::class, 'create']);
-        Route::post('permission/store', [PermissionController::class, 'store']);
-        Route::get('permission/edit/{permission}', [PermissionController::class, 'edit']);
-        Route::put('permission/{permission}/edit', [PermissionController::class, 'update']);
-        Route::delete('permission/{id}', [PermissionController::class, 'destroy']);
     });
 
     //fitur role
@@ -120,7 +115,6 @@ Route::prefix('pegawai')->group(function () {
     Route::get('pengajuan/{id}', [PegawaiPengajuanController::class, 'show'])->middleware('check.permission:detail pengajuan')->name('pegawai.pengajuan.detail');
     Route::get('pengajuan/edit/{pengajuan}', [PegawaiPengajuanController::class, 'edit'])->middleware('check.permission:edit pengajuan')->name('pegawai.pengajuan.edit');
     Route::put('pengajuan/{id}/edit', [PegawaiPengajuanController::class, 'update'])->middleware('check.permission:edit pengajuan')->name('pegawai.pengajuan.update');
-    // Route::put('pengajuan/{id}/edit-parameter-kategori', [PegawaiPengajuanController::class, 'updateKategoriParameter'])->middleware('check.permission:edit pengajuan')->name('pegawai.pengajuan.update');
     Route::delete('pengajuan/{pengajuan}', [PegawaiPengajuanController::class, 'destroy'])->middleware('check.permission:hapus pengajuan')->name('pegawai.pengajuan.destroy');
 
     //fitur pembayaran

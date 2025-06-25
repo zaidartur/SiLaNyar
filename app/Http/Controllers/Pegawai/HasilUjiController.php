@@ -29,10 +29,23 @@ class HasilUjiController extends Controller
     // menampilkan daftar hasil uji
     public function index()
     {
-        $hasil_uji = HasilUji::with([
-            'pengujian.form_pengajuan.instansi.user',
-            'pengujian.user'
-        ])->get();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if ($user->hasRole('teknisi')) {
+            $hasil_uji = HasilUji::whereHas('pengujian', function ($query) use ($user) {
+                $query->where('id_user', $user->id);
+            })
+                ->with([
+                    'pengujian.form_pengajuan.instansi.user',
+                    'pengujian.user'
+                ])->get();
+        } else {
+            $hasil_uji = HasilUji::with([
+                'pengujian.form_pengajuan.instansi.user',
+                'pengujian.user'
+            ])->get();
+        }
 
         $unscheduled_pengujian = \App\Models\Pengujian::whereDoesntHave('hasil_uji')
             ->with('form_pengajuan.instansi')
@@ -49,6 +62,7 @@ class HasilUjiController extends Controller
     {
         $pengujianList = Pengujian::with('form_pengajuan.instansi.user')
             ->whereDoesntHave('hasil_uji')
+            ->where('status', 'selesai')
             ->select('id', 'kode_pengujian', 'id_form_pengajuan')
             ->get();
 
@@ -224,7 +238,7 @@ class HasilUjiController extends Controller
         ]);
     }
 
- public function update(HasilUji $hasil_uji, Request $request)
+    public function update(HasilUji $hasil_uji, Request $request)
     {
         /** @var \App\Models\User */
         $user = Auth::user();

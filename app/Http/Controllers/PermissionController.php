@@ -17,15 +17,4 @@ class PermissionController extends Controller
             'permission' => $permission
         ]);
     }
-
-    public function destroy($id)
-    {
-        $permission = Permissions::findOrFail($id);
-
-        $permission->delete();
-
-        if ($permission) {
-            return Redirect::route('superadmin.permission.index')->with('message', 'Permission Berhasil Dihapus!');
-        }
-    }
 }
