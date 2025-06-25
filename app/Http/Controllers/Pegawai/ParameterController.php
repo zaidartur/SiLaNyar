@@ -21,12 +21,6 @@ class ParameterController extends Controller
         ]);
     }
 
-    // //form tambah parameter
-    // public function create()
-    // {
-    //     return Inertia::render('pegawai/parameter/Tambah');
-    // }
-
     //proses tambah parameter
     public function store(Request $request)
     {
@@ -49,14 +43,6 @@ class ParameterController extends Controller
             return Redirect::route('pegawai.parameter.index')->with('message', 'Parameter Berhasil Dibuat!');
         }
     }
-
-    // //form edit parameter
-    // public function edit(ParameterUji $parameter)
-    // {
-    //     return Inertia::render('pegawai/parameter/Edit', [
-    //         'parameter' => $parameter
-    //     ]);
-    // }
 
     //proses update parameter
     public function update(ParameterUji $parameter, Request $request)

@@ -49,6 +49,7 @@ class HasilUjiController extends Controller
 
         $unscheduled_pengujian = \App\Models\Pengujian::whereDoesntHave('hasil_uji')
             ->with('form_pengajuan.instansi')
+            ->where('id_user', $user->id)
             ->get();
 
         return Inertia::render('pegawai/hasil_uji/Index', [
@@ -60,10 +61,12 @@ class HasilUjiController extends Controller
     // form tambah hasil uji
     public function create(Request $request)
     {
+        $user = Auth::user();
         $pengujianList = Pengujian::with('form_pengajuan.instansi.user')
             ->whereDoesntHave('hasil_uji')
+            ->where('id_user', $user->id)
             ->where('status', 'selesai')
-            ->select('id', 'kode_pengujian', 'id_form_pengajuan')
+            ->select('id', 'kode_pengujian', 'id_form_pengajuan', 'status')
             ->get();
 
         $pengujian = null;
@@ -373,6 +376,21 @@ class HasilUjiController extends Controller
             ]);
         }
 
+        $pengajuan = $hasil_uji->pengujian->form_pengajuan->id;
+
+        $hasilUjiLain = HasilUji::whereHas('pengujian', function ($query) use ($pengajuan, $hasil_uji) {
+            $query->where('id_form_pengajuan', $pengajuan)
+                ->where('id', '!=', $hasil_uji->id_pengujian);
+        })
+            ->whereIn('status', ['selesai', 'proses_peresmian', 'proses_review'])
+            ->exists();
+
+        if ($hasilUjiLain) {
+            return Redirect::back()->withErrors([
+                'status' => 'Tidak dapat memverifikasi hasil uji karena salah satu hasil uji dari pengajuan ini sudah disahkan (status final).',
+            ]);
+        }
+
         DB::beginTransaction();
 
         try {
@@ -470,61 +488,6 @@ class HasilUjiController extends Controller
             'parameter_pengujian' => $parameterPengujian,
             'parameter' => $availableParameters,
             'can_edit' => in_array($hasil_uji->status, ['draf', 'revisi'])
-        ]);
-    }
-
-    // form verifikasi hasil uji (untuk edit status)
-    public function editVerifikasi($id)
-    {
-        $hasil_uji = HasilUji::with([
-            'pengujian.form_pengajuan.kategori.parameter',
-            'pengujian.form_pengajuan.kategori.subkategori.parameter',
-            'pengujian.form_pengajuan.instansi.user',
-            'pengujian.user'
-        ])->findOrFail($id);
-
-        $parameterKategori = collect($hasil_uji->pengujian->form_pengajuan->kategori->parameter)->map(function ($param) {
-            return [
-                'id_parameter' => $param->id,
-                'nama_parameter' => $param->nama_parameter,
-                'satuan' => $param->satuan,
-                'baku_mutu' => $param->pivot->baku_mutu ?? null,
-            ];
-        });
-
-        $parameterSubKategori = collect($hasil_uji->pengujian->form_pengajuan->kategori->subkategori)->flatMap(function ($sub) {
-            return $sub->parameter->map(function ($param) {
-                return [
-                    'id_parameter' => $param->id,
-                    'nama_parameter' => $param->nama_parameter,
-                    'satuan' => $param->satuan,
-                    'baku_mutu' => $param->pivot->baku_mutu ?? null,
-                ];
-            });
-        });
-
-        $semuaParameter = $parameterKategori->merge($parameterSubKategori)->keyBy('id_parameter');
-
-        $parameterPengujian = DB::table('parameter_pengujian')
-            ->where('id_pengujian', $hasil_uji->id_pengujian)
-            ->get()
-            ->map(function ($item) use ($semuaParameter) {
-                $parameter = $semuaParameter[$item->id_parameter] ?? null;
-
-                return [
-                    'id_parameter' => $item->id_parameter,
-                    'nama_parameter' => $parameter['nama_parameter'] ?? 'Tidak Ditemukan',
-                    'satuan' => $parameter['satuan'] ?? null,
-                    'nilai' => $item->nilai ?? null,
-                    'baku_mutu' => $parameter['baku_mutu'] ?? null,
-                    'keterangan' => $item->keterangan ?? null
-                ];
-            });
-
-        return Inertia::render('pegawai/hasil_uji/Verifikasi', [
-            'hasil_uji' => $hasil_uji,
-            'pengujian' => $hasil_uji->pengujian,
-            'parameter' => $parameterPengujian
         ]);
     }
 
