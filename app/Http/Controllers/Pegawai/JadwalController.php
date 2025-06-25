@@ -20,6 +20,10 @@ class JadwalController extends Controller
         $filterByStatus = $request->input('status');
         $filterByTanggal = $request->input('waktu_pengambilan');
         $filterByMetode = $request->input('metode_pengambilan');
+        $unscheduled_pengajuan = FormPengajuan::with('instansi')
+            ->where('status_pengajuan', 'diterima')
+            ->whereDoesntHave('jadwal')
+            ->get();
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
@@ -68,6 +72,7 @@ class JadwalController extends Controller
                 ],
                 'permissions' => $user->getAllPermissions()->pluck('name'),
             ],
+            'unscheduled_pengajuan' => $unscheduled_pengajuan,
         ]);
     }
 
@@ -229,10 +234,6 @@ class JadwalController extends Controller
     public function destroy($id)
     {
         $jadwal = Jadwal::findOrFail($id);
-
-        if ($jadwal->status === 'diproses') {
-            return Redirect::back()->withErrors('Jadwal Tidak Dapat Dihapus, Jika Status Masih Proses');
-        }
 
         if ($jadwal->form_pengajuan->metode_pengambilan === 'diantar') {
             return Redirect::back()->withErrors('Jadwal Tidak Dapat Dihapus, Karena Metode Pengambilan Diantar');

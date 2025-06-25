@@ -46,6 +46,7 @@ const formatTanggal = (tanggalStr: string) => {
 </script>
 
 <template>
+
     <Head title="Detail Jadwal Pengambilan" />
     <AdminLayout>
         <div class="p-6 max-w-3xl mx-auto">
@@ -80,6 +81,12 @@ const formatTanggal = (tanggalStr: string) => {
                         <span class="font-semibold text-gray-700">Metode Pengambilan:</span>
                         <span class="ml-1 text-gray-900 capitalize">{{ props.jadwal.form_pengajuan?.metode_pengambilan
                             }}</span>
+                    </div>
+                    <div v-if="props.jadwal.form_pengajuan?.metode_pengambilan === 'diambil'"
+                        class="flex items-center gap-2">
+                        <span class="inline-block w-5 text-blue-400">📍</span>
+                        <span class="font-semibold text-gray-700">Lokasi Pengambilan:</span>
+                        <span class="ml-1 text-gray-900">{{ props.jadwal.form_pengajuan?.lokasi || '-' }}</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="inline-block w-5 text-blue-400">⏰</span>
