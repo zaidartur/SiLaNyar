@@ -49,6 +49,7 @@ class HasilUjiController extends Controller
 
         $unscheduled_pengujian = \App\Models\Pengujian::whereDoesntHave('hasil_uji')
             ->with('form_pengajuan.instansi')
+            ->where('id_user', $user->id)
             ->get();
 
         return Inertia::render('pegawai/hasil_uji/Index', [
@@ -61,10 +62,12 @@ class HasilUjiController extends Controller
     // form tambah hasil uji
     public function create(Request $request)
     {
+        $user = Auth::user();
         $pengujianList = Pengujian::with('form_pengajuan.instansi.user')
             ->whereDoesntHave('hasil_uji')
+            ->where('id_user', $user->id)
             ->where('status', 'selesai')
-            ->select('id', 'kode_pengujian', 'id_form_pengajuan')
+            ->select('id', 'kode_pengujian', 'id_form_pengajuan', 'status')
             ->get();
 
         $pengujian = null;

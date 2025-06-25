@@ -54,6 +54,7 @@ const props = defineProps<{
         status: string;
         tanggal: string;
     };
+    unscheduled_pengajuan?: any[];
 }>();
 
 const formatTanggal = (tanggalStr: string) => {
@@ -167,14 +168,24 @@ const can = (permission: string): boolean => {
                 <span>+</span> Tambah
                 </Link>
             </div>
-            <div v-if="auth.user && auth.user.role === 'admin'" class="mb-4">
-                <div class="rounded border-l-4 border-yellow-500 bg-yellow-100 p-3 text-yellow-700">
-                    Jika metode pengambilan <span class="font-bold">diambil</span>, maka harus tambah pengambilan
-                    terlebih dahulu.<br>
-                    <span class="block mt-1">
-                        Untuk dapat membuat jadwal dengan metode <span class="font-bold">diambil</span>, pastikan status
-                        pengujian sudah diubah menjadi <span class="font-bold">diterima</span>.
-                    </span>
+            <!-- Warning untuk pengajuan yang belum dijadwalkan (status diterima) -->
+            <div v-if="props.unscheduled_pengajuan && props.unscheduled_pengajuan.length > 0" class="mb-4">
+                <div class="rounded border-l-4 border-orange-500 bg-orange-100 p-3 text-orange-700">
+                    <div class="flex">
+                        <div class="ml-3">
+                            <p class="text-sm">
+                                <strong>⚠️ Peringatan:</strong> Ada {{ props.unscheduled_pengajuan.length }} pengajuan
+                                yang
+                                <span class="font-semibold">sudah diterima</span> namun <span
+                                    class="font-semibold">belum dijadwalkan untuk jadwal pengambilan</span>:
+                            </p>
+                            <ul class="mt-1 list-inside list-disc text-xs">
+                                <li v-for="item in props.unscheduled_pengajuan" :key="item.id">
+                                    {{ item.kode_pengajuan }} - {{ item.instansi?.nama }}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
 
