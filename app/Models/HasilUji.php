@@ -53,7 +53,7 @@ class HasilUji extends Model
         static::saving(function ($model) {
             $validTransitions = [
                 'draf' => ['revisi', 'proses_review'],
-                'revisi' => ['proses_review'],
+                'revisi' => ['proses_review', 'draf'],
                 'proses_review' => ['revisi', 'proses_peresmian'],
                 'proses_peresmian' => ['revisi', 'selesai'],
                 'selesai' => []
