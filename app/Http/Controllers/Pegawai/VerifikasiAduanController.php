@@ -35,6 +35,10 @@ class VerifikasiAduanController extends Controller
         $user = Auth::user();
         $aduan = Aduan::with(['hasil_uji.pengujian.form_pengajuan'])->findOrFail($id);
 
+        if (in_array($aduan->status, ['diterima_administrasi', 'diterima_pengujian', 'ditolak'])) {
+            return Redirect::back()->withErrors(['Aduan sudah diverifikasi dan tidak dapat diubah lagi.']);
+        }
+
         $request->validate([
             'status' => 'required|in:diterima_administrasi,diterima_pengujian,ditolak',
         ]);

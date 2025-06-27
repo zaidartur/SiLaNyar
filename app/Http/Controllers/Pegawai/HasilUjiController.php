@@ -20,7 +20,7 @@ class HasilUjiController extends Controller
 {
     private const STATUS_FLOW = [
         'draf' => ['proses_review', 'revisi'],
-        'revisi' => ['draf', 'proses_review'],
+        'revisi' => ['proses_review', 'draf'],
         'proses_review' => ['proses_peresmian', 'revisi'],
         'proses_peresmian' => ['selesai', 'revisi'],
         'selesai' => [],
@@ -395,11 +395,42 @@ class HasilUjiController extends Controller
         DB::beginTransaction();
 
         try {
+            $parameterKategori = collect($hasil_uji->pengujian->form_pengajuan->kategori->parameter)->map(function ($param) {
+                return [
+                    'id' => $param->id,
+                    'nama_parameter' => $param->nama_parameter,
+                    'satuan' => $param->satuan,
+                    'baku_mutu' => $param->pivot->baku_mutu ?? null,
+                ];
+            });
+
+            $parameterSubKategori = collect($hasil_uji->pengujian->form_pengajuan->kategori->subkategori)->flatMap(function ($sub) {
+                return $sub->parameter->map(function ($param) {
+                    return [
+                        'id' => $param->id,
+                        'nama_parameter' => $param->nama_parameter,
+                        'satuan' => $param->satuan,
+                        'baku_mutu' => $param->pivot->baku_mutu ?? null,
+                    ];
+                });
+            });
+
+            $semuaParameter = $parameterKategori->merge($parameterSubKategori)->keyBy('id');
+
             $dataSebelum = DB::table('parameter_pengujian')
                 ->where('id_pengujian', $hasil_uji->id_pengujian)
                 ->get(['id_parameter', 'nilai', 'keterangan'])
-                ->map(function ($item) {
-                    return (array) $item;
+                ->map(function ($item) use ($semuaParameter) {
+                    $parameter = $semuaParameter[$item->id_parameter] ?? null;
+
+                    return [
+                        'id_parameter' => $item->id_parameter,
+                        'nama_parameter' => $parameter['nama_parameter'] ?? 'Tidak Ditemukan',
+                        'satuan' => $parameter['satuan'] ?? null,
+                        'baku_mutu' => $parameter['baku_mutu'] ?? null,
+                        'nilai' => $item->nilai,
+                        'keterangan' => $item->keterangan,
+                    ];
                 });
 
             HasilUjiHistori::create([
@@ -488,7 +519,6 @@ class HasilUjiController extends Controller
             'hasil_uji' => $hasil_uji,
             'parameter_pengujian' => $parameterPengujian,
             'parameter' => $availableParameters,
-            'can_edit' => in_array($hasil_uji->status, ['draf', 'revisi'])
         ]);
     }
 
