@@ -51,6 +51,7 @@ function updateStatus(status: string) {
 </script>
 
 <template>
+
     <Head title="Detail Pembayaran" />
     <AdminLayout>
         <div class="p-6 bg-gray-50 min-h-screen">
@@ -121,14 +122,14 @@ function updateStatus(status: string) {
                                 @click="kembaliKeIndex">Tutup</button>
                             <button class="px-4 py-1 rounded bg-red-500 text-white text-sm"
                                 @click="updateStatus('gagal')"
-                                :disabled="pembayaran.status_pembayaran === 'belum_dibayar'"
-                                :class="pembayaran.status_pembayaran === 'belum_dibayar' ? 'opacity-50 cursor-not-allowed' : ''"
-                                :title="pembayaran.status_pembayaran === 'belum_dibayar' ? 'Menunggu customer membayar' : 'Tolak Pembayaran'">Tolak</button>
+                                :disabled="pembayaran.status_pembayaran === 'belum_dibayar' || pembayaran.status_pembayaran === 'gagal' || pembayaran.status_pembayaran === 'selesai'"
+                                :class="(pembayaran.status_pembayaran === 'belum_dibayar' || pembayaran.status_pembayaran === 'gagal' || pembayaran.status_pembayaran === 'selesai') ? 'opacity-50 cursor-not-allowed' : ''"
+                                :title="pembayaran.status_pembayaran === 'belum_dibayar' ? 'Menunggu customer membayar' : (pembayaran.status_pembayaran === 'gagal' ? 'Pembayaran sudah ditolak' : (pembayaran.status_pembayaran === 'selesai' ? 'Pembayaran sudah diverifikasi' : 'Tolak Pembayaran'))">Tolak</button>
                             <button class="px-4 py-1 rounded bg-green-600 text-white text-sm"
                                 @click="updateStatus('selesai')"
-                                :disabled="pembayaran.status_pembayaran === 'belum_dibayar'"
-                                :class="pembayaran.status_pembayaran === 'belum_dibayar' ? 'opacity-50 cursor-not-allowed' : ''"
-                                :title="pembayaran.status_pembayaran === 'belum_dibayar' ? 'Menunggu customer membayar' : 'Verifikasi Pembayaran'">Verifikasi</button>
+                                :disabled="pembayaran.status_pembayaran === 'belum_dibayar' || pembayaran.status_pembayaran === 'gagal' || pembayaran.status_pembayaran === 'selesai'"
+                                :class="(pembayaran.status_pembayaran === 'belum_dibayar' || pembayaran.status_pembayaran === 'gagal' || pembayaran.status_pembayaran === 'selesai') ? 'opacity-50 cursor-not-allowed' : ''"
+                                :title="pembayaran.status_pembayaran === 'belum_dibayar' ? 'Menunggu customer membayar' : (pembayaran.status_pembayaran === 'gagal' ? 'Pembayaran sudah ditolak' : (pembayaran.status_pembayaran === 'selesai' ? 'Pembayaran sudah diverifikasi' : 'Verifikasi Pembayaran'))">Verifikasi</button>
                         </div>
                         <div v-if="pembayaran.status_pembayaran === 'belum_dibayar'"
                             class="text-xs text-yellow-600 mt-2 text-right">
