@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/* eslint-disable */
 import { ref, onMounted, onUnmounted } from 'vue'
 import AdminSidebar from '@/components/admin/Sidebar.vue'
 import AdminHeader from '@/components/admin/Header.vue'

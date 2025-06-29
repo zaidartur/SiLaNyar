@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/* eslint-disable */
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';

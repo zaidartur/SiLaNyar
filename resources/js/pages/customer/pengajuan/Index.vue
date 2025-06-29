@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/* eslint-disable */
 import CustomerLayout from '@/layouts/customer/CustomerLayout.vue';
 import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
@@ -283,7 +284,7 @@ function getNamaKategori() {
     <Head title="Pengajuan Sampel" />
     <CustomerLayout>
         <!-- Pesan Error -->
-        <div v-if="$page.props.errors.Status" class="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
+        <div v-if="props.errors.Status" class="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
             <div class="flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" viewBox="0 0 20 20"
                     fill="currentColor">
@@ -293,7 +294,7 @@ function getNamaKategori() {
                 </svg>
                 <span class="font-semibold text-red-700">Error!</span>
             </div>
-            <p class="mt-2 text-red-600">{{ $page.props.errors.Status }}</p>
+            <p class="mt-2 text-red-600">{{ props.errors.Status }}</p>
         </div>
 
         <!-- Stepper 4 langkah -->

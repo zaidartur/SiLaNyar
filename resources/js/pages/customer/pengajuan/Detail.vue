@@ -3,15 +3,17 @@ import CustomerLayout from '@/layouts/customer/CustomerLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { defineProps } from 'vue';
 
-// interface User {
-//     id: number
-//     nama: string
-// }
+interface User {
+    id: number
+    nama: string
+}
 
 interface Instansi {
     id: number;
     nama: string;
     harga?: number;
+    no_telepon?: string;
+    user: User;
 }
 
 interface JenisCairan {
@@ -22,6 +24,7 @@ interface JenisCairan {
 interface Parameter {
     id: number;
     nama_parameter: string;
+    harga?: number;
 }
 
 interface Kategori {
@@ -111,6 +114,10 @@ const props = defineProps<{
                     <span class="font-semibold">{{ props.pengajuan.instansi.nama }}</span>
                 </div>
                 <div class="flex flex-col gap-1 rounded-lg bg-gray-50 p-4 shadow-lg">
+                    <span class="text-xs text-gray-500">No. Telepon Instansi</span>
+                    <span class="font-semibold">{{ props.pengajuan.instansi.no_telepon ?? '-' }}</span>
+                </div>
+                <div class="flex flex-col gap-1 rounded-lg bg-gray-50 p-4 shadow-lg">
                     <span class="text-xs text-gray-500">Jenis Cairan</span>
                     <span class="font-semibold">{{ props.pengajuan.jenis_cairan.nama }}</span>
                 </div>
@@ -149,9 +156,9 @@ const props = defineProps<{
                 </ul>
                 <div class="mt-4 flex justify-end font-semibold text-green-800">
                     Total Harga: Rp {{
-                        props.pengajuan.parameter
-                            .reduce((total, param) => total + Number(param.harga ?? 0), 0)
-                            .toLocaleString('id-ID')
+                    props.pengajuan.parameter
+                    .reduce((total, param) => total + Number(param.harga ?? 0), 0)
+                    .toLocaleString('id-ID')
                     }}
                 </div>
             </div>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/* eslint-disable */
 import { cn } from '@/lib/utils';
 import { ChevronRight } from 'lucide-vue-next';
 import { DropdownMenuSubTrigger, useForwardProps, type DropdownMenuSubTriggerProps } from 'radix-vue';

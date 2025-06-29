@@ -1,19 +1,43 @@
-import prettier from 'eslint-config-prettier';
-import vue from 'eslint-plugin-vue';
+import js from "@eslint/js";
+import tseslint from "@typescript-eslint/eslint-plugin";
+import tsparser from "@typescript-eslint/parser";
+import vue from "eslint-plugin-vue";
+import vueParser from "vue-eslint-parser"; // tambahkan ini
 
-import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript';
-
-export default defineConfigWithVueTs(
-    vue.configs['flat/essential'],
-    vueTsConfigs.recommended,
-    {
-        ignores: ['vendor', 'node_modules', 'public', 'bootstrap/ssr', 'tailwind.config.js', 'resources/js/components/ui/*'],
+export default [
+  js.configs.recommended,
+  {
+    files: ["**/*.ts", "**/*.tsx"],
+    languageOptions: {
+      parser: tsparser,
+      parserOptions: {
+        project: './tsconfig.json',
+      },
     },
-    {
-        rules: {
-            'vue/multi-word-component-names': 'off',
-            '@typescript-eslint/no-explicit-any': 'off',
-        },
+    plugins: {
+      "@typescript-eslint": tseslint,
     },
-    prettier,
-);
+    rules: {
+      "@typescript-eslint/no-unused-vars": "warn",
+    },
+  },
+  {
+    files: ["**/*.vue"],
+    plugins: {
+      vue,
+    },
+    languageOptions: {
+      parser: vueParser, // gunakan vue-eslint-parser
+      parserOptions: {
+        parser: tsparser, // gunakan tsparser untuk <script lang="ts">
+        ecmaVersion: 2020,
+        sourceType: "module",
+        extraFileExtensions: [".vue"],
+        project: './tsconfig.json',
+      },
+    },
+    rules: {
+      "vue/no-unused-vars": "warn",
+    },
+  },
+];

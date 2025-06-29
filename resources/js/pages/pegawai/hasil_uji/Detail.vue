@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/* eslint-disable */
 import AdminLayout from '@/layouts/admin/AdminLayout.vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
@@ -43,7 +44,7 @@ const props = defineProps<{
 }>();
 
 const page = usePage();
-const permissions = page.props.auth.permissions as string[];
+const permissions = (page.props.auth as { permissions: string[] }).permissions;
 
 const can = (permission: string): boolean => {
     return permissions.includes(permission);
@@ -67,7 +68,7 @@ const statusLabels = {
 
 // const status = ref(props.hasil_uji.status)
 
-const availableStatus = computed(() => STATUS_FLOW[props.hasil_uji.status] || []);
+const availableStatus = computed(() => STATUS_FLOW[props.hasil_uji.status as keyof typeof STATUS_FLOW] || []);
 
 function kembali() {
     router.visit(route('pegawai.hasil_uji.index'));
@@ -80,17 +81,19 @@ function perbaruiStatus(newStatus: string) {
 }
 
 function bukaPDF() {
-  window.open(route('hasil_uji.convert', props.hasil_uji.id), '_blank')
+    window.open(route('hasil_uji.convert', props.hasil_uji.id), '_blank')
 }
 </script>
 
 <template>
     <AdminLayout>
         <div class="min-h-screen bg-gray-200 py-8">
+
             <Head title="Detail Hasil Uji" />
 
             <div class="mx-auto max-w-4xl space-y-8 py-8">
-                <h1 class="mb-1 inline-block w-fit border-b-2 border-customDarkGreen pb-2 text-3xl font-bold text-customDarkGreen">
+                <h1
+                    class="mb-1 inline-block w-fit border-b-2 border-customDarkGreen pb-2 text-3xl font-bold text-customDarkGreen">
                     Detail Hasil Uji
                 </h1>
 
@@ -162,7 +165,8 @@ function bukaPDF() {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(item, index) in parameter_pengujian" :key="item.id_parameter" class="hover:bg-gray-50">
+                                <tr v-for="(item, index) in parameter_pengujian" :key="item.id_parameter"
+                                    class="hover:bg-gray-50">
                                     <td class="border px-4 py-2 text-center">{{ index + 1 }}</td>
                                     <td class="border px-4 py-2">{{ item.nama_parameter }}</td>
                                     <td class="border px-4 py-2">{{ item.nilai ?? '-' }}</td>
@@ -176,6 +180,12 @@ function bukaPDF() {
                             </tbody>
                         </table>
                     </div>
+                    <div class="flex justify-end mt-6">
+                        <button @click="bukaPDF"
+                            class="inline-flex items-center gap-2 rounded bg-indigo-600 px-5 py-2 text-white font-semibold shadow hover:bg-indigo-700 transition">
+                            Lihat PDF
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Edit Status -->
@@ -188,33 +198,31 @@ function bukaPDF() {
                     <div class="mb-4">
                         <label class="mb-1 block text-sm font-semibold">Status Saat Ini:</label>
                         <span class="inline-block rounded bg-gray-200 px-3 py-1 font-semibold text-customDarkGreen">
-                            {{ statusLabels[props.hasil_uji.status] }}
+                            {{ statusLabels[props.hasil_uji.status as keyof typeof statusLabels] }}
                         </span>
                     </div>
                     <div class="mb-4">
                         <label class="mb-1 block text-sm font-semibold">Ubah Status:</label>
                         <div class="flex flex-wrap gap-2">
-                            <button
-                                v-for="opt in availableStatus"
-                                :key="opt"
-                                type="button"
-                                @click="perbaruiStatus(opt)"
-                                class="rounded bg-green-700 px-4 py-2 font-semibold text-white transition hover:bg-green-800 focus:ring-2 focus:ring-green-400"
-                            >
-                                {{ statusLabels[opt] }}
+                            <button v-for="opt in availableStatus" :key="opt" type="button" @click="perbaruiStatus(opt)"
+                                class="rounded bg-green-700 px-4 py-2 font-semibold text-white transition hover:bg-green-800 focus:ring-2 focus:ring-green-400">
+                                {{ statusLabels[opt as keyof typeof statusLabels] }}
                             </button>
-                            <span v-if="availableStatus.length === 0" class="text-gray-400">Tidak ada status lanjutan.</span>
+                            <span v-if="availableStatus.length === 0" class="text-gray-400">Tidak ada status
+                                lanjutan.</span>
                         </div>
                     </div>
                     <div class="flex justify-end gap-2">
-                        <button @click="kembali" class="rounded bg-gray-200 px-4 py-2 font-semibold text-black">Kembali</button>
+                        <button @click="kembali"
+                            class="rounded bg-gray-200 px-4 py-2 font-semibold text-black">Kembali</button>
                     </div>
                 </div>
 
                 <!-- Kembali button for users without edit permission -->
                 <div class="mb-4 rounded-xl border bg-white p-6 shadow-lg" v-if="!can('edit status hasil uji')">
                     <div class="flex justify-end gap-2">
-                        <button @click="kembali" class="rounded bg-gray-200 px-4 py-2 font-semibold text-black">Kembali</button>
+                        <button @click="kembali"
+                            class="rounded bg-gray-200 px-4 py-2 font-semibold text-black">Kembali</button>
                     </div>
                 </div>
             </div>

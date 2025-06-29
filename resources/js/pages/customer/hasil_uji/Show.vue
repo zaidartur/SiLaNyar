@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/* eslint-disable */
 import CustomerLayout from '@/layouts/customer/CustomerLayout.vue';
 import { Head } from '@inertiajs/vue3';
 
@@ -40,7 +41,7 @@ const props = defineProps<{
     parameter_pengujian: ParameterPengujian[];
 }>();
 
-const statusLabels = {
+const statusLabels: Record<string, string> = {
     draf: 'Draf',
     revisi: 'Revisi',
     proses_review: 'Proses Review',

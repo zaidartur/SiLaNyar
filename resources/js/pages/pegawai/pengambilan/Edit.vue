@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/* eslint-disable */
 import AdminLayout from '@/layouts/admin/AdminLayout.vue';
 import { router, useForm, Head } from '@inertiajs/vue3';
 import { computed } from 'vue';

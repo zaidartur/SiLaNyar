@@ -10,9 +10,7 @@ interface Parameter {
     nama_parameter: string;
     satuan: string;
     harga: string;
-    pivot: {
-        baku_mutu: string;
-    };
+    baku_mutu?:string;
 }
 
 interface SubKategori {
@@ -146,8 +144,8 @@ const handleDelete = () => {
                             </td>
                             <td class="px-6 py-4 text-black">
                                 <ul class="ml-4 list-disc">
-                                    <li v-for="param in item.parameter" :key="param.id">{{ param.nama_parameter }} ({{
-                                        param.baku_mutu }})</li>
+                                    <li v-for="param in item.parameter" :key="param.id">
+                                        {{ param.nama_parameter }} ({{ param.baku_mutu ?? '-' }})</li>
                                 </ul>
                             </td>
                             <td class="px-6 py-4">

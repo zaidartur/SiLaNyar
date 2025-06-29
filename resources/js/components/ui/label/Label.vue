@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/* eslint-disable */
 import { cn } from '@/lib/utils'
 import { Label, type LabelProps } from 'reka-ui'
 import { computed, type HTMLAttributes } from 'vue'

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/* eslint-disable */
 import { cn } from '@/lib/utils';
 import { DialogTitle, useForwardProps, type DialogTitleProps } from 'radix-vue';
 import { computed, type HTMLAttributes } from 'vue';

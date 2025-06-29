@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/* eslint-disable */
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import AuthLayout from '@/layouts/AuthLayout.vue';

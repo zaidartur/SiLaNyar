@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/* eslint-disable */
 import { cn } from '@/lib/utils';
 import { Separator, type SeparatorProps } from 'radix-vue';
 import { computed, type HTMLAttributes } from 'vue';

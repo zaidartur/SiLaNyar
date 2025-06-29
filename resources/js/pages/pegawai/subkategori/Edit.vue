@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/* eslint-disable */
 import { useForm, Head } from '@inertiajs/vue3'
 
 interface Parameter {

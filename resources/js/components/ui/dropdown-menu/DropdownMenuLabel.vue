@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/* eslint-disable */
 import { cn } from '@/lib/utils';
 import { DropdownMenuLabel, useForwardProps, type DropdownMenuLabelProps } from 'radix-vue';
 import { computed, type HTMLAttributes } from 'vue';

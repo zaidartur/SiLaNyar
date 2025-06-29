@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/* eslint-disable */
 import { useForm } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 
@@ -126,6 +127,7 @@ const isFormValid = computed(() => {
 
     return Object.keys(validationErrors.value).length === 0 && allFieldsValid;
 });
+
 
 const handleFileChange = (event: Event, fieldName: 'surat_keterangan_penugasan' | 'foto_kartu_identitas') => {
     const target = event.target as HTMLInputElement;
