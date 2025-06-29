@@ -159,38 +159,7 @@ class PegawaiPengajuanControllerFeatureTest extends TestCase
             'status_pengajuan' => 'diterima'
         ]);
     }
-
-    // public function test_update_pengajuan_diantar_error_karena_bug()
-    // {
-    //     $data = [
-    //         'status_pengajuan' => 'diterima',
-    //         'id_kategori' => $this->kategori->id,
-    //         'parameter' => [$this->parameter->id],
-    //         'metode_pembayaran' => 'transfer'
-    //     ];
-
-    //     $response = $this->actingAs($this->pegawai)
-    //         ->put(route('pegawai.pengajuan.update', $this->pengajuanDiantar->id), $data);
-
-    //     // Controller akan error karena Pembayaran::createOrUpdate tidak ada
-    //     $response->assertRedirect()
-    //         ->assertSessionHas('error');
-    // }
-
-    // public function test_update_pengajuan_ditolak_error_karena_bug()
-    // {
-    //     $data = [
-    //         'status_pengajuan' => 'ditolak'
-    //     ];
-
-    //     $response = $this->actingAs($this->pegawai)
-    //         ->put(route('pegawai.pengajuan.update', $this->pengajuanDiantar->id), $data);
-
-    //     // Controller akan error karena mengakses $validated['id_kategori'] yang tidak ada
-    //     $response->assertRedirect()
-    //         ->assertSessionHas('error');
-    // }
-
+    
     public function test_destroy_pengajuan_berhasil()
     {
         $this->pengajuanDiantar->update(['status_pengajuan' => 'diterima']);

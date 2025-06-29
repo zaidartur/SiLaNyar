@@ -183,7 +183,7 @@ class PegawaiHasilUjiHistoriControllerFeatureTest extends TestCase
     {
         $userTanpaPermission = User::factory()->create();
         $rolePolos = Role::create([
-            'name' => 'role_polos', 
+            'name' => 'role_polos',
             'guard_name' => 'web',
             'kode_role' => 'RL-999'
         ]);

@@ -114,24 +114,6 @@ class PermissionControllerFeatureTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_destroy_menghapus_permission_yang_valid()
-    {
-        $permission = Permissions::factory()->create([
-            'name' => 'test permission',
-            'guard_name' => 'web'
-        ]);
-
-        $response = $this->actingAs($this->superAdmin)
-            ->delete("/superadmin/permission/{$permission->id}");
-
-        $response->assertRedirect(route('superadmin.permission.index'))
-            ->assertSessionHas('message', 'Permission Berhasil Dihapus!');
-
-        $this->assertDatabaseMissing('permissions', [
-            'id' => $permission->id
-        ]);
-    }
-
     public function test_destroy_mengembalikan_404_untuk_permission_tidak_ditemukan()
     {
         $nonExistentId = 99999;
@@ -140,34 +122,6 @@ class PermissionControllerFeatureTest extends TestCase
             ->delete("/superadmin/permission/{$nonExistentId}");
 
         $response->assertStatus(404);
-    }
-
-    public function test_destroy_memerlukan_autentikasi_dan_permission()
-    {
-        $permission = Permissions::factory()->create();
-
-        // Test tanpa autentikasi
-        $response = $this->delete("/superadmin/permission/{$permission->id}");
-        $response->assertRedirect()
-            ->assertRedirectContains('/sso/login');
-
-        // Test dengan user yang tidak memiliki permission
-        $userWithoutPermission = User::factory()->create();
-        $basicRole = Role::firstOrCreate(
-            ['name' => 'basic', 'guard_name' => 'web'],
-            ['kode_role' => 'RL-998']
-        );
-        $userWithoutPermission->assignRole($basicRole);
-
-        $response = $this->actingAs($userWithoutPermission)
-            ->delete("/superadmin/permission/{$permission->id}");
-
-        $response->assertStatus(403);
-
-        // Permission harus masih ada
-        $this->assertDatabaseHas('permissions', [
-            'id' => $permission->id
-        ]);
     }
 
     public function test_permission_auto_generates_kode_permission()

@@ -194,12 +194,10 @@ class PengujianController extends Controller
         }
 
         if ($form_pengajuan->status_pengajuan !== 'diterima') {
-            dd('Redirected because pengajuan not accepted');
             return redirect()->back()->with('error', 'Sebelum Melakukan Pengujian Harap Verifikasi Pengajuan Terlebih Dahulu!');
         }
 
         if (!$form_pengajuan->jadwal || $form_pengajuan->jadwal->status !== 'diterima') {
-            dd('Redirected because jadwal not accepted or not exists');
             return redirect()->back()->with('error', 'Jadwal Belum Diterima. Tidak Bisa Menambahkan Pengujian.');
         }
 
