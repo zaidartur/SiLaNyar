@@ -1,7 +1,7 @@
 <script setup lang="ts">
+
 import AdminLayout from '@/layouts/admin/AdminLayout.vue'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { router, Head } from '@inertiajs/vue3'
+import { Head } from '@inertiajs/vue3'
 import { ref, computed } from 'vue'
 
 interface Permission {

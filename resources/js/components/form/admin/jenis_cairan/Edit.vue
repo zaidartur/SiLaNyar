@@ -7,10 +7,11 @@ import { Label } from '@/components/ui/label'
 const props = defineProps<{
     jenis_cairan: {
         id: number,
+        kode_jenis_cairan: string,
         nama: string,
         batas_minimum: number,
-        batas_maksimum: '',
-    }
+        batas_maksimum: number | null,
+    } | null
 }>()
 
 const emit = defineEmits(['close'])
@@ -22,6 +23,7 @@ const form = useForm({
 })
 
 const submit = () => {
+    if (!props.jenis_cairan) return;
     form.put(`/pegawai/jenis-cairan/${props.jenis_cairan.id}/edit`, {
         onSuccess: () => emit('close')
     })

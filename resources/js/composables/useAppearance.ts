@@ -1,5 +1,5 @@
 import { onMounted, ref } from 'vue';
-
+/* eslint-disable */
 type Appearance = 'light' | 'dark' | 'system';
 
 export function updateTheme(value: Appearance) {

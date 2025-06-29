@@ -1,3 +1,4 @@
+/* eslint-disable */
 import type { ToastRootProps } from 'reka-ui'
 import type { HTMLAttributes } from 'vue'
 

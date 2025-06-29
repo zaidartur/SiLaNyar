@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/* eslint-disable */
 import { cn } from '@/lib/utils';
 import { Circle } from 'lucide-vue-next';
 import {

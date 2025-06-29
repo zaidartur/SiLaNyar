@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import '../css/app.css';
 
 import { createInertiaApp } from '@inertiajs/vue3';

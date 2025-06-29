@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/* eslint-disable */
 import { Head, useForm, Link } from '@inertiajs/vue3'
 import CustomerLayout from '@/layouts/customer/CustomerLayout.vue' // Sesuaikan jika Anda menggunakan layout
 

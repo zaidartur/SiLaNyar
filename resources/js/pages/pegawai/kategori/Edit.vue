@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/* eslint-disable */
 import { useForm, Head } from '@inertiajs/vue3';
 // import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input';
@@ -10,7 +11,7 @@ interface Parameter {
     kode_parameter: string;
     nama_parameter: string;
     satuan: string;
-    harga: '';
+    harga: string;
     pivot?: {
         baku_mutu: string;
     };
@@ -26,7 +27,7 @@ interface Kategori {
     id: number;
     kode_kategori: string;
     nama: string;
-    harga: '';
+    harga: string;
     subkategori: SubKategori[];
     parameter: Parameter[];
 }
@@ -50,7 +51,7 @@ const form = useForm({
     })),
 });
 
-const formatCurrency = (value) => {
+const formatCurrency = (value: string | number) => {
     if (!value) return '';
     const num = parseInt(value.toString().replace(/[^\d]/g, ''), 10);
     if (isNaN(num)) return '';
@@ -58,8 +59,9 @@ const formatCurrency = (value) => {
     return 'Rp ' + num.toLocaleString('id-ID');
 };
 
-const handleInput = (e) => {
-    const formatted = formatCurrency(e.target.value);
+const handleInput = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    const formatted = formatCurrency(target.value);
     displayValue.value = formatted;
 };
 

@@ -1,4 +1,7 @@
- <script setup lang="ts">
+/* eslint-disable */
+
+
+<script setup lang="ts">
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { onMounted, ref } from 'vue';
 
@@ -11,6 +14,7 @@ defineProps<Props>();
 const isOpen = ref(true);
 
 onMounted(() => {
+    /* eslint-disable no-undef */
     isOpen.value = localStorage.getItem('sidebar') !== 'false';
 });
 

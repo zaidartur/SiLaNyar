@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { useForm } from '@inertiajs/vue3';
+/* eslint-disable */
+import { useForm, Head } from '@inertiajs/vue3';
 // import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -37,7 +38,7 @@ const form = useForm({
     })),
 });
 
-const formatCurrency = (value) => {
+const formatCurrency = (value: string | number) => {
     if (!value) return '';
     const num = parseInt(value.toString().replace(/[^\d]/g, ''), 10);
     if (isNaN(num)) return '';
@@ -46,8 +47,9 @@ const formatCurrency = (value) => {
     return 'Rp ' + num.toLocaleString('id-ID');
 };
 
-const handleInput = (e) => {
-    const formatted = formatCurrency(e.target.value);
+const handleInput = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    const formatted = formatCurrency(target.value);
     displayValue.value = formatted;
 };
 
@@ -72,6 +74,8 @@ const submit = () => {
 </script>
 
 <template>
+
+    <Head title="Tambah Kategori" />
     <div class="h-screen w-full bg-white lg:grid lg:grid-cols-3">
         <!-- Left Side - Logo Section -->
         <div

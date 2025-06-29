@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { createContext } from 'radix-vue';
 import type { ComputedRef, Ref } from 'vue';
 

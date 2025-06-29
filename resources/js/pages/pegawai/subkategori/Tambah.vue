@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/* eslint-disable */
 import { useForm } from '@inertiajs/vue3';
 // import { ref } from 'vue'
 

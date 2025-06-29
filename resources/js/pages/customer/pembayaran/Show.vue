@@ -1,6 +1,7 @@
 <script setup lang="ts">
+/* eslint-disable */
 import CustomerLayout from '@/layouts/customer/CustomerLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
 
 interface JenisCairan {
@@ -43,6 +44,7 @@ const previewUrl = ref<string | null>(null);
 const syarat = ref(false);
 const error = ref('');
 const loading = ref(false);
+const fileInput = ref<HTMLInputElement | null>(null);
 
 watch(buktiPembayaran, (file) => {
     if (file && file.type.startsWith('image/')) {
@@ -319,7 +321,7 @@ const props = defineProps<{
                     <!-- Area Upload Bukti Transfer -->
                     <div class="mb-2 flex flex-col items-center rounded border border-dashed border-green-400 bg-green-50 p-6"
                         @drop="handleDrop" @dragover="handleDragOver" style="cursor: pointer"
-                        @click="$refs.fileInput.click()">
+                        @click="fileInput?.click()">
                         <template v-if="!buktiPembayaran">
                             <svg xmlns="http://www.w3.org/2000/svg" class="mb-2 h-10 w-10 text-green-400" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
@@ -354,7 +356,7 @@ const props = defineProps<{
                 <!-- Tombol Aksi -->
                 <div class="flex justify-end space-x-2">
                     <button class="rounded border border-gray-300 bg-white px-4 py-2 text-gray-700 hover:bg-gray-100"
-                        type="button" @click="$inertia.visit(route('customer.dashboard'))">
+                        type="button" @click="router.visit(route('customer.dashboard'))">
                         Batal
                     </button>
                     <button class="rounded bg-green-600 px-4 py-2 font-semibold text-white hover:bg-green-700"

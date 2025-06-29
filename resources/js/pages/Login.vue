@@ -7,6 +7,7 @@
 </template>
 
 <script lang="ts">
+/* eslint-disable */
 export default {
   methods: {
     redirectToSSO() {

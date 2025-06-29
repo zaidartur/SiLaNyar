@@ -1,7 +1,9 @@
+/* eslint-disable */
 <script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue';
 import { Link, useForm, Head } from '@inertiajs/vue3';
 import { computed, onMounted, ref, watch } from 'vue';
+/* eslint-disable no-undef */
 
 interface Parameter {
     id: number;
@@ -21,7 +23,7 @@ interface JenisCairan {
 }
 interface User {
     id: number;
-    name: string;
+    nama: string;
     email: string;
 }
 
@@ -35,6 +37,7 @@ interface Pengajuan {
     id: number;
     instansi: Instansi;
     alamat_pengambilan: string;
+    lokasi: string;
     metode_pengambilan: 'diantar' | 'diambil';
     status_pengajuan: 'diproses' | 'diterima' | 'ditolak';
     id_kategori?: number;

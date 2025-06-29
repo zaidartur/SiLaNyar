@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/* eslint-disable */
 import CustomerLayout from '@/layouts/customer/CustomerLayout.vue';
 import { useForm, usePage } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';

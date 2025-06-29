@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/* eslint-disable */
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

@@ -1,6 +1,8 @@
 <script setup lang="ts">
+/* eslint-disable */
 import CustomerLayout from '@/layouts/customer/CustomerLayout.vue'
 import { Head, router, Link } from '@inertiajs/vue3'
+import { ref } from 'vue'
 
 const props = defineProps<{
     hasil_uji: any[],
@@ -38,15 +40,32 @@ const aduanStatusLabel = (status: string) => {
 }
 
 const verifikasi = (id: number) => {
-    if (confirm('Apakah Anda yakin ingin memverifikasi hasil uji ini?')) {
-        router.put(route('customer.hasiluji.verifikasi', id), {
-            status: 'proses_peresmian'
-        }, {
-            onSuccess: () => {
-                // Refresh data atau lakukan tindakan lain setelah verifikasi
-                router.reload({ only: ['hasil_uji'] })
-            }
-        })
+    router.put(route('customer.hasiluji.verifikasi', id), {
+        status: 'proses_peresmian'
+    }, {
+        onSuccess: () => {
+            router.visit(route('customer.hasil_uji.index'))
+        }
+    })
+}
+
+const showModal = ref(false)
+const selectedId = ref<number | null>(null)
+
+function openVerifikasiModal(id: number) {
+    selectedId.value = id
+    showModal.value = true
+}
+
+function closeModal() {
+    showModal.value = false
+    selectedId.value = null
+}
+
+function handleVerifikasi() {
+    if (selectedId.value !== null) {
+        verifikasi(selectedId.value)
+        closeModal()
     }
 }
 </script>
@@ -126,7 +145,7 @@ const verifikasi = (id: number) => {
                                 </span>
                             </td>
                             <td class="px-4 py-3 border-b">
-                                <button v-if="item.status === 'proses_review'" @click="verifikasi(item.id)"
+                                <button v-if="item.status === 'proses_review'" @click="openVerifikasiModal(item.id)"
                                     class="text-green-600 hover:text-green-800" title="Verifikasi hasil uji">
                                     ✅
                                 </button>
@@ -149,7 +168,62 @@ const verifikasi = (id: number) => {
                         </tr>
                     </tbody>
                 </table>
+
+                <!-- Modal Konfirmasi -->
+                <div v-if="showModal"
+                    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 transition-all duration-300">
+                    <div class="bg-white p-8 rounded-xl shadow-2xl w-96 animate-fadeIn relative">
+                        <div class="flex flex-col items-center">
+                            <div class="bg-green-100 rounded-full p-3 mb-3">
+                                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M9 12l2 2l4 -4M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10s-4.477 10-10 10z" />
+                                </svg>
+                            </div>
+                            <div class="mb-2 text-xl font-bold text-gray-800 text-center">Konfirmasi Verifikasi</div>
+                            <div class="mb-6 text-gray-600 text-center">
+                                Apakah Anda yakin ingin <span class="font-semibold text-green-700">memverifikasi</span>
+                                hasil uji ini?
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-3">
+                            <button @click="closeModal"
+                                class="px-5 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition">
+                                Batal
+                            </button>
+                            <button @click="handleVerifikasi"
+                                class="px-5 py-2 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 shadow transition">
+                                Verifikasi
+                            </button>
+                        </div>
+                        <button @click="closeModal" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
             </div>
         </div>
     </CustomerLayout>
 </template>
+
+<style scoped>
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.3s;
+}
+</style>

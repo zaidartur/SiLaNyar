@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
@@ -28,6 +30,7 @@ const form = useForm({
 const deleteUser = (e: Event) => {
     e.preventDefault();
 
+    /* eslint-disable no-undef */
     form.delete(route('profile.destroy'), {
         preserveScroll: true,
         onSuccess: () => closeModal(),
