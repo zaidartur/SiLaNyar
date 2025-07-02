@@ -6,6 +6,11 @@ import { computed, ref } from 'vue';
 
 const emit = defineEmits(['close']);
 
+const props = defineProps<{
+    kecamatan: any | null;
+    desa: any | null;
+}>();
+
 const form = useForm({
     nama: '',
     tipe: '',
@@ -19,6 +24,7 @@ const form = useForm({
     surat_keterangan_penugasan: null as File | null,
     foto_kartu_identitas: null as File | null,
 });
+const selectDesa = ref(Array())
 
 // Frontend validation errors
 const validationErrors = ref<Record<string, string>>({});
@@ -43,12 +49,12 @@ const validateField = (fieldName: string, value: any): string | null => {
             break;
 
         case 'wilayah':
-            if (!value || value.trim() === '') return 'Wilayah wajib diisi';
-            if (value.length > 255) return 'Wilayah maksimal 255 karakter';
+            if (!value || value.trim() === '') return 'Kecamatan wajib dipilih';
+            if (value.length > 255) return 'Kecamatan maksimal 255 karakter';
             break;
 
         case 'desa_kelurahan':
-            if (!value || value.trim() === '') return 'Desa/Kelurahan wajib diisi';
+            if (!value || value.trim() === '') return 'Desa/Kelurahan wajib dipilih';
             if (value.length > 255) return 'Desa/Kelurahan maksimal 255 karakter';
             break;
 
@@ -103,8 +109,17 @@ const validateSingleField = (fieldName: string, value: any) => {
     const error = validateField(fieldName, value);
     if (error) {
         validationErrors.value[fieldName] = error;
+        if (fieldName === 'wilayah') {
+            selectDesa.value = []
+            form.desa_kelurahan = ''
+            const ds = validateField('desa_kelurahan', '');
+            validationErrors.value["desa_kelurahan"] = ds;
+        }
     } else {
         delete validationErrors.value[fieldName];
+        if (fieldName === 'wilayah') {
+            getDesa(value)
+        }
     }
 };
 
@@ -207,6 +222,18 @@ const watchField = (fieldName: string) => {
         },
     });
 };
+
+const getDesa = (kode:string) => {
+    selectDesa.value = []
+    form.desa_kelurahan = ''
+    const ds = validateField('desa_kelurahan', '');
+    validationErrors.value["desa_kelurahan"] = ds;
+    props.desa.map((ds:any, i:number) => {
+        if (ds.kode_kecamatan === kode) {
+            selectDesa.value.push(ds)
+        }
+    })
+}
 </script>
 
 <template>
@@ -270,15 +297,28 @@ const watchField = (fieldName: string) => {
 
                 <!-- Wilayah -->
                 <div>
-                    <label class="mb-1 block text-sm font-medium text-gray-700"> Wilayah <span class="text-red-500">*</span> </label>
-                    <input
+                    <label class="mb-1 block text-sm font-medium text-gray-700"> Kecamatan <span class="text-red-500">*</span> </label>
+                    <!-- <input
                         v-model="watchField('wilayah').value"
                         type="text"
                         class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-green-500"
                         :class="{ 'border-red-500': validationErrors.wilayah }"
-                        placeholder="Masukkan wilayah"
+                        placeholder="Masukkan Nama Kecamatan"
                         @blur="validateSingleField('wilayah', form.wilayah)"
-                    />
+                    /> -->
+                    <select
+                        v-model="watchField('wilayah').value"
+                        class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-green-500"
+                        :class="{ 'border-red-500': validationErrors.wilayah }"
+                        @change="validateSingleField('wilayah', form.wilayah)"
+                        aria-placeholder="Pilih Kecamatan"
+                        @blur="validateSingleField('wilayah', form.wilayah)"
+                    >
+                        <option value="">Pilih Kecamatan</option>
+                        <option v-for="kec in props.kecamatan" :key="kec.id" :value="kec.kode_kecamatan">
+                            {{ kec.nama }}
+                        </option>
+                    </select>
                     <p v-if="validationErrors.wilayah" class="mt-1 text-sm text-red-600">
                         {{ validationErrors.wilayah }}
                     </p>
@@ -287,14 +327,27 @@ const watchField = (fieldName: string) => {
                 <!-- Desa/Kelurahan -->
                 <div>
                     <label class="mb-1 block text-sm font-medium text-gray-700"> Desa/Kelurahan <span class="text-red-500">*</span> </label>
-                    <input
+                    <!-- <input
                         v-model="watchField('desa_kelurahan').value"
                         type="text"
                         class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-green-500"
                         :class="{ 'border-red-500': validationErrors.desa_kelurahan }"
                         placeholder="Masukkan desa/kelurahan"
                         @blur="validateSingleField('desa_kelurahan', form.desa_kelurahan)"
-                    />
+                    /> -->
+                    <select
+                        v-model="watchField('desa_kelurahan').value"
+                        class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-green-500"
+                        :class="{ 'border-red-500': validationErrors.desa_kelurahan }"
+                        @change="validateSingleField('desa_kelurahan', form.desa_kelurahan)"
+                        aria-placeholder="Pilih Desa/Kelurahan"
+                        @blur="validateSingleField('desa_kelurahan', form.desa_kelurahan)"
+                    >
+                        <option value="">Pilih Desa/Kelurahan</option>
+                        <option v-for="ds in selectDesa" :key="ds.id" :value="ds.kode_desa">
+                            {{ ds.nama_desa }}
+                        </option>
+                    </select>
                     <p v-if="validationErrors.desa_kelurahan" class="mt-1 text-sm text-red-600">
                         {{ validationErrors.desa_kelurahan }}
                     </p>

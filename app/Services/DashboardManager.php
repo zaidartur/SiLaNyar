@@ -12,7 +12,7 @@ class DashboardManager
 {
     protected function inertiaPageExists($page): bool
     {
-        $basePath = resource_path('js/Pages/');
+        $basePath = resource_path('js/pages/');
         $extensions = ['vue', 'jsx', 'tsx', 'js', 'ts'];
         $pagePath = str_replace('.', '/', $page);
 

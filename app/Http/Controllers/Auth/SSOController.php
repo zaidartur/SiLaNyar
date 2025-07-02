@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Redirect;
@@ -35,6 +36,7 @@ class SSOController extends Controller
     public function callback(Request $request)
     {
         if (!$request->has('code') || $request->input('state') !== session('oauth_state')) {
+            Log::info('SSO state mismatch');
             return redirect('/')->withErrors(['SSO state mismatch']);
         }
 
@@ -47,6 +49,7 @@ class SSOController extends Controller
         ]);
 
         if ($response->failed()) {
+            Log::info('Failed to get access token');
             return redirect('/')->withErrors(['Failed to get access token']);
         }
 
@@ -56,13 +59,13 @@ class SSOController extends Controller
         $userResponse =  Http::withoutVerifying()->withToken($aksesToken)
             ->withHeaders([
                 'Accept' => 'application/json',
-                'User-agent' => 'https://example-app.com/',
+                'User-agent' => 'https://silanyar.karanganyarkab.go.id/',
             ])
             ->get(config('services.sso.api_user_url'));
 
         if ($userResponse->failed()) {
-            return redirect('/')->withErrors(['Gagal Mengambil Informasi Data']);
-            // return Redirect::route('/')->withErrors(['Gagal Mengambil Informasi Data']);
+            // return redirect('/')->withErrors(['Gagal Mengambil Informasi Data']);
+            return Redirect::route('/')->withErrors(['Gagal Mengambil Informasi Data']);
             // iki sek ngubah aku jik, mbuh ngp nek nganggo sek "Redirect::route" test callback gagal ketika permintaan data user gagal e dadi gagal
         }
 
@@ -90,6 +93,28 @@ class SSOController extends Controller
         }
 
         $role = $user->roles->first()?->name;
+
+        switch ($role) {
+            case 'superadmin':
+            case 'admin':
+            case 'teknisi':
+                return Redirect::route('pegawai.dashboard');
+            case 'customer':
+                return Redirect::route('customer.dashboard');
+            default:
+                return Redirect::route('pegawai.dashboard');
+        }
+    }
+    
+    public function session_exists()
+    {
+        $user = User::where('id', Auth::user()->id)->first();
+        if ($user->roles->isEmpty()) {
+            $user->assignRole('customer');
+        }
+
+        $role = $user->roles->first()?->name;
+        Log::debug('role', [$role]);
 
         switch ($role) {
             case 'superadmin':

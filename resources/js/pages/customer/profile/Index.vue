@@ -25,9 +25,25 @@ interface User {
     last_login?: string;
 }
 
+interface Kecamatan {
+    id: number;
+    kode: string;
+    nama: string;
+}
+
+interface Desa {
+    id: number;
+    kode: string;
+    kode_desa: string;
+    full_kode: string;
+    nama: string;
+}
+
 const props = defineProps<{
     user: User;
     instansi: Instansi[];
+    kecamatan: Kecamatan[];
+    desa: Desa[];
 }>();
 
 const showModal = ref(false);
@@ -242,8 +258,8 @@ const toggleEditProfileModal = () => {
                                     <span class="dark:text-customDarkGreen">Tambah Instansi</span>
                                 </button>
 
-                                <TambahInstansi v-if="showModal" @close="closeModal" />
-                                <EditInstansi v-model="showEditInstansiModal" :instansi="instansiEditData" @submit="afterEditInstansi" />
+                                <TambahInstansi v-if="showModal" :kecamatan="props.kecamatan" :desa="props.desa" @close="closeModal" />
+                                <EditInstansi v-model="showEditInstansiModal" :instansi="instansiEditData" :kecamatan="props.kecamatan" :desa="props.desa" @submit="afterEditInstansi" />
                             </div>
                         </div>
 

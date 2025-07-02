@@ -33,8 +33,8 @@ defineProps<{
         aria-label="Sidebar">
         <div class="h-full px-3 py-4 overflow-y-auto bg-customDarkGreen">
             <Link :href="route('dashboard')" class="flex items-center ps-2.5 mb-5">
-            <img src="/assets/assetslandingpage/LogoDlh.png" class="h-10 me-3 sm:h-9" alt="Logo" />
-            <span class="self-center text-2xl font-bold whitespace-nowrap text-white">SiLaNyar</span>
+            <img src="/assets/assetslandingpage/logodlh.png" class="h-10 me-3 sm:h-9" alt="Logo" />
+            <span class="self-center text-2xl font-bold whitespace-nowrap text-white uppercase">SiLaNyar</span>
             </Link>
             <ul class="space-y-4 font-medium">
                 <li>

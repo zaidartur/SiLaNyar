@@ -44,7 +44,7 @@ const toggle = (menu: 'daftar' | 'kategori') => {
     >
         <div class="mb-6 mt-4 flex items-center px-4 text-xl font-bold">
             <img src="/assets/assetsadmin/logodlh.png" alt="Logo" class="h-12 w-12" />
-            <span class="ml-3">SiLaNyar</span>
+            <span class="ml-3 uppercase">SiLaNyar</span>
         </div>
 
         <nav class="space-y-1 text-xl font-bold">

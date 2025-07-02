@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Clock, Mail, Phone } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { ref, computed  } from 'vue';
 
 const showLoginModal = ref(false);
+const page = usePage()
+const isAuth = computed(() => page.props.auth.user)
 
 // Add function to toggle modal
 const toggleLoginModal = () => {
@@ -60,6 +62,8 @@ const workflowSteps = ref([
         description: 'Penyusunan hasil analisis dalam bentuk laporan.',
     },
 ]);
+
+console.log('session', page.props.auth.user)
 </script>
 
 <template>
@@ -76,13 +80,13 @@ const workflowSteps = ref([
                         <AppLogoIcon class="size-5 fill-current text-white" />
                     </div>
                     <div class="ml-3 grid flex-1 text-left">
-                        <span class="text-2xl mb-1.5 font-bold leading-none text-customGreen">SiLanYar</span>
+                        <span class="text-2xl mb-1.5 font-bold leading-none text-customGreen uppercase">SiLaNyar</span>
                         <span class="text-sm leading-none text-black">Sistem Informasi Laboratorium
                             Karanganyar</span>
                     </div>
 
                     <!-- Auth Buttons -->
-                    <div class="flex items-center gap-4 mr-4">
+                    <div class="flex items-center gap-4 mr-4" v-if="!page.props.auth.user">
                         <a href="sso/login"
                             class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
                             Login
@@ -90,6 +94,12 @@ const workflowSteps = ref([
                         <a href="https://sakti.karanganyarkab.go.id/register"
                             class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                             Registrasi
+                        </a>
+                    </div>
+                    <div class="flex items-center gap-4 mr-4" v-if="page.props.auth.user">
+                        <a href="sso/session"
+                            class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                            Dashboard
                         </a>
                     </div>
                 </div>

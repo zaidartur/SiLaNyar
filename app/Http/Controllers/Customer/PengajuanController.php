@@ -62,7 +62,8 @@ class PengajuanController extends Controller
             ->get();
 
         if ($instansi->isEmpty()) {
-            return Redirect::back()->with('error', 'Anda Belum Memiliki Instansi. Silahkan Tambahkan Instansi Terlebih Dahulu');
+            // return Redirect::back()->with('error', 'Anda Belum Memiliki Instansi. Silahkan Tambahkan Instansi Terlebih Dahulu');
+            return Inertia::render('customer/pengajuan/NoInstansi');
         }
 
         $jenis_cairan = JenisCairan::all();

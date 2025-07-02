@@ -10,9 +10,9 @@ withDefaults(defineProps<Props>(), {
     breadcrumbs: () => [],
 });
 </script>
-.
+
 <template>
-    <AppSidebarCustomer :breadcrumbs="breadcrumbs">
+    <AppSidebarCustomer :breadcrumbs="breadcrumbs || []">
         <slot />
     </AppSidebarCustomer>
 </template>

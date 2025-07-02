@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Settings;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Desa;
 use App\Models\Instansi;
+use App\Models\Kecamatan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -23,7 +25,7 @@ class CustomerProfileController extends Controller
         $response = Http::withoutVerifying()->withToken(session('access_token'))
             ->withHeaders([
                 'Accept' => 'application/json',
-                'User-Agent' => 'https://example-app.com/'
+                'User-Agent' => 'https://silanyar.karanganyarkab.go.id/'
             ])
             ->get(config('services.sso.api_user_url'));
 
@@ -43,7 +45,9 @@ class CustomerProfileController extends Controller
 
         return Inertia::render('customer/profile/Index', [
             'user' => $userData,
-            'instansi' => $instansiData
+            'instansi' => $instansiData,
+            'kecamatan' => Kecamatan::orderBy('kode_kecamatan')->get(),
+            'desa' => Desa::all(),
         ]);
     }
 
@@ -96,9 +100,9 @@ class CustomerProfileController extends Controller
             'tipe.in' => 'Tipe Tidak Valid.',
             'alamat.required' => 'Alamat Wajib Diisi.',
             'alamat.max' => 'Alamat Max 255 Karakter.',
-            'wilayah.required' => 'Wilayah Wajib Diisi.',
-            'wilayah.max' => 'Wilayah Max 255 Karakter.',
-            'desa_kelurahan.required' => 'Desa Atau Kelurahan Wajib Diisi.',
+            'wilayah.required' => 'Kecamatan Wajib Dipilih.',
+            'wilayah.max' => 'Kecamatan Max 255 Karakter.',
+            'desa_kelurahan.required' => 'Desa Atau Kelurahan Wajib Dipilih.',
             'desa_kelurahan.max' => 'Desa Atau Kelurahan Max 255 Karakter.',
             'email.required' => 'Email Wajib Diisi.',
             'email.email' => 'Format Harus Berupa Email.',
@@ -211,9 +215,9 @@ public function updateInstansi(Instansi $instansi, Request $request)
             'tipe.in' => 'Tipe Tidak Valid.',
             'alamat.required' => 'Alamat Wajib Diisi.',
             'alamat.max' => 'Alamat Max 255 Karakter.',
-            'wilayah.required' => 'Wilayah Wajib Diisi.',
-            'wilayah.max' => 'Wilayah Max 255 Karakter.',
-            'desa_kelurahan.required' => 'Desa Atau Kelurahan Wajib Diisi.',
+            'wilayah.required' => 'Kecamatan Wajib Dipilih.',
+            'wilayah.max' => 'Kecamatan Max 255 Karakter.',
+            'desa_kelurahan.required' => 'Desa Atau Kelurahan Wajib Dipilih.',
             'desa_kelurahan.max' => 'Desa Atau Kelurahan Max 255 Karakter.',
             'email.required' => 'Email Wajib Diisi.',
             'email.email' => 'Format Harus Berupa Email.',

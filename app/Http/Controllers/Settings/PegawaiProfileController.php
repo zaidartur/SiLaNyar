@@ -24,7 +24,7 @@ class PegawaiProfileController extends Controller
         $response = Http::withoutVerifying()->withToken(session('access_token'))
             ->withHeaders([
                 'Accept' => 'application/json',
-                'User-Agent' => 'https://example-app.com/'
+                'User-agent' => 'https://silanyar.karanganyarkab.go.id/',
             ])
             ->get(config('services.sso.api_user_url'));
 
