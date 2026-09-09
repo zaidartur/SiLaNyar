@@ -73,8 +73,8 @@ Route::prefix('superadmin')->middleware(['auth:web'])->group(function () {
     });
 });
 
-//route customer
-Route::prefix('customer')->middleware(['auth:web', 'role:customer'])->group(function () {
+//route customer / pelanggan
+Route::prefix('customer')->middleware(['auth:web', 'role:pelanggan,customer'])->group(function () {
 
     //fitur jadwal
     Route::get('jadwal', [CustomerJadwalController::class, 'index'])->name('customer.jadwal.index');

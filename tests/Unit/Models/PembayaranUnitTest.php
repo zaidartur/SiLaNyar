@@ -93,6 +93,7 @@ class PembayaranUnitTest extends TestCase
             'status_pembayaran',
             'bukti_pembayaran',
             'diverifikasi_oleh',
+            'keterangan',
         ];
         
         $this->assertEquals($fillable, $pembayaran->getFillable());

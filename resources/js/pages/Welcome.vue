@@ -3,11 +3,10 @@ import { Head, usePage } from '@inertiajs/vue3';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Clock, Mail, Phone } from 'lucide-vue-next';
-import { ref, computed  } from 'vue';
+import { ref } from 'vue';
 
 const showLoginModal = ref(false);
-const page = usePage()
-const isAuth = computed(() => page.props.auth.user)
+const page = usePage();
 
 // Add function to toggle modal
 const toggleLoginModal = () => {
@@ -62,8 +61,6 @@ const workflowSteps = ref([
         description: 'Penyusunan hasil analisis dalam bentuk laporan.',
     },
 ]);
-
-console.log('session', page.props.auth.user)
 </script>
 
 <template>

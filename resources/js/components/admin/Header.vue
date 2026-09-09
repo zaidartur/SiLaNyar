@@ -2,7 +2,20 @@
 import { capitalize, computed } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 
-const rolePriority = ['superadmin', 'admin', 'teknisi']
+const rolePriority = [
+    'superadmin',
+    'kepala_dinas',
+    'kepala_lab',
+    'pengendali_teknis',
+    'penyelia',
+    'staf_administrator',
+    'analis',
+    'ppcu',
+    'admin',
+    'teknisi',
+    'pelanggan',
+    'customer',
+]
 
 const userPrimaryRole = computed(() => {
     const roles = user.value?.roles || []

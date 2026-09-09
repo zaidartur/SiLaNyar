@@ -155,7 +155,7 @@ class JadwalUnitTest extends TestCase
     #[Test]
     public function memastikan_status_hanya_bisa_diisi_nilai_yang_valid()
     {
-        $validStatus = ['diproses', 'selesai'];
+        $validStatus = ['diproses', 'diterima'];
         $jadwal = Jadwal::factory()->create();
         
         $this->assertTrue(in_array($jadwal->status, $validStatus));
@@ -166,10 +166,10 @@ class JadwalUnitTest extends TestCase
     {
         $jadwal = Jadwal::factory()->create(['status' => 'diproses']);
         
-        $jadwal->status = 'selesai';
+        $jadwal->status = 'diterima';
         $jadwal->save();
         
-        $this->assertEquals('selesai', $jadwal->fresh()->status);
+        $this->assertEquals('diterima', $jadwal->fresh()->status);
     }
 
     #[Test]

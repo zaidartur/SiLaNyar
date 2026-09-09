@@ -23,7 +23,26 @@ class CheckRole
             return Redirect::route('sso.login');
         }
 
-        if (!$user->hasAnyRole($roles)) {
+        $expandedRoles = [];
+        $aliasMap = [
+            'customer' => ['customer', 'pelanggan'],
+            'pelanggan' => ['pelanggan', 'customer'],
+            'admin' => ['admin', 'staf_administrator'],
+            'staf_administrator' => ['staf_administrator', 'admin'],
+            'teknisi' => ['teknisi', 'analis'],
+            'analis' => ['analis', 'teknisi'],
+        ];
+
+        foreach ($roles as $role) {
+            if (isset($aliasMap[$role])) {
+                $expandedRoles = array_merge($expandedRoles, $aliasMap[$role]);
+            } else {
+                $expandedRoles[] = $role;
+            }
+        }
+        $expandedRoles = array_unique($expandedRoles);
+
+        if (!$user->hasAnyRole($expandedRoles)) {
             $rolesString = implode(', ', $roles);
             abort(403, 'Role Anda Bukan ' . $rolesString  . ' Gunakan Role Yang Tepat Atau Hubungi Super Admin Untuk Memberikan Permission Di Role Yang Anda Miliki');
         }

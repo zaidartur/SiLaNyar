@@ -64,9 +64,7 @@ class SSOController extends Controller
             ->get(config('services.sso.api_user_url'));
 
         if ($userResponse->failed()) {
-            // return redirect('/')->withErrors(['Gagal Mengambil Informasi Data']);
-            return Redirect::route('/')->withErrors(['Gagal Mengambil Informasi Data']);
-            // iki sek ngubah aku jik, mbuh ngp nek nganggo sek "Redirect::route" test callback gagal ketika permintaan data user gagal e dadi gagal
+            return redirect('/')->withErrors(['Gagal Mengambil Informasi Data']);
         }
 
         $userData = $userResponse->json();
@@ -89,16 +87,13 @@ class SSOController extends Controller
         Auth::guard('web')->login($user);
 
         if ($user->roles->isEmpty()) {
-            $user->assignRole('customer');
+            $user->assignRole(\Spatie\Permission\Models\Role::where('name', 'pelanggan')->exists() ? 'pelanggan' : 'customer');
         }
 
         $role = $user->roles->first()?->name;
 
         switch ($role) {
-            case 'superadmin':
-            case 'admin':
-            case 'teknisi':
-                return Redirect::route('pegawai.dashboard');
+            case 'pelanggan':
             case 'customer':
                 return Redirect::route('customer.dashboard');
             default:
@@ -110,17 +105,14 @@ class SSOController extends Controller
     {
         $user = User::where('id', Auth::user()->id)->first();
         if ($user->roles->isEmpty()) {
-            $user->assignRole('customer');
+            $user->assignRole(\Spatie\Permission\Models\Role::where('name', 'pelanggan')->exists() ? 'pelanggan' : 'customer');
         }
 
         $role = $user->roles->first()?->name;
         Log::debug('role', [$role]);
 
         switch ($role) {
-            case 'superadmin':
-            case 'admin':
-            case 'teknisi':
-                return Redirect::route('pegawai.dashboard');
+            case 'pelanggan':
             case 'customer':
                 return Redirect::route('customer.dashboard');
             default:

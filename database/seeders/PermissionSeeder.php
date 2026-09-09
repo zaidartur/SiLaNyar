@@ -47,6 +47,13 @@ class PermissionSeeder extends Seeder
             'hapus hasil uji',
             'riwayat hasil uji',
             'laporan keuangan',
+            'tte kepala lab',
+            'tte kepala dinas',
+            'catatan revisi hasil uji',
+            'jadwal ppcu',
+            'pelacakan gps ppcu',
+            'alokasi penyelia',
+            'kuesioner ikm',
         ];
 
         foreach ($permission as $per) {
