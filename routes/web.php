@@ -26,13 +26,24 @@ use Illuminate\Support\Facades\Auth;
 
 if (app()->environment('local')) {
     Route::get('/dev-login', function () {
-        $user = \App\Models\User::find(5);
+        $id = request('id');
+        $role = request('role');
+
+        if ($role) {
+            $user = \App\Models\User::whereHas('roles', fn($q) => $q->where('name', $role))->first();
+        } elseif ($id) {
+            $user = \App\Models\User::where('id', $id)->orWhere('uuid', $id)->first();
+        } else {
+            $user = \App\Models\User::whereHas('roles', fn($q) => $q->where('name', 'staf_administrator'))->first()
+                ?? \App\Models\User::find(2)
+                ?? \App\Models\User::first();
+        }
 
         if (!$user) {
             abort(404, 'User not found');
         }
 
-        Auth::loginUsingId($user->id);
+        Auth::login($user);
 
         return redirect('/dashboard');
     });

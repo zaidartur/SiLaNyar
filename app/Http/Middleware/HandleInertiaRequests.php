@@ -44,8 +44,20 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
-                'user' => fn() => $request->user(),
+                'user' => function () use ($request) {
+                    if (! $user = $request->user()) {
+                        return null;
+                    }
+                    $user->loadMissing('roles');
+                    return $user;
+                },
+                'roles' => fn() => $request->user()?->getRoleNames() ?? [],
                 'permissions' => fn() => $request->user()?->getAllPermissions()->pluck('name') ?? [],
+                'is_pegawai' => fn() => $request->user()?->hasRole([
+                    'superadmin', 'kepala_dinas', 'kepala_lab', 'pengendali_teknis',
+                    'penyelia', 'staf_administrator', 'analis', 'ppcu', 'admin', 'teknisi'
+                ]) ?? false,
+                'is_customer' => fn() => $request->user()?->hasRole(['pelanggan', 'customer']) ?? false,
             ],
             'ziggy' => [
                 ...(new Ziggy)->toArray(),

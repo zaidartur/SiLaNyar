@@ -9,11 +9,18 @@ const page = usePage();
 
 const user = computed(() => (page.props as any).auth?.user || null);
 const userRoles = computed<string[]>(() => {
+    const directRoles = (page.props as any).auth?.roles;
+    if (Array.isArray(directRoles) && directRoles.length > 0) {
+        return directRoles;
+    }
     if (!user.value || !user.value.roles) return [];
-    return user.value.roles.map((r: any) => r.name);
+    return user.value.roles.map((r: any) => typeof r === 'string' ? r : r.name);
 });
 
 const isPegawai = computed(() => {
+    if (typeof (page.props as any).auth?.is_pegawai === 'boolean') {
+        return (page.props as any).auth.is_pegawai;
+    }
     return userRoles.value.some(r =>
         ['superadmin', 'kepala_dinas', 'kepala_lab', 'pengendali_teknis', 'penyelia', 'staf_administrator', 'analis', 'ppcu', 'admin', 'teknisi'].includes(r)
     );
