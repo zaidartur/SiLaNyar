@@ -171,7 +171,7 @@ const filteredList = computed(() => {
                                         <!-- Tombol Verifikasi Persetujuan -->
                                         <button
                                             v-if="item.status === 'proses_review'"
-                                            @click="openVerifikasiModal(item.id)"
+                                            @click="openVerifikasiModal(item.uuid || item.id)"
                                             class="px-2.5 py-1 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-[11px] font-bold shadow-xs transition cursor-pointer"
                                         >
                                             Verifikasi
@@ -179,7 +179,7 @@ const filteredList = computed(() => {
 
                                         <!-- Tombol Detail -->
                                         <Link
-                                            :href="`/customer/hasil_uji/${item.id}`"
+                                            :href="route('customer.hasil_uji.detail', item.uuid || item.id)"
                                             class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition"
                                         >
                                             <v-icon size="14">mdi-eye-outline</v-icon>
@@ -188,7 +188,7 @@ const filteredList = computed(() => {
 
                                         <!-- Tombol Aduan -->
                                         <Link
-                                            :href="`/customer/aduan/tambah/${item.id}`"
+                                            :href="route('customer.aduan.create', item.uuid || item.id)"
                                             class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:hover:bg-amber-900/60 dark:text-amber-300 text-xs font-semibold transition"
                                             title="Ajukan Aduan Terkait LHU ini"
                                         >

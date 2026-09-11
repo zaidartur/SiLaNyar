@@ -182,7 +182,7 @@ class PegawaiJenisCairanControllerFeatureTest extends TestCase
         ];
 
         $response = $this->actingAs($this->pegawai)
-            ->put("/pegawai/jenis-cairan/{$jenisCairan->id}/edit", $dataUpdate);
+            ->put("/pegawai/jenis-cairan/{$jenisCairan->uuid}/edit", $dataUpdate);
 
         $response->assertRedirect(route('pegawai.jenis_cairan.index'))
             ->assertSessionHas('message', 'Jenis Cairan Berhasil Diedit!');
@@ -206,7 +206,7 @@ class PegawaiJenisCairanControllerFeatureTest extends TestCase
         ];
 
         $response = $this->actingAs($this->pegawai)
-            ->put("/pegawai/jenis-cairan/{$jenisCairan->id}/edit", $dataUpdate);
+            ->put("/pegawai/jenis-cairan/{$jenisCairan->uuid}/edit", $dataUpdate);
 
         $response->assertSessionHasErrors(['batas_maksimum']);
     }

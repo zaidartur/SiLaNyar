@@ -180,7 +180,7 @@ const formatTanggal = (dateStr: string) => {
                     <!-- Tombol Aksi Detail -->
                     <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end">
                         <Link
-                            :href="`/pegawai/aduan/${item.id}`"
+                            :href="`/pegawai/aduan/${item.uuid || item.id}`"
                             class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:hover:bg-emerald-900/60 dark:text-emerald-300 text-xs font-semibold transition"
                         >
                             <span>Tindak Lanjut</span>

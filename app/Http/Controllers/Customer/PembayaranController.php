@@ -54,7 +54,7 @@ class PembayaranController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        $idInstansi = $user->instansi()->pluck('id')->toArray();
+        $idInstansi = $user->instansi()->pluck('uuid')->toArray();
 
         $pengajuan = FormPengajuan::with([
             'kategori.parameter',
@@ -63,7 +63,7 @@ class PembayaranController extends Controller
             'pembayaran',
             'instansi.user',
         ])
-            ->where('id', $id)
+            ->whereUuidOrId($id)
             ->whereIn('id_instansi', $idInstansi)
             ->firstOrFail();
 
@@ -104,10 +104,11 @@ class PembayaranController extends Controller
         $namaUser = Str::slug(strtolower($user->nama), '_');
         $randomId = Str::random(6);
 
-        $idInstansi = $user->instansi()->pluck('id')->toArray();
+        $idInstansi = $user->instansi()->pluck('uuid')->toArray();
 
         $pengajuan = FormPengajuan::whereIn('id_instansi', $idInstansi)
-            ->findOrFail($id);
+            ->whereUuidOrId($id)
+            ->firstOrFail();
 
         if ($pengajuan->status_pengajuan !== 'diterima') {
             return Redirect::back()->withErrors([
@@ -160,7 +161,7 @@ class PembayaranController extends Controller
 
         $pembayaran = Pembayaran::updateOrCreate(
             [
-                'id_form_pengajuan' => $pengajuan->id
+                'id_form_pengajuan' => $pengajuan->uuid
             ],
             $data
         );
@@ -176,9 +177,10 @@ class PembayaranController extends Controller
 
     public function success($id)
     {
-        $pembayaran = Pembayaran::with(['form_pengajuan'])->findOrFail($id);
+        $pembayaran = Pembayaran::with(['form_pengajuan'])->whereUuidOrId($id)->firstOrFail();
 
-        if ($pembayaran->form_pengajuan->instansi->id_user !== Auth::id()) {
+        $instansiUserId = $pembayaran->form_pengajuan->instansi->id_user;
+        if ($instansiUserId !== Auth::user()->uuid && $instansiUserId !== (string)Auth::id()) {
             abort(403, 'Pastikan Anda Autentikasi Dengan User Yang Sama Dengan Akun User Yang Anda Ajukan!');
         }
         return Inertia::render('customer/pembayaran/Sukses', [

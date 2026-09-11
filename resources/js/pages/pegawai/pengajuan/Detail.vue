@@ -80,9 +80,9 @@ const can = (permission: string): boolean => permissions.value.includes(permissi
                         size="small"
                         prepend-icon="mdi-pencil-outline"
                         class="text-none font-semibold text-xs"
-                        @click.prevent="router.visit(`/pegawai/pengajuan/${props.pengajuan.id}/edit`)"
+                        @click.prevent="router.visit(`/pegawai/pengajuan/${props.pengajuan.uuid || props.pengajuan.id}/edit`)"
                     >
-                        Edit Pengajuan
+                        Validasi Pengajuan
                     </v-btn>
 
                     <v-btn

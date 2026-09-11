@@ -97,7 +97,7 @@ function submitPembayaran() {
         return;
     }
     loading.value = true;
-    form.post(route('customer.pembayaran.process', props.pengajuan.id), {
+    form.post(route('customer.pembayaran.process', props.pengajuan.uuid || props.pengajuan.id), {
         forceFormData: true,
         onFinish: () => (loading.value = false),
         onError: (err) => {

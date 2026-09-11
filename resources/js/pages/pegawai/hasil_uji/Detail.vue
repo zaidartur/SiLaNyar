@@ -69,13 +69,13 @@ const statusLabels: Record<string, string> = {
 const availableStatus = computed(() => STATUS_FLOW[props.hasil_uji.status] || []);
 
 function perbaruiStatus(newStatus: string) {
-    router.put(`/pegawai/hasiluji/verifikasi/${props.hasil_uji.id}`, {
+    router.put(`/pegawai/hasiluji/verifikasi/${props.hasil_uji.uuid || props.hasil_uji.id}`, {
         status: newStatus,
     });
 }
 
 function bukaPDF() {
-    window.open(route('hasil_uji.convert', props.hasil_uji.id), '_blank');
+    window.open(route('hasil_uji.convert', props.hasil_uji.uuid || props.hasil_uji.id), '_blank');
 }
 </script>
 

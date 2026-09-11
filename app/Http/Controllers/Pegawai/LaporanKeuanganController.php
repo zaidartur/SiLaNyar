@@ -25,9 +25,9 @@ class LaporanKeuanganController extends Controller
         $periode = $request->input('periode', 'semua');
 
         $query = Pembayaran::with([
-            'form_pengajuan:id,kode_pengajuan,id_instansi',
-            'form_pengajuan.instansi:id,nama,id_user',
-            'form_pengajuan.instansi.user:id,nama',
+            'form_pengajuan:id,uuid,kode_pengajuan,id_instansi',
+            'form_pengajuan.instansi:id,uuid,nama,id_user',
+            'form_pengajuan.instansi.user:id,uuid,nama',
         ])->where('status_pembayaran', 'selesai');
 
         // Apply filters
@@ -115,9 +115,9 @@ class LaporanKeuanganController extends Controller
 
         // pisahkan query utama diagram (biarkan seperti semula)
         $laporanKeuangan = Pembayaran::with([
-            'form_pengajuan:id,kode_pengajuan,id_instansi',
-            'form_pengajuan.instansi:id,nama',
-            'form_pengajuan.instansi.user:id,nama',
+            'form_pengajuan:id,uuid,kode_pengajuan,id_instansi',
+            'form_pengajuan.instansi:id,uuid,nama,id_user',
+            'form_pengajuan.instansi.user:id,uuid,nama',
         ])
             ->where('status_pembayaran', 'selesai');
 

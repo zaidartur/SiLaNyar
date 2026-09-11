@@ -81,7 +81,7 @@ const submit = () => {
     }
 
     form.parameter = filterParam;
-    form.put(`/pegawai/kategori/${props.kategori.id}/edit`, {
+    form.put(`/pegawai/kategori/${props.kategori.uuid || props.kategori.id}/edit`, {
         onSuccess: () => {
             router.visit('/pegawai/kategori');
         },

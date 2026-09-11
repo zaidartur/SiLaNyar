@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
@@ -9,7 +10,7 @@ use Illuminate\Validation\ValidationException;
 
 class Pengujian extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuid;
 
     protected $table = 'pengujian';
 
@@ -50,28 +51,28 @@ class Pengujian extends Model
 
     public function form_pengajuan()
     {
-        return $this->belongsTo(FormPengajuan::class, 'id_form_pengajuan');    
+        return $this->belongsTo(FormPengajuan::class, 'id_form_pengajuan', 'uuid');    
     }
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'id_user');    
+        return $this->belongsTo(User::class, 'id_user', 'uuid');    
     }
 
     public function kategori()
     {
-        return $this->belongsTo(Kategori::class, 'id_kategori');
+        return $this->belongsTo(Kategori::class, 'id_kategori', 'uuid');
     }
 
     public function parameter_uji()
     {
-        return $this->belongsToMany(ParameterUji::class, 'parameter_pengujian', 'id_pengujian', 'id_parameter')
+        return $this->belongsToMany(ParameterUji::class, 'parameter_pengujian', 'id_pengujian', 'id_parameter', 'uuid', 'uuid')
                     ->withPivot(['nilai', 'keterangan'])
                     ->withTimestamps();
     }
 
     public function hasil_uji()
     {
-        return $this->hasMany(HasilUji::class, 'id_pengujian');
+        return $this->hasMany(HasilUji::class, 'id_pengujian', 'uuid');
     }
 }

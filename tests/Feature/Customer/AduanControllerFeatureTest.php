@@ -91,7 +91,7 @@ class AduanControllerFeatureTest extends TestCase
         $this->otherHasilUji->load('pengujian.form_pengajuan.instansi');
 
         $response = $this->actingAs($this->customer)
-            ->get("/customer/hasiluji/aduan/{$this->otherHasilUji->id}");
+            ->get("/customer/hasiluji/aduan/{$this->otherHasilUji->uuid}");
 
         $response->assertStatus(403);
     }
@@ -106,7 +106,7 @@ class AduanControllerFeatureTest extends TestCase
         ];
 
         $response = $this->actingAs($this->customer)
-            ->post("/customer/hasiluji/aduan/{$this->otherHasilUji->id}", $data);
+            ->post("/customer/hasiluji/aduan/{$this->otherHasilUji->uuid}", $data);
 
         $response->assertStatus(403);
 

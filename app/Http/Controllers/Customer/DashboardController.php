@@ -16,7 +16,7 @@ class DashboardController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        $instansiUser = $user->instansi()->pluck('id')->toArray();
+        $instansiUser = $user->instansi()->pluck('uuid')->toArray();
 
         if (empty($instansiUser)) {
             return Inertia::render('customer/dashboard/Index', [
@@ -47,7 +47,7 @@ class DashboardController extends Controller
 
         $pilihPengajuan = null;
         if ($request->has('id')) {
-            $pilihPengajuan = $pengajuan->firstWhere('id', $request->id);
+            $pilihPengajuan = $pengajuan->first(fn($p) => (string)$p->uuid === (string)$request->id || (string)$p->id === (string)$request->id);
             if ($pilihPengajuan && !in_array($pilihPengajuan->id_instansi, $instansiUser)) {
                 $pilihPengajuan = null;
             }

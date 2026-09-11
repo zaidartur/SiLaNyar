@@ -254,7 +254,7 @@ class PegawaiSubKategoriControllerFeatureTest extends TestCase
         ];
 
         $response = $this->actingAs($this->pegawai)
-            ->put("/pegawai/subkategori/{$this->subKategori->id}/edit", $data);
+            ->put("/pegawai/subkategori/{$this->subKategori->uuid}/edit", $data);
 
         $response->assertRedirect(route('pegawai.subkategori.index'))
             ->assertSessionHas('message', 'SubKategori Berhasil Ditambahkan!');

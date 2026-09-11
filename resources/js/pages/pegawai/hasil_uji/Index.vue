@@ -76,7 +76,7 @@ const handleDelete = () => {
     if (!deletingHasilUji.value) return;
     isDeleting.value = true;
 
-    router.delete(`/pegawai/hasiluji/${deletingHasilUji.value.id}`, {
+    router.delete(`/pegawai/hasiluji/${deletingHasilUji.value.uuid || deletingHasilUji.value.id}`, {
         onSuccess: () => {
             isDeleting.value = false;
             closeDeleteModal();
@@ -228,14 +228,14 @@ const filteredHasilUji = computed(() => {
                                 <td class="py-3.5 px-5 text-right whitespace-nowrap">
                                     <div class="inline-flex items-center gap-1.5 justify-end">
                                         <Link
-                                            :href="`/pegawai/hasiluji/${item.id}`"
+                                            :href="`/pegawai/hasiluji/${item.uuid || item.id}`"
                                             class="w-7 h-7 rounded-lg inline-flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition"
                                             title="Detail LHU"
                                         >
                                             <v-icon size="15">mdi-eye-outline</v-icon>
                                         </Link>
                                         <Link
-                                            :href="`/pegawai/hasiluji/${item.id}/riwayat`"
+                                            :href="`/pegawai/hasiluji/${item.uuid || item.id}/riwayat`"
                                             class="w-7 h-7 rounded-lg inline-flex items-center justify-center bg-purple-50 hover:bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:hover:bg-purple-900/60 dark:text-purple-300 transition"
                                             title="Riwayat Status"
                                         >
@@ -243,7 +243,7 @@ const filteredHasilUji = computed(() => {
                                         </Link>
                                         <Link
                                             v-if="can('edit hasil uji')"
-                                            :href="`/pegawai/hasiluji/${item.id}/edit`"
+                                            :href="`/pegawai/hasiluji/${item.uuid || item.id}/edit`"
                                             class="w-7 h-7 rounded-lg inline-flex items-center justify-center bg-amber-50 hover:bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:hover:bg-amber-900/60 dark:text-amber-300 transition"
                                             title="Ubah LHU"
                                         >

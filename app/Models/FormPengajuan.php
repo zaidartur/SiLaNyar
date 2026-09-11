@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\HasUuid;
 
 class FormPengajuan extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuid;
 
     protected $table = 'form_pengajuan';
 
@@ -58,36 +59,36 @@ class FormPengajuan extends Model
 
     public function instansi()
     {
-        return $this->belongsTo(Instansi::class, 'id_instansi');  
+        return $this->belongsTo(Instansi::class, 'id_instansi', 'uuid');  
     }
 
     public function jadwal()
     {
-        return $this->hasOne(Jadwal::class, 'id_form_pengajuan');    
+        return $this->hasOne(Jadwal::class, 'id_form_pengajuan', 'uuid');    
     }
 
     public function kategori()
     {
-        return $this->belongsTo(Kategori::class, 'id_kategori');    
+        return $this->belongsTo(Kategori::class, 'id_kategori', 'uuid');    
     }
 
     public function jenis_cairan()
     {
-        return $this->belongsTo(JenisCairan::class, 'id_jenis_cairan');    
+        return $this->belongsTo(JenisCairan::class, 'id_jenis_cairan', 'uuid');    
     }
 
     public function parameter()
     {
-        return $this->belongsToMany(ParameterUji::class, 'parameter_pengajuan', 'id_pengajuan', 'id_parameter');
+        return $this->belongsToMany(ParameterUji::class, 'parameter_pengajuan', 'id_pengajuan', 'id_parameter', 'uuid', 'uuid');
     }
 
     public function pembayaran()
     {
-        return $this->hasOne(Pembayaran::class, 'id_form_pengajuan');    
+        return $this->hasOne(Pembayaran::class, 'id_form_pengajuan', 'uuid');    
     }
 
     public function pengujian()
     {
-        return $this->hasMany(Pengujian::class, 'id_form_pengajuan');    
+        return $this->hasMany(Pengujian::class, 'id_form_pengajuan', 'uuid');    
     }
 }

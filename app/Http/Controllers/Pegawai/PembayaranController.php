@@ -24,7 +24,7 @@ class PembayaranController extends Controller
 
     public function show($id)
     {
-        $pembayaran = Pembayaran::with(['form_pengajuan.kategori.parameter', 'form_pengajuan.kategori.subkategori.parameter', 'form_pengajuan.instansi.user'])->findOrFail($id);
+        $pembayaran = Pembayaran::with(['form_pengajuan.kategori.parameter', 'form_pengajuan.kategori.subkategori.parameter', 'form_pengajuan.instansi.user'])->whereUuidOrId($id)->firstOrFail();
 
         return Inertia::render('pegawai/pembayaran/Detail', [
             'pembayaran' => $pembayaran
@@ -33,7 +33,7 @@ class PembayaranController extends Controller
 
     public function edit($id)
     {
-        $pembayaran = Pembayaran::with(['form_pengajuan.instansi.user'])->findOrFail($id);
+        $pembayaran = Pembayaran::with(['form_pengajuan.instansi.user'])->whereUuidOrId($id)->firstOrFail();
 
         return Inertia::render('pegawai/pembayaran/Edit', [
             'pembayaran' => $pembayaran

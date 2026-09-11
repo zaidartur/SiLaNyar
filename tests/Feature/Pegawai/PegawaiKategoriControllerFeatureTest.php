@@ -311,7 +311,7 @@ class PegawaiKategoriControllerFeatureTest extends TestCase
         ];
 
         $response = $this->actingAs($this->pegawai)
-            ->put("/pegawai/kategori/{$this->kategori->id}/edit", $data);
+            ->put("/pegawai/kategori/{$this->kategori->uuid}/edit", $data);
 
         $response->assertRedirect(route('pegawai.kategori.index'))
             ->assertSessionHas('message', 'Kategori Berhasil Diupdate!');
@@ -340,7 +340,7 @@ class PegawaiKategoriControllerFeatureTest extends TestCase
         ];
 
         $response = $this->actingAs($this->pegawai)
-            ->put("/pegawai/kategori/{$this->kategori->id}/edit", $data);
+            ->put("/pegawai/kategori/{$this->kategori->uuid}/edit", $data);
 
         $response->assertRedirect(route('pegawai.kategori.index'))
             ->assertSessionHas('message', 'Kategori Berhasil Diupdate!');
@@ -359,7 +359,7 @@ class PegawaiKategoriControllerFeatureTest extends TestCase
         ];
 
         $response = $this->actingAs($this->pegawai)
-            ->put("/pegawai/kategori/{$this->kategori->id}/edit", $data);
+            ->put("/pegawai/kategori/{$this->kategori->uuid}/edit", $data);
 
         $response->assertRedirect()
             ->assertSessionHasErrors(['subkategori']);

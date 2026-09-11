@@ -122,8 +122,8 @@ class PegawaiHasilUjiControllerFeatureTest extends TestCase
     public function test_show_menampilkan_detail_hasil_uji()
     {
         DB::table('parameter_pengujian')->insert([
-            'id_pengujian' => $this->pengujian->id,
-            'id_parameter' => $this->parameter->id,
+            'id_pengujian' => $this->pengujian->uuid,
+            'id_parameter' => $this->parameter->uuid,
             'nilai' => '8.5',
             'keterangan' => 'Memenuhi baku mutu',
             'created_at' => now(),
@@ -131,7 +131,7 @@ class PegawaiHasilUjiControllerFeatureTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->pegawai)
-            ->get(route('pegawai.hasil_uji.detail', $this->hasilUji->id));
+            ->get(route('pegawai.hasil_uji.detail', $this->hasilUji));
 
         $response->assertStatus(200);
     }

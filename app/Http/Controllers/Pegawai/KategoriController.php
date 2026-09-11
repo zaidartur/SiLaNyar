@@ -82,10 +82,18 @@ class KategoriController extends Controller
             'nama' => 'required|string|unique:kategori,nama',
             'harga' => 'required|numeric|min:0',
             'subkategori' => 'nullable|array',
-            'subkategori.*' => 'required|exists:subkategori,id',
+            'subkategori.*' => ['required', function ($attribute, $value, $fail) {
+                if (!SubKategori::whereUuidOrId($value)->exists()) {
+                    $fail('Sub Kategori Tidak Ditemukan.');
+                }
+            }],
             'parameter' => 'nullable|array',
-            'parameter.*.id' => 'required|exists:parameter_uji,id',
-            'parameter..baku_mutu' => 'required_with:parameter..id|string|max:255',
+            'parameter.*.id' => ['required', function ($attribute, $value, $fail) {
+                if (!ParameterUji::whereUuidOrId($value)->exists()) {
+                    $fail('Parameter Tidak Valid.');
+                }
+            }],
+            'parameter.*.baku_mutu' => 'required_with:parameter.*.id|string|max:255',
         ], [
             'nama.required' => 'Nama Kategori Wajib Diisi.',
             'nama.unique' => 'Nama Kategori Tidak Boleh Sama.',
@@ -93,9 +101,7 @@ class KategoriController extends Controller
             'harga.numeric' => 'Harga Harus Berupa Angka.',
             'harga.min' => 'Harga Tidak Boleh Kurang Dari 0.',
             'subkategori.*.required' => 'Sub Kategori Tidak Valid.',
-            'subkategori.*.exists' => 'Sub Kategori Tidak Ditemukan.',
             'parameter.*.id.required' => 'Parameter Wajib Dipilih.',
-            'parameter.*.id.exists' => 'Parameter Tidak Valid.',
             'parameter.*.baku_mutu.required_with' => 'Baku Mutu Wajib Diisi Untuk Parameter Yang Dipilih.',
         ]);
 
@@ -111,12 +117,20 @@ class KategoriController extends Controller
             'harga',
         ]));
 
-        $kategori->subkategori()->sync($request->subkategori ?? []);
+        $subkategoriUuids = SubKategori::where(function ($q) use ($request) {
+            $q->whereIn('uuid', $request->subkategori ?? [])
+              ->orWhereIn('id', $request->subkategori ?? []);
+        })->pluck('uuid')->toArray();
+
+        $kategori->subkategori()->sync($subkategoriUuids);
 
         if (is_array($request->parameter)) {
             $syncData = [];
             foreach ($request->parameter as $param) {
-                $syncData[$param['id']] = ['baku_mutu' => $param['baku_mutu']];
+                $paramModel = ParameterUji::whereUuidOrId($param['id'])->first();
+                if ($paramModel) {
+                    $syncData[$paramModel->uuid] = ['baku_mutu' => $param['baku_mutu']];
+                }
             }
             $kategori->parameter()->sync($syncData);
         } else {
@@ -131,15 +145,16 @@ class KategoriController extends Controller
     {
         $kategori = Kategori::with(['subkategori', 'parameter' => function ($q) {
             $q->withPivot('baku_mutu');
-        }])->findOrFail($id);
+        }])->whereUuidOrId($id)->firstOrFail();
 
         $subkategori = SubKategori::all();
 
         $parameter = ParameterUji::all()->map(function ($param) use ($kategori) {
-            $existing = $kategori->parameter->firstWhere('id', $param->id);
+            $existing = $kategori->parameter->firstWhere('uuid', $param->uuid) ?? $kategori->parameter->firstWhere('id', $param->id);
 
             return [
                 'id' => $param->id,
+                'uuid' => $param->uuid,
                 'kode_parameter' => $param->kode_parameter,
                 'nama_parameter' => $param->nama_parameter,
                 'satuan' => $param->satuan,
@@ -151,6 +166,7 @@ class KategoriController extends Controller
         return Inertia::render('pegawai/kategori/Edit', [
             'kategori' => [
                 'id' => $kategori->id,
+                'uuid' => $kategori->uuid,
                 'nama' => $kategori->nama,
                 'harga' => $kategori->harga,
                 'subkategori' => $kategori->subkategori
@@ -167,10 +183,18 @@ class KategoriController extends Controller
             'nama' => 'required|string',
             'harga' => 'required|numeric|min:0',
             'subkategori' => 'nullable|array',
-            'subkategori.*' => 'required|exists:subkategori,id',
+            'subkategori.*' => ['required', function ($attribute, $value, $fail) {
+                if (!SubKategori::whereUuidOrId($value)->exists()) {
+                    $fail('Sub Kategori Tidak Ditemukan.');
+                }
+            }],
             'parameter' => 'nullable|array',
-            'parameter.*.id' => 'required|exists:parameter_uji,id',
-            'parameter..baku_mutu' => 'required_with:parameter..id|string|max:255'
+            'parameter.*.id' => ['required', function ($attribute, $value, $fail) {
+                if (!ParameterUji::whereUuidOrId($value)->exists()) {
+                    $fail('Parameter Tidak Valid.');
+                }
+            }],
+            'parameter.*.baku_mutu' => 'required_with:parameter.*.id|string|max:255'
         ];
 
         if ($request->nama != $kategori->nama) {
@@ -191,10 +215,8 @@ class KategoriController extends Controller
             'harga.numeric' => 'Harga Harus Berupa Angka.',
             'harga.min' => 'Harga Tidak Boleh Kurang Dari 0.',
             'subkategori.*.required' => 'Sub Kategori Tidak Valid.',
-            'subkategori.*.exists' => 'Sub Kategori Tidak Ditemukan.',
             'parameter.*.id.required' => 'Parameter Wajib Dipilih.',
-            'parameter.*.id.exists' => 'Parameter Tidak Valid.',
-            'parameter.*.baku_mutu.required' => 'Baku Mutu Wajib Diisi Untuk Parameter Yang Dipilih.',
+            'parameter.*.baku_mutu.required_with' => 'Baku Mutu Wajib Diisi Untuk Parameter Yang Dipilih.',
         ]);
 
         $kategori->update([
@@ -202,12 +224,20 @@ class KategoriController extends Controller
             'harga' => $validatedData['harga'],
         ]);
 
-        $kategori->subkategori()->sync($request->subkategori ?? []);
+        $subkategoriUuids = SubKategori::where(function ($q) use ($request) {
+            $q->whereIn('uuid', $request->subkategori ?? [])
+              ->orWhereIn('id', $request->subkategori ?? []);
+        })->pluck('uuid')->toArray();
+
+        $kategori->subkategori()->sync($subkategoriUuids);
 
         if (is_array($request->parameter)) {
             $syncData = [];
             foreach ($request->parameter as $param) {
-                $syncData[$param['id']] = ['baku_mutu' => $param['baku_mutu']];
+                $paramModel = ParameterUji::whereUuidOrId($param['id'])->first();
+                if ($paramModel) {
+                    $syncData[$paramModel->uuid] = ['baku_mutu' => $param['baku_mutu']];
+                }
             }
             $kategori->parameter()->sync($syncData);
         } else {

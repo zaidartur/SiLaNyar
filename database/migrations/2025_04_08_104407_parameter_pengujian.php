@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('parameter_pengujian', function(Blueprint $table) {
             $table->id();
-            $table->foreignId('id_parameter')->constrained('parameter_uji')->onDelete('cascade');
-            $table->foreignId('id_pengujian')->constrained('pengujian')->onDelete('cascade');
+            $table->foreignUuid('id_parameter')->constrained('parameter_uji', 'uuid')->onDelete('cascade');
+            $table->foreignUuid('id_pengujian')->constrained('pengujian', 'uuid')->onDelete('cascade');
             $table->string('nilai')->nullable();
             $table->string('keterangan')->nullable();
             $table->timestamps();

@@ -78,94 +78,94 @@ class KategoriSeeder extends Seeder
         $phosphat = ParameterUji::where('nama_parameter', 'Phosphat')->first();
 
         $industriBihunSoun->subKategori()->syncWithoutDetaching([
-            $bihun->id,
-            $soun->id,
+            $bihun->uuid,
+            $soun->uuid,
         ]);
 
         $industriCatTinta->parameter()->syncWithoutDetaching([
-            $bod->id => ['baku_mutu' => '80'],
-            $cod->id => ['baku_mutu' => '150'],
-            $tss->id => ['baku_mutu' => '50'],
-            $merkuri->id => ['baku_mutu' => '0.01'],
-            $seng->id => ['baku_mutu' => '1.0'],
-            $timbal->id => ['baku_mutu' => '0.30'],
-            $tembaga->id => ['baku_mutu' => '0.80'],
-            $khromHexavalen->id => ['baku_mutu' => '0.20'],
-            $titanium->id => ['baku_mutu' => '0.40'],
-            $kadmium->id => ['baku_mutu' => '0.08'],
-            $fenol->id => ['baku_mutu' => '0.20'],
-            $minyakLemak->id => ['baku_mutu' => '10'],
-            $ph->id => ['baku_mutu' => '6.0 - 9.0'],
-            $debitMaksimum->id => ['baku_mutu' => '0.5 liter per liter produk cat water base, Zero discharge untuk cat solvent base'],
+            $bod->uuid => ['baku_mutu' => '80'],
+            $cod->uuid => ['baku_mutu' => '150'],
+            $tss->uuid => ['baku_mutu' => '50'],
+            $merkuri->uuid => ['baku_mutu' => '0.01'],
+            $seng->uuid => ['baku_mutu' => '1.0'],
+            $timbal->uuid => ['baku_mutu' => '0.30'],
+            $tembaga->uuid => ['baku_mutu' => '0.80'],
+            $khromHexavalen->uuid => ['baku_mutu' => '0.20'],
+            $titanium->uuid => ['baku_mutu' => '0.40'],
+            $kadmium->uuid => ['baku_mutu' => '0.08'],
+            $fenol->uuid => ['baku_mutu' => '0.20'],
+            $minyakLemak->uuid => ['baku_mutu' => '10'],
+            $ph->uuid => ['baku_mutu' => '6.0 - 9.0'],
+            $debitMaksimum->uuid => ['baku_mutu' => '0.5 liter per liter produk cat water base, Zero discharge untuk cat solvent base'],
         ]);
 
         $industriFarmasi->subKategori()->syncWithoutDetaching([
-            $bahanFormula->id,
-            $formulasi->id,
+            $bahanFormula->uuid,
+            $formulasi->uuid,
         ]);
 
         $industriJamu->parameter()->syncWithoutDetaching([
-            $bod->id => ['baku_mutu' => '60'],
-            $cod->id => ['baku_mutu' => '120'],
-            $tss->id => ['baku_mutu' => '60'],
-            $fenol->id => ['baku_mutu' => '0.2'],
-            $ph->id => ['baku_mutu' => '6.0 - 9.0'],
-            $debitMaksimum->id => ['baku_mutu' => '3/ton bahan baku'],
+            $bod->uuid => ['baku_mutu' => '60'],
+            $cod->uuid => ['baku_mutu' => '120'],
+            $tss->uuid => ['baku_mutu' => '60'],
+            $fenol->uuid => ['baku_mutu' => '0.2'],
+            $ph->uuid => ['baku_mutu' => '6.0 - 9.0'],
+            $debitMaksimum->uuid => ['baku_mutu' => '3/ton bahan baku'],
         ]);
 
          $industriKaret->parameter()->syncWithoutDetaching([
-            $bod->id => ['baku_mutu' => '150'],
-            $cod->id => ['baku_mutu' => '300'],
-            $tss->id => ['baku_mutu' => '150'],
-            $amonia->id => ['baku_mutu' => '10'],
-            $ph->id => ['baku_mutu' => '6.0 - 9.0'],
-            $debitMaksimum->id => ['baku_mutu' => '40 m³/ton produk karet'],
+            $bod->uuid => ['baku_mutu' => '150'],
+            $cod->uuid => ['baku_mutu' => '300'],
+            $tss->uuid => ['baku_mutu' => '150'],
+            $amonia->uuid => ['baku_mutu' => '10'],
+            $ph->uuid => ['baku_mutu' => '6.0 - 9.0'],
+            $debitMaksimum->uuid => ['baku_mutu' => '40 m³/ton produk karet'],
         ]);
 
         $industriTekstilBatik->parameter()->syncWithoutDetaching([
-            $suhu->id => ['baku_mutu' => '38 °C'],
-            $bod->id => ['baku_mutu' => '60'],
-            $cod->id => ['baku_mutu' => '150'],
-            $tss->id => ['baku_mutu' => '50'],
-            $fenol->id => ['baku_mutu' => '0.5'],
-            $khromTotal->id => ['baku_mutu' => '1.0'],
-            $amonia->id => ['baku_mutu' => '8.0'],
-            $sulfida->id => ['baku_mutu' => '0.3'],
-            $minyakLemak->id => ['baku_mutu' => '3.0'],
-            $ph->id => ['baku_mutu' => '6.0 - 9.0'],
+            $suhu->uuid => ['baku_mutu' => '38 °C'],
+            $bod->uuid => ['baku_mutu' => '60'],
+            $cod->uuid => ['baku_mutu' => '150'],
+            $tss->uuid => ['baku_mutu' => '50'],
+            $fenol->uuid => ['baku_mutu' => '0.5'],
+            $khromTotal->uuid => ['baku_mutu' => '1.0'],
+            $amonia->uuid => ['baku_mutu' => '8.0'],
+            $sulfida->uuid => ['baku_mutu' => '0.3'],
+            $minyakLemak->uuid => ['baku_mutu' => '3.0'],
+            $ph->uuid => ['baku_mutu' => '6.0 - 9.0'],
         ]);
 
         $domestik->parameter()->syncWithoutDetaching([
-            $bod->id => ['baku_mutu' => '30'],
-            $cod->id => ['baku_mutu' => '100'],
-            $tss->id => ['baku_mutu' => '30'],
-            $minyakLemak->id => ['baku_mutu' => '5'],
-            $ph->id => ['baku_mutu' => '6.0 - 9.0'],
-            $amonia->id => ['baku_mutu' => '10'],
-            $totalColiform->id => ['baku_mutu' => '3000'],
-            $debitMaksimum->id => ['baku_mutu' => '100'], // Assuming 'Debit' refers to Debit Maksimum
+            $bod->uuid => ['baku_mutu' => '30'],
+            $cod->uuid => ['baku_mutu' => '100'],
+            $tss->uuid => ['baku_mutu' => '30'],
+            $minyakLemak->uuid => ['baku_mutu' => '5'],
+            $ph->uuid => ['baku_mutu' => '6.0 - 9.0'],
+            $amonia->uuid => ['baku_mutu' => '10'],
+            $totalColiform->uuid => ['baku_mutu' => '3000'],
+            $debitMaksimum->uuid => ['baku_mutu' => '100'], // Assuming 'Debit' refers to Debit Maksimum
         ]);
 
         $makananSpesifik->subKategori()->syncWithoutDetaching([
-            $mie->id,
-            $kopi->id,
-            $permen->id,
-            $bumbuMie->id,
-            $makananKecil->id,
+            $mie->uuid,
+            $kopi->uuid,
+            $permen->uuid,
+            $bumbuMie->uuid,
+            $makananKecil->uuid,
         ]);
 
         $pelapisanLogam->parameter()->syncWithoutDetaching([
-            $tss->id => ['baku_mutu' => '20'],
-            $sianida->id => ['baku_mutu' => '0.2'],
-            $khromTotal->id => ['baku_mutu' => '0.5'],
-            $khromHexavalen->id => ['baku_mutu' => '0.1'],
-            $tembaga->id => ['baku_mutu' => '0.6'],
-            $seng->id => ['baku_mutu' => '1.0'],
-            $nikel->id => ['baku_mutu' => '1.0'],
-            $kadmium->id => ['baku_mutu' => '0.05'],
-            $timbal->id => ['baku_mutu' => '0.1'],
-            $ph->id => ['baku_mutu' => '6.0 - 9.0'],
-            $debitMaksimum->id => ['baku_mutu' => '20 L/ kg bahan pelapis'],
+            $tss->uuid => ['baku_mutu' => '20'],
+            $sianida->uuid => ['baku_mutu' => '0.2'],
+            $khromTotal->uuid => ['baku_mutu' => '0.5'],
+            $khromHexavalen->uuid => ['baku_mutu' => '0.1'],
+            $tembaga->uuid => ['baku_mutu' => '0.6'],
+            $seng->uuid => ['baku_mutu' => '1.0'],
+            $nikel->uuid => ['baku_mutu' => '1.0'],
+            $kadmium->uuid => ['baku_mutu' => '0.05'],
+            $timbal->uuid => ['baku_mutu' => '0.1'],
+            $ph->uuid => ['baku_mutu' => '6.0 - 9.0'],
+            $debitMaksimum->uuid => ['baku_mutu' => '20 L/ kg bahan pelapis'],
         ]);
 
         // $belumDitetapkanBakuMutunya->subKategori()->syncWithoutDetaching([
@@ -184,28 +184,28 @@ class KategoriSeeder extends Seeder
         // ]);
 
         $tahuTempe->subKategori()->syncWithoutDetaching([
-            $industriTahu->id,
-            $industriTempe->id,
+            $industriTahu->uuid,
+            $industriTempe->uuid,
         ]);
 
         // Attach parameters for Industri Tahu to its subcategory
         $industriTahu->parameter()->syncWithoutDetaching([
-            $suhu->id => ['baku_mutu' => '38'],
-            $bod->id => ['baku_mutu' => '150'],
-            $cod->id => ['baku_mutu' => '275'],
-            $tss->id => ['baku_mutu' => '100'],
-            $ph->id => ['baku_mutu' => '6.0 - 9.0'],
-            $debitMaksimum->id => ['baku_mutu' => '20 m³/ ton kedelai'],
+            $suhu->uuid => ['baku_mutu' => '38'],
+            $bod->uuid => ['baku_mutu' => '150'],
+            $cod->uuid => ['baku_mutu' => '275'],
+            $tss->uuid => ['baku_mutu' => '100'],
+            $ph->uuid => ['baku_mutu' => '6.0 - 9.0'],
+            $debitMaksimum->uuid => ['baku_mutu' => '20 m³/ ton kedelai'],
         ]);
 
         // Attach parameters for Industri Tempe to its subcategory
         $industriTempe->parameter()->syncWithoutDetaching([
-            $suhu->id => ['baku_mutu' => '38'],
-            $bod->id => ['baku_mutu' => '150'],
-            $cod->id => ['baku_mutu' => '275'],
-            $tss->id => ['baku_mutu' => '100'],
-            $ph->id => ['baku_mutu' => '6.0 - 9.0'],
-            $debitMaksimum->id => ['baku_mutu' => '10 m³/ ton kedelai'],
+            $suhu->uuid => ['baku_mutu' => '38'],
+            $bod->uuid => ['baku_mutu' => '150'],
+            $cod->uuid => ['baku_mutu' => '275'],
+            $tss->uuid => ['baku_mutu' => '100'],
+            $ph->uuid => ['baku_mutu' => '6.0 - 9.0'],
+            $debitMaksimum->uuid => ['baku_mutu' => '10 m³/ ton kedelai'],
         ]);
 
         // $sungai->subKategori()->syncWithoutDetaching([

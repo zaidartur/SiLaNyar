@@ -49,7 +49,7 @@ const closeModal = () => {
 }
 
 const submit = () => {
-    form.put(`/pegawai/parameter/${props.parameter.id}/edit`, {
+    form.put(`/pegawai/parameter/${props.parameter.uuid || props.parameter.id}/edit`, {
         onSuccess: () => {
             emit('close')
         }

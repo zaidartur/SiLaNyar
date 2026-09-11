@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\HasUuid;
 
 class Kategori extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuid;
 
     protected $table = 'kategori';
 
@@ -43,18 +44,23 @@ class Kategori extends Model
 
     public function parameter()
     {
-        return $this->belongsToMany(ParameterUji::class, 'parameter_kategori', 'id_kategori', 'id_parameter')
+        return $this->belongsToMany(ParameterUji::class, 'parameter_kategori', 'id_kategori', 'id_parameter', 'uuid', 'uuid')
             ->withPivot('baku_mutu')
             ->withTimestamps();
     }
 
     public function form_pengajuan()
     {
-        return $this->hasMany(FormPengajuan::class, 'id_kategori');
+        return $this->hasMany(FormPengajuan::class, 'id_kategori', 'uuid');
     }
 
     public function subkategori()
     {
-        return $this->belongsToMany(SubKategori::class, 'kategori_subkategori', 'id_kategori', 'id_subkategori');    
+        return $this->belongsToMany(SubKategori::class, 'kategori_subkategori', 'id_kategori', 'id_subkategori', 'uuid', 'uuid');    
+    }
+
+    public function pengujian()
+    {
+        return $this->hasMany(Pengujian::class, 'id_kategori', 'uuid');
     }
 }

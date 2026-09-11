@@ -24,7 +24,7 @@ const form = useForm({
 
 const submit = () => {
     if (!props.jenis_cairan) return;
-    form.put(`/pegawai/jenis-cairan/${props.jenis_cairan.id}/edit`, {
+    form.put(`/pegawai/jenis-cairan/${props.jenis_cairan.uuid || props.jenis_cairan.id}/edit`, {
         onSuccess: () => emit('close')
     })
 }

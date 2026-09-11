@@ -27,7 +27,16 @@ class SubKategoriController extends Controller
 
     public function create()
     {
-        $parameter = ParameterUji::all();
+        $parameter = ParameterUji::all()->map(function ($param) {
+            return [
+                'id' => $param->id,
+                'uuid' => $param->uuid,
+                'kode_parameter' => $param->kode_parameter,
+                'nama_parameter' => $param->nama_parameter,
+                'satuan' => $param->satuan,
+                'harga' => $param->harga,
+            ];
+        });
 
         return Inertia::render('pegawai/subkategori/Tambah', [
             'parameter' => $parameter
@@ -37,9 +46,16 @@ class SubKategoriController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama' => 'required|string|unique:subkategori,nama,',
+            'nama' => 'required|string|unique:subkategori,nama',
             'parameter' => 'required|array',
-            'parameter.*.id' => 'required|exists:parameter_uji,id',
+            'parameter.*.id' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    if (!ParameterUji::whereUuidOrId($value)->exists()) {
+                        $fail('Parameter Tidak Ditemukan.');
+                    }
+                }
+            ],
             'parameter.*.baku_mutu' => 'required|string|max:255',
         ], [
             'nama.required' => 'Nama Sub Kategori Wajib Diisi.',
@@ -47,7 +63,6 @@ class SubKategoriController extends Controller
             'parameter.required' => 'Pilih Minimal Satu Parameter.',
             'parameter.array' => 'Format Parameter Tidak Valid.',
             'parameter.*.id.required' => 'Parameter Wajib Dipilih.',
-            'parameter.*.id.exists' => 'Parameter Tidak Ditemukan.',
             'parameter.*.baku_mutu.required' => 'Baku Mutu Wajib Diisi.',
             'parameter.*.baku_mutu.max' => 'Baku Mutu Maksimal 255 Karakter.',
         ]);
@@ -58,7 +73,10 @@ class SubKategoriController extends Controller
 
         $syncData = [];
         foreach ($request->parameter as $param) {
-            $syncData[$param['id']] = ['baku_mutu' => $param['baku_mutu']];
+            $paramModel = ParameterUji::whereUuidOrId($param['id'])->first();
+            if ($paramModel) {
+                $syncData[$paramModel->uuid] = ['baku_mutu' => $param['baku_mutu']];
+            }
         }
 
         $subkategori->parameter()->sync($syncData);
@@ -70,13 +88,16 @@ class SubKategoriController extends Controller
     {
         $subkategori = SubKategori::with(['parameter' => function ($query) {
             $query->withPivot('baku_mutu');
-        }])->findOrFail($id);
+        }])->whereUuidOrId($id)->firstOrFail();
 
         $parameter = ParameterUji::all()->map(function ($param) use ($subkategori) {
-            $existing = $subkategori->parameter->firstWhere('id', $param->id);
+            $existing = $subkategori->parameter->first(function ($p) use ($param) {
+                return $p->uuid === $param->uuid || $p->id === $param->id;
+            });
 
             return [
                 'id' => $param->id,
+                'uuid' => $param->uuid,
                 'kode_parameter' => $param->kode_parameter,
                 'nama_parameter' => $param->nama_parameter,
                 'satuan' => $param->satuan,
@@ -88,6 +109,7 @@ class SubKategoriController extends Controller
         return Inertia::render('pegawai/subkategori/Edit', [
             'subkategori' => [
                 'id' => $subkategori->id,
+                'uuid' => $subkategori->uuid,
                 'nama' => $subkategori->nama,
             ],
             'parameter' => $parameter
@@ -99,7 +121,14 @@ class SubKategoriController extends Controller
         $rules = [
             'nama' => 'required|string',
             'parameter' => 'required|array',
-            'parameter.*.id' => 'required|exists:parameter_uji,id',
+            'parameter.*.id' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    if (!ParameterUji::whereUuidOrId($value)->exists()) {
+                        $fail('Parameter Tidak Ditemukan.');
+                    }
+                }
+            ],
             'parameter.*.baku_mutu' => 'required|string|max:255',
         ];
 
@@ -113,7 +142,6 @@ class SubKategoriController extends Controller
             'parameter.required' => 'Pilih Minimal Satu Parameter.',
             'parameter.array' => 'Format Parameter Tidak Valid.',
             'parameter.*.id.required' => 'Parameter Wajib Dipilih.',
-            'parameter.*.id.exists' => 'Parameter Tidak Ditemukan.',
             'parameter.*.baku_mutu.required' => 'Baku Mutu Wajib Diisi Untuk Parameter Yang Dipilih.',
             'parameter.*.baku_mutu.max' => 'Baku Mutu Maksimal 255 Karakter.',
         ]);
@@ -124,7 +152,10 @@ class SubKategoriController extends Controller
 
         $syncData = [];
         foreach ($request->parameter as $param) {
-            $syncData[$param['id']] = ['baku_mutu' => $param['baku_mutu']];
+            $paramModel = ParameterUji::whereUuidOrId($param['id'])->first();
+            if ($paramModel) {
+                $syncData[$paramModel->uuid] = ['baku_mutu' => $param['baku_mutu']];
+            }
         }
 
         $subkategori->parameter()->sync($syncData);
@@ -138,10 +169,7 @@ class SubKategoriController extends Controller
             'parameter' => function ($query) {
                 $query->withPivot('baku_mutu');
             }
-        ])
-
-            ->get()
-            ->findOrFail($id);
+        ])->whereUuidOrId($id)->firstOrFail();
 
         return Inertia::render('pegawai/subkategori/Detail', [
             'subkategori' => $subkategori
@@ -150,12 +178,10 @@ class SubKategoriController extends Controller
 
     public function destroy($id)
     {
-        $subkategori = SubKategori::findOrFail($id);
+        $subkategori = SubKategori::whereUuidOrId($id)->firstOrFail();
 
         $subkategori->delete();
 
-        if ($subkategori) {
-            return Redirect::route('pegawai.subkategori.index')->with('message', 'Kategori Berhasil Didelete!');
-        }
+        return Redirect::route('pegawai.subkategori.index')->with('message', 'Kategori Berhasil Didelete!');
     }
 }

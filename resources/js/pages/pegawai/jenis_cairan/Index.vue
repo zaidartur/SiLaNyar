@@ -72,7 +72,7 @@ const handleDelete = () => {
     if (!deletingJenisCairan.value) return;
     isDeleting.value = true;
 
-    router.delete(`/pegawai/jenis-cairan/${deletingJenisCairan.value.id}`, {
+    router.delete(`/pegawai/jenis-cairan/${deletingJenisCairan.value.uuid || deletingJenisCairan.value.id}`, {
         onSuccess: () => {
             isDeleting.value = false;
             closeDeleteModal();

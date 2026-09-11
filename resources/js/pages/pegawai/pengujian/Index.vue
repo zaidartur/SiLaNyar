@@ -286,7 +286,7 @@ const filteredPengujian = computed(() => {
                                 <td class="py-3.5 px-5 text-right whitespace-nowrap">
                                     <div class="inline-flex items-center gap-1.5 justify-end">
                                         <Link
-                                            :href="`/pegawai/pengujian/${item.id}/detail`"
+                                            :href="`/pegawai/pengujian/${item.uuid || item.id}/detail`"
                                             class="w-7 h-7 rounded-lg inline-flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition"
                                             title="Lihat Detail"
                                         >
@@ -295,7 +295,7 @@ const filteredPengujian = computed(() => {
                                         <template v-if="userRole !== 'teknisi'">
                                             <Link
                                                 v-if="can('edit pengujian') && item.status !== 'selesai'"
-                                                :href="`/pegawai/pengujian/${item.id}/edit`"
+                                                :href="`/pegawai/pengujian/${item.uuid || item.id}/edit`"
                                                 class="w-7 h-7 rounded-lg inline-flex items-center justify-center bg-amber-50 hover:bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:hover:bg-amber-900/60 dark:text-amber-300 transition"
                                                 title="Ubah Pengujian"
                                             >
@@ -304,7 +304,7 @@ const filteredPengujian = computed(() => {
                                             <button
                                                 v-if="can('hapus pengujian')"
                                                 type="button"
-                                                @click="openDeleteModal(item.id)"
+                                                @click="openDeleteModal(item.uuid || item.id)"
                                                 class="w-7 h-7 rounded-lg inline-flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-700 dark:bg-red-950/50 dark:hover:bg-red-900/60 dark:text-red-300 transition cursor-pointer"
                                                 title="Hapus Pengujian"
                                             >

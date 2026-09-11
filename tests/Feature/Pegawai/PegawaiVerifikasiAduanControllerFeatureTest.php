@@ -112,7 +112,7 @@ class PegawaiVerifikasiAduanControllerFeatureTest extends TestCase
     public function test_show_menampilkan_detail_aduan()
     {
         $response = $this->actingAs($this->pegawai)
-            ->get(route('pegawai.aduan.detail', $this->aduan->id));
+            ->get(route('pegawai.aduan.detail', $this->aduan));
 
         $response->assertStatus(200)
             ->assertInertia(fn (Assert $page) => $page

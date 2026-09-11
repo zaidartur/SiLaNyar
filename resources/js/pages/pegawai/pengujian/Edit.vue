@@ -60,7 +60,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.put(route('pegawai.pengujian.update', props.pengujian.id));
+    form.put(route('pegawai.pengujian.update', props.pengujian.uuid || props.pengujian.id));
 };
 </script>
 

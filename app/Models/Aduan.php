@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Aduan extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuid;
 
     protected $table = 'aduan';
 
@@ -45,11 +46,11 @@ class Aduan extends Model
 
     public function hasil_uji()
     {
-        return $this->belongsTo(HasilUji::class, 'id_hasil_uji');
+        return $this->belongsTo(HasilUji::class, 'id_hasil_uji', 'uuid');
     }
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'id_user');
+        return $this->belongsTo(User::class, 'id_user', 'uuid');
     }
 }

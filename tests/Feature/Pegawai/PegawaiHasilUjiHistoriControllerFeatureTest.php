@@ -95,8 +95,8 @@ class PegawaiHasilUjiHistoriControllerFeatureTest extends TestCase
 
         // Membuat data parameter_pengujian yang akan dibaca oleh controller
         DB::table('parameter_pengujian')->insert([
-            'id_pengujian' => $pengujian->id,
-            'id_parameter' => $this->parameter->id,
+            'id_pengujian' => $pengujian->uuid,
+            'id_parameter' => $this->parameter->uuid,
             'nilai' => 45.5,
             'keterangan' => 'Memenuhi baku mutu',
             'created_at' => now(),

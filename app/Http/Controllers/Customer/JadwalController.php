@@ -17,10 +17,10 @@ class JadwalController extends Controller
 
         $searchByStatus = $request->input('status');
 
-        $instansiUser = $user->instansi()->pluck('id')->toArray();
+        $instansiUser = $user->instansi()->pluck('uuid')->toArray();
 
         $jadwal = Jadwal::whereHas('form_pengajuan', function ($query) use ($user, $searchByStatus) {
-            $query->where('id_user', $user->id);
+            $query->where('id_user', $user->uuid);
             if ($searchByStatus) {
                 $query->where('status', 'like', '%' . $searchByStatus . '%');
             }
@@ -38,7 +38,7 @@ class JadwalController extends Controller
             ->latest()
             ->first();
 
-        $idJadwalAntarTerbaru = $jadwalAntarTerbaru?->id;
+        $idJadwalAntarTerbaru = $jadwalAntarTerbaru?->uuid ?? $jadwalAntarTerbaru?->id;
 
         // Jadwal ambil terbaru
         $jadwalAmbilTerbaru = Jadwal::whereHas('form_pengajuan', function ($query) use ($instansiUser) {
@@ -49,7 +49,7 @@ class JadwalController extends Controller
             ->latest()
             ->first();
 
-        $idJadwalAmbilTerbaru = $jadwalAmbilTerbaru?->id;
+        $idJadwalAmbilTerbaru = $jadwalAmbilTerbaru?->uuid ?? $jadwalAmbilTerbaru?->id;
 
         return Inertia::render('customer/jadwal/Pengantaran', [
             'jadwal' => $jadwal,
@@ -66,7 +66,7 @@ class JadwalController extends Controller
         /** @var \App\Models\User */
         $user = Auth::user();
 
-        $instansiUser = $user->instansi()->pluck('id')->toArray();
+        $instansiUser = $user->instansi()->pluck('uuid')->toArray();
 
         $jadwalAntarTerbaru = Jadwal::whereHas('form_pengajuan', function ($query) use ($instansiUser) {
             $query->where('metode_pengambilan', 'diantar')->whereIn('id_instansi', $instansiUser);
@@ -89,7 +89,7 @@ class JadwalController extends Controller
         /** @var \App\Models\User */
         $user = Auth::user();
 
-        $instansiUser = $user->instansi()->pluck('id')->toArray();
+        $instansiUser = $user->instansi()->pluck('uuid')->toArray();
 
         $jadwalAmbilTerbaru = Jadwal::whereHas('form_pengajuan', function ($query)  use ($instansiUser) {
             $query->where('metode_pengambilan', 'diambil')->whereIn('id_instansi', $instansiUser);
@@ -114,7 +114,7 @@ class JadwalController extends Controller
 
         $jadwal = Jadwal::whereHas('form_pengajuan.instansi', function ($query) use ($user) {
             $query->whereHas('user', function ($q) use ($user) {
-                $q->where('id', $user->id);
+                $q->where('uuid', $user->uuid)->orWhere('id', $user->id);
             });
         })
             ->with([
@@ -123,7 +123,8 @@ class JadwalController extends Controller
                 'form_pengajuan.instansi',
                 'form_pengajuan.instansi.user'
             ])
-            ->findOrFail($id);
+            ->whereUuidOrId($id)
+            ->firstOrFail();
 
         return Inertia::render('customer/jadwal/Detail', [
             'jadwal' => $jadwal,

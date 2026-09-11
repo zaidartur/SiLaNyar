@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('jadwal', function(Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->string('kode_pengambilan')->unique();
-            $table->foreignId('id_form_pengajuan')->constrained('form_pengajuan')->onDelete('cascade');
-            $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
+            $table->foreignUuid('id_form_pengajuan')->constrained('form_pengajuan', 'uuid')->onDelete('cascade');
+            $table->foreignUuid('id_user')->constrained('users', 'uuid')->onDelete('cascade');
             $table->date('waktu_pengambilan');
             $table->enum('status', ['diproses', 'diterima'])->default('diproses');
             $table->string('keterangan')->nullable();

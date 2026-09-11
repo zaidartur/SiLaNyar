@@ -51,7 +51,7 @@ class PengajuanController extends Controller
     public function show($id)
     {
         $pengajuan = FormPengajuan::with(['kategori.parameter', 'kategori.subkategori.parameter', 'parameter', 'instansi.user', 'jenis_cairan'])
-            ->where('id', $id)
+            ->whereUuidOrId($id)
             ->firstOrFail();
 
         return Inertia::render('pegawai/pengajuan/Detail', [
@@ -64,8 +64,8 @@ class PengajuanController extends Controller
     {
         $pengajuan->load(['kategori', 'parameter', 'instansi.user', 'jenis_cairan']);
 
-        $kategoriList = Kategori::with('parameter', 'subkategori.parameter')->select('id', 'nama')->get();
-        $parameterList = ParameterUji::select('id', 'nama_parameter')->get();
+        $kategoriList = Kategori::with('parameter', 'subkategori.parameter')->select('id', 'uuid', 'nama')->get();
+        $parameterList = ParameterUji::select('id', 'uuid', 'nama_parameter')->get();
 
         return Inertia::render('pegawai/pengajuan/Edit', [
             'pengajuan' => $pengajuan,
@@ -78,16 +78,24 @@ class PengajuanController extends Controller
     public function update($id, Request $request)
     {
         try {
-            $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'instansi.user', 'jadwal'])->findOrFail($id);
+            $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'instansi.user', 'jadwal'])->whereUuidOrId($id)->firstOrFail();
 
             $rules = [
                 'status_pengajuan' => 'required|in:diterima,ditolak'
             ];
 
             if ($pengajuan->metode_pengambilan === 'diantar' && $request->input('status_pengajuan') === 'diterima') {
-                $rules['id_kategori'] = 'required|exists:kategori,id';
+                $rules['id_kategori'] = ['required', function ($attribute, $value, $fail) {
+                    if (!Kategori::whereUuidOrId($value)->exists()) {
+                        $fail('Kategori Data Tidak Valid.');
+                    }
+                }];
                 $rules['parameter'] = 'required|array';
-                $rules['parameter.*'] = 'exists:parameter_uji,id';
+                $rules['parameter.*'] = [function ($attribute, $value, $fail) {
+                    if (!ParameterUji::whereUuidOrId($value)->exists()) {
+                        $fail('Parameter Data Tidak Valid.');
+                    }
+                }];
             }
 
             $validated = $request->validate($rules);
@@ -95,20 +103,20 @@ class PengajuanController extends Controller
             $pengajuan->status_pengajuan = $validated['status_pengajuan'];
 
             if ($pengajuan->metode_pengambilan === 'diantar' && $validated['status_pengajuan'] === 'diterima') {
-                $kategori = Kategori::with('parameter', 'subkategori.parameter')->find($validated['id_kategori']);
+                $kategori = Kategori::with('parameter', 'subkategori.parameter')->whereUuidOrId($validated['id_kategori'])->first();
 
-                $allowedParameterIds = collect();
+                $allowedParameterIdentifiers = collect();
                 if ($kategori) {
-                    $allowedParameterIds = $allowedParameterIds->merge($kategori->parameter->pluck('id'));
+                    $allowedParameterIdentifiers = $allowedParameterIdentifiers->merge($kategori->parameter->pluck('uuid'))->merge($kategori->parameter->pluck('id'));
 
                     foreach ($kategori->subkategori as $subkategori) {
-                        $allowedParameterIds = $allowedParameterIds->merge($subkategori->parameter->pluck('id'));
+                        $allowedParameterIdentifiers = $allowedParameterIdentifiers->merge($subkategori->parameter->pluck('uuid'))->merge($subkategori->parameter->pluck('id'));
                     }
                 }
 
-                $allowedParameterIds = $allowedParameterIds->unique();
+                $allowedParameterIdentifiers = $allowedParameterIdentifiers->unique();
 
-                $invalidParameters = collect($validated['parameter'])->diff($allowedParameterIds);
+                $invalidParameters = collect($validated['parameter'])->diff($allowedParameterIdentifiers);
 
                 if ($invalidParameters->isNotEmpty()) {
                     return redirect()->back()
@@ -116,13 +124,19 @@ class PengajuanController extends Controller
                         ->withInput();
                 }
 
-                $pengajuan->id_kategori = $validated['id_kategori'];
+                $pengajuan->id_kategori = $kategori?->uuid;
                 $pengajuan->save();
-                $pengajuan->parameter()->sync($validated['parameter']);
+
+                $paramUuids = ParameterUji::where(function ($q) use ($validated) {
+                    $q->whereIn('uuid', $validated['parameter'])
+                      ->orWhereIn('id', $validated['parameter']);
+                })->pluck('uuid')->toArray();
+
+                $pengajuan->parameter()->sync($paramUuids);
                 $pengajuan->refresh();
 
                 Pembayaran::updateOrCreate(
-                    ['id_form_pengajuan' => $pengajuan->id],
+                    ['id_form_pengajuan' => $pengajuan->uuid],
                     [
                         'id_order' => 'INV-' . strtoupper(Str::random(10)) . '-' . time(),
                         'total_biaya' => $this->hitungTotalBiaya($pengajuan),

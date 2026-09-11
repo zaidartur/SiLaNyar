@@ -16,7 +16,7 @@ const form = useForm({
 });
 
 function submitAduan() {
-    form.post(`/customer/hasiluji/aduan/${props.hasil_uji.id}`);
+    form.post(`/customer/hasiluji/aduan/${props.hasil_uji.uuid || props.hasil_uji.id}`);
 }
 </script>
 

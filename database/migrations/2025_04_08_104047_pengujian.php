@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('pengujian', function(Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->string('kode_pengujian')->unique();
-            $table->foreignId('id_form_pengajuan')->constrained('form_pengajuan')->onDelete('cascade');
-            $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
-            $table->foreignId('id_kategori')->constrained('kategori')->onDelete('cascade');
+            $table->foreignUuid('id_form_pengajuan')->constrained('form_pengajuan', 'uuid')->onDelete('cascade');
+            $table->foreignUuid('id_user')->constrained('users', 'uuid')->onDelete('cascade');
+            $table->foreignUuid('id_kategori')->constrained('kategori', 'uuid')->onDelete('cascade');
             $table->date('tanggal_uji');
             $table->time('jam_mulai');
             $table->time('jam_selesai');

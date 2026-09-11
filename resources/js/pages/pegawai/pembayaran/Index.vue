@@ -47,7 +47,7 @@ function formatTanggal(tanggal: string | null) {
     });
 }
 
-function lihatDetail(id: number) {
+function lihatDetail(id: number | string) {
     router.visit(`/pegawai/pembayaran/${id}`);
 }
 
@@ -194,7 +194,7 @@ const getStatusBadge = (st: string) => {
                                 <td class="py-3.5 px-5 text-right whitespace-nowrap">
                                     <button
                                         type="button"
-                                        @click="lihatDetail(item.id)"
+                                        @click="lihatDetail(item.uuid || item.id)"
                                         class="w-7 h-7 rounded-lg inline-flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition cursor-pointer"
                                         title="Detail Pembayaran"
                                     >

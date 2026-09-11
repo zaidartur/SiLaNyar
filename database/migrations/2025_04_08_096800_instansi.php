@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('instansi', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->string('kode_instansi')->unique();
-            $table->foreignId('id_user')->constrained('users')->onDelete('cascade');
+            $table->foreignUuid('id_user')->constrained('users', 'uuid')->onDelete('cascade');
             $table->string('nama');
             $table->enum('tipe', ['swasta', 'pemerintahan', 'pribadi']);
             $table->string('alamat');

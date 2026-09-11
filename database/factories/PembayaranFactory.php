@@ -23,7 +23,7 @@ class PembayaranFactory extends Factory
         
         return [
             'id_order' => 'ORD-' . date('Ymd') . '-' . str_pad(fake()->unique()->numberBetween(1, 9999), 4, '0', STR_PAD_LEFT),
-            'id_form_pengajuan' => FormPengajuan::factory(),
+            'id_form_pengajuan' => fn () => FormPengajuan::factory()->create()->uuid,
             'total_biaya' => fake()->numberBetween(100000, 1000000),
             'tanggal_pembayaran' => $isComplete ? now() : null,
             'metode_pembayaran' => $methodPayment,

@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\HasUuid;
 
 class Instansi extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuid;
 
     protected $table = 'instansi';
 
@@ -47,11 +48,11 @@ class Instansi extends Model
     
     public function user()
     {
-        return $this->belongsTo(User::class, 'id_user');
+        return $this->belongsTo(User::class, 'id_user', 'uuid');
     }
 
     public function form_pengajuan()
     {
-        return $this->hasMany(FormPengajuan::class, 'id_instansi');
+        return $this->hasMany(FormPengajuan::class, 'id_instansi', 'uuid');
     }
 }

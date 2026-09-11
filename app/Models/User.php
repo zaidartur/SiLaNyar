@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use App\Models\Concerns\HasUuid;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable, HasRoles, HasUuid;
 
     protected $table = 'users';
     protected $guard_name = 'web';
@@ -36,22 +37,22 @@ class User extends Authenticatable
 
     public function instansi()
     {
-        return $this->hasMany(Instansi::class, 'id_user');
+        return $this->hasMany(Instansi::class, 'id_user', 'uuid');
     }
 
     public function pengujian()
     {
-        return $this->hasMany(Pengujian::class, 'id_user');
+        return $this->hasMany(Pengujian::class, 'id_user', 'uuid');
     }
 
     public function hasil_uji_histori()
     {
-        return $this->hasMany(HasilUjiHistori::class, 'id_user');
+        return $this->hasMany(HasilUjiHistori::class, 'id_user', 'uuid');
     }
 
     public function aduan()
     {
-        return $this->hasMany(Aduan::class, 'id_user');
+        return $this->hasMany(Aduan::class, 'id_user', 'uuid');
     }
 
     public function getDefaultGuardName()

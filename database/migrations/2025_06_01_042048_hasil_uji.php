@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('hasil_uji', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->string('kode_hasil_uji')->unique();
-            $table->foreignId('id_pengujian')->constrained('pengujian')->onDelete('cascade');
+            $table->foreignUuid('id_pengujian')->constrained('pengujian', 'uuid')->onDelete('cascade');
             $table->enum('status', ['draf', 'revisi', 'proses_review', 'proses_peresmian', 'selesai'])->default('draf');
             $table->timestamp('proses_review_at')->nullable();
             $table->string('file_pdf')->nullable();

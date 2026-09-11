@@ -125,7 +125,7 @@ class PegawaiJadwalControllerFeatureTest extends TestCase
     public function test_show_menampilkan_detail_jadwal()
     {
         $response = $this->actingAs($this->pegawai)
-            ->get(route('pegawai.pengambilan.detail', $this->jadwal->id));
+            ->get(route('pegawai.pengambilan.detail', $this->jadwal));
 
         $response->assertStatus(200);
     }

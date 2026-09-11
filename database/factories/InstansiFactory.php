@@ -10,7 +10,7 @@ class InstansiFactory extends Factory
     public function definition(): array
     {
         return [
-            'id_user' => User::factory(),
+            'id_user' => fn () => User::factory()->create()->uuid,
             'nama' => fake()->company(),
             'tipe' => fake()->randomElement(['swasta', 'pemerintahan', 'pribadi']),
             'alamat' => fake()->address(),

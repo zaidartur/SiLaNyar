@@ -74,7 +74,7 @@ const statusFlow: Record<string, string[]> = {
 const availableStatus = computed(() => statusFlow[props.pengujian.status] || []);
 
 function updateStatus(newStatus: string) {
-    router.put(`/pegawai/pengujian/verifikasi/${props.pengujian.id}`, {
+    router.put(`/pegawai/pengujian/verifikasi/${props.pengujian.uuid || props.pengujian.id}`, {
         status: newStatus,
     });
 }

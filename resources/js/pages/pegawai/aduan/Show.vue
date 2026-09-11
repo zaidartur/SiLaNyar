@@ -37,7 +37,7 @@ const form = useForm({
 
 function submit(status: string) {
     form.status = status;
-    form.put(`/pegawai/aduan/verifikasi/${props.aduan.id}`, {
+    form.put(`/pegawai/aduan/verifikasi/${props.aduan.uuid || props.aduan.id}`, {
         preserveScroll: true,
         onSuccess: () => {
             router.visit('/pegawai/aduan');

@@ -95,7 +95,7 @@ class PegawaiLaporanKeuanganControllerFeatureTest extends TestCase
                     ->where('total_biaya', 500000)
                     ->where('status_pembayaran', 'selesai')
                     ->has('form_pengajuan', fn (Assert $form) => $form
-                        ->where('id', $this->pembayaranSelesai->id_form_pengajuan)
+                        ->where('uuid', $this->pembayaranSelesai->id_form_pengajuan)
                         ->has('instansi', fn (Assert $instansi) => $instansi
                             ->where('nama', $this->instansi->nama)
                             ->etc()

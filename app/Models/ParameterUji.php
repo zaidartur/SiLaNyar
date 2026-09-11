@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\HasUuid;
 
 class ParameterUji extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuid;
 
     protected $table = 'parameter_uji';
 
@@ -43,26 +44,26 @@ class ParameterUji extends Model
 
     public function pengujian()
     {
-        return $this->belongsToMany(Pengujian::class, 'parameter_pengujian', 'id_parameter', 'id_pengujian')
+        return $this->belongsToMany(Pengujian::class, 'parameter_pengujian', 'id_parameter', 'id_pengujian', 'uuid', 'uuid')
             ->withPivot(['nilai', 'keterangan'])
             ->withTimestamps();
     }
 
     public function form_pengajuan()
     {
-        return $this->belongsToMany(FormPengajuan::class, 'parameter_pengajuan', 'id_parameter', 'id_pengajuan');
+        return $this->belongsToMany(FormPengajuan::class, 'parameter_pengajuan', 'id_parameter', 'id_pengajuan', 'uuid', 'uuid');
     }
 
     public function kategori()
     {
-        return $this->belongsToMany(Kategori::class, 'parameter_kategori', 'id_parameter', 'id_kategori')
+        return $this->belongsToMany(Kategori::class, 'parameter_kategori', 'id_parameter', 'id_kategori', 'uuid', 'uuid')
             ->withPivot('baku_mutu')
             ->withTimestamps();
     }
 
     public function subkategori()
     {
-        return $this->belongsToMany(SubKategori::class, 'parameter_subkategori', 'id_parameter', 'id_subkategori')
+        return $this->belongsToMany(SubKategori::class, 'parameter_subkategori', 'id_parameter', 'id_subkategori', 'uuid', 'uuid')
                     ->withPivot('baku_mutu')
                     ->withTimestamps();    
     }

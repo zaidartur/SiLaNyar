@@ -79,7 +79,7 @@ const handleDelete = () => {
     if (!deletingParameter.value) return;
     isDeleting.value = true;
 
-    router.delete(`/pegawai/parameter/${deletingParameter.value.id}`, {
+    router.delete(`/pegawai/parameter/${deletingParameter.value.uuid || deletingParameter.value.id}`, {
         onSuccess: () => {
             isDeleting.value = false;
             closeDeleteModal();

@@ -120,7 +120,7 @@ class HasilUjiControllerFeatureTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->customer)
-            ->get(route('customer.hasil_uji.detail', $otherHasilUji->id));
+            ->get(route('customer.hasil_uji.detail', $otherHasilUji));
 
         $response->assertStatus(403);
     }

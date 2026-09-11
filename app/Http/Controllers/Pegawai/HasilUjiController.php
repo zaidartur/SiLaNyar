@@ -120,35 +120,44 @@ class HasilUjiController extends Controller
         /** @var \App\Models\User */
         $user = Auth::user();
         $validated = $request->validate([
-            'id_pengujian' => 'required|exists:pengujian,id',
+            'id_pengujian' => ['required', function ($attribute, $value, $fail) {
+                if (!Pengujian::whereUuidOrId($value)->exists()) {
+                    $fail('Data Pengujian Tidak Ditemukan.');
+                }
+            }],
             'hasil' => 'required|array',
-            'hasil.*.id_parameter' => 'required|exists:parameter_uji,id',
+            'hasil.*.id_parameter' => ['required', function ($attribute, $value, $fail) {
+                if (!ParameterUji::whereUuidOrId($value)->exists()) {
+                    $fail('Parameter Tidak Ditemukan.');
+                }
+            }],
             'hasil.*.nilai' => 'nullable|string',
             'hasil.*.keterangan' => 'nullable|string|max:255',
         ], [
             'id_pengujian.required' => 'Pengujian Wajib Diisi.',
-            'id_pengujian.exists' => 'Data Pengujian Tidak Ditemukan.',
             'hasil.required' => 'Data Hasil Wajib Diisi.',
             'hasil.array' => 'Format Hasil Uji Tidak Valid.',
             'hasil.*.id_parameter.required' => 'Parameter Wajib Diisi.',
-            'hasil.*.id_parameter.exists' => 'Parameter Tidak Ditemukan.',
             'hasil.*.keterangan.max' => 'Keterangan Maksimal 255 Karakter.',
         ]);
+
+        $pengujian = Pengujian::whereUuidOrId($validated['id_pengujian'])->firstOrFail();
 
         DB::beginTransaction();
 
         try {
             $hasil_uji = HasilUji::create([
-                'id_pengujian' => $validated['id_pengujian'],
+                'id_pengujian' => $pengujian->uuid,
                 'status' => 'draf',
                 'diupdate_oleh' => $user->nama,
             ]);
 
             foreach ($validated['hasil'] as $item) {
+                $param = ParameterUji::whereUuidOrId($item['id_parameter'])->first();
                 DB::table('parameter_pengujian')->updateOrInsert(
                     [
-                        'id_pengujian' => $validated['id_pengujian'],
-                        'id_parameter' => $item['id_parameter'],
+                        'id_pengujian' => $pengujian->uuid,
+                        'id_parameter' => $param?->uuid ?? $item['id_parameter'],
                     ],
                     [
                         'nilai' => $item['nilai'] ?? null,
@@ -171,7 +180,7 @@ class HasilUjiController extends Controller
                 'is_customer' => false
             ]);
 
-            $path = 'pdf/hasil_uji_' . $hasil_uji->id . '.pdf';
+            $path = 'pdf/hasil_uji_' . ($hasil_uji->uuid ?? $hasil_uji->id) . '.pdf';
             Storage::put($path, $pdf->output());
 
             $hasil_uji->update(['file_pdf' => $path]);
@@ -253,14 +262,17 @@ class HasilUjiController extends Controller
 
         $validated = $request->validate([
             'hasil' => 'required|array',
-            'hasil.*.id_parameter' => 'required|exists:parameter_uji,id',
+            'hasil.*.id_parameter' => ['required', function ($attribute, $value, $fail) {
+                if (!ParameterUji::whereUuidOrId($value)->exists()) {
+                    $fail('Parameter Tidak Ditemukan.');
+                }
+            }],
             'hasil.*.nilai' => 'nullable|string',
             'hasil.*.keterangan' => 'nullable|string|max:255',
         ], [
             'hasil.required' => 'Data Hasil Wajib Diisi.',
             'hasil.array' => 'Format Hasil Uji Tidak Valid.',
             'hasil.*.id_parameter.required' => 'Parameter Wajib Diisi.',
-            'hasil.*.id_parameter.exists' => 'Parameter Tidak Ditemukan.',
             'hasil.*.keterangan.max' => 'Keterangan Maksimal 255 Karakter.',
         ]);
 
@@ -270,6 +282,7 @@ class HasilUjiController extends Controller
             $parameterKategori = collect($hasil_uji->pengujian->form_pengajuan->kategori->parameter)->map(function ($param) {
                 return [
                     'id' => $param->id,
+                    'uuid' => $param->uuid,
                     'nama_parameter' => $param->nama_parameter,
                     'satuan' => $param->satuan,
                     'baku_mutu' => $param->pivot->baku_mutu ?? null,
@@ -280,6 +293,7 @@ class HasilUjiController extends Controller
                 return $sub->parameter->map(function ($param) {
                     return [
                         'id' => $param->id,
+                        'uuid' => $param->uuid,
                         'nama_parameter' => $param->nama_parameter,
                         'satuan' => $param->satuan,
                         'baku_mutu' => $param->pivot->baku_mutu ?? null,
@@ -287,7 +301,7 @@ class HasilUjiController extends Controller
                 });
             });
 
-            $semuaParameter = $parameterKategori->merge($parameterSubKategori)->keyBy('id');
+            $semuaParameter = $parameterKategori->merge($parameterSubKategori)->keyBy('uuid');
 
             $dataSebelum = DB::table('parameter_pengujian')
                 ->where('id_pengujian', $hasil_uji->id_pengujian)
@@ -306,7 +320,7 @@ class HasilUjiController extends Controller
                 });
 
             HasilUjiHistori::create([
-                'id_hasil_uji' => $hasil_uji->id,
+                'id_hasil_uji' => $hasil_uji->uuid,
                 'data_parameterdanpengujian' => $dataSebelum,
                 'status' => $hasil_uji->status,
                 'diupdate_oleh' => $user->nama,
@@ -316,10 +330,11 @@ class HasilUjiController extends Controller
             $hasil_uji->update(['diupdate_oleh' => $user->nama]);
 
             foreach ($validated['hasil'] as $item) {
+                $param = ParameterUji::whereUuidOrId($item['id_parameter'])->first();
                 DB::table('parameter_pengujian')->updateOrInsert(
                     [
                         'id_pengujian' => $hasil_uji->id_pengujian,
-                        'id_parameter' => $item['id_parameter'],
+                        'id_parameter' => $param?->uuid ?? $item['id_parameter'],
                     ],
                     [
                         'nilai' => $item['nilai'] ?? null,
@@ -340,7 +355,7 @@ class HasilUjiController extends Controller
                 'is_customer' => false
             ]);
 
-            $path = 'pdf/hasil_uji_' . $hasil_uji->id . '.pdf';
+            $path = 'pdf/hasil_uji_' . ($hasil_uji->uuid ?? $hasil_uji->id) . '.pdf';
 
             Storage::put($path, $pdf->output());
 
@@ -348,7 +363,7 @@ class HasilUjiController extends Controller
 
             DB::commit();
 
-            return Redirect::route('pegawai.hasil_uji.detail', $hasil_uji->id)->with('message', 'Hasil Uji Berhasil Diupdate!');
+            return Redirect::route('pegawai.hasil_uji.detail', $hasil_uji)->with('message', 'Hasil Uji Berhasil Diupdate!');
         } catch (\Exception $err) {
             Log::error("Update error: " . $err->getMessage());
             DB::rollBack();
@@ -362,7 +377,7 @@ class HasilUjiController extends Controller
         /** @var \App\Models\User */
         $user = Auth::user();
 
-        $hasil_uji = HasilUji::findOrFail($id);
+        $hasil_uji = HasilUji::whereUuidOrId($id)->firstOrFail();
 
         $request->validate([
             'status' => 'required|in:draf,revisi,proses_review,proses_peresmian,selesai',
@@ -377,11 +392,11 @@ class HasilUjiController extends Controller
             ]);
         }
 
-        $pengajuan = $hasil_uji->pengujian->form_pengajuan->id;
+        $pengajuanUuid = $hasil_uji->pengujian->form_pengajuan->uuid;
 
-        $hasilUjiLain = HasilUji::whereHas('pengujian', function ($query) use ($pengajuan, $hasil_uji) {
-            $query->where('id_form_pengajuan', $pengajuan)
-                ->where('id', '!=', $hasil_uji->id_pengujian);
+        $hasilUjiLain = HasilUji::whereHas('pengujian', function ($query) use ($pengajuanUuid, $hasil_uji) {
+            $query->where('id_form_pengajuan', $pengajuanUuid)
+                ->where('uuid', '!=', $hasil_uji->id_pengujian);
         })
             ->whereIn('status', ['selesai', 'proses_peresmian', 'proses_review'])
             ->exists();
@@ -398,6 +413,7 @@ class HasilUjiController extends Controller
             $parameterKategori = collect($hasil_uji->pengujian->form_pengajuan->kategori->parameter)->map(function ($param) {
                 return [
                     'id' => $param->id,
+                    'uuid' => $param->uuid,
                     'nama_parameter' => $param->nama_parameter,
                     'satuan' => $param->satuan,
                     'baku_mutu' => $param->pivot->baku_mutu ?? null,
@@ -408,6 +424,7 @@ class HasilUjiController extends Controller
                 return $sub->parameter->map(function ($param) {
                     return [
                         'id' => $param->id,
+                        'uuid' => $param->uuid,
                         'nama_parameter' => $param->nama_parameter,
                         'satuan' => $param->satuan,
                         'baku_mutu' => $param->pivot->baku_mutu ?? null,
@@ -415,7 +432,7 @@ class HasilUjiController extends Controller
                 });
             });
 
-            $semuaParameter = $parameterKategori->merge($parameterSubKategori)->keyBy('id');
+            $semuaParameter = $parameterKategori->merge($parameterSubKategori)->keyBy('uuid');
 
             $dataSebelum = DB::table('parameter_pengujian')
                 ->where('id_pengujian', $hasil_uji->id_pengujian)
@@ -434,7 +451,7 @@ class HasilUjiController extends Controller
                 });
 
             HasilUjiHistori::create([
-                'id_hasil_uji' => $hasil_uji->id,
+                'id_hasil_uji' => $hasil_uji->uuid,
                 'data_parameterdanpengujian' => $dataSebelum,
                 'status' => $hasil_uji->status,
                 'diupdate_oleh' => $user->nama,
@@ -466,11 +483,11 @@ class HasilUjiController extends Controller
             'pengujian.form_pengajuan.kategori.subkategori.parameter',
             'pengujian.form_pengajuan.instansi.user',
             'pengujian.user'
-        ])->findOrFail($id);
+        ])->whereUuidOrId($id)->firstOrFail();
 
         $parameterKategori = collect($hasil_uji->pengujian->form_pengajuan->kategori->parameter)->map(function ($param) {
             return [
-                'id_parameter' => $param->id,
+                'id_parameter' => $param->uuid,
                 'nama_parameter' => $param->nama_parameter,
                 'satuan' => $param->satuan,
                 'baku_mutu' => $param->pivot->baku_mutu ?? null,
@@ -480,7 +497,7 @@ class HasilUjiController extends Controller
         $parameterSubKategori = collect($hasil_uji->pengujian->form_pengajuan->kategori->subkategori)->flatMap(function ($sub) {
             return $sub->parameter->map(function ($param) {
                 return [
-                    'id_parameter' => $param->id,
+                    'id_parameter' => $param->uuid,
                     'nama_parameter' => $param->nama_parameter,
                     'satuan' => $param->satuan,
                     'baku_mutu' => $param->pivot->baku_mutu ?? null,
@@ -525,7 +542,7 @@ class HasilUjiController extends Controller
     // hapus hasil uji
     public function destroy($id)
     {
-        $hasil_uji = HasilUji::findOrFail($id);
+        $hasil_uji = HasilUji::whereUuidOrId($id)->firstOrFail();
 
         $hasil_uji->delete();
 

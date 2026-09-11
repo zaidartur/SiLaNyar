@@ -11,8 +11,8 @@ class JadwalFactory extends Factory
     public function definition(): array
     {
         return [
-            'id_form_pengajuan' => FormPengajuan::factory(),
-            'id_user' => User::factory(),
+            'id_form_pengajuan' => fn () => FormPengajuan::factory()->create()->uuid,
+            'id_user' => fn () => User::factory()->create()->uuid,
             'waktu_pengambilan' => fake()->dateTimeBetween('now', '+1 week')->format('Y-m-d'),
             'status' => 'diproses',
             'keterangan' => fake()->optional()->sentence()

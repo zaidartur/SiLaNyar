@@ -35,7 +35,7 @@ const form = useForm({
 
 const verifikasi = (status: 'diterima' | 'ditolak') => {
     form.status_verifikasi = status;
-    form.put(`/pegawai/instansi/${props.instansi.id}/edit`, {
+    form.put(`/pegawai/instansi/${props.instansi.uuid || props.instansi.id}/edit`, {
         onSuccess: () => {
             form.reset();
         },

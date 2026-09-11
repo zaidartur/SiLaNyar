@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\HasUuid;
 
 class Jadwal extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuid;
 
     protected $table = 'jadwal';
 
@@ -47,11 +48,11 @@ class Jadwal extends Model
 
     public function form_pengajuan()
     {
-        return $this->belongsTo(FormPengajuan::class, 'id_form_pengajuan');
+        return $this->belongsTo(FormPengajuan::class, 'id_form_pengajuan', 'uuid');
     }
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'id_user');
+        return $this->belongsTo(User::class, 'id_user', 'uuid');
     }
 }

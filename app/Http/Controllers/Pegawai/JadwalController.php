@@ -101,22 +101,23 @@ class JadwalController extends Controller
         $request->validate([
             'id_form_pengajuan' => [
                 'required',
-                'exists:form_pengajuan,id',
-                'unique:jadwal,id_form_pengajuan'
+                function ($attribute, $value, $fail) {
+                    if (!FormPengajuan::whereUuidOrId($value)->exists()) {
+                        $fail('Form Pengajuan Tidak Ditemukan.');
+                    }
+                },
             ],
             'waktu_pengambilan' => 'required|date|after_or_equal:today',
             'keterangan' => 'nullable|string|max:255'
         ], [
             'id_form_pengajuan.required' => 'Form Pengajuan Wajib Diisi.',
-            'id_form_pengajuan.exists' => 'Form Pengajuan Tidak Ditemukan.',
-            'id_form_pengajuan.unique' => 'Form Pengajuan Tidak Boleh Sama.',
             'waktu_pengambilan.required' => 'Waktu Pengambilan Wajib Diisi.',
             'waktu_pengambilan.date' => 'Waktu Pengambilan Harus Berupa Tanggal.',
             'waktu_pengambilan.after_or_equal' => 'Waktu Pengambilan Tidak Boleh Lebih Lama Dari Hari Ini.',
             'keterangan.max' => 'Keterangan Maksimal 255 Karakter.',
         ]);
 
-        $pengajuan = FormPengajuan::findOrFail($request->id_form_pengajuan);
+        $pengajuan = FormPengajuan::whereUuidOrId($request->id_form_pengajuan)->firstOrFail();
 
         if ($pengajuan->status_pengajuan !== 'diterima') {
             return Redirect::back()->with('error', 'Jadwal Hanya Bisa Dibuat Jika Pengajuan Telah Diterima!.');
@@ -125,7 +126,13 @@ class JadwalController extends Controller
             return Redirect::back()->with('error', 'Jadwal Hanya Bisa Dibuat Ketika Customer Memilih Diambil!.');
         }
 
-        $jadwal = Jadwal::create($request->all());
+        $jadwal = Jadwal::create([
+            'id_form_pengajuan' => $pengajuan->uuid,
+            'id_user' => $request->id_user ? (User::whereUuidOrId($request->id_user)->first()?->uuid ?? Auth::user()->uuid) : Auth::user()->uuid,
+            'waktu_pengambilan' => $request->waktu_pengambilan,
+            'keterangan' => $request->keterangan,
+            'status' => 'diproses'
+        ]);
 
         if ($jadwal) {
             return Redirect::route('pegawai.pengambilan.index')->with('message', 'Jadwal Berhasil Dibuat!');
@@ -137,7 +144,7 @@ class JadwalController extends Controller
     {
         $jadwal->load('form_pengajuan', 'user');
 
-        $pengajuan = FormPengajuan::findOrFail($jadwal->id_form_pengajuan);
+        $pengajuan = FormPengajuan::whereUuidOrId($jadwal->id_form_pengajuan)->firstOrFail();
 
         if ($jadwal->status === 'diterima') {
             return Redirect::back()->withErrors(['status' => 'Jadwal Yang Sudah Selesai Tidak Dapat Diubah!']);
@@ -160,7 +167,7 @@ class JadwalController extends Controller
             ]);
         }
 
-        $pengajuan = FormPengajuan::findOrFail($jadwal->id_form_pengajuan);
+        $pengajuan = FormPengajuan::whereUuidOrId($jadwal->id_form_pengajuan)->firstOrFail();
 
         if ($pengajuan->status_pengajuan !== 'diterima') {
             return Redirect::back()->with('error', 'Jadwal Hanya Bisa Diupdate Jika Pengajuan Telah Diterima!.');
@@ -233,7 +240,7 @@ class JadwalController extends Controller
     //proses hapus jadwal
     public function destroy($id)
     {
-        $jadwal = Jadwal::findOrFail($id);
+        $jadwal = Jadwal::whereUuidOrId($id)->firstOrFail();
 
         if ($jadwal->form_pengajuan->metode_pengambilan === 'diantar') {
             return Redirect::back()->withErrors('Jadwal Tidak Dapat Dihapus, Karena Metode Pengambilan Diantar');

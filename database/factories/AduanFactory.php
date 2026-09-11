@@ -11,8 +11,8 @@ class AduanFactory extends Factory
     public function definition(): array
     {
         return [
-            'id_hasil_uji' => HasilUji::factory(),
-            'id_user' => User::factory(),
+            'id_hasil_uji' => fn () => HasilUji::factory()->create()->uuid,
+            'id_user' => fn () => User::factory()->create()->uuid,
             'terkait' => fake()->randomElement(['administrasi', 'pengujian']),
             'masalah' => fake()->sentence(8),
             'perbaikan' => fake()->sentence(15),

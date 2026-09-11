@@ -205,7 +205,7 @@ watch(
 
 const submit = () => {
     if (props.pengajuan) {
-        form.put(`/pegawai/pengajuan/${props.pengajuan.id}/edit`, {
+        form.put(`/pegawai/pengajuan/${props.pengajuan.uuid || props.pengajuan.id}/edit`, {
             onSuccess: () => {
                 router.visit('/pegawai/pengajuan');
             },

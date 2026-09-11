@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\QueryException;
+use App\Models\Concerns\HasUuid;
 
 class Pembayaran extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuid;
 
     protected $table = 'pembayaran';
 
@@ -53,6 +54,6 @@ class Pembayaran extends Model
 
     public function form_pengajuan()
     {
-        return $this->belongsTo(FormPengajuan::class, 'id_form_pengajuan');
+        return $this->belongsTo(FormPengajuan::class, 'id_form_pengajuan', 'uuid');
     }
 }

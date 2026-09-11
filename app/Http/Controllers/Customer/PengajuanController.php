@@ -58,11 +58,10 @@ class PengajuanController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        $instansi = Instansi::where('id_user', $user->id)
+        $instansi = Instansi::where('id_user', $user->uuid)
             ->get();
 
         if ($instansi->isEmpty()) {
-            // return Redirect::back()->with('error', 'Anda Belum Memiliki Instansi. Silahkan Tambahkan Instansi Terlebih Dahulu');
             return Inertia::render('customer/pengajuan/NoInstansi');
         }
 
@@ -84,18 +83,34 @@ class PengajuanController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        $jenisCairan = JenisCairan::findOrFail($request->id_jenis_cairan);
+        $jenisCairan = JenisCairan::whereUuidOrId($request->id_jenis_cairan)->firstOrFail();
 
         $rules = [
-            'id_instansi' => 'required|exists:instansi,id',
-            'id_jenis_cairan' => 'required|exists:jenis_cairan,id',
+            'id_instansi' => ['required', function ($attribute, $value, $fail) {
+                if (!Instansi::whereUuidOrId($value)->exists()) {
+                    $fail('Instansi Data Tidak Valid.');
+                }
+            }],
+            'id_jenis_cairan' => ['required', function ($attribute, $value, $fail) {
+                if (!JenisCairan::whereUuidOrId($value)->exists()) {
+                    $fail('Jenis Cairan Data Tidak Valid.');
+                }
+            }],
             'volume_sampel' => ['required', 'numeric', "min:{$jenisCairan->batas_minimum}"],
             'metode_pengambilan' => 'required|in:diantar,diambil',
             'lokasi' => 'required_if:metode_pengambilan,diambil|string',
             'waktu_pengambilan' => 'nullable|date|after_or_equal:today',
-            'id_kategori' => 'required|exists:kategori,id',
+            'id_kategori' => ['required', function ($attribute, $value, $fail) {
+                if (!Kategori::whereUuidOrId($value)->exists()) {
+                    $fail('Kategori Data Tidak Valid.');
+                }
+            }],
             'parameter' => 'required|array',
-            'parameter.*' => 'exists:parameter_uji,id',
+            'parameter.*' => [function ($attribute, $value, $fail) {
+                if (!ParameterUji::whereUuidOrId($value)->exists()) {
+                    $fail('Parameter Data Tidak Valid.');
+                }
+            }],
             'keterangan' => 'nullable|string|max:255',
         ];
 
@@ -105,20 +120,15 @@ class PengajuanController extends Controller
 
         $validated = $request->validate($rules, [
             'id_instansi.required' => 'Instansi Harus Diisi.',
-            'id_instansi.exists' => 'Instansi Data Tidak Valid.',
             'id_jenis_cairan.required' => 'Jenis Cairan Harus Diisi.',
-            'id_jenis_cairan.exists' => 'Jenis Cairan Data Tidak Valid.',
             'metode_pengambilan.required' => 'Metode Pengambilan Harus Diisi.',
             'metode_pengambilan.in' => 'Status Tidak Valid.',
             'lokasi.required_if' => 'Lokasi Wajib Diisi Jika Metode Pengambilan Diambil.',
             'waktu_pengambilan.date' => 'Waktu Pengambilan Harus Bertipe Tanggal.',
             'waktu_pengambilan.after_or_equal' => 'Waktu Pengambilan Tidak Boleh Sebelum Hari Ini.',
             'id_kategori.required' => 'Kategori Wajib Diisi.',
-            'id_kategori.exists' => 'Kategori Data Tidak Valid.',
             'parameter.required' => 'Parameter Wajib Diisi.',
             'parameter.array' => 'Format Parameter Tidak Valid.',
-            'parameter.*.required' => 'Parameter Wajib Diisi.',
-            'parameter.*.exists' => 'Parameter Data Tidak Valid.',
             'keterangan.max' => 'Keterangan Maksimal 255 Kata',
             'volume_sampel.min' => "Volume Sampel Harus Diantara {$jenisCairan->batas_minimum} atau {$jenisCairan->batas_maksimum} Untuk Jenis Cairan",
             'volume_sampel.max' => "Volume Sampel Harus Diantara {$jenisCairan->batas_minimum} atau {$jenisCairan->batas_maksimum} Untuk Jenis Cairan"
@@ -129,10 +139,12 @@ class PengajuanController extends Controller
             $rules['lokasi'] = 'Jl. Lawu No.204, Tegalasri, Bejen, Kec. Karanganyar, Kabupaten Karanganyar, Jawa Tengah 57716 (DLH Kabupaten Karanganyar)';
         }
 
-        $pengajuanAktif = FormPengajuan::where('id_instansi', $validated['id_instansi'] ?? null)
-            ->whereHas('instansi', function ($query) use ($user) {
-                $query->whereIn('id', $user->instansi()->pluck('id')->toArray());
-            })
+        $instansi = Instansi::whereUuidOrId($validated['id_instansi'])->first();
+        $kategori = Kategori::whereUuidOrId($validated['id_kategori'])->first();
+        $instansiUuidList = $user->instansi()->pluck('uuid')->toArray();
+
+        $pengajuanAktif = FormPengajuan::where('id_instansi', $instansi?->uuid)
+            ->whereIn('id_instansi', $instansiUuidList)
             ->whereNotIn('status_pengajuan', ['diterima', 'ditolak'])
             ->first();
 
@@ -143,24 +155,29 @@ class PengajuanController extends Controller
         }
 
         $pengajuan = FormPengajuan::create([
-            'id_instansi' => $validated['id_instansi'] ?? null,
-            'id_kategori' => $validated['id_kategori'] ?? null,
-            'id_jenis_cairan' => $validated['id_jenis_cairan'],
+            'id_instansi' => $instansi?->uuid,
+            'id_kategori' => $kategori?->uuid,
+            'id_jenis_cairan' => $jenisCairan->uuid,
             'volume_sampel' => $validated['volume_sampel'],
             'metode_pengambilan' => $validated['metode_pengambilan'],
             'lokasi' => $validated['lokasi'],
         ]);
 
         if (!empty($validated['parameter'])) {
-            $pengajuan->parameter()->attach($validated['parameter']);
+            $paramUuids = ParameterUji::where(function ($q) use ($validated) {
+                $q->whereIn('uuid', $validated['parameter'])
+                  ->orWhereIn('id', $validated['parameter']);
+            })->pluck('uuid')->toArray();
+
+            $pengajuan->parameter()->attach($paramUuids);
         }
 
-        if (!empty($validated['parameter'] && !empty($validated['id_kategori']))) {
+        if (!empty($validated['parameter']) && !empty($kategori)) {
             $idOrder = $pengajuan->pembayaran->id_order ?? 'ORD-' . strtoupper(Str::random(10));
 
             Pembayaran::create([
                 'id_order' => $idOrder,
-                'id_form_pengajuan' => $pengajuan->id,
+                'id_form_pengajuan' => $pengajuan->uuid,
                 'total_biaya' => $this->hitungTotalBiaya($pengajuan),
                 'status_pembayaran' => 'belum_dibayar',
             ]);
@@ -168,8 +185,8 @@ class PengajuanController extends Controller
 
         if ($validated['metode_pengambilan'] === 'diantar') {
             Jadwal::create([
-                'id_form_pengajuan' => $pengajuan->id,
-                'id_user' => $user->id,
+                'id_form_pengajuan' => $pengajuan->uuid,
+                'id_user' => $user->uuid,
                 'waktu_pengambilan' => $validated['waktu_pengambilan'],
                 'keterangan' => $validated['keterangan'] ?? null,
                 'status' => 'diproses'
@@ -190,10 +207,10 @@ class PengajuanController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        $idInstansi = $user->instansi()->pluck('id')->toArray();
+        $idInstansi = $user->instansi()->pluck('uuid')->toArray();
 
         $pengajuan = FormPengajuan::with(['kategori', 'parameter', 'jenis_cairan', 'instansi.user', 'pembayaran'])
-            ->where('id', $id)
+            ->whereUuidOrId($id)
             ->whereIn('id_instansi', $idInstansi)
             ->firstOrFail();
 
@@ -207,7 +224,7 @@ class PengajuanController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        $idInstansi = $user->instansi()->pluck('id')->toArray();
+        $idInstansi = $user->instansi()->pluck('uuid')->toArray();
 
         $pengajuan->load(['kategori', 'parameter', 'instansi.user', 'jenis_cairan']);
 
@@ -232,35 +249,51 @@ class PengajuanController extends Controller
         ]);
     }
 
-//proses update pengajuan uji lab customer
+    //proses update pengajuan uji lab customer
     public function update(Request $request, FormPengajuan $pengajuan)
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        $idInstansi = $user->instansi()->pluck('id')->toArray();
+        $idInstansi = $user->instansi()->pluck('uuid')->toArray();
 
-        $pengajuanAktif = FormPengajuan::where('id_instansi', $idInstansi)
+        $pengajuanAktif = FormPengajuan::whereIn('id_instansi', $idInstansi)
             ->whereIn('status_pengajuan', ['diterima', 'ditolak'])
-            ->where('id', '!=', $pengajuan->id)
+            ->where('uuid', '!=', $pengajuan->uuid)
             ->first();
 
         if ($pengajuanAktif) {
             return Redirect::back()->withErrors(['Status' => 'Anda Tidak Diperbolehkan Mengubah Pengajuan Jika Pengajuan Sudah Di Verifikasi']);
         }
 
-        $jenisCairan = JenisCairan::findOrFail($request->id_jenis_cairan);
+        $jenisCairan = JenisCairan::whereUuidOrId($request->id_jenis_cairan)->firstOrFail();
 
         $rules = [
-            'id_instansi' => 'required|exists:instansi,id',
-            'id_jenis_cairan' => 'required|exists:jenis_cairan,id',
+            'id_instansi' => ['required', function ($attribute, $value, $fail) {
+                if (!Instansi::whereUuidOrId($value)->exists()) {
+                    $fail('Instansi Data Tidak Valid.');
+                }
+            }],
+            'id_jenis_cairan' => ['required', function ($attribute, $value, $fail) {
+                if (!JenisCairan::whereUuidOrId($value)->exists()) {
+                    $fail('Jenis Cairan Data Tidak Valid.');
+                }
+            }],
             'volume_sampel' => ['required', 'numeric', "min:{$jenisCairan->batas_minimum}"],
             'metode_pengambilan' => 'required|in:diantar,diambil',
             'lokasi' => 'required_if:metode_pengambilan,diambil|string',
             'waktu_pengambilan' => 'nullable|date|after_or_equal:today',
-            'id_kategori' => 'required|exists:kategori,id',
+            'id_kategori' => ['required', function ($attribute, $value, $fail) {
+                if (!Kategori::whereUuidOrId($value)->exists()) {
+                    $fail('Kategori Data Tidak Valid.');
+                }
+            }],
             'parameter' => 'required|array',
-            'parameter.*' => 'exists:parameter_uji,id',
+            'parameter.*' => [function ($attribute, $value, $fail) {
+                if (!ParameterUji::whereUuidOrId($value)->exists()) {
+                    $fail('Parameter Data Tidak Valid.');
+                }
+            }],
             'keterangan' => 'nullable|string|max:255',
         ];
 
@@ -270,20 +303,15 @@ class PengajuanController extends Controller
 
         $validated = $request->validate($rules, [
             'id_instansi.required' => 'Instansi Harus Diisi.',
-            'id_instansi.exists' => 'Instansi Data Tidak Valid.',
             'id_jenis_cairan.required' => 'Jenis Cairan Harus Diisi.',
-            'id_jenis_cairan.exists' => 'Jenis Cairan Data Tidak Valid.',
             'metode_pengambilan.required' => 'Metode Pengambilan Harus Diisi.',
             'metode_pengambilan.in' => 'Status Tidak Valid.',
             'lokasi.required_if' => 'Lokasi Wajib Diisi Jika Metode Pengambilan Diambil.',
             'waktu_pengambilan.date' => 'Waktu Pengambilan Harus Bertipe Tanggal.',
             'waktu_pengambilan.after_or_equal' => 'Waktu Pengambilan Tidak Boleh Sebelum Hari Ini.',
             'id_kategori.required' => 'Kategori Wajib Diisi.',
-            'id_kategori.exists' => 'Kategori Data Tidak Valid.',
             'parameter.required' => 'Parameter Wajib Diisi.',
             'parameter.array' => 'Format Parameter Tidak Valid.',
-            'parameter.*.required' => 'Parameter Wajib Diisi.',
-            'parameter.*.exists' => 'Parameter Data Tidak Valid.',
             'keterangan.max' => 'Keterangan Maksimal 255 Kata',
             'volume_sampel.min' => "Volume Sampel Harus Diantara {$jenisCairan->batas_minimum} atau {$jenisCairan->batas_maksimum} Untuk Jenis Cairan",
             'volume_sampel.max' => "Volume Sampel Harus Diantara {$jenisCairan->batas_minimum} atau {$jenisCairan->batas_maksimum} Untuk Jenis Cairan",
@@ -294,17 +322,31 @@ class PengajuanController extends Controller
             $validated['lokasi'] = 'Jl. Lawu No.204, Tegalasri, Bejen, Kec. Karanganyar, Kabupaten Karanganyar, Jawa Tengah 57716 (DLH Kabupaten Karanganyar)';
         }
 
+        $instansi = Instansi::whereUuidOrId($validated['id_instansi'])->first();
+        $kategori = Kategori::whereUuidOrId($validated['id_kategori'])->first();
+
         // Update data pengajuan
         $pengajuan->update([
-            'id_instansi' => $validated['id_instansi'] ?? null,
-            'id_kategori' => $validated['id_kategori'] ?? null,
-            'id_jenis_cairan' => $validated['id_jenis_cairan'],
+            'id_instansi' => $instansi?->uuid,
+            'id_kategori' => $kategori?->uuid,
+            'id_jenis_cairan' => $jenisCairan->uuid,
             'volume_sampel' => $validated['volume_sampel'],
             'metode_pengambilan' => $validated['metode_pengambilan'],
             'lokasi' => $validated['lokasi'],
         ]);
 
-        if (!empty($validated['parameter'] && !empty($validated['id_kategori']))) {
+        if (!empty($validated['parameter'])) {
+            $paramUuids = ParameterUji::where(function ($q) use ($validated) {
+                $q->whereIn('uuid', $validated['parameter'])
+                  ->orWhereIn('id', $validated['parameter']);
+            })->pluck('uuid')->toArray();
+
+            $pengajuan->parameter()->sync($paramUuids);
+        } else {
+            $pengajuan->parameter()->detach();
+        }
+
+        if (!empty($validated['parameter']) && !empty($kategori)) {
             $pembayaran = $pengajuan->pembayaran;
             if ($pembayaran) {
                 $pembayaran->update([
@@ -314,25 +356,19 @@ class PengajuanController extends Controller
             }
         }
 
-        if (!empty($validated['parameter'])) {
-            $pengajuan->parameter()->sync($validated['parameter']);
-        } else {
-            $pengajuan->parameter()->detach();
-        }
-
         if ($validated['metode_pengambilan'] === 'diantar') {
             $jadwal = $pengajuan->jadwal;
             if ($jadwal) {
                 $jadwal->update([
-                    'id_user' => $user->id,
+                    'id_user' => $user->uuid,
                     'waktu_pengambilan' => $validated['waktu_pengambilan'],
                     'keterangan' => $validated['keterangan'] ?? null,
                     'status' => 'diproses'
                 ]);
             } else {
                 Jadwal::create([
-                    'id_form_pengajuan' => $pengajuan->id,
-                    'id_user' => $user->id,
+                    'id_form_pengajuan' => $pengajuan->uuid,
+                    'id_user' => $user->uuid,
                     'waktu_pengambilan' => $validated['waktu_pengambilan'],
                     'keterangan' => $validated['keterangan'] ?? null,
                     'status' => 'diproses'
@@ -348,7 +384,9 @@ class PengajuanController extends Controller
 
     public function destroy($id)
     {
-        $pengajuan = FormPengajuan::where('status_pengajuan', ['proses_validasi', 'ditolak'])->findOrFail($id);
+        $pengajuan = FormPengajuan::whereUuidOrId($id)
+            ->whereIn('status_pengajuan', ['proses_validasi', 'ditolak'])
+            ->firstOrFail();
 
         if ($pengajuan->status_pengajuan === 'diterima') {
             return Redirect::back()->with('error', 'Hapus Pengajuan Anda Ditolak Karena Telah Melewati Proses Verifikasi');

@@ -125,7 +125,7 @@ class PegawaiPengujianControllerFeatureTest extends TestCase
     public function test_show_menampilkan_detail_pengujian()
     {
         $response = $this->actingAs($this->pegawai)
-            ->get(route('pegawai.pengujian.detail', $this->pengujian->id));
+            ->get(route('pegawai.pengujian.detail', $this->pengujian));
 
         $response->assertStatus(200);
     }

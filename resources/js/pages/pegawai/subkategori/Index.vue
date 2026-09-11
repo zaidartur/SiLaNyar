@@ -63,7 +63,7 @@ const handleDelete = () => {
     if (!deletingSubKategori.value) return;
     isDeleting.value = true;
 
-    router.delete(`/pegawai/subkategori/${deletingSubKategori.value.id}`, {
+    router.delete(`/pegawai/subkategori/${deletingSubKategori.value.uuid || deletingSubKategori.value.id}`, {
         onSuccess: () => {
             isDeleting.value = false;
             closeDeleteModal();
@@ -162,7 +162,7 @@ const handleDelete = () => {
                                 <td class="py-3.5 px-5 text-right whitespace-nowrap">
                                     <div class="inline-flex items-center gap-1.5 justify-end">
                                         <Link
-                                            :href="`/pegawai/subkategori/${item.id}/edit`"
+                                            :href="`/pegawai/subkategori/${item.uuid || item.id}/edit`"
                                             class="w-7 h-7 rounded-lg inline-flex items-center justify-center bg-amber-50 hover:bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:hover:bg-amber-900/60 dark:text-amber-300 transition"
                                             title="Ubah Sub Kategori"
                                         >

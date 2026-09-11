@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\HasUuid;
 
 class JenisCairan extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuid;
 
     protected $table = 'jenis_cairan';
     public $timestamps = false;
@@ -40,5 +41,10 @@ class JenisCairan extends Model
                 $model->kode_jenis_cairan = $prefix.str_pad($lanjut, 3, '0', STR_PAD_LEFT);
             }
         });
+    }
+
+    public function form_pengajuan()
+    {
+        return $this->hasMany(FormPengajuan::class, 'id_jenis_cairan', 'uuid');
     }
 }

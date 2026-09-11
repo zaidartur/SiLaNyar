@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class HasilUji extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuid;
 
     protected $table = 'hasil_uji';
 
@@ -78,17 +79,17 @@ class HasilUji extends Model
 
     public function pengujian()
     {
-        return $this->belongsTo(Pengujian::class, 'id_pengujian');
+        return $this->belongsTo(Pengujian::class, 'id_pengujian', 'uuid');
     }
 
     public function riwayat()
     {
-        return $this->hasMany(HasilUjiHistori::class, 'id_hasil_uji');
+        return $this->hasMany(HasilUjiHistori::class, 'id_hasil_uji', 'uuid');
     }
 
     public function aduan()
     {
-        return $this->hasOne(Aduan::class, 'id_hasil_uji');
+        return $this->hasOne(Aduan::class, 'id_hasil_uji', 'uuid');
     }
 
     public function getStatusAduan()

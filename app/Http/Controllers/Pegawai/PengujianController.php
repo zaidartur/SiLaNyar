@@ -84,20 +84,29 @@ class PengujianController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'id_form_pengajuan' => 'required|exists:form_pengajuan,id',
-            'id_user' => 'required|exists:users,id',
-            'id_kategori' => 'required|exists:kategori,id',
+            'id_form_pengajuan' => ['required', function ($attribute, $value, $fail) {
+                if (!FormPengajuan::whereUuidOrId($value)->exists()) {
+                    $fail('Pengajuan Tidak Valid.');
+                }
+            }],
+            'id_user' => ['required', function ($attribute, $value, $fail) {
+                if (!User::whereUuidOrId($value)->exists()) {
+                    $fail('User Tidak Valid.');
+                }
+            }],
+            'id_kategori' => ['required', function ($attribute, $value, $fail) {
+                if (!Kategori::whereUuidOrId($value)->exists()) {
+                    $fail('Kategori Tidak Valid.');
+                }
+            }],
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'jam_mulai' => 'nullable|date_format:H:i',
             'jam_selesai' => 'nullable|date_format:H:i|after:jam_mulai',
         ], [
             'id_form_pengajuan.required' => 'Pengajuan Wajib Diisi.',
-            'id_form_pengajuan.exists' => 'Pengajuan Tidak Valid.',
             'id_user.required' => 'User Wajib Diisi.',
-            'id_user.exists' => 'User Tidak Valid.',
             'id_kategori.required' => 'Kategori Wajib Diisi.',
-            'id_kategori.exists' => 'Kategori Tidak Valid.',
             'tanggal_mulai.required' => 'Tanggal Mulai Wajib Diisi.',
             'tanggal_mulai.date' => 'Tanggal Mulai Bertipe Tanggal.',
             'tanggal_selesai.required' => 'Tanggal Selesai Wajib Diisi.',
@@ -108,7 +117,9 @@ class PengujianController extends Controller
             'jam_selesai.after' => 'Format Jam Selesai Harus Setelah Jam Mulai.',
         ]);
 
-        $form_pengajuan = FormPengajuan::find($request->id_form_pengajuan);
+        $form_pengajuan = FormPengajuan::whereUuidOrId($request->id_form_pengajuan)->firstOrFail();
+        $targetUser = User::whereUuidOrId($request->id_user)->firstOrFail();
+        $kategori = Kategori::whereUuidOrId($request->id_kategori)->firstOrFail();
 
         if ($form_pengajuan->status_pengajuan !== 'diterima') {
             return redirect()->back()->with('error', 'Sebelum Melakukan Pengujian Harap Verifikasi Pengajuan Terlebih Dahulu!');
@@ -124,9 +135,9 @@ class PengujianController extends Controller
         while ($tanggalSaatIni->lte($tanggalSelesai)) {
             if (!in_array($tanggalSaatIni->dayOfWeek, [Carbon::SATURDAY, Carbon::SUNDAY])) {
                 Pengujian::create([
-                    'id_form_pengajuan' => $request->id_form_pengajuan,
-                    'id_user' => $request->id_user,
-                    'id_kategori' => $request->id_kategori,
+                    'id_form_pengajuan' => $form_pengajuan->uuid,
+                    'id_user' => $targetUser->uuid,
+                    'id_kategori' => $kategori->uuid,
                     'tanggal_uji' => $tanggalSaatIni->format('Y-m-d'),
                     'jam_mulai' => $request->jam_mulai,
                     'jam_selesai' => $request->jam_selesai,
@@ -151,11 +162,11 @@ class PengujianController extends Controller
     {
         $pengujian->load(['form_pengajuan.instansi.user', 'kategori', 'user']);
 
-        $kategoriList = Kategori::select('id', 'nama')->get();
-        $userList = User::role('teknisi')->select('id', 'nama')->get();
+        $kategoriList = Kategori::select('id', 'uuid', 'nama')->get();
+        $userList = User::role('teknisi')->select('id', 'uuid', 'nama')->get();
         $pengajuanList = FormPengajuan::with('instansi')
             ->where('status_pengajuan', 'diterima')
-            ->select('id', 'kode_pengajuan', 'id_instansi')
+            ->select('id', 'uuid', 'kode_pengajuan', 'id_instansi')
             ->get();
 
         return Inertia::render('pegawai/pengujian/Edit', [
@@ -172,13 +183,16 @@ class PengujianController extends Controller
         $user = Auth::user();
 
         $request->validate([
-            'id_form_pengajuan' => 'required|exists:form_pengajuan,id',
+            'id_form_pengajuan' => ['required', function ($attribute, $value, $fail) {
+                if (!FormPengajuan::whereUuidOrId($value)->exists()) {
+                    $fail('Pengajuan Tidak Valid.');
+                }
+            }],
             'tanggal_uji' => 'required|date',
             'jam_mulai' => 'required|date_format:H:i',
             'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
         ], [
             'id_form_pengajuan.required' => 'Pengajuan Wajib Diisi.',
-            'id_form_pengajuan.exists' => 'Pengajuan Tidak Valid.',
             'tanggal_uji.required' => 'Tanggal Mulai Wajib Diisi.',
             'tanggal_uji.date' => 'Tanggal Mulai Bertipe Tanggal.',
             'jam_mulai.date_format' => 'Format Jam Mulai Harus Dalam Format Jam:Menit.',
@@ -186,7 +200,7 @@ class PengujianController extends Controller
             'jam_selesai.after' => 'Format Jam Selesai Harus Setelah Jam Mulai.',
         ]);
 
-        $form_pengajuan = FormPengajuan::with('jadwal')->find($request->id_form_pengajuan);
+        $form_pengajuan = FormPengajuan::with('jadwal')->whereUuidOrId($request->id_form_pengajuan)->firstOrFail();
         $id_kategori = $form_pengajuan->id_kategori;
 
         if ($pengujian->status === 'selesai') {
@@ -202,7 +216,7 @@ class PengujianController extends Controller
         }
 
         $pengujian->update([
-            'id_form_pengajuan' => $request->id_form_pengajuan,
+            'id_form_pengajuan' => $form_pengajuan->uuid,
             'id_kategori' => $id_kategori,
             'id_user' => $pengujian->id_user,
             'tanggal_uji' => $request->tanggal_uji,
@@ -210,7 +224,7 @@ class PengujianController extends Controller
             'jam_selesai' => $request->jam_selesai,
         ]);
 
-        return Redirect::route('pegawai.pengujian.detail', $pengujian->id)
+        return Redirect::route('pegawai.pengujian.detail', $pengujian)
             ->with('message', 'Pengujian berhasil diupdate');
     }
 
@@ -226,7 +240,7 @@ class PengujianController extends Controller
 
     public function verifikasi($id, Request $request)
     {
-        $pengujian = Pengujian::findOrFail($id);
+        $pengujian = Pengujian::whereUuidOrId($id)->firstOrFail();
 
         $request->validate([
             'status' => 'required|in:selesai',
@@ -236,14 +250,14 @@ class PengujianController extends Controller
             'status' => $request->status,
         ]);
 
-        return Redirect::route('pegawai.pengujian.detail', $pengujian->id)
+        return Redirect::route('pegawai.pengujian.detail', $pengujian)
             ->with('message', 'Status pengujian berhasil diupdate');
     }
 
     //proses hapus daftar pengujian
     public function destroy($id)
     {
-        $pengujian = Pengujian::findOrFail($id);
+        $pengujian = Pengujian::whereUuidOrId($id)->firstOrFail();
 
         $pengujian->delete();
 

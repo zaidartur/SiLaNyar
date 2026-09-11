@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('pembayaran', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->string('id_order')->unique();
-            $table->foreignId('id_form_pengajuan')->constrained('form_pengajuan')->onDelete('cascade');
+            $table->foreignUuid('id_form_pengajuan')->constrained('form_pengajuan', 'uuid')->onDelete('cascade');
             $table->unsignedInteger('total_biaya');
             $table->date('tanggal_pembayaran')->nullable();
             $table->enum('metode_pembayaran', ['tunai', 'transfer'])->nullable();

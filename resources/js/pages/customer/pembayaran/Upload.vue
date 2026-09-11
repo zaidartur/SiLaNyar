@@ -39,7 +39,7 @@ function handleFile(e: Event) {
 }
 
 function submit() {
-    form.post(route('customer.pembayaran.process', props.pengajuan.id));
+    form.post(route('customer.pembayaran.process', props.pengajuan.uuid || props.pengajuan.id));
 }
 
 function formatRupiah(val: number): string {
@@ -68,7 +68,7 @@ function formatRupiah(val: number): string {
 
                 <v-btn
                     component="a"
-                    :href="route('customer.pembayaran.show', props.pengajuan.id)"
+                    :href="route('customer.pembayaran.show', props.pengajuan.uuid || props.pengajuan.id)"
                     variant="outlined"
                     rounded="lg"
                     size="small"
@@ -136,7 +136,7 @@ function formatRupiah(val: number): string {
                     <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
                         <v-btn
                             component="a"
-                            :href="route('customer.pembayaran.show', props.pengajuan.id)"
+                            :href="route('customer.pembayaran.show', props.pengajuan.uuid || props.pengajuan.id)"
                             variant="text"
                             size="small"
                             class="text-none text-xs"

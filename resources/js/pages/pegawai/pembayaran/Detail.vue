@@ -44,7 +44,7 @@ function kembaliKeIndex() {
 function updateStatus(status: 'selesai' | 'gagal') {
     isSubmitting.value = true;
     router.put(
-        `/pegawai/pembayaran/${props.pembayaran.id}/edit`,
+        `/pegawai/pembayaran/${props.pembayaran.uuid || props.pembayaran.id}/edit`,
         {
             status_pembayaran: status,
             keterangan: keterangan.value,

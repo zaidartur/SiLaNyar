@@ -278,7 +278,7 @@ function formatDate(dateStr?: string): string {
 
                                 <div class="flex items-center gap-2 shrink-0 self-end sm:self-center">
                                     <Link
-                                        :href="route('customer.pengajuan.detail', item.id)"
+                                        :href="route('customer.pengajuan.detail', item.uuid || item.id)"
                                         class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
                                     >
                                         <v-icon size="14">mdi-eye-outline</v-icon>
@@ -287,7 +287,7 @@ function formatDate(dateStr?: string): string {
 
                                     <Link
                                         v-if="item.status_pengajuan === 'proses_validasi'"
-                                        :href="route('customer.pengajuan.edit', item.id)"
+                                        :href="route('customer.pengajuan.edit', item.uuid || item.id)"
                                         class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-amber-800 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/60 dark:text-amber-300 transition"
                                     >
                                         <v-icon size="14">mdi-pencil-outline</v-icon>

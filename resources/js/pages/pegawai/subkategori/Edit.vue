@@ -48,7 +48,7 @@ const submit = () => {
     }
 
     form.parameter = filterParam;
-    form.put(`/pegawai/subkategori/${props.subkategori.id}/edit`);
+    form.put(`/pegawai/subkategori/${props.subkategori.uuid || props.subkategori.id}/edit`);
 };
 </script>
 

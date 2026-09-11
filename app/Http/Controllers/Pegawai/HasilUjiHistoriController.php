@@ -14,13 +14,13 @@ class HasilUjiHistoriController extends Controller
 {
     public function index($id)
     {
-        $hasil_uji = HasilUji::findOrFail($id);
+        $hasil_uji = HasilUji::whereUuidOrId($id)->firstOrFail();
 
         $histori = HasilUjiHistori::with([
             'hasil_uji.pengujian.form_pengajuan.instansi.user',
             'hasil_uji.pengujian.user'
         ])
-            ->where('id_hasil_uji', $id)
+            ->where('id_hasil_uji', $hasil_uji->uuid)
             ->orderByDesc('created_at')
             ->get();
 
@@ -36,7 +36,7 @@ class HasilUjiHistoriController extends Controller
             'hasil_uji.pengujian.form_pengajuan.kategori',
             'hasil_uji.pengujian.form_pengajuan.instansi.user',
             'hasil_uji.pengujian.user'
-        ])->findOrFail($id);
+        ])->whereUuidOrId($id)->firstOrFail();
 
         // Use the historical data stored in JSON column
         $data_parameter = $histori->data_parameterdanpengujian ?? [];

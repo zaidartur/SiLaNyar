@@ -71,7 +71,7 @@ class ParameterUjiUnitTest extends TestCase
         ]);
         
         $this->assertTrue($parameter->pengujian->contains($pengujian));
-        $this->assertEquals($pengujian->id, $hasilUji->id_pengujian);
+        $this->assertEquals($pengujian->uuid, $hasilUji->id_pengujian);
     }
 
     #[Test]

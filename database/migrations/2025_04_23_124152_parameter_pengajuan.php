@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('parameter_pengajuan', function(Blueprint $table)
         {
            $table->id();
-           $table->foreignId('id_parameter')->constrained('parameter_uji')->onDelete('cascade');
-           $table->foreignId('id_pengajuan')->constrained('form_pengajuan')->onDelete('cascade');
+           $table->foreignUuid('id_parameter')->constrained('parameter_uji', 'uuid')->onDelete('cascade');
+           $table->foreignUuid('id_pengajuan')->constrained('form_pengajuan', 'uuid')->onDelete('cascade');
            
         });
     }

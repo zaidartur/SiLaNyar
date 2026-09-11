@@ -213,7 +213,7 @@ watch(
     () => props.instansi,
     (val) => {
         if (val) {
-            form.id = val.id;
+            form.id = val.uuid || val.id;
             form.nama = val.nama;
             form.tipe = val.tipe;
             form.alamat = val.alamat;
@@ -242,7 +242,7 @@ function submit() {
         return;
     }
 
-    form.put(`/customer/profile/instansi/${form.id}/edit`, {
+    form.put(`/customer/profile/instansi/${props.instansi?.uuid || form.id || props.instansi?.id}/edit`, {
         onSuccess: () => {
             emit('submit');
             close();

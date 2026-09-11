@@ -19,7 +19,7 @@ class HasilUjiController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        $idInstansi = $user->instansi()->pluck('id')->toArray();
+        $idInstansi = $user->instansi()->pluck('uuid')->toArray();
 
         $hasil_uji = HasilUji::with([
             'pengujian.form_pengajuan.jenis_cairan',
@@ -46,7 +46,8 @@ class HasilUjiController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        if ($hasil_uji->pengujian->form_pengajuan->instansi->id_user !== $user->id) {
+        $instansiUserId = $hasil_uji->pengujian->form_pengajuan->instansi->id_user;
+        if ($instansiUserId !== $user->uuid && $instansiUserId !== (string)$user->id) {
             abort(403, 'Anda Tidak Memiliki Akses Di Halaman Ini');
         }
 

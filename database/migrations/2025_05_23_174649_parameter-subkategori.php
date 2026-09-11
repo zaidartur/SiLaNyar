@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('parameter_subkategori', function (Blueprint $table)
         {
            $table->id();
-           $table->foreignId('id_parameter')->constrained('parameter_uji')->onDelete('cascade');
-           $table->foreignId('id_subkategori')->constrained('subkategori')->onDelete('cascade');
+           $table->foreignUuid('id_parameter')->constrained('parameter_uji', 'uuid')->onDelete('cascade');
+           $table->foreignUuid('id_subkategori')->constrained('subkategori', 'uuid')->onDelete('cascade');
            $table->string('baku_mutu');
            $table->timestamps(); 
         });

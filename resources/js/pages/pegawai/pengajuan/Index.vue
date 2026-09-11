@@ -202,7 +202,7 @@ const formatStatusText = (st: string) => {
                                 <td class="py-3.5 px-5 text-right whitespace-nowrap">
                                     <div class="inline-flex items-center gap-1.5 justify-end">
                                         <Link
-                                            :href="`/pegawai/pengajuan/${item.id}/detail`"
+                                            :href="`/pegawai/pengajuan/${item.uuid || item.id}/detail`"
                                             class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:hover:bg-emerald-900/60 dark:text-emerald-300 text-xs font-semibold transition"
                                         >
                                             <v-icon size="14">mdi-eye-outline</v-icon>

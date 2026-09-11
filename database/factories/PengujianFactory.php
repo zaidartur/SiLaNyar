@@ -12,17 +12,15 @@ class PengujianFactory extends Factory
 {
     public function definition(): array
     {
-        $formPengajuan = FormPengajuan::factory();
         $jamMulai = fake()->dateTimeBetween('08:00', '14:00')->format('H:i');
         $jamSelesai = Carbon::createFromFormat('H:i', $jamMulai)
             ->addHours(fake()->numberBetween(2, 4))
             ->format('H:i');
-        static $counter = 1;
 
         return [
-            'id_form_pengajuan' => $formPengajuan,
-            'id_user' => User::factory(),
-            'id_kategori' => Kategori::factory(),
+            'id_form_pengajuan' => fn () => FormPengajuan::factory()->create()->uuid,
+            'id_user' => fn () => User::factory()->create()->uuid,
+            'id_kategori' => fn () => Kategori::factory()->create()->uuid,
             'tanggal_uji' => fake()->dateTimeBetween('now', '+2 weeks')->format('Y-m-d'),
             'jam_mulai' => $jamMulai,
             'jam_selesai' => $jamSelesai,

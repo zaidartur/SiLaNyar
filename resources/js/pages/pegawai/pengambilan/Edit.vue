@@ -66,7 +66,7 @@ const minDate = computed(() => {
 });
 
 const submit = () => {
-    form.put(`/pegawai/pengambilan/${props.jadwal.id}/edit`, {
+    form.put(`/pegawai/pengambilan/${props.jadwal.uuid || props.jadwal.id}/edit`, {
         onSuccess: () => {
             router.visit('/pegawai/pengambilan');
         },

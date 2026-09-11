@@ -23,9 +23,9 @@ class FormPengajuanFactory extends Factory
         $metode = fake()->randomElement(['diantar', 'diambil']);
         
         return [
-            'id_instansi' => Instansi::factory(),
-            'id_kategori' => fake()->boolean(80) ? Kategori::factory() : null,
-            'id_jenis_cairan' => JenisCairan::factory(),
+            'id_instansi' => fn () => Instansi::factory()->create()->uuid,
+            'id_kategori' => fake()->boolean(80) ? (fn () => Kategori::factory()->create()->uuid) : null,
+            'id_jenis_cairan' => fn () => JenisCairan::factory()->create()->uuid,
             'volume_sampel' => fake()->randomFloat(2, 0.1, 100),
             'status_pengajuan' => fake()->randomElement(['proses_validasi', 'diterima', 'ditolak']),
             'metode_pengambilan' => $metode,

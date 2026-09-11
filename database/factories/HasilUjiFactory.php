@@ -18,7 +18,7 @@ class HasilUjiFactory extends Factory
     public function definition(): array
     {
         return [
-            'id_pengujian' => Pengujian::factory(),
+            'id_pengujian' => fn () => Pengujian::factory()->create()->uuid,
             'status' => fake()->randomElement(['draf', 'revisi', 'proses_review', 'proses_peresmian', 'selesai']),
             'proses_review_at' => fake()->optional()->dateTimeThisMonth(),
             'file_pdf' => fake()->boolean(70) ? 'hasil_uji/'. fake()->uuid() .'.pdf' : null,
