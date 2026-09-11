@@ -1,10 +1,8 @@
 <script setup lang="ts">
 /* eslint-disable */
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useForm, Head } from '@inertiajs/vue3';
-import { watch, computed } from 'vue';
+import AdminLayout from '@/layouts/admin/AdminLayout.vue';
+import { Head, useForm } from '@inertiajs/vue3';
+import { computed, watch } from 'vue';
 
 interface Parameter {
     id: number;
@@ -41,99 +39,155 @@ const form = useForm({
 });
 
 const pengujianSelesai = computed(() =>
-    props.pengujianList.filter(item => item.status === 'selesai')
+    props.pengujianList.filter((item) => item.status === 'selesai')
 );
-
-// const selectedPengujian = computed(() =>
-//     props.pengujianList.find(p => p.id === form.id_pengujian)
-// )
 
 watch(
     () => form.id_pengujian,
     (newVal) => {
         if (newVal !== props.pilihPengujian?.id) {
-            window.location.href = `?id_pengujian=${newVal}`; // reload halaman untuk load parameter baru
+            window.location.href = `?id_pengujian=${newVal}`;
         }
-    },
+    }
 );
 
 const submit = () => {
-    form.post('/pegawai/hasiluji/store', {
-        onSuccess: () => {
-            window.location.href = '/pegawai/hasiluji';
-        },
-        onError: (errors) => {
-            console.log('Validation errors:', errors);
-        },
-    });
+    form.post('/pegawai/hasiluji/store');
 };
 </script>
 
 <template>
-    <Head title="Tambah Hasil Uji" />
-    <div class="h-screen w-full bg-white lg:grid lg:grid-cols-3">
-        <!-- Left Side - Logo Section -->
-        <div class="hidden h-screen flex-col bg-customDarkGreen lg:col-span-1 lg:flex lg:items-center lg:justify-center">
-            <img src="/assets/assetsadmin/logodlh.png" alt="Logo DLH" class="mx-auto h-48 w-auto object-contain" />
-            <div class="mt-6 text-center text-white">
-                <h2 class="mb-2 border-b border-white pb-2 text-2xl font-bold">SiLanYar</h2>
-                <p class="text-sm">Sistem Laboratoruim Karanganyar</p>
-            </div>
-        </div>
-
-        <!-- Right Side - Form Section -->
-        <div class="flex h-screen items-start justify-center overflow-y-auto bg-white lg:col-span-2">
-            <form @submit.prevent="submit" class="mx-auto grid w-full max-w-xl gap-6 p-6 md:p-12">
-                <div class="grid gap-2 text-center">
-                    <h1 class="text-3xl font-bold">Input Hasil Uji</h1>
-                </div>
-
-                <!-- Pilih Pengujian -->
-                <div class="grid gap-2">
-                    <Label for="id_pengujian">Pilih Pengujian</Label>
-                    <select v-model="form.id_pengujian" id="id_pengujian" class="mt-1 w-full rounded border p-2">
-                        <option :value="null" disabled>Pilih Pengujian</option>
-                        <option v-for="item in pengujianSelesai" :key="item.id" :value="item.id">
-                            {{ item.kode_pengujian }} - {{ item.form_pengajuan.instansi.nama }}
-                        </option>
-                    </select>
-                    <span v-if="form.errors.id_pengujian" class="text-sm text-red-600">
-                        {{ form.errors.id_pengujian }}
+    <Head title="Input Hasil Pengujian Sampel" />
+    <AdminLayout>
+        <div class="max-w-4xl mx-auto space-y-6">
+            <!-- Header Section -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+                <div>
+                    <span class="px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300">
+                        Hasil Analisis
                     </span>
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mt-1">
+                        Input Hasil Uji Laboratorium
+                    </h1>
                 </div>
 
-                <!-- Parameter Hasil Uji -->
-                <div v-if="parameter.length" class="grid gap-4">
-                    <Label>Parameter dan Hasil Uji</Label>
-                    <div v-for="(param, index) in parameter" :key="param.id" class="mb-2 flex flex-col gap-2 rounded border p-4">
-                        <div class="flex flex-col gap-1">
-                            <label :for="`nilai-${index}`" class="font-semibold"> {{ param.nama }} ({{ param.satuan }}) </label>
-                            <Input :id="`nilai-${index}`" v-model="form.hasil[index].nilai" placeholder="Masukkan nilai" type="text" />
-                            <span v-if="(form.errors as any)[`hasil.${index}.nilai`]" class="text-sm text-red-600">
-                                {{ (form.errors as any)[`hasil.${index}.nilai`] }}
-                            </span>
-                        </div>
-                        <div class="flex flex-col gap-1">
-                            <label :for="`keterangan-${index}`" class="font-semibold">Keterangan</label>
-                            <Input :id="`keterangan-${index}`" v-model="form.hasil[index].keterangan" placeholder="Opsional" type="text" />
-                            <span v-if="(form.errors as any)[`hasil.${index}.keterangan`]" class="text-sm text-red-600">
-                                {{ (form.errors as any)[`hasil.${index}.keterangan`] }}
-                            </span>
-                        </div>
-                        <div v-if="param.baku_mutu">
-                            <small class="text-gray-500">Baku Mutu: {{ param.baku_mutu }}</small>
+                <v-btn
+                    component="a"
+                    href="/pegawai/hasiluji"
+                    variant="outlined"
+                    rounded="lg"
+                    size="small"
+                    prepend-icon="mdi-arrow-left"
+                    class="text-none font-semibold text-xs"
+                >
+                    Kembali
+                </v-btn>
+            </div>
+
+            <!-- Form Card -->
+            <v-card variant="outlined" rounded="xl" class="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+                <form @submit.prevent="submit" class="space-y-5">
+                    <!-- Pilih Pengujian Selesai -->
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                            Pilih Pengujian yang Telah Selesai Dianalisis <span class="text-rose-500">*</span>
+                        </label>
+                        <select
+                            v-model="form.id_pengujian"
+                            required
+                            class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                            :class="[form.errors.id_pengujian ? 'border-rose-500' : 'border-slate-300 dark:border-slate-700']"
+                        >
+                            <option :value="null" disabled>-- Pilih Nomor Pengujian --</option>
+                            <option v-for="item in pengujianSelesai" :key="item.id" :value="item.id">
+                                {{ item.kode_pengujian }} - {{ item.form_pengajuan.instansi.nama }}
+                            </option>
+                        </select>
+                        <p v-if="form.errors.id_pengujian" class="text-xs text-rose-600 mt-1 font-medium">
+                            {{ form.errors.id_pengujian }}
+                        </p>
+                    </div>
+
+                    <!-- Parameter & Hasil Input Grid -->
+                    <div v-if="props.parameter.length > 0" class="pt-2">
+                        <label class="block text-xs font-semibold mb-2 text-slate-700 dark:text-slate-300">
+                            Isi Nilai Hasil Analisis per Parameter ({{ props.parameter.length }} parameter):
+                        </label>
+
+                        <div class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+                            <table class="w-full text-xs">
+                                <thead>
+                                    <tr class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold">
+                                        <th class="px-4 py-2.5 text-left">Nama Parameter</th>
+                                        <th class="px-4 py-2.5 text-center w-24">Satuan</th>
+                                        <th class="px-4 py-2.5 text-left w-40">Nilai Hasil Uji *</th>
+                                        <th class="px-4 py-2.5 text-left w-48">Keterangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                                    <tr
+                                        v-for="(param, index) in props.parameter"
+                                        :key="param.id"
+                                        class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40"
+                                    >
+                                        <td class="px-4 py-2.5 font-semibold text-slate-900 dark:text-slate-100">
+                                            {{ param.nama }}
+                                        </td>
+                                        <td class="px-4 py-2.5 text-center text-slate-500">
+                                            {{ param.satuan || '-' }}
+                                        </td>
+                                        <td class="px-4 py-2.5">
+                                            <input
+                                                type="text"
+                                                v-model="form.hasil[index].nilai"
+                                                required
+                                                placeholder="Nilai angka/hasil"
+                                                class="w-full rounded border px-2.5 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500 border-slate-300 dark:border-slate-700"
+                                            />
+                                        </td>
+                                        <td class="px-4 py-2.5">
+                                            <input
+                                                type="text"
+                                                v-model="form.hasil[index].keterangan"
+                                                placeholder="Opsional (misal: < LOQ)"
+                                                class="w-full rounded border px-2.5 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500 border-slate-300 dark:border-slate-700"
+                                            />
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                </div>
 
-                <Button
-                    type="submit"
-                    :disabled="form.processing"
-                    class="mb-8 w-full rounded bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
-                >
-                    Simpan Hasil Uji
-                </Button>
-            </form>
+                    <div v-else-if="form.id_pengujian" class="p-6 text-center text-slate-400 text-xs">
+                        Memuat data parameter pengujian...
+                    </div>
+
+                    <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
+                        <v-btn
+                            component="a"
+                            href="/pegawai/hasiluji"
+                            variant="text"
+                            size="small"
+                            class="text-none text-xs"
+                        >
+                            Batal
+                        </v-btn>
+
+                        <v-btn
+                            type="submit"
+                            color="primary"
+                            rounded="lg"
+                            prepend-icon="mdi-content-save"
+                            :loading="form.processing"
+                            :disabled="!props.parameter.length"
+                            class="text-none font-semibold text-xs px-6"
+                        >
+                            Simpan Hasil Uji
+                        </v-btn>
+                    </div>
+                </form>
+            </v-card>
         </div>
-    </div>
+    </AdminLayout>
 </template>

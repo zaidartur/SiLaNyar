@@ -54,118 +54,166 @@ function kembali() {
 }
 
 function bukaPDF() {
-    window.open(route('hasil_uji.convert', props.hasil_uji.id), '_blank')
+    window.open(route('hasil_uji.convert', props.hasil_uji.id), '_blank');
 }
 </script>
 
 <template>
+    <Head title="Detail Hasil Uji Laboratorium" />
     <CustomerLayout>
-        <div class="min-h-screen bg-gray-200 py-8">
+        <div class="max-w-4xl mx-auto space-y-6">
+            <!-- Header Section -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300">
+                            Sertifikat Hasil Uji
+                        </span>
+                        <span class="text-xs text-slate-500 dark:text-slate-400">
+                            #HU-{{ props.hasil_uji.id.toString().padStart(4, '0') }}
+                        </span>
+                    </div>
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mt-1">
+                        Laporan Hasil Pengujian (LHU)
+                    </h1>
+                </div>
 
-            <Head title="Detail Hasil Uji" />
+                <div class="flex items-center gap-2">
+                    <v-btn
+                        color="primary"
+                        rounded="lg"
+                        size="small"
+                        prepend-icon="mdi-file-pdf-box"
+                        @click="bukaPDF"
+                        class="text-none font-semibold text-xs"
+                    >
+                        Cetak LHU (PDF)
+                    </v-btn>
 
-            <div class="mx-auto max-w-4xl space-y-8 py-8">
-                <h1
-                    class="mb-1 inline-block w-fit border-b-2 border-customDarkGreen pb-2 text-3xl font-bold text-customDarkGreen">
-                    Detail Hasil Uji
-                </h1>
+                    <v-btn
+                        variant="outlined"
+                        rounded="lg"
+                        size="small"
+                        prepend-icon="mdi-arrow-left"
+                        @click="kembali"
+                        class="text-none font-semibold text-xs"
+                    >
+                        Kembali
+                    </v-btn>
+                </div>
+            </div>
 
-                <!-- Informasi Umum -->
-                <div class="mb-4 rounded-xl border bg-gray-50 p-6 shadow-lg">
-                    <div class="grid grid-cols-1 gap-x-8 gap-y-2 md:grid-cols-2">
-                        <div>
-                            <span class="font-bold text-customDarkGreen">Kode Hasil Uji:</span>
-                            <span class="ml-2">HU-{{ hasil_uji.id.toString().padStart(4, '0') }}</span>
+            <!-- Card Ringkasan Hasil Uji -->
+            <v-card variant="outlined" rounded="xl" class="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                    <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                        <span class="text-slate-400 dark:text-slate-500">Nomor LHU</span>
+                        <p class="font-extrabold text-emerald-700 dark:text-emerald-400 mt-0.5 text-sm">
+                            HU-{{ props.hasil_uji.id.toString().padStart(4, '0') }}
+                        </p>
+                    </div>
+
+                    <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                        <span class="text-slate-400 dark:text-slate-500">Kode Pengujian</span>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 mt-0.5 text-sm">
+                            {{ props.hasil_uji.pengujian?.kode_pengujian || '-' }}
+                        </p>
+                    </div>
+
+                    <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                        <span class="text-slate-400 dark:text-slate-500">Status Validasi</span>
+                        <div class="mt-1">
+                            <v-chip
+                                size="small"
+                                variant="tonal"
+                                :color="props.hasil_uji.status === 'selesai' ? 'success' : 'warning'"
+                                class="font-bold uppercase"
+                            >
+                                {{ statusLabels[props.hasil_uji.status] ?? props.hasil_uji.status }}
+                            </v-chip>
                         </div>
-                        <div>
-                            <span class="font-bold text-customDarkGreen">Kode Pengujian:</span>
-                            <span class="ml-2">{{ hasil_uji.pengujian.kode_pengujian }}</span>
-                        </div>
-                        <div>
-                            <span class="font-bold text-customDarkGreen">Status:</span>
-                            <span class="ml-2">{{ statusLabels[hasil_uji.status] ?? hasil_uji.status }}</span>
-                        </div>
-                        <div>
-                            <span class="font-bold text-customDarkGreen">Tanggal Dibuat:</span>
-                            <span class="ml-2">{{ new Date(hasil_uji.created_at).toLocaleString() }}</span>
-                        </div>
+                    </div>
+
+                    <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                        <span class="text-slate-400 dark:text-slate-500">Tanggal Pengujian</span>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 mt-0.5 text-sm">
+                            {{ new Date(props.hasil_uji.created_at).toLocaleDateString('id-ID') }}
+                        </p>
                     </div>
                 </div>
 
-                <!-- Informasi Pengajuan -->
-                <div class="mb-4 rounded-xl border bg-gray-50 p-6 shadow-lg">
-                    <div class="grid grid-cols-1 gap-x-8 gap-y-2 md:grid-cols-2">
-                        <div>
-                            <span class="font-bold text-customDarkGreen">Kode Pengajuan:</span>
-                            <span class="ml-2">{{ hasil_uji.pengujian.form_pengajuan.kode_pengajuan }}</span>
-                        </div>
-                        <div>
-                            <span class="font-bold text-customDarkGreen">Instansi:</span>
-                            <span class="ml-2">{{ hasil_uji.pengujian.form_pengajuan.instansi.nama }}</span>
-                        </div>
-                        <div>
-                            <span class="font-bold text-customDarkGreen">Penanggung Jawab Instansi:</span>
-                            <span class="ml-2">{{ hasil_uji.pengujian.form_pengajuan.instansi.user.nama }}</span>
-                        </div>
-                        <div>
-                            <span class="font-bold text-customDarkGreen">Kategori:</span>
-                            <span class="ml-2">{{ hasil_uji.pengujian.form_pengajuan.kategori.nama }}</span>
-                        </div>
-                        <div>
-                            <span class="font-bold text-customDarkGreen">Teknisi:</span>
-                            <span class="ml-2">{{ hasil_uji.pengujian.user.nama }}</span>
-                        </div>
+                <!-- Info Instansi & Teknisi -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <div class="p-3 rounded-lg bg-slate-50/70 dark:bg-slate-800/40">
+                        <span class="text-slate-400">Instansi Pemohon:</span>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 mt-0.5">
+                            {{ props.hasil_uji.pengujian?.form_pengajuan?.instansi?.nama || '-' }}
+                        </p>
+                    </div>
+
+                    <div class="p-3 rounded-lg bg-slate-50/70 dark:bg-slate-800/40">
+                        <span class="text-slate-400">Penanggung Jawab:</span>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 mt-0.5">
+                            {{ props.hasil_uji.pengujian?.form_pengajuan?.instansi?.user?.nama || '-' }}
+                        </p>
+                    </div>
+
+                    <div class="p-3 rounded-lg bg-slate-50/70 dark:bg-slate-800/40">
+                        <span class="text-slate-400">Kategori Baku Mutu:</span>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 mt-0.5">
+                            {{ props.hasil_uji.pengujian?.form_pengajuan?.kategori?.nama || '-' }}
+                        </p>
+                    </div>
+
+                    <div class="p-3 rounded-lg bg-slate-50/70 dark:bg-slate-800/40">
+                        <span class="text-slate-400">Teknisi Analis:</span>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 mt-0.5">
+                            {{ props.hasil_uji.pengujian?.user?.nama || '-' }}
+                        </p>
                     </div>
                 </div>
 
-                <!-- Parameter Pengujian -->
-                <div class="rounded-xl border bg-white p-6 shadow">
-                    <h2 class="mb-4 text-xl font-semibold text-customDarkGreen">Parameter Pengujian</h2>
-                    <div class="overflow-x-auto">
-                        <table class="w-full rounded border border-gray-200 text-sm">
-                            <thead class="bg-customDarkGreen text-white">
-                                <tr>
-                                    <th class="border px-4 py-2">No</th>
-                                    <th class="border px-4 py-2">Parameter</th>
-                                    <th class="border px-4 py-2">Nilai</th>
-                                    <th class="border px-4 py-2">Satuan</th>
-                                    <th class="border px-4 py-2">Baku Mutu</th>
-                                    <th class="border px-4 py-2">Keterangan</th>
+                <!-- Tabel Parameter Analisis -->
+                <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
+                        Hasil Analisis Parameter Laboratorium
+                    </h3>
+
+                    <div class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+                        <table class="w-full text-xs">
+                            <thead>
+                                <tr class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold">
+                                    <th class="px-4 py-2.5 text-center w-12">No</th>
+                                    <th class="px-4 py-2.5 text-left">Parameter Uji</th>
+                                    <th class="px-4 py-2.5 text-center">Hasil Nilai</th>
+                                    <th class="px-4 py-2.5 text-center">Satuan</th>
+                                    <th class="px-4 py-2.5 text-center">Baku Mutu</th>
+                                    <th class="px-4 py-2.5 text-left">Keterangan</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr v-for="(item, index) in parameter_pengujian" :key="item.id_parameter"
-                                    class="hover:bg-gray-50">
-                                    <td class="border px-4 py-2 text-center">{{ index + 1 }}</td>
-                                    <td class="border px-4 py-2">{{ item.nama_parameter }}</td>
-                                    <td class="border px-4 py-2">{{ item.nilai ?? '-' }}</td>
-                                    <td class="border px-4 py-2">{{ item.satuan ?? '-' }}</td>
-                                    <td class="border px-4 py-2">{{ item.baku_mutu ?? '-' }}</td>
-                                    <td class="border px-4 py-2">{{ item.keterangan ?? '-' }}</td>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                                <tr
+                                    v-for="(item, idx) in props.parameter_pengujian"
+                                    :key="item.id_parameter"
+                                    class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40"
+                                >
+                                    <td class="px-4 py-2.5 text-center text-slate-500">{{ idx + 1 }}</td>
+                                    <td class="px-4 py-2.5 font-semibold text-slate-900 dark:text-slate-100">{{ item.nama_parameter }}</td>
+                                    <td class="px-4 py-2.5 text-center font-extrabold text-emerald-700 dark:text-emerald-400">{{ item.nilai ?? '-' }}</td>
+                                    <td class="px-4 py-2.5 text-center text-slate-500">{{ item.satuan ?? '-' }}</td>
+                                    <td class="px-4 py-2.5 text-center text-slate-600 dark:text-slate-400 font-medium">{{ item.baku_mutu ?? '-' }}</td>
+                                    <td class="px-4 py-2.5 text-slate-600 dark:text-slate-400">{{ item.keterangan ?? '-' }}</td>
                                 </tr>
-                                <tr v-if="parameter_pengujian.length === 0">
-                                    <td class="border px-4 py-2 text-center" colspan="6">Tidak ada parameter.</td>
+                                <tr v-if="!props.parameter_pengujian || props.parameter_pengujian.length === 0">
+                                    <td colspan="6" class="px-4 py-4 text-center text-slate-400">
+                                        Tidak ada data parameter uji.
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                    <div class="flex justify-end mt-8">
-                        <button @click="bukaPDF"
-                            class="flex items-center px-6 py-3 bg-customDarkGreen hover:bg-green-600 text-white font-semibold rounded-lg shadow transition duration-200">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                            </svg>
-                            Download PDF
-                        </button>
-                    </div>
                 </div>
-
-                <div class="flex justify-end gap-2">
-                    <button @click="kembali"
-                        class="rounded bg-customDarkGreen px-4 py-2 font-semibold text-white">Kembali</button>
-                </div>
-            </div>
+            </v-card>
         </div>
     </CustomerLayout>
 </template>

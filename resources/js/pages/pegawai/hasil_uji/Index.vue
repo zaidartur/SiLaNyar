@@ -1,17 +1,13 @@
 <script setup lang="ts">
-/* eslint-disable */
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import AdminLayout from '@/layouts/admin/AdminLayout.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
-// const props = defineProps<{
-//     hasil_uji: any[]
-// }>()
-
-// const { hasil_uji } = defineProps<{ hasil_uji: any[] }>();
-
-const { hasil_uji, unscheduled_pengujian = [], userRole } = defineProps<{ hasil_uji: any[], unscheduled_pengujian?: any[], userRole: string }>();
+const props = defineProps<{
+    hasil_uji: any[];
+    unscheduled_pengujian?: any[];
+    userRole: string;
+}>();
 
 const page = usePage();
 const permissions =
@@ -23,11 +19,15 @@ const can = (permission: string): boolean => {
     return permissions.includes(permission);
 };
 
+const search = ref('');
+const statusFilter = ref('');
+
 const formatTanggal = (tanggalStr: string) => {
+    if (!tanggalStr) return '-';
     const date = new Date(tanggalStr);
     return date.toLocaleDateString('id-ID', {
         day: '2-digit',
-        month: '2-digit',
+        month: 'short',
         year: 'numeric',
     });
 };
@@ -43,176 +43,270 @@ const statusLabel = (status: string) => {
     return labels[status] ?? status;
 };
 
+const getStatusBadge = (st: string) => {
+    switch (st) {
+        case 'selesai':
+            return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800';
+        case 'proses_review':
+            return 'bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border-amber-300 dark:border-amber-800';
+        case 'proses_peresmian':
+            return 'bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300 border-blue-300 dark:border-blue-800';
+        case 'revisi':
+            return 'bg-red-100 text-red-800 dark:bg-red-950/80 dark:text-red-300 border-red-300 dark:border-red-800';
+        default:
+            return 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-300 dark:border-slate-700';
+    }
+};
+
 const showDeleteModal = ref(false);
 const deletingHasilUji = ref<any | null>(null);
+const isDeleting = ref(false);
+
 const openDeleteModal = (item: any) => {
     deletingHasilUji.value = item;
     showDeleteModal.value = true;
 };
+
 const closeDeleteModal = () => {
     showDeleteModal.value = false;
     deletingHasilUji.value = null;
 };
+
 const handleDelete = () => {
     if (!deletingHasilUji.value) return;
-    router.delete(route('pegawai.hasil_uji.destroy', deletingHasilUji.value.id), {
-        onSuccess: () => closeDeleteModal(),
+    isDeleting.value = true;
+
+    router.delete(`/pegawai/hasiluji/${deletingHasilUji.value.id}`, {
+        onSuccess: () => {
+            isDeleting.value = false;
+            closeDeleteModal();
+        },
+        onError: () => {
+            isDeleting.value = false;
+        },
     });
 };
+
+const filteredHasilUji = computed(() => {
+    return (props.hasil_uji || []).filter((item) => {
+        const matchesSearch =
+            !search.value ||
+            String(item.id).includes(search.value) ||
+            item.pengujian?.form_pengajuan?.instansi?.nama?.toLowerCase().includes(search.value.toLowerCase()) ||
+            item.pengujian?.form_pengajuan?.instansi?.user?.nama?.toLowerCase().includes(search.value.toLowerCase()) ||
+            item.pengujian?.user?.nama?.toLowerCase().includes(search.value.toLowerCase());
+
+        const matchesStatus = !statusFilter.value || item.status === statusFilter.value;
+        return matchesSearch && matchesStatus;
+    });
+});
 </script>
 
 <template>
+    <Head title="Lembar Hasil Uji (LHU)" />
 
-    <Head title="Daftar Hasil Uji" />
-    <AdminLayout>
-        <div class="p-6">
-            <!-- Warning for pengujian without hasil uji -->
-            <div v-if="userRole === 'teknisi' && unscheduled_pengujian && unscheduled_pengujian.filter(item => item.status === 'selesai').length > 0"
-                class="mb-4">
-                <div class="rounded border-l-4 border-orange-500 bg-orange-100 p-3 text-orange-700">
-                    <div class="flex">
-                        <div class="ml-3">
-                            <p class="text-sm">
-                                <strong>⚠️ Peringatan:</strong> Ada
-                                {{unscheduled_pengujian.filter(item => item.status === 'selesai').length}}
-                                pengujian <span class="font-semibold">berstatus selesai</span> yang
-                                <span class="font-semibold">belum dibuatkan hasil uji</span>:
-                            </p>
-                            <ul class="mt-1 list-inside list-disc text-xs">
-                                <li v-for="item in unscheduled_pengujian.filter(item => item.status === 'selesai')"
-                                    :key="item.id">
-                                    {{ item.kode_pengujian ?? '-' }} - {{ item.form_pengajuan?.instansi?.nama ?? '-' }}
-                                </li>
-                            </ul>
-                            <p class="text-xs text-yellow-800 mt-4">
-                                <strong>ℹ️ Info:</strong> Silakan buat hasil uji untuk pengujian di atas agar data hasil
-                                uji menjadi lengkap.
-                            </p>
-                        </div>
+    <AdminLayout title="Lembar Hasil Uji (LHU)">
+        <div class="space-y-6">
+            <!-- Header Halaman & Aksi -->
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2.5">
+                        <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
+                            Lembar Hasil Uji (LHU)
+                        </h1>
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                            {{ filteredHasilUji.length }} Data
+                        </span>
                     </div>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                        Sertifikasi dan laporan resmi hasil analisis laboratorium lingkungan hidup
+                    </p>
                 </div>
-            </div>
 
-            <div class="mb-6 flex items-center justify-between">
-                <h1 class="text-2xl font-bold text-black">DAFTAR HASIL UJI</h1>
-                <div class="mb-4 flex justify-end">
-                    <Link v-if="can('tambah hasil uji')" href="/pegawai/hasiluji/create"
-                        class="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">
-                    + Tambah Hasil Uji
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <!-- Status Filter -->
+                    <select
+                        v-model="statusFilter"
+                        class="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                    >
+                        <option value="">Semua Status</option>
+                        <option value="draf">Draf</option>
+                        <option value="proses_review">Proses Review</option>
+                        <option value="proses_peresmian">Proses Peresmian</option>
+                        <option value="revisi">Revisi</option>
+                        <option value="selesai">Selesai</option>
+                    </select>
+
+                    <!-- Search Input -->
+                    <div class="relative w-full sm:w-56">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            <v-icon size="16">mdi-magnify</v-icon>
+                        </span>
+                        <input
+                            v-model="search"
+                            type="text"
+                            placeholder="Cari pemohon/teknisi..."
+                            class="w-full pl-8 pr-3 py-2 rounded-xl text-xs border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                        />
+                    </div>
+
+                    <!-- Tombol Tambah Hasil Uji -->
+                    <Link
+                        v-if="can('tambah hasil uji')"
+                        href="/pegawai/hasiluji/create"
+                        class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white text-xs font-bold px-4 py-2.5 shadow-sm transition"
+                    >
+                        <v-icon size="16">mdi-plus-circle-outline</v-icon>
+                        <span>Tambah Hasil Uji</span>
                     </Link>
                 </div>
             </div>
 
-            <div class="overflow-x-auto">
-                <table class="min-w-full overflow-hidden rounded-xl bg-white shadow">
-                    <thead>
-                        <tr class="bg-customDarkGreen text-white">
-                            <th class="rounded-tl-xl px-4 py-3 text-left font-semibold">ID Hasil</th>
-                            <th class="px-4 py-3 text-left font-semibold">Nama Instansi</th>
-                            <th class="px-4 py-3 text-left font-semibold">Nama Pemohon</th>
-                            <th class="px-4 py-3 text-left font-semibold">Nama Teknisi</th>
-                            <th class="px-4 py-3 text-left font-semibold">Tanggal Pengujian</th>
-                            <th class="px-4 py-3 text-left font-semibold">Status</th>
-                            <th class="rounded-tr-xl px-4 py-3 text-left font-semibold">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(item, index) in hasil_uji" :key="item.id"
-                            :class="index % 2 === 0 ? 'bg-white' : 'bg-gray-200'">
-                            <td class="border-b px-4 py-3">{{ item.id }}</td>
-                            <td class="border-b px-4 py-3">
-                                {{ item.pengujian?.form_pengajuan?.instansi?.nama ?? '-' }}
-                            </td>
-                            <td class="border-b px-4 py-3">
-                                {{ item.pengujian?.form_pengajuan?.instansi?.user?.nama ?? '-' }}
-                            </td>
-                            <td class="border-b px-4 py-3">
-                                {{ item.pengujian?.user?.nama ?? '-' }}
-                            </td>
-                            <td class="border-b px-4 py-3">
-                                {{ formatTanggal(item.pengujian?.tanggal_uji) ?? '-' }}
-                            </td>
-                            <td class="border-b px-4 py-3">
-                                <span :class="[
-                                        'rounded px-2 py-1 text-xs',
-                                        item.status === 'selesai'
-                                            ? 'bg-green-500 text-white'
-                                            : item.status === 'proses_review'
-                                              ? 'bg-yellow-500 text-white'
-                                              : item.status === 'proses_peresmian'
-                                                ? 'bg-blue-500 text-white'
-                                                : item.status === 'revisi'
-                                                  ? 'bg-red-500 text-white'
-                                                  : 'bg-gray-400 text-white',
-                                    ]">
-                                    {{ statusLabel(item.status) }}
-                                </span>
-                            </td>
-                            <td class="border-b px-4 py-3">
-                                <div class="flex gap-2">
-                                    <Link :href="route('pegawai.hasil_uji.detail', item.id)"
-                                        class="text-blue-500 hover:text-blue-700" title="Detail">
-                                    👁️
-                                    </Link>
-                                    <Link :href="route('pegawai.hasil_uji.riwayat', item.id)"
-                                        class="text-purple-500 hover:text-purple-700" title="Riwayat">
-                                    🕓
-                                    </Link>
-                                    <Link :href="route('pegawai.hasil_uji.edit', item.id)"
-                                        class="text-yellow-500 hover:text-yellow-700" title="Edit"
-                                        v-if="can('edit hasil uji')">
-                                    ✏️
-                                    </Link>
-                                    <button @click="openDeleteModal(item)" class="text-red-500 hover:text-red-700"
-                                        title="Hapus" type="button">
-                                        🗑️
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr v-if="hasil_uji.length === 0">
-                            <td colspan="6" class="py-4 text-center text-gray-500">Tidak ada data hasil uji.</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <!-- Warning Box untuk Pengujian Selesai Belum Ada Hasil Uji -->
+            <div
+                v-if="userRole === 'teknisi' && unscheduled_pengujian && unscheduled_pengujian.filter(item => item.status === 'selesai').length > 0"
+                class="p-4 rounded-2xl border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/50 text-amber-900 dark:text-amber-200 text-xs space-y-1.5"
+            >
+                <div class="flex items-center gap-2 font-bold text-amber-800 dark:text-amber-300">
+                    <v-icon size="18" color="warning">mdi-alert-circle-outline</v-icon>
+                    <span>Ada {{ unscheduled_pengujian.filter(item => item.status === 'selesai').length }} pengujian selesai yang belum dibuatkan LHU:</span>
+                </div>
+                <div class="flex flex-wrap gap-2 pt-1">
+                    <span
+                        v-for="item in unscheduled_pengujian.filter(item => item.status === 'selesai')"
+                        :key="item.id"
+                        class="px-2.5 py-1 rounded-lg bg-amber-100 dark:bg-amber-900/60 font-mono text-[11px] font-semibold border border-amber-300 dark:border-amber-700"
+                    >
+                        {{ item.kode_pengujian || `UJI-${item.id}` }} - {{ item.form_pengajuan?.instansi?.nama || 'Pribadi' }}
+                    </span>
+                </div>
             </div>
 
-            <!-- Modal Delete -->
-            <Dialog :open="showDeleteModal" @update:open="closeDeleteModal">
-                <DialogContent
-                    class="fixed left-1/2 top-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 transform rounded-lg bg-white p-6 shadow-xl">
-                    <DialogHeader>
-                        <DialogTitle class="text-center text-xl font-bold text-gray-400">
-                            <div class="flex flex-col items-center">
-                                <svg width="64" height="64" viewBox="0 0 94 94" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M53.4152 15.4982C52.7777 14.3582 51.8477 13.4088 50.721 12.748C49.5943 12.0871 48.3118 11.7388 47.0056 11.7388C45.6994 11.7388 44.4169 12.0871 43.2902 12.748C42.1635 13.4088 41.2335 14.3582 40.596 15.4982L12.6721 65.4474C12.0475 66.5647 11.7257 67.8257 11.7387 69.1057C11.7516 70.3856 12.0989 71.6399 12.7461 72.7442C13.3932 73.8485 14.3178 74.7645 15.4281 75.4014C16.5384 76.0383 17.7959 76.3739 19.0758 76.3749H74.9118C76.1923 76.3749 77.4505 76.04 78.5616 75.4036C79.6727 74.7671 80.5981 73.8512 81.246 72.7467C81.8938 71.6422 82.2416 70.3875 82.2549 69.1071C82.2681 67.8267 81.9463 66.5651 81.3215 65.4474L53.4152 15.4982ZM51.406 60.2187C51.406 61.3873 50.9417 62.5081 50.1154 63.3344C49.2891 64.1607 48.1683 64.6249 46.9997 64.6249C45.8311 64.6249 44.7104 64.1607 43.884 63.3344C43.0577 62.5081 42.5935 61.3873 42.5935 60.2187C42.5935 59.0501 43.0577 57.9293 43.884 57.103C44.7104 56.2767 45.8311 55.8124 46.9997 55.8124C48.1683 55.8124 49.2891 56.2767 50.1154 57.103C50.9417 57.9293 51.406 59.0501 51.406 60.2187ZM44.0622 46.9999V32.3124C44.0622 31.5334 44.3717 30.7862 44.9226 30.2353C45.4735 29.6844 46.2206 29.3749 46.9997 29.3749C47.7788 29.3749 48.526 29.6844 49.0768 30.2353C49.6277 30.7862 49.9372 31.5334 49.9372 32.3124V46.9999C49.9372 47.779 49.6277 48.5262 49.0768 49.0771C48.526 49.628 47.7788 49.9374 46.9997 49.9374C46.2206 49.9374 45.4735 49.628 44.9226 49.0771C44.3717 48.5262 44.0622 47.779 44.0622 46.9999Z"
-                                        fill="#E94235" />
-                                </svg>
-                                Peringatan !
-                            </div>
-                        </DialogTitle>
-                    </DialogHeader>
+            <!-- Tabel Data Hasil Uji Modern -->
+            <v-card rounded="2xl" elevation="1" class="border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-emerald-900 text-white dark:bg-emerald-950 dark:text-emerald-200 border-b border-emerald-800 dark:border-emerald-900 text-xs font-bold uppercase tracking-wider">
+                                <th class="py-3.5 px-5">ID LHU</th>
+                                <th class="py-3.5 px-5">Instansi & Pemohon</th>
+                                <th class="py-3.5 px-5">Teknisi Penguji</th>
+                                <th class="py-3.5 px-5">Tanggal Uji</th>
+                                <th class="py-3.5 px-5">Status Validasi</th>
+                                <th class="py-3.5 px-5 text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800/80 text-xs">
+                            <tr
+                                v-for="item in filteredHasilUji"
+                                :key="item.id"
+                                class="transition-colors hover:bg-emerald-50/50 dark:hover:bg-slate-800/60"
+                            >
+                                <td class="py-3.5 px-5 whitespace-nowrap">
+                                    <span class="font-mono font-bold text-xs px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                                        LHU-{{ String(item.id).padStart(4, '0') }}
+                                    </span>
+                                </td>
+                                <td class="py-3.5 px-5">
+                                    <div class="font-semibold text-slate-900 dark:text-slate-100">{{ item.pengujian?.form_pengajuan?.instansi?.nama || 'Pribadi' }}</div>
+                                    <div class="text-[11px] text-slate-500 dark:text-slate-400">{{ item.pengujian?.form_pengajuan?.instansi?.user?.nama || '-' }}</div>
+                                </td>
+                                <td class="py-3.5 px-5 text-slate-700 dark:text-slate-300">
+                                    {{ item.pengujian?.user?.nama || '-' }}
+                                </td>
+                                <td class="py-3.5 px-5 text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                                    {{ formatTanggal(item.pengujian?.tanggal_uji) }}
+                                </td>
+                                <td class="py-3.5 px-5 whitespace-nowrap">
+                                    <span
+                                        :class="getStatusBadge(item.status)"
+                                        class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold border"
+                                    >
+                                        {{ statusLabel(item.status) }}
+                                    </span>
+                                </td>
+                                <td class="py-3.5 px-5 text-right whitespace-nowrap">
+                                    <div class="inline-flex items-center gap-1.5 justify-end">
+                                        <Link
+                                            :href="`/pegawai/hasiluji/${item.id}`"
+                                            class="w-7 h-7 rounded-lg inline-flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition"
+                                            title="Detail LHU"
+                                        >
+                                            <v-icon size="15">mdi-eye-outline</v-icon>
+                                        </Link>
+                                        <Link
+                                            :href="`/pegawai/hasiluji/${item.id}/riwayat`"
+                                            class="w-7 h-7 rounded-lg inline-flex items-center justify-center bg-purple-50 hover:bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:hover:bg-purple-900/60 dark:text-purple-300 transition"
+                                            title="Riwayat Status"
+                                        >
+                                            <v-icon size="15">mdi-history</v-icon>
+                                        </Link>
+                                        <Link
+                                            v-if="can('edit hasil uji')"
+                                            :href="`/pegawai/hasiluji/${item.id}/edit`"
+                                            class="w-7 h-7 rounded-lg inline-flex items-center justify-center bg-amber-50 hover:bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:hover:bg-amber-900/60 dark:text-amber-300 transition"
+                                            title="Ubah LHU"
+                                        >
+                                            <v-icon size="15">mdi-pencil-outline</v-icon>
+                                        </Link>
+                                        <button
+                                            type="button"
+                                            @click="openDeleteModal(item)"
+                                            class="w-7 h-7 rounded-lg inline-flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-700 dark:bg-red-950/50 dark:hover:bg-red-900/60 dark:text-red-300 transition cursor-pointer"
+                                            title="Hapus LHU"
+                                        >
+                                            <v-icon size="15">mdi-trash-can-outline</v-icon>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
 
-                    <div class="text-center">
-                        <p class="font-bold text-gray-900">HAPUS HASIL UJI ID {{ deletingHasilUji?.id }}</p>
-                        <p class="text-gray-600">
-                            Apakah Anda yakin ingin menghapus hasil uji
-                            <span class="font-bold">{{ deletingHasilUji?.pengujian?.form_pengajuan?.instansi?.nama ??
-                                '-' }}</span>
-                            ?
+                            <tr v-if="filteredHasilUji.length === 0">
+                                <td colspan="6" class="text-center py-12 text-slate-400 dark:text-slate-500">
+                                    <v-icon size="36" class="mb-2 text-slate-300 dark:text-slate-600">mdi-file-document-outline</v-icon>
+                                    <p class="font-medium text-xs">Tidak ada data Lembar Hasil Uji ditemukan.</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </v-card>
+
+            <!-- Modal Konfirmasi Hapus -->
+            <v-dialog v-model="showDeleteModal" max-width="440" persistent>
+                <v-card rounded="2xl" class="p-6 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-center space-y-4">
+                    <div class="w-14 h-14 mx-auto rounded-full bg-red-100 dark:bg-red-950 flex items-center justify-center text-red-600 dark:text-red-400">
+                        <v-icon size="32">mdi-alert-octagon-outline</v-icon>
+                    </div>
+
+                    <div class="space-y-1">
+                        <h3 class="text-base font-bold text-slate-900 dark:text-slate-100">
+                            Konfirmasi Hapus LHU
+                        </h3>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">
+                            Apakah Anda yakin ingin menghapus Lembar Hasil Uji ini?
                         </p>
                     </div>
 
-                    <div class="mt-6 flex justify-center gap-4">
-                        <button @click="closeDeleteModal"
-                            class="rounded-lg bg-gray-200 px-4 py-2 text-gray-800 hover:bg-gray-300">Batal</button>
-                        <button @click="handleDelete"
-                            class="rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700">Hapus</button>
+                    <div class="flex items-center justify-center gap-3 pt-2">
+                        <button
+                            type="button"
+                            @click="closeDeleteModal"
+                            class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition"
+                        >
+                            Batal
+                        </button>
+                        <button
+                            type="button"
+                            :disabled="isDeleting"
+                            @click="handleDelete"
+                            class="px-4 py-2 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-700 active:bg-red-800 text-white shadow-sm transition disabled:opacity-50"
+                        >
+                            {{ isDeleting ? 'Menghapus...' : 'Ya, Hapus' }}
+                        </button>
                     </div>
-                </DialogContent>
-            </Dialog>
+                </v-card>
+            </v-dialog>
         </div>
     </AdminLayout>
 </template>

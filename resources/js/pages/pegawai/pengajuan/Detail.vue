@@ -1,137 +1,187 @@
 <script setup lang="ts">
-import AdminLayout from '@/layouts/admin/AdminLayout.vue'
-import { Link, Head } from '@inertiajs/vue3'
-import { defineProps } from 'vue'
+import AdminLayout from '@/layouts/admin/AdminLayout.vue';
+import { Head } from '@inertiajs/vue3';
 
 interface User {
-    id: number
-    nama: string
+    id: number;
+    nama: string;
 }
 
 interface Instansi {
-    id: number
-    nama: string
-    user: User
+    id: number;
+    nama: string;
+    user: User;
 }
 
 interface JenisCairan {
-    id: number
-    nama: string
+    id: number;
+    nama: string;
 }
 
 interface Parameter {
-    id: number
-    nama_parameter: string
+    id: number;
+    nama_parameter: string;
+    harga?: number;
 }
 
 interface Kategori {
-    id: number
-    nama: string
+    id: number;
+    nama: string;
 }
 
 interface Pengajuan {
-    id: number
-    kode_pengajuan: string
-    volume_sampel: number
-    status_pengajuan: string
-    metode_pengambilan: string
-    lokasi: string
-    instansi: Instansi
-    kategori: Kategori
-    jenis_cairan: JenisCairan
-    parameter: Parameter[]
+    id: number;
+    kode_pengajuan: string;
+    volume_sampel: number;
+    status_pengajuan: string;
+    metode_pengambilan: string;
+    lokasi: string;
+    instansi: Instansi;
+    kategori: Kategori;
+    jenis_cairan: JenisCairan;
+    parameter: Parameter[];
 }
 
 const props = defineProps<{
-    pengajuan: Pengajuan
-}>()
+    pengajuan: Pengajuan;
+}>();
 </script>
 
 <template>
-    <Head title="Detail Pengajuan" />
+    <Head title="Detail Pengajuan Sampel Masuk" />
     <AdminLayout>
-        <div class="p-6 max-w-4xl mx-auto bg-white rounded shadow">
-            <h1 class="text-2xl font-bold mb-6">Detail Pengajuan</h1>
-
-            <!-- Detail Pengajuan -->
-            <div v-if="props.pengajuan"
-                class="mb-6 rounded-xl bg-gradient-to-br from-gray-50 to-white p-6 shadow flex flex-col gap-4">
-                <h3 class="mb-4 flex items-center gap-2 text-lg font-bold text-blue-900">
-                    <span class="inline-block w-6 text-blue-400">📄</span>
-                    Detail Pengajuan
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+        <div class="max-w-4xl mx-auto space-y-6">
+            <!-- Header Section -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+                <div>
                     <div class="flex items-center gap-2">
-                        <span class="inline-block w-6 text-blue-400">🔢</span>
-                        <span class="font-semibold text-gray-700">Kode Pengajuan:</span>
-                        <span class="ml-1 text-gray-900">{{ props.pengajuan.kode_pengajuan }}</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="inline-block w-6 text-blue-400">📄</span>
-                        <span class="font-semibold text-gray-700">Status Pengajuan:</span>
-                        <span class="ml-1 rounded-full px-3 py-1 text-xs font-bold" :class="{
-                            'bg-yellow-100 text-yellow-700 border border-yellow-300': props.pengajuan.status_pengajuan === 'diproses',
-                            'bg-green-100 text-green-700 border border-green-300': props.pengajuan.status_pengajuan === 'diterima',
-                            'bg-red-100 text-red-700 border border-red-300': props.pengajuan.status_pengajuan === 'ditolak',
-                        }">
-                            {{ props.pengajuan.status_pengajuan.replace('_', ' ').toUpperCase() }}
+                        <span class="px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300">
+                            Pendaftaran Sampel
+                        </span>
+                        <span class="text-xs text-slate-500 dark:text-slate-400">
+                            #{{ props.pengajuan.kode_pengajuan }}
                         </span>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <span class="inline-block w-6 text-blue-400">👤</span>
-                        <span class="font-semibold text-gray-700">Nama Pemohon:</span>
-                        <span class="ml-1 text-gray-900">{{ props.pengajuan.instansi.user.nama }}</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="inline-block w-6 text-blue-400">🏢</span>
-                        <span class="font-semibold text-gray-700">Nama Instansi:</span>
-                        <span class="ml-1 text-gray-900">{{ props.pengajuan.instansi.nama }}</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="inline-block w-6 text-blue-400">💧</span>
-                        <span class="font-semibold text-gray-700">Jenis Cairan:</span>
-                        <span class="ml-1 text-gray-900">{{ props.pengajuan.jenis_cairan.nama }}</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="inline-block w-6 text-blue-400">📦</span>
-                        <span class="font-semibold text-gray-700">Kategori:</span>
-                        <span class="ml-1 text-gray-900">{{ props.pengajuan.kategori.nama }}</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="inline-block w-6 text-blue-400">⚗️</span>
-                        <span class="font-semibold text-gray-700">Volume Sampel:</span>
-                        <span class="ml-1 text-gray-900">{{ props.pengajuan.volume_sampel }} ml</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="inline-block w-6 text-blue-400">🚚</span>
-                        <span class="font-semibold text-gray-700">Metode Pengambilan:</span>
-                        <span class="ml-1 text-gray-900 capitalize">{{ props.pengajuan.metode_pengambilan }}</span>
-                    </div>
-                    <div class="flex items-center gap-2 md:col-span-2">
-                        <span class="inline-block w-6 text-blue-400">📍</span>
-                        <span class="font-semibold text-gray-700">Lokasi:</span>
-                        <span class="ml-1 text-gray-900">{{ props.pengajuan.lokasi }}</span>
-                    </div>
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mt-1">
+                        Detail Permohonan Pengajuan Sampel
+                    </h1>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <v-btn
+                        component="a"
+                        :href="route('pegawai.pengajuan.edit', props.pengajuan.id)"
+                        color="primary"
+                        rounded="lg"
+                        size="small"
+                        prepend-icon="mdi-pencil-outline"
+                        class="text-none font-semibold text-xs"
+                    >
+                        Edit Pengajuan
+                    </v-btn>
+
+                    <v-btn
+                        component="a"
+                        href="/pegawai/pengajuan"
+                        variant="outlined"
+                        rounded="lg"
+                        size="small"
+                        prepend-icon="mdi-arrow-left"
+                        class="text-none font-semibold text-xs"
+                    >
+                        Kembali
+                    </v-btn>
                 </div>
             </div>
 
-            <!-- Parameter yang Diuji -->
-            <div>
-                <h2 class="font-semibold mb-2">Parameter yang Diuji</h2>
-                <ul class="list-disc list-inside text-black">
-                    <li v-for="param in props.pengajuan.parameter" :key="param.id">
-                        {{ param.nama_parameter }}
-                    </li>
-                </ul>
-            </div>
+            <!-- Card Rincian -->
+            <v-card variant="outlined" rounded="xl" class="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                    <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                        <span class="text-slate-400 dark:text-slate-500">Kode Pengajuan</span>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 mt-0.5 text-sm">{{ props.pengajuan.kode_pengajuan }}</p>
+                    </div>
 
-            <!-- Button Kembali -->
-            <div class="mt-8">
-                <Link href="/pegawai/pengajuan"
-                    class="inline-block rounded bg-gray-300 px-4 py-2 font-semibold text-black hover:bg-gray-400">
-                Kembali ke Daftar Pengajuan
-                </Link>
-            </div>
+                    <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                        <span class="text-slate-400 dark:text-slate-500">Status Validasi</span>
+                        <div class="mt-1">
+                            <v-chip
+                                size="small"
+                                variant="tonal"
+                                :color="props.pengajuan.status_pengajuan === 'diterima' ? 'success' : props.pengajuan.status_pengajuan === 'ditolak' ? 'error' : 'warning'"
+                                class="font-bold uppercase"
+                            >
+                                {{ props.pengajuan.status_pengajuan.replace('_', ' ') }}
+                            </v-chip>
+                        </div>
+                    </div>
+
+                    <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                        <span class="text-slate-400 dark:text-slate-500">Metode Pengambilan</span>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 mt-0.5 text-sm capitalize">{{ props.pengajuan.metode_pengambilan }}</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <div class="p-3 rounded-lg bg-slate-50/70 dark:bg-slate-800/40">
+                        <span class="text-slate-400">Instansi Pemohon:</span>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 mt-0.5">{{ props.pengajuan.instansi?.nama || '-' }}</p>
+                    </div>
+
+                    <div class="p-3 rounded-lg bg-slate-50/70 dark:bg-slate-800/40">
+                        <span class="text-slate-400">Nama Pemohon:</span>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 mt-0.5">{{ props.pengajuan.instansi?.user?.nama || '-' }}</p>
+                    </div>
+
+                    <div class="p-3 rounded-lg bg-slate-50/70 dark:bg-slate-800/40">
+                        <span class="text-slate-400">Jenis Cairan:</span>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 mt-0.5">{{ props.pengajuan.jenis_cairan?.nama || '-' }}</p>
+                    </div>
+
+                    <div class="p-3 rounded-lg bg-slate-50/70 dark:bg-slate-800/40">
+                        <span class="text-slate-400">Volume Sampel:</span>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 mt-0.5">{{ props.pengajuan.volume_sampel }} ml</p>
+                    </div>
+
+                    <div class="p-3 rounded-lg bg-slate-50/70 dark:bg-slate-800/40">
+                        <span class="text-slate-400">Kategori Baku Mutu:</span>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 mt-0.5">{{ props.pengajuan.kategori?.nama || '-' }}</p>
+                    </div>
+
+                    <div class="p-3 rounded-lg bg-slate-50/70 dark:bg-slate-800/40">
+                        <span class="text-slate-400">Lokasi Titik Sampel:</span>
+                        <p class="font-medium text-slate-900 dark:text-slate-100 mt-0.5">{{ props.pengajuan.lokasi || '-' }}</p>
+                    </div>
+                </div>
+
+                <!-- Parameter List -->
+                <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
+                        Parameter Analisis yang Diajukan ({{ props.pengajuan.parameter?.length || 0 }})
+                    </h3>
+
+                    <div class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+                        <table class="w-full text-xs">
+                            <thead>
+                                <tr class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold">
+                                    <th class="px-4 py-2.5 text-center w-12">No</th>
+                                    <th class="px-4 py-2.5 text-left">Nama Parameter</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                                <tr
+                                    v-for="(param, idx) in props.pengajuan.parameter"
+                                    :key="param.id"
+                                    class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40"
+                                >
+                                    <td class="px-4 py-2 text-center text-slate-500">{{ idx + 1 }}</td>
+                                    <td class="px-4 py-2 font-semibold text-slate-900 dark:text-slate-100">{{ param.nama_parameter }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </v-card>
         </div>
     </AdminLayout>
 </template>

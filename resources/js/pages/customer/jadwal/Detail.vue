@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import CustomerLayout from '@/layouts/customer/CustomerLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 const props = defineProps<{
@@ -11,7 +11,7 @@ const props = defineProps<{
 const isPengantaran = computed(() => props.from === 'pengantaran');
 
 const labelWaktu = computed(() =>
-    isPengantaran.value ? 'Waktu Pengantaran:' : 'Waktu Pengambilan:'
+    isPengantaran.value ? 'Waktu Pengantaran' : 'Waktu Pengambilan'
 );
 
 const formatTanggal = (tanggalStr: string) => {
@@ -24,62 +24,105 @@ const formatTanggal = (tanggalStr: string) => {
     });
 };
 
-// Ambil query parameter "from" dari URL
 const backLink = computed(() => `/customer/jadwal/${props.from}`);
 </script>
 
 <template>
-
-    <Head title="Detail Jadwal" />
+    <Head title="Detail Jadwal Sampel" />
     <CustomerLayout>
-        <div class="mx-auto max-w-3xl p-4">
-            <h1 class="mb-6 text-2xl font-bold text-customDarkGreen">Detail Jadwal</h1>
-            <div class="mb-6 rounded-xl border bg-white p-6 shadow-lg">
-                <div class="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-2">
-                    <div>
-                        <span class="font-bold text-customDarkGreen">Kode Pengambilan:</span>
-                        <span class="ml-2">{{ props.jadwal.kode_pengambilan ?? '-' }}</span>
-                    </div>
-                    <div>
-                        <span class="font-bold text-customDarkGreen">Kode Pengajuan:</span>
-                        <span class="ml-2">{{ props.jadwal.form_pengajuan?.kode_pengajuan ?? '-' }}</span>
-                    </div>
-                    <div>
-                        <span class="font-bold text-customDarkGreen">Nama Instansi:</span>
-                        <span class="ml-2">{{ props.jadwal.form_pengajuan?.instansi?.nama ?? '-' }}</span>
-                    </div>
-                    <div>
-                        <span class="font-bold text-customDarkGreen">Nama Pemohon:</span>
-                        <span class="ml-2">{{ props.jadwal.form_pengajuan?.instansi?.user?.nama ?? '-' }}</span>
-                    </div>
-                    <div>
-                        <span class="font-bold text-customDarkGreen">Kategori:</span>
-                        <span class="ml-2">{{ props.jadwal.form_pengajuan?.kategori?.nama ?? '-' }}</span>
-                    </div>
-                    <div>
-                        <span class="font-bold text-customDarkGreen">Metode Pengambilan:</span>
-                        <span class="ml-2">{{ props.jadwal.form_pengajuan?.metode_pengambilan ?? '-' }}</span>
-                    </div>
-                    <div>
-                        <span class="font-bold text-customDarkGreen">
-                            {{ labelWaktu }}
+        <div class="max-w-3xl mx-auto space-y-6">
+            <!-- Header Section -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300">
+                            Agenda Laboratorium
                         </span>
-                        <span class="ml-2">{{ formatTanggal(props.jadwal.waktu_pengambilan) }}</span>
+                        <span class="text-xs text-slate-500 dark:text-slate-400">
+                            #{{ props.jadwal?.kode_pengambilan || '-' }}
+                        </span>
                     </div>
-                    <div>
-                        <span class="font-bold text-customDarkGreen">Keterangan:</span>
-                        <span class="ml-2">{{ props.jadwal.keterangan ? props.jadwal.keterangan : '-' }}</span>
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mt-1">
+                        Detail Jadwal {{ isPengantaran ? 'Pengantaran' : 'Penjemputan' }}
+                    </h1>
+                </div>
+
+                <v-btn
+                    component="a"
+                    :href="backLink"
+                    variant="outlined"
+                    rounded="lg"
+                    size="small"
+                    prepend-icon="mdi-arrow-left"
+                    class="text-none font-semibold text-xs self-start sm:self-auto"
+                >
+                    Kembali
+                </v-btn>
+            </div>
+
+            <!-- Card Detail Jadwal -->
+            <v-card variant="outlined" rounded="xl" class="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                        <span class="text-slate-400 dark:text-slate-500">Kode Pengambilan</span>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 mt-0.5 text-sm">{{ props.jadwal.kode_pengambilan ?? '-' }}</p>
                     </div>
-                    <div>
-                        <span class="font-bold text-customDarkGreen">Status:</span>
-                        <span class="ml-2 capitalize">{{ props.jadwal.status ?? '-' }}</span>
+
+                    <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                        <span class="text-slate-400 dark:text-slate-500">Kode Pengajuan Sampel</span>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 mt-0.5 text-sm">{{ props.jadwal.form_pengajuan?.kode_pengajuan ?? '-' }}</p>
+                    </div>
+
+                    <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                        <span class="text-slate-400 dark:text-slate-500">Nama Instansi</span>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 mt-0.5 text-sm">{{ props.jadwal.form_pengajuan?.instansi?.nama ?? '-' }}</p>
+                    </div>
+
+                    <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                        <span class="text-slate-400 dark:text-slate-500">Nama Pemohon</span>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 mt-0.5 text-sm">{{ props.jadwal.form_pengajuan?.instansi?.user?.nama ?? '-' }}</p>
+                    </div>
+
+                    <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                        <span class="text-slate-400 dark:text-slate-500">Kategori Sampel</span>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 mt-0.5 text-sm">{{ props.jadwal.form_pengajuan?.kategori?.nama ?? '-' }}</p>
+                    </div>
+
+                    <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                        <span class="text-slate-400 dark:text-slate-500">Metode Pengambilan</span>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 mt-0.5 text-sm capitalize">{{ props.jadwal.form_pengajuan?.metode_pengambilan ?? '-' }}</p>
+                    </div>
+
+                    <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                        <span class="text-slate-400 dark:text-slate-500">{{ labelWaktu }}</span>
+                        <p class="font-extrabold text-emerald-700 dark:text-emerald-400 mt-0.5 text-sm">{{ formatTanggal(props.jadwal.waktu_pengambilan) }}</p>
+                    </div>
+
+                    <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                        <span class="text-slate-400 dark:text-slate-500">Status Jadwal</span>
+                        <div class="mt-1">
+                            <v-chip
+                                size="small"
+                                variant="tonal"
+                                :color="props.jadwal.status === 'diterima' ? 'success' : 'warning'"
+                                class="font-bold uppercase"
+                            >
+                                {{ props.jadwal.status ?? 'Menunggu' }}
+                            </v-chip>
+                        </div>
+                    </div>
+
+                    <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 sm:col-span-2">
+                        <span class="text-slate-400 dark:text-slate-500">Lokasi / Titik Penjemputan</span>
+                        <p class="font-medium text-slate-900 dark:text-slate-100 mt-0.5 text-sm">{{ props.jadwal.form_pengajuan?.lokasi ?? '-' }}</p>
+                    </div>
+
+                    <div v-if="props.jadwal.keterangan" class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 sm:col-span-2">
+                        <span class="text-slate-400 dark:text-slate-500">Keterangan Tambahan</span>
+                        <p class="text-slate-700 dark:text-slate-300 mt-0.5 text-sm">{{ props.jadwal.keterangan }}</p>
                     </div>
                 </div>
-            </div>
-            <div class="flex justify-end">
-                <Link :href="backLink" class="mr-2 rounded bg-gray-200 px-4 py-2 font-semibold text-black">Kembali
-                </Link>
-            </div>
+            </v-card>
         </div>
     </CustomerLayout>
 </template>

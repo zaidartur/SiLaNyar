@@ -1,26 +1,26 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Head } from '@inertiajs/vue3';
-import { defineProps, ref } from 'vue'
-import moment from 'moment'
+import moment from 'moment';
+import { ref } from 'vue';
 
 interface User {
     id: number;
-    nik: string;
+    nik?: string;
     nama: string;
-    tgl_lahir: string;
-    provinsi: string;
-    kab_kota: string;
-    kecamatan: string;
-    kelurahan: string;
-    rt: string;
-    rw: string;
-    kode_pos: string;
-    alamat: string;
+    tgl_lahir?: string;
+    provinsi?: string;
+    kab_kota?: string;
+    kecamatan?: string;
+    kelurahan?: string;
+    rt?: string;
+    rw?: string;
+    kode_pos?: string;
+    alamat?: string;
     email: string;
-    no_wa: string;
-    username: string;
+    no_wa?: string;
+    username?: string;
+    last_login?: string;
 }
 
 const props = defineProps<{
@@ -29,116 +29,217 @@ const props = defineProps<{
 
 const showEditModal = ref(false);
 
-// Add function to toggle modal
 const toggleEditModal = () => {
     showEditModal.value = !showEditModal.value;
-}
+};
 </script>
 
 <template>
+    <Head title="Profil Pegawai" />
 
-    <Head title="Profile" />
-    <AdminLayout>
-        <div class="max-w-4xl mx-auto">
-            <!-- Header Profile -->
-            <div class="mb-4 rounded-lg border border-gray-300 bg-white p-2 shadow-sm">
-                <h1 class="text-xl font-bold text-gray-800">Profile Pengguna</h1>
-                <p class="text-sm text-gray-500">
-                    Terakhir Login: {{ moment(props.user.last_login).format('DD MMMM YYYY, HH:mm') }}</p>
+    <AdminLayout title="Profil Saya">
+        <div class="max-w-4xl mx-auto space-y-6">
+            <!-- Header Section -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-slate-200 dark:border-slate-800">
+                <div>
+                    <span class="px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300">
+                        Profil Akun
+                    </span>
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mt-1">
+                        Profil Pegawai Laboratorium
+                    </h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        Kelola data identitas akun pegawai dan sinkronisasi SSO SAKTI Karanganyar.
+                    </p>
+                </div>
+
+                <div v-if="props.user?.last_login" class="text-xs text-slate-500 dark:text-slate-400 self-start sm:self-auto">
+                    Terakhir masuk: <span class="font-semibold text-slate-700 dark:text-slate-300">{{ moment(props.user.last_login).format('DD MMM YYYY, HH:mm') }}</span>
+                </div>
             </div>
 
-            <!-- Profile Card -->
-            <div class="mb-4 rounded-lg border border-gray-300 bg-white p-2 shadow-sm">
-                <!-- Avatar Section -->
-                <div class="flex flex-col items-center border-gray-100 p-8">
-                    <div class="mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-customDarkGreen">
-                        <span class="text-3xl font-bold text-white">
-                            {{ props.user?.nama.charAt(0).toUpperCase() || 'U' }}
-                        </span>
+            <!-- Profile Summary Card -->
+            <v-card rounded="2xl" elevation="1" class="border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 space-y-6">
+                <!-- Avatar & Identity Banner -->
+                <div class="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-slate-100 dark:border-slate-800 text-center sm:text-left">
+                    <div class="h-20 w-20 rounded-2xl bg-emerald-800 text-white flex items-center justify-center text-3xl font-black shadow-md border-2 border-emerald-600/30">
+                        {{ props.user?.nama ? props.user.nama.charAt(0).toUpperCase() : 'P' }}
                     </div>
-                    <h2 class="text-xl font-bold text-gray-800">{{ props.user?.nama }}</h2>
-                    <span
-                        class="inline-flex items-center px-3 py-1 mt-2 rounded-full text-sm bg-green-100 text-green-800">
-                        Pengguna Aktif
-                    </span>
-                </div>
 
-                <!-- Profile Details -->
-                <div class="p-6">
-                    <div class="grid gap-6">
-                        <!-- Personal Information -->
-                        <div class="space-y-4 rounded-lg border border-gray-300 bg-white p-4 shadow-sm">
-                            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                <div class="space-y-2">
-                                    <p class="text-sm text-gray-500">Nama Lengkap</p>
-                                    <p class="font-medium">{{ props.user?.nama }}</p>
-                                </div>
-                                <div class="space-y-2">
-                                    <p class="text-sm text-gray-500">Email</p>
-                                    <p class="font-medium">{{ props.user?.email }}</p>
-                                </div>
-                                <div class="space-y-2">
-                                    <p class="text-sm text-gray-500">Kontak Pribadi</p>
-                                    <p class="font-medium">{{ props.user?.no_wa }}</p>
-                                </div>
-                                <div class="space-y-2">
-                                    <p class="text-sm text-gray-500">Alamat Pribadi</p>
-                                    <p class="font-medium">{{ props.user?.alamat }}</p>
-                                </div>
-                            </div>
+                    <div class="space-y-1.5 flex-1">
+                        <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                            <h2 class="text-xl font-black text-slate-900 dark:text-slate-100">
+                                {{ props.user?.nama || 'Pegawai Laboratorium' }}
+                            </h2>
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                                <v-icon size="14">mdi-check-decagram</v-icon>
+                                Pegawai Aktif
+                            </span>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Action Buttons -->
-                <div class="flex justify-end gap-3 p-6 border-gray-100">
-                    <button @click="toggleEditModal"
-                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                        Edit Profile
+                        <p class="text-xs text-slate-500 dark:text-slate-400">
+                            Username: <span class="font-mono font-semibold text-slate-700 dark:text-slate-300">{{ props.user?.username || '-' }}</span>
+                            <span v-if="props.user?.nik" class="ml-3">
+                                NIK: <span class="font-mono font-semibold text-slate-700 dark:text-slate-300">{{ props.user.nik }}</span>
+                            </span>
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        @click="toggleEditModal"
+                        class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white transition shadow-sm cursor-pointer"
+                    >
+                        <v-icon size="16">mdi-account-edit-outline</v-icon>
+                        <span>Edit Profil SSO</span>
                     </button>
                 </div>
-                <Dialog :open="showEditModal" @update:open="showEditModal = false">
-                    <DialogContent
-                        class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-gradient-to-br from-lime-500 to-green-900 rounded-lg shadow-xl">
-                        <DialogHeader>
-                            <DialogTitle class="text-center text-2xl font-bold text-gray-300">Edit Profile
-                            </DialogTitle>
-                            <button @click="toggleEditModal"
-                                class="absolute top-4 right-4 text-gray-400 hover:text-gray-500">
-                                <span class="sr-only">Close</span>
-                            </button>
-                        </DialogHeader>
 
-                        <div class="flex flex-col items-center space-y-6 p-4">
-                            <div class="text-center">
-                                <p class="text-xl font-bold text-gray-300 mb-2">
-                                    Anda akan di arahkan ke portal
-                                    <br />SAKTI Karanganyar
-                                </p>
-                                <p class="text-sm font-semibold text-gray-300 mb-2">
-                                    Fitur edit profil tersedia melalui portal SAKTI Karanganyar.
-                                </p>
-                                <p class="text-sm italic text-gray-300">
-                                    Note:Klik "lanjutkan" untuk melanjutkan ke portal SAKTI Karanganyar.
-                                </p>
-                            </div>
+                <!-- Personal Information Grid -->
+                <div class="space-y-4">
+                    <div class="flex items-center gap-2">
+                        <v-icon color="primary" size="18">mdi-account-details-outline</v-icon>
+                        <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
+                            Informasi Kontak & Pribadi
+                        </h3>
+                    </div>
 
-                            <div class="flex gap-4">
-                                <a href="https://sakti.karanganyarkab.go.id/profile"
-                                    class="px-6 py-2 bg-lime-600 text-white rounded-lg hover:bg-lime-500 transition-colors">
-                                    Lanjutkan
-                                </a>
-                            </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs">
+                        <div class="space-y-1 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                            <span class="text-slate-500 dark:text-slate-400">Nama Lengkap</span>
+                            <p class="font-bold text-slate-900 dark:text-slate-100">
+                                {{ props.user?.nama || '-' }}
+                            </p>
                         </div>
-                    </DialogContent>
-                </Dialog>
-            </div>
+
+                        <div class="space-y-1 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                            <span class="text-slate-500 dark:text-slate-400">Alamat Email</span>
+                            <p class="font-semibold text-slate-800 dark:text-slate-200">
+                                {{ props.user?.email || '-' }}
+                            </p>
+                        </div>
+
+                        <div class="space-y-1 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                            <span class="text-slate-500 dark:text-slate-400">Nomor WhatsApp</span>
+                            <p class="font-semibold text-emerald-700 dark:text-emerald-400">
+                                {{ props.user?.no_wa || '-' }}
+                            </p>
+                        </div>
+
+                        <div class="space-y-1 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                            <span class="text-slate-500 dark:text-slate-400">Tanggal Lahir</span>
+                            <p class="font-medium text-slate-800 dark:text-slate-200">
+                                {{ props.user?.tgl_lahir || '-' }}
+                            </p>
+                        </div>
+
+                        <div class="space-y-1 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 sm:col-span-2">
+                            <span class="text-slate-500 dark:text-slate-400">Nomor Induk Kependudukan (NIK)</span>
+                            <p class="font-mono font-medium text-slate-800 dark:text-slate-200">
+                                {{ props.user?.nik || '-' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Address Grid -->
+                <div class="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <div class="flex items-center gap-2">
+                        <v-icon color="primary" size="18">mdi-map-marker-outline</v-icon>
+                        <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
+                            Domisili & Tempat Tinggal
+                        </h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs">
+                        <div class="space-y-1 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 sm:col-span-3">
+                            <span class="text-slate-500 dark:text-slate-400">Alamat Lengkap</span>
+                            <p class="font-medium text-slate-800 dark:text-slate-200">
+                                {{ props.user?.alamat || '-' }}
+                            </p>
+                        </div>
+
+                        <div class="space-y-1 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                            <span class="text-slate-500 dark:text-slate-400">RT / RW</span>
+                            <p class="font-medium text-slate-800 dark:text-slate-200">
+                                {{ props.user?.rt || '-' }} / {{ props.user?.rw || '-' }}
+                            </p>
+                        </div>
+
+                        <div class="space-y-1 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                            <span class="text-slate-500 dark:text-slate-400">Kelurahan / Desa</span>
+                            <p class="font-medium text-slate-800 dark:text-slate-200">
+                                {{ props.user?.kelurahan || '-' }}
+                            </p>
+                        </div>
+
+                        <div class="space-y-1 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                            <span class="text-slate-500 dark:text-slate-400">Kecamatan</span>
+                            <p class="font-medium text-slate-800 dark:text-slate-200">
+                                {{ props.user?.kecamatan || '-' }}
+                            </p>
+                        </div>
+
+                        <div class="space-y-1 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                            <span class="text-slate-500 dark:text-slate-400">Kabupaten / Kota</span>
+                            <p class="font-medium text-slate-800 dark:text-slate-200">
+                                {{ props.user?.kab_kota || '-' }}
+                            </p>
+                        </div>
+
+                        <div class="space-y-1 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                            <span class="text-slate-500 dark:text-slate-400">Provinsi</span>
+                            <p class="font-medium text-slate-800 dark:text-slate-200">
+                                {{ props.user?.provinsi || '-' }}
+                            </p>
+                        </div>
+
+                        <div class="space-y-1 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                            <span class="text-slate-500 dark:text-slate-400">Kode Pos</span>
+                            <p class="font-mono font-medium text-slate-800 dark:text-slate-200">
+                                {{ props.user?.kode_pos || '-' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </v-card>
+
+            <!-- Modal Sinkronisasi SAKTI SSO -->
+            <v-dialog v-model="showEditModal" max-width="480">
+                <v-card rounded="2xl" class="border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 text-center space-y-4">
+                    <div class="mx-auto h-16 w-16 rounded-2xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 flex items-center justify-center">
+                        <v-icon size="36">mdi-shield-account-outline</v-icon>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">
+                            Portal SAKTI Karanganyar
+                        </h3>
+                        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                            Data akun pegawai dan profil terintegrasi secara terpusat dengan Single Sign-On (SSO) SAKTI Kabupaten Karanganyar. Pembaruan data pribadi dapat dilakukan langsung melalui portal SAKTI.
+                        </p>
+                    </div>
+
+                    <div class="pt-2 flex items-center justify-center gap-3">
+                        <button
+                            type="button"
+                            @click="toggleEditModal"
+                            class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition"
+                        >
+                            Tutup
+                        </button>
+                        <a
+                            href="https://sakti.karanganyarkab.go.id/profile"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold bg-emerald-700 hover:bg-emerald-800 text-white transition shadow-sm"
+                        >
+                            <span>Buka Portal SAKTI</span>
+                            <v-icon size="16">mdi-open-in-new</v-icon>
+                        </a>
+                    </div>
+                </v-card>
+            </v-dialog>
         </div>
     </AdminLayout>
 </template>
-<style scoped>
-.profile {
-    max-width: 600px;
-    margin: 0 auto;
-}
-</style>

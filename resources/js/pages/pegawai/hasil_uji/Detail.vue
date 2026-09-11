@@ -44,13 +44,13 @@ const props = defineProps<{
 }>();
 
 const page = usePage();
-const permissions = (page.props.auth as { permissions: string[] }).permissions;
+const permissions = ((page.props.auth as any)?.permissions as string[]) || [];
 
 const can = (permission: string): boolean => {
     return permissions.includes(permission);
 };
 
-const STATUS_FLOW = {
+const STATUS_FLOW: Record<string, string[]> = {
     draf: ['proses_review', 'revisi'],
     revisi: ['draf', 'proses_review'],
     proses_review: ['proses_peresmian', 'revisi'],
@@ -58,7 +58,7 @@ const STATUS_FLOW = {
     selesai: [],
 };
 
-const statusLabels = {
+const statusLabels: Record<string, string> = {
     draf: 'Draf',
     revisi: 'Revisi',
     proses_review: 'Proses Review',
@@ -66,13 +66,7 @@ const statusLabels = {
     selesai: 'Selesai',
 };
 
-// const status = ref(props.hasil_uji.status)
-
-const availableStatus = computed(() => STATUS_FLOW[props.hasil_uji.status as keyof typeof STATUS_FLOW] || []);
-
-function kembali() {
-    router.visit(route('pegawai.hasil_uji.index'));
-}
+const availableStatus = computed(() => STATUS_FLOW[props.hasil_uji.status] || []);
 
 function perbaruiStatus(newStatus: string) {
     router.put(`/pegawai/hasiluji/verifikasi/${props.hasil_uji.id}`, {
@@ -81,151 +75,182 @@ function perbaruiStatus(newStatus: string) {
 }
 
 function bukaPDF() {
-    window.open(route('hasil_uji.convert', props.hasil_uji.id), '_blank')
+    window.open(route('hasil_uji.convert', props.hasil_uji.id), '_blank');
 }
 </script>
 
 <template>
+    <Head title="Detail Hasil Uji Laboratorium" />
     <AdminLayout>
-        <div class="min-h-screen bg-gray-200 py-8">
+        <div class="max-w-4xl mx-auto space-y-6">
+            <!-- Header Section -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300">
+                            Laporan Hasil Uji (LHU)
+                        </span>
+                        <span class="text-xs text-slate-500 dark:text-slate-400">
+                            #HU-{{ props.hasil_uji.id.toString().padStart(4, '0') }}
+                        </span>
+                    </div>
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mt-1">
+                        Detail Sertifikat Hasil Uji
+                    </h1>
+                </div>
 
-            <Head title="Detail Hasil Uji" />
+                <div class="flex items-center gap-2">
+                    <v-btn
+                        color="primary"
+                        rounded="lg"
+                        size="small"
+                        prepend-icon="mdi-file-pdf-box"
+                        @click="bukaPDF"
+                        class="text-none font-semibold text-xs"
+                    >
+                        Cetak LHU (PDF)
+                    </v-btn>
 
-            <div class="mx-auto max-w-4xl space-y-8 py-8">
-                <h1
-                    class="mb-1 inline-block w-fit border-b-2 border-customDarkGreen pb-2 text-3xl font-bold text-customDarkGreen">
-                    Detail Hasil Uji
-                </h1>
+                    <v-btn
+                        component="a"
+                        href="/pegawai/hasiluji"
+                        variant="outlined"
+                        rounded="lg"
+                        size="small"
+                        prepend-icon="mdi-arrow-left"
+                        class="text-none font-semibold text-xs"
+                    >
+                        Kembali
+                    </v-btn>
+                </div>
+            </div>
 
-                <!-- Informasi Umum -->
-                <div class="mb-4 rounded-xl border bg-gray-50 p-6 shadow-lg">
-                    <div class="grid grid-cols-1 gap-x-8 gap-y-2 md:grid-cols-2">
-                        <div>
-                            <span class="font-bold text-customDarkGreen">Kode Hasil Uji:</span>
-                            <span class="ml-2">HU-{{ hasil_uji.id.toString().padStart(4, '0') }}</span>
+            <!-- Card Informasi Utama LHU -->
+            <v-card variant="outlined" rounded="xl" class="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                    <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                        <span class="text-slate-400 dark:text-slate-500">Nomor LHU</span>
+                        <p class="font-bold text-emerald-700 dark:text-emerald-400 mt-0.5 text-sm">
+                            HU-{{ props.hasil_uji.id.toString().padStart(4, '0') }}
+                        </p>
+                    </div>
+
+                    <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                        <span class="text-slate-400 dark:text-slate-500">Kode Pengujian</span>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 mt-0.5 text-sm">
+                            {{ props.hasil_uji.pengujian?.kode_pengujian || '-' }}
+                        </p>
+                    </div>
+
+                    <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                        <span class="text-slate-400 dark:text-slate-500">Status Validasi</span>
+                        <div class="mt-1">
+                            <v-chip
+                                size="small"
+                                variant="tonal"
+                                :color="props.hasil_uji.status === 'selesai' ? 'success' : 'warning'"
+                                class="font-bold uppercase"
+                            >
+                                {{ statusLabels[props.hasil_uji.status] ?? props.hasil_uji.status }}
+                            </v-chip>
                         </div>
-                        <div>
-                            <span class="font-bold text-customDarkGreen">Kode Pengujian:</span>
-                            <span class="ml-2">{{ hasil_uji.pengujian.kode_pengujian }}</span>
-                        </div>
-                        <div>
-                            <span class="font-bold text-customDarkGreen">Status:</span>
-                            <span class="ml-2">{{ hasil_uji.status }}</span>
-                        </div>
-                        <div>
-                            <span class="font-bold text-customDarkGreen">Diupdate Oleh:</span>
-                            <span class="ml-2">{{ hasil_uji.diupdate_oleh }}</span>
-                        </div>
-                        <div>
-                            <span class="font-bold text-customDarkGreen">Tanggal Dibuat:</span>
-                            <span class="ml-2">{{ new Date(hasil_uji.created_at).toLocaleString() }}</span>
-                        </div>
+                    </div>
+
+                    <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                        <span class="text-slate-400 dark:text-slate-500">Tanggal Terbit</span>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 mt-0.5 text-sm">
+                            {{ new Date(props.hasil_uji.created_at).toLocaleDateString('id-ID') }}
+                        </p>
                     </div>
                 </div>
 
-                <!-- Informasi Pengajuan -->
-                <div class="mb-4 rounded-xl border bg-gray-50 p-6 shadow-lg">
-                    <div class="grid grid-cols-1 gap-x-8 gap-y-2 md:grid-cols-2">
-                        <div>
-                            <span class="font-bold text-customDarkGreen">Kode Pengajuan:</span>
-                            <span class="ml-2">{{ hasil_uji.pengujian.form_pengajuan.kode_pengajuan }}</span>
-                        </div>
-                        <div>
-                            <span class="font-bold text-customDarkGreen">Instansi:</span>
-                            <span class="ml-2">{{ hasil_uji.pengujian.form_pengajuan.instansi.nama }}</span>
-                        </div>
-                        <div>
-                            <span class="font-bold text-customDarkGreen">Penanggung Jawab Instansi:</span>
-                            <span class="ml-2">{{ hasil_uji.pengujian.form_pengajuan.instansi.user.nama }}</span>
-                        </div>
-                        <div>
-                            <span class="font-bold text-customDarkGreen">Kategori:</span>
-                            <span class="ml-2">{{ hasil_uji.pengujian.form_pengajuan.kategori.nama }}</span>
-                        </div>
-                        <div>
-                            <span class="font-bold text-customDarkGreen">Teknisi:</span>
-                            <span class="ml-2">{{ hasil_uji.pengujian.user.nama }}</span>
-                        </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <div class="p-3 rounded-lg bg-slate-50/70 dark:bg-slate-800/40">
+                        <span class="text-slate-400">Instansi Pemohon:</span>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 mt-0.5">
+                            {{ props.hasil_uji.pengujian?.form_pengajuan?.instansi?.nama || '-' }}
+                        </p>
+                    </div>
+
+                    <div class="p-3 rounded-lg bg-slate-50/70 dark:bg-slate-800/40">
+                        <span class="text-slate-400">Penanggung Jawab:</span>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 mt-0.5">
+                            {{ props.hasil_uji.pengujian?.form_pengajuan?.instansi?.user?.nama || '-' }}
+                        </p>
+                    </div>
+
+                    <div class="p-3 rounded-lg bg-slate-50/70 dark:bg-slate-800/40">
+                        <span class="text-slate-400">Kategori Baku Mutu:</span>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 mt-0.5">
+                            {{ props.hasil_uji.pengujian?.form_pengajuan?.kategori?.nama || '-' }}
+                        </p>
+                    </div>
+
+                    <div class="p-3 rounded-lg bg-slate-50/70 dark:bg-slate-800/40">
+                        <span class="text-slate-400">Teknisi Analis:</span>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 mt-0.5">
+                            {{ props.hasil_uji.pengujian?.user?.nama || '-' }}
+                        </p>
                     </div>
                 </div>
 
-                <!-- Parameter Pengujian -->
-                <div class="rounded-xl border bg-white p-6 shadow">
-                    <h2 class="mb-4 text-xl font-semibold text-customDarkGreen">Parameter Pengujian</h2>
-                    <div class="overflow-x-auto">
-                        <table class="w-full rounded border border-gray-200 text-sm">
-                            <thead class="bg-customDarkGreen text-white">
-                                <tr>
-                                    <th class="border px-4 py-2">No</th>
-                                    <th class="border px-4 py-2">Parameter</th>
-                                    <th class="border px-4 py-2">Nilai</th>
-                                    <th class="border px-4 py-2">Satuan</th>
-                                    <th class="border px-4 py-2">Baku Mutu</th>
-                                    <th class="border px-4 py-2">Keterangan</th>
+                <!-- Parameter Analisis Table -->
+                <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
+                        Hasil Analisis Parameter Uji Laboratorium
+                    </h3>
+
+                    <div class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+                        <table class="w-full text-xs">
+                            <thead>
+                                <tr class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold">
+                                    <th class="px-4 py-2.5 text-center w-12">No</th>
+                                    <th class="px-4 py-2.5 text-left">Nama Parameter</th>
+                                    <th class="px-4 py-2.5 text-center">Nilai Uji</th>
+                                    <th class="px-4 py-2.5 text-center">Satuan</th>
+                                    <th class="px-4 py-2.5 text-center">Baku Mutu</th>
+                                    <th class="px-4 py-2.5 text-left">Keterangan</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr v-for="(item, index) in parameter_pengujian" :key="item.id_parameter"
-                                    class="hover:bg-gray-50">
-                                    <td class="border px-4 py-2 text-center">{{ index + 1 }}</td>
-                                    <td class="border px-4 py-2">{{ item.nama_parameter }}</td>
-                                    <td class="border px-4 py-2">{{ item.nilai ?? '-' }}</td>
-                                    <td class="border px-4 py-2">{{ item.satuan ?? '-' }}</td>
-                                    <td class="border px-4 py-2">{{ item.baku_mutu ?? '-' }}</td>
-                                    <td class="border px-4 py-2">{{ item.keterangan ?? '-' }}</td>
-                                </tr>
-                                <tr v-if="parameter_pengujian.length === 0">
-                                    <td class="border px-4 py-2 text-center" colspan="6">Tidak ada parameter.</td>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                                <tr
+                                    v-for="(item, idx) in props.parameter_pengujian"
+                                    :key="item.id_parameter"
+                                    class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40"
+                                >
+                                    <td class="px-4 py-2.5 text-center text-slate-500">{{ idx + 1 }}</td>
+                                    <td class="px-4 py-2.5 font-semibold text-slate-900 dark:text-slate-100">{{ item.nama_parameter }}</td>
+                                    <td class="px-4 py-2.5 text-center font-extrabold text-emerald-700 dark:text-emerald-400">{{ item.nilai ?? '-' }}</td>
+                                    <td class="px-4 py-2.5 text-center text-slate-500">{{ item.satuan ?? '-' }}</td>
+                                    <td class="px-4 py-2.5 text-center text-slate-600 dark:text-slate-400 font-medium">{{ item.baku_mutu ?? '-' }}</td>
+                                    <td class="px-4 py-2.5 text-slate-600 dark:text-slate-400">{{ item.keterangan ?? '-' }}</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                    <div class="flex justify-end mt-6">
-                        <button @click="bukaPDF"
-                            class="inline-flex items-center gap-2 rounded bg-indigo-600 px-5 py-2 text-white font-semibold shadow hover:bg-indigo-700 transition">
-                            Lihat PDF
-                        </button>
-                    </div>
                 </div>
 
-                <!-- Edit Status -->
-                <div class="mb-4 rounded-xl border bg-white p-6 shadow-lg" v-if="can('edit status hasil uji')">
-                    <h2 class="mb-4 text-xl font-semibold">Edit Status</h2>
-                    <div class="mb-4">
-                        <label class="mb-1 block text-sm font-semibold">ID Hasil Uji:</label>
-                        <div class="mb-2">DJ-{{ props.hasil_uji.id.toString().padStart(3, '0') }}</div>
-                    </div>
-                    <div class="mb-4">
-                        <label class="mb-1 block text-sm font-semibold">Status Saat Ini:</label>
-                        <span class="inline-block rounded bg-gray-200 px-3 py-1 font-semibold text-customDarkGreen">
-                            {{ statusLabels[props.hasil_uji.status as keyof typeof statusLabels] }}
-                        </span>
-                    </div>
-                    <div class="mb-4">
-                        <label class="mb-1 block text-sm font-semibold">Ubah Status:</label>
-                        <div class="flex flex-wrap gap-2">
-                            <button v-for="opt in availableStatus" :key="opt" type="button" @click="perbaruiStatus(opt)"
-                                class="rounded bg-green-700 px-4 py-2 font-semibold text-white transition hover:bg-green-800 focus:ring-2 focus:ring-green-400">
-                                {{ statusLabels[opt as keyof typeof statusLabels] }}
-                            </button>
-                            <span v-if="availableStatus.length === 0" class="text-gray-400">Tidak ada status
-                                lanjutan.</span>
-                        </div>
-                    </div>
-                    <div class="flex justify-end gap-2">
-                        <button @click="kembali"
-                            class="rounded bg-gray-200 px-4 py-2 font-semibold text-black">Kembali</button>
+                <!-- Update Status Alur Validasi (Penyelia / Pengendali Teknis / Kepala Lab) -->
+                <div v-if="can('edit status hasil uji') && availableStatus.length > 0" class="pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <p class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
+                        Tindakan Alur Validasi & Persetujuan LHU:
+                    </p>
+                    <div class="flex items-center gap-2">
+                        <v-btn
+                            v-for="st in availableStatus"
+                            :key="st"
+                            :color="st === 'revisi' ? 'error' : 'primary'"
+                            rounded="lg"
+                            size="small"
+                            variant="tonal"
+                            @click="perbaruiStatus(st)"
+                            class="text-none font-semibold text-xs"
+                        >
+                            {{ st === 'revisi' ? 'Minta Revisi' : 'Setujui: ' + (statusLabels[st] ?? st) }}
+                        </v-btn>
                     </div>
                 </div>
-
-                <!-- Kembali button for users without edit permission -->
-                <div class="mb-4 rounded-xl border bg-white p-6 shadow-lg" v-if="!can('edit status hasil uji')">
-                    <div class="flex justify-end gap-2">
-                        <button @click="kembali"
-                            class="rounded bg-gray-200 px-4 py-2 font-semibold text-black">Kembali</button>
-                    </div>
-                </div>
-            </div>
+            </v-card>
         </div>
     </AdminLayout>
 </template>

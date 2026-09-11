@@ -1,363 +1,493 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import { Link, Head } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { Head, usePage } from '@inertiajs/vue3';
+import { useThemeMode } from '@/composables/useThemeMode';
+import WorkflowTracker from '@/components/ui/WorkflowTracker.vue';
 
+const { isDark, toggleTheme } = useThemeMode();
+const page = usePage();
 
-const syaratPenerimaan = ref([
-    'Volume / jumlah sample minimal 2,5 liter',
-    'Volume / jumlah sample lemak 1 liter dengan berbotol kaca gelap dan bermulut lebar',
-    'Volume sample vecal coli dan total coli minimal 100 ml dengan botol kaca gelap steril',
-    'Kondisi wadah / kemasan sampel harus bersih dan tidak terkontaminasi',
-    'Waktu pengambilan sampel serta lama penyimpanan harus jelas',
-    'Memberikan informasi jika sampel diawetkan meliputi waktu pengawetan dan bahan pengawet yang digunakan',
-]);
-
-const sampleDitolak = ref([
-    'Volume atau jumlah sampel kurang dari persyaratan',
-    'Sampel sudah terlalu lama disolasi',
-    'Sampel mengalami kerusakan di perjalanan saat pengiriman sampel',
-    'Kemasan sampel sudah rusak atau tidak sesuai sehingga mempengaruhi isi sampel',
-]);
-
-defineProps({
-    src: String,
-    alt: String,
+const user = computed(() => (page.props as any).auth?.user || null);
+const userRoles = computed<string[]>(() => {
+    if (!user.value || !user.value.roles) return [];
+    return user.value.roles.map((r: any) => r.name);
 });
 
-const workflowSteps = ref([
-    {
-        number: 1,
-        title: 'Registrasi Sampel',
-        description: 'Pendaftaran sampel dengan data lengkap lokasi, waktu pengambilan, dan parameter uji.',
-    },
-    {
-        number: 2,
-        title: 'Verifikasi Sample',
-        description: 'Pemeriksaan kesesuaian sampel dengan kriteria pengujian.',
-    },
-    {
-        number: 3,
-        title: 'Distribusi Sample',
-        description: 'Pembagian sampel ke bagian laboratorium yang sesuai.',
-    },
-    {
-        number: 4,
-        title: 'Menganalisis Sample',
-        description: 'Pengujian sampel menggunakan metode dan peralatan yang tepat.',
-    },
-    {
-        number: 5,
-        title: 'Pelaporan',
-        description: 'Penyusunan hasil analisis dalam bentuk laporan.',
-    },
-]);
+const isPegawai = computed(() => {
+    return userRoles.value.some(r =>
+        ['superadmin', 'kepala_dinas', 'kepala_lab', 'pengendali_teknis', 'penyelia', 'staf_administrator', 'analis', 'ppcu', 'admin', 'teknisi'].includes(r)
+    );
+});
+
+const dashboardDestination = computed(() => {
+    if (!user.value) return '/customer/sso/login';
+    if (isPegawai.value) return '/pegawai/dashboard';
+    return '/customer/dashboard';
+});
+
+// Scrollspy
+const activeSection = ref('hero');
+let observer: IntersectionObserver | null = null;
+
+const navItems = [
+    { id: 'hero', label: 'Beranda' },
+    { id: 'informasi', label: 'Syarat & Jadwal' },
+    { id: 'alur', label: 'Alur Layanan' },
+    { id: 'kontak', label: 'Kontak' },
+];
+
+const scrollToSection = (id: string) => {
+    if (typeof document !== 'undefined') {
+        const el = document.getElementById(id);
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+};
+
+onMounted(() => {
+    if (typeof window !== 'undefined' && 'IntersectionObserver' in window) {
+        observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        activeSection.value = entry.target.id;
+                    }
+                });
+            },
+            {
+                rootMargin: '-20% 0px -60% 0px',
+                threshold: 0.1,
+            }
+        );
+
+        navItems.forEach((item) => {
+            const el = document.getElementById(item.id);
+            if (el && observer) {
+                observer.observe(el);
+            }
+        });
+    }
+});
+
+onUnmounted(() => {
+    if (observer) {
+        observer.disconnect();
+    }
+});
+
+const syaratPenerimaan = [
+    'Volume atau jumlah sampel minimal 2,5 liter untuk pengujian umum.',
+    'Volume sampel lemak 1 liter dengan botol kaca gelap dan bermulut lebar.',
+    'Volume sampel fecal coli dan total coliform minimal 100 ml dengan botol kaca steril.',
+    'Kondisi wadah atau kemasan sampel harus bersih, tertutup rapat, dan tidak bocor.',
+    'Waktu pengambilan sampel serta lama penyimpanan harus tercatat jelas.',
+    'Menyertakan informasi pengawetan sampel (jenis bahan dan waktu pengawetan).',
+];
+
+const sampleDitolak = [
+    'Volume atau jumlah contoh uji kurang dari batas minimal pengujian.',
+    'Masa simpan sampel telah melampaui batas waktu maksimum holding time.',
+    'Kemasan sampel mengalami kebocoran atau kerusakan selama perjalanan.',
+    'Wadah sampel kotor, berlumut, atau terindikasi kontaminasi luar.',
+];
+
+// Form Kontak
+const contactForm = ref({
+    nama: '',
+    email: '',
+    pesan: '',
+});
+const isSubmittingContact = ref(false);
+const contactSuccess = ref(false);
+
+const handleContactSubmit = () => {
+    isSubmittingContact.value = true;
+    setTimeout(() => {
+        isSubmittingContact.value = false;
+        contactSuccess.value = true;
+        contactForm.value = { nama: '', email: '', pesan: '' };
+        setTimeout(() => {
+            contactSuccess.value = false;
+        }, 4000);
+    }, 600);
+};
 </script>
 
 <template>
+    <Head title="Landing Dashboard - Laboratorium Lingkungan Hidup Karanganyar" />
 
-    <Head title="Dashboard" />
+    <v-app :theme="isDark ? 'dark' : 'light'" class="font-sans min-h-screen text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-950">
+        <!-- Topbar Navbar Konsisten & Modern -->
+        <v-app-bar
+            elevation="1"
+            color="surface"
+            class="px-3 sm:px-6 border-b border-slate-200/90 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md"
+        >
+            <!-- Logo & Brand Title -->
+            <div class="flex items-center gap-3 cursor-pointer" @click="scrollToSection('hero')">
+                <img
+                    src="/assets/assetsadmin/logodlh.png"
+                    alt="Logo DLH Karanganyar"
+                    class="w-10 h-10 object-contain drop-shadow-sm"
+                />
+                <div class="flex flex-col">
+                    <span class="text-base sm:text-lg font-extrabold tracking-wide uppercase text-emerald-800 dark:text-emerald-400 leading-tight">
+                        SiLaNyar
+                    </span>
+                    <span class="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:inline font-medium">
+                        Lab Lingkungan Hidup Kab. Karanganyar
+                    </span>
+                </div>
+            </div>
 
-    <AppLayout>
-        <!-- Remove padding and make container full width -->
-        <div class="flex min-h-screen w-full flex-col">
+            <v-spacer />
+
+            <!-- Navigasi Menu Header Konsisten (Desktop) dengan Scrollspy -->
+            <div class="hidden lg:flex items-center gap-2 sm:gap-3 mx-4">
+                <v-btn
+                    v-for="item in navItems"
+                    :key="item.id"
+                    :variant="activeSection === item.id ? 'tonal' : 'text'"
+                    :color="activeSection === item.id ? 'primary' : undefined"
+                    rounded="lg"
+                    class="text-none font-semibold text-xs transition-all duration-200"
+                    :class="[
+                        activeSection === item.id
+                            ? 'font-bold bg-emerald-100/70 text-emerald-900 dark:bg-emerald-950/80 dark:text-emerald-200 border border-emerald-300/80 dark:border-emerald-700/80'
+                            : 'text-slate-600 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    ]"
+                    @click="scrollToSection(item.id)"
+                >
+                    {{ item.label }}
+                </v-btn>
+            </div>
+
+            <!-- Action Buttons & Dark Mode Toggle -->
+            <div class="flex items-center gap-2">
+                <v-btn
+                    icon
+                    variant="text"
+                    size="small"
+                    :title="isDark ? 'Mode Terang' : 'Mode Gelap'"
+                    :aria-label="isDark ? 'Mode Terang' : 'Mode Gelap'"
+                    class="text-slate-600 dark:text-slate-300"
+                    @click="toggleTheme"
+                >
+                    <v-icon size="20" :color="isDark ? 'amber' : 'primary'">
+                        {{ isDark ? 'mdi-weather-sunny' : 'mdi-weather-night' }}
+                    </v-icon>
+                </v-btn>
+
+                <!-- Tombol Akses Dashboard / Login -->
+                <template v-if="user">
+                    <v-btn
+                        component="a"
+                        :href="dashboardDestination"
+                        color="primary"
+                        variant="elevated"
+                        elevation="1"
+                        rounded="lg"
+                        prepend-icon="mdi-view-dashboard"
+                        class="text-none font-bold text-xs px-4"
+                    >
+                        Masuk Dashboard
+                    </v-btn>
+                </template>
+                <template v-else>
+                    <v-btn
+                        component="a"
+                        href="/customer/sso/login"
+                        color="primary"
+                        variant="elevated"
+                        elevation="1"
+                        rounded="lg"
+                        prepend-icon="mdi-login"
+                        class="text-none font-bold text-xs px-4"
+                    >
+                        Masuk (SSO)
+                    </v-btn>
+                </template>
+            </div>
+        </v-app-bar>
+
+        <!-- Main Content -->
+        <v-main>
             <!-- Hero Section -->
-            <section class="relative h-screen w-full bg-cover bg-center"
-                style="background-image: url('/assets/assetslandingpage/hero.png')">
-                <div class="absolute inset-0 flex items-center justify-center bg-black/40 text-white">
-                    <div class="text-center">
-                        <h2 class="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">Sistem Laboratorium
-                            Lingkungan Terpadu</h2>
-                        <p class="mx-auto mt-6 max-w-2xl text-lg leading-8">
-                            Manajemen dan monitoring laboratorium lingkungan yang komprehensif untuk memantau kualitas
-                            lingkungan di Kabupaten
-                            Karanganyar.
-                        </p>
-                        <div class="mt-10">
-                            <Link :href="route('customer.dashboard')"
-                                class="rounded-lg bg-orange-400 px-6 py-3 text-lg font-semibold text-white transition-colors hover:bg-orange-500">
-                                Pelajari Sistem Lab
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            <section
+                id="hero"
+                class="relative min-h-[580px] flex items-center justify-center bg-cover bg-center overflow-hidden"
+                style="background-image: url('/assets/assetslandingpage/hero.png')"
+            >
+                <div class="absolute inset-0 bg-gradient-to-r from-emerald-950/90 via-emerald-900/80 to-slate-950/85 backdrop-blur-[2px]" />
 
-            <!-- Main Content -->
-            <section id="informasi" class="flex flex-col w-full bg-white p-12">
-                <h1 class="self-center text-4xl font-bold text-green-700 max-md:max-w-full mb-12">
-                    Jadwal Pelayanan dan Syarat Penerimaan Sample
-                </h1>
-
-                <!-- Container pakai grid -->
-                <div class="mt-8 grid w-full grid-cols-2 gap-12 px-8 max-md:grid-cols-1">
-                    <!-- Syarat Penerimaan Sample -->
-                    <div class="space-y-8">
-                        <h2 class="text-4xl font-bold text-green-700 mb-6">
-                            Syarat Penerimaan Sample
-                        </h2>
-                        <h3 class="mt-6 text-xl text-black">
-                            Syarat Kelengkapan dan Kelayakan Sample :
-                        </h3>
-                        <div class="mt-8">
-                            <ul class="space-y-6">
-                                <li v-for="(text, index) in syaratPenerimaan" :key="index"
-                                    class="flex items-start gap-3">
-                                    <div
-                                        class="mt-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-green-600">
-                                        <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                    </div>
-                                    <span class="text-xl font-medium text-black">
-                                        {{ text }}
-                                    </span>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <!-- Sample Ditolak -->
-                        <div class="mt-16 mb-8">
-                            <h2 class="text-4xl mb-8 font-bold text-green-700">
-                                Sample dapat ditolak apabila
-                            </h2>
-                            <div class="mt-6">
-                                <ul class="space-y-6">
-                                    <li v-for="(text, index) in sampleDitolak" :key="index"
-                                        class="flex items-start gap-3">
-                                        <div
-                                            class="mt-1 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-red-500">
-                                            <svg class="h-4 w-4 text-white" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M6 18L18 6M6 6l12 12"></path>
-                                            </svg>
-                                        </div>
-                                        <span class="text-xl font-medium text-black">
-                                            {{ text }}
-                                        </span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
+                <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-20 text-center text-white space-y-6">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-xs font-semibold uppercase tracking-wider backdrop-blur-sm">
+                        <v-icon size="16">mdi-shield-check</v-icon>
+                        Portal Layanan Terpadu Laboratorium Lingkungan
                     </div>
 
-                    <!-- Jadwal Sample -->
-                    <div class="flex flex-col space-y-8">
-                        <!-- BOD Sample Table -->
-                        <div class="mb-12">
-                            <h2
-                                class="text-4xl font-extrabold text-center text-customDarkGreen mb-5">
-                                Sample dengan parameter BOD
-                            </h2>
-
-                            <div class="overflow-hidden rounded-lg border border-green-700">
-                                <table class="w-full border-collapse">
-                                    <thead class="bg-customDarkGreen text-white">
-                                        <tr>
-                                            <th
-                                                class="px-6 py-3 text-3xl font-bold text-center border-r border-customDarkGreen ">
-                                                Hari</th>
-                                            <th class="px-6 py-3 text-3xl font-bold text-center">Waktu</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-green-700 ">
-                                        <tr>
-                                            <td
-                                                class="px-6 py-4 text-3xl font-bold text-center text-black border-r border-customDarkGreen">
-                                                Rabu-Kamis</td>
-                                            <td
-                                                class="px-6 py-4 text-3xl font-bold text-center text-black">
-                                                08.00 - 11.00</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <!-- Non-BOD Sample Table -->
-                            <div class="mt-8">
-                                <h2
-                                    class="text-4xl font-extrabold text-center text-customDarkGreen mt-8 mb-5">
-                                    Sample Tanpa parameter BOD
-                                </h2>
-
-                                <div class="overflow-hidden rounded-lg border border-green-700">
-                                    <table class="w-full border-collapse">
-                                        <thead class="bg-customDarkGreen text-white">
-                                            <tr>
-                                                <th
-                                                    class="px-6 py-3 text-3xl font-bold text-center border-r border-customDarkGreen ">
-                                                    Hari
-                                                </th>
-                                                <th class="px-6 py-3 text-3xl font-bold text-center">
-                                                    Waktu
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="bg-white divide-y divide-green-700 ">
-                                            <tr>
-                                                <td
-                                                    class="px-6 py-4 text-3xl font-bold text-center text-black border-r border-customDarkGreen">
-                                                    Rabu-Kamis
-                                                </td>
-                                                <td
-                                                    class="px-6 py-4 text-3xl font-bold text-center text-black">
-                                                    08.00 - 11.00
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td
-                                                    class="px-6 py-4 text-3xl font-bold text-center text-black border-r border-customDarkGreen">
-                                                    Jumat
-                                                </td>
-                                                <td
-                                                    class="px-6 py-4 text-3xl font-bold text-center text-black">
-                                                    08.00 - 10.00
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Footer Note -->
-                <footer
-                    class="text-1xl mt-24 px-8 font-normal text-green-70 max-md:mt-10 max-md:max-w-full">
-                    <p class="text-center italic">
-                        Note: Apabila ada hal-hal yang meragukan, petugas penerima sampel dapat menolak<br />
-                        setelah berkonsultasi dengan pengendali teknis
-                    </p>
-                </footer>
-            </section>
-
-            <!-- Section Alur Pelayanan -->
-            <section>
-                <div
-                    class="flex flex-col items-center justify-center rounded-md border border-blue-300 bg-green-100 p-6">
-                    <h1 class="mb-8 text-center text-3xl font-semibold text-green-700">
-                        Diagram Alur Pelayanan Laboratorium Penguji Dinas Lingkungan Hidup<br />
-                        Kabupaten karanganyar
+                    <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight">
+                        Sistem Informasi Pengujian & Baku Mutu Lingkungan
                     </h1>
 
-                    <div class="mx-auto mb-8 w-full max-w-4xl">
-                        <img src="/assets/assetslandingpage/alurdiagram.png" alt="Diagram Alur Pelayanan Laboratorium"
-                            class="h-auto w-full rounded-lg object-contain shadow-lg" />
+                    <p class="max-w-3xl mx-auto text-sm sm:text-lg text-emerald-100/90 leading-relaxed font-normal">
+                        Layanan pengujian terakreditasi untuk air bersih, air limbah, tanah, dan udara di Kabupaten Karanganyar dengan proses digital, transparan, dan akuntabel.
+                    </p>
+
+                    <!-- Shortcut Dashboard Card jika user login -->
+                    <div v-if="user" class="max-w-xl mx-auto p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-left flex items-center justify-between gap-4">
+                        <div class="space-y-0.5">
+                            <p class="text-xs text-emerald-200 font-semibold">Anda terautentikasi sebagai:</p>
+                            <h3 class="text-base font-bold text-white">{{ user.nama || user.email }}</h3>
+                            <p class="text-[11px] text-emerald-300">Siap mengakses ruang kerja Anda</p>
+                        </div>
+                        <v-btn
+                            component="a"
+                            :href="dashboardDestination"
+                            color="accent"
+                            variant="elevated"
+                            rounded="xl"
+                            class="text-none font-bold text-xs text-slate-950 px-5 shadow-lg"
+                        >
+                            Buka Workspace →
+                        </v-btn>
                     </div>
 
-                    <div class="mt-6 text-sm italic text-green-700">
-                        <p>Note: Pendaftaran Dilakukan 1 Hari Sebelum Penyerahan Sample</p>
+                    <div v-else class="pt-2 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+                        <v-btn
+                            color="accent"
+                            size="large"
+                            variant="elevated"
+                            elevation="2"
+                            rounded="xl"
+                            prepend-icon="mdi-clipboard-text-search"
+                            class="text-none font-bold text-sm text-slate-950 px-6"
+                            @click="scrollToSection('informasi')"
+                        >
+                            Syarat & Jadwal Layanan
+                        </v-btn>
+
+                        <v-btn
+                            component="a"
+                            href="/customer/sso/login"
+                            color="white"
+                            size="large"
+                            variant="outlined"
+                            rounded="xl"
+                            prepend-icon="mdi-login"
+                            class="text-none font-bold text-sm text-white px-6 border-white/80 hover:bg-white/10"
+                        >
+                            Masuk Layanan Uji
+                        </v-btn>
                     </div>
                 </div>
             </section>
 
-            <!-- Section Alur Kerja -->
-            <section class="bg-green-50 p-4 md:p-8 rounded-0">
-                <h1
-                    class="text-2xl md:text-4xl text-customDarkGreen font-bold text-center mb-4 md:mb-6">
-                    Alur Kerja Laboratorium
-                </h1>
-                <p class="text-center text-base md:text-lg mb-8 md:mb-16 text-black">
-                    SiLanyar mengotomatisasi dan mengintegrasikan seluruh alur kerja laboratorium lingkungan
-                </p>
+            <!-- Syarat & Jadwal Section -->
+            <section id="informasi" class="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
+                <div class="text-center space-y-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                        Standar Prosedur Operasional
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-slate-100">
+                        Jadwal Pelayanan & Ketentuan Sampel
+                    </h2>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+                        Pedoman lengkap penerimaan contoh uji dan ketentuan kelayakan laboratorium Dinas Lingkungan Hidup Kabupaten Karanganyar.
+                    </p>
+                </div>
 
-                <!-- Workflow diagram -->
-                <div class="mb-8 md:mb-12">
-                    <!-- Desktop workflow -->
-                    <div class="relative hidden md:block">
-                        <!-- Connecting line -->
-                        <div class="absolute h-0.5 bg-green-700 w-[80%] left-[10%] top-8 z-0"></div>
-
-                        <!-- Steps with circles -->
-                        <div class="relative z-10 flex justify-between">
-                            <div v-for="step in workflowSteps" :key="step.number" class="flex flex-col items-center">
-                                <div
-                                    class=":bg-green-600 mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-700 text-xl font-bold text-white lg:h-16 lg:w-16 lg:text-2xl">
-                                    {{ step.number }}
-                                </div>
-                                <h3
-                                    class=":text-green-500 mb-2 text-center text-sm font-bold text-green-700 lg:text-lg">
-                                    {{ step.title }}
-                                </h3>
-                                <p class="text-xs lg:text-sm text-center max-w-xs text-black">
-                                    {{ step.description }}
-                                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Syarat Kelayakan Sampel Diterima -->
+                    <v-card rounded="2xl" elevation="1" class="p-6 sm:p-8 border border-emerald-200/80 dark:border-emerald-900/40 bg-white dark:bg-slate-900 space-y-6">
+                        <div class="flex items-center gap-3 pb-4 border-b border-emerald-100 dark:border-slate-800">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-700 dark:text-emerald-300">
+                                <v-icon size="24">mdi-check-decagram</v-icon>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Syarat Penerimaan Sampel</h3>
+                                <span class="text-xs text-slate-500 dark:text-slate-400">Kriteria kelayakan sebelum pengujian laboratorium</span>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Mobile workflow -->
-                    <div class="space-y-0 md:hidden">
-                        <!-- Changed space-y-6 to space-y-0 -->
-                        <div v-for="(step, index) in workflowSteps" :key="step.number" class="relative flex">
-                            <!-- Added relative positioning -->
-                            <div class="mr-4 flex flex-col items-center">
-                                <!-- Circle with number -->
-                                <div
-                                    class="z-10 flex h-12 w-12 items-center justify-center rounded-full bg-green-700 text-xl font-bold text-white">
-                                    <!-- Added z-10 -->
-                                    {{ step.number }}
-                                </div>
-                                <!-- Vertical line -->
-                                <div v-if="index !== workflowSteps.length - 1"
-                                    class="mt-0 h-24 w-0.5 bg-green-700">
-                                    <!-- Changed h-12 to h-24 and mt-2 to mt-0 -->
-                                </div>
+                        <ul class="space-y-3.5 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                            <li v-for="(syarat, idx) in syaratPenerimaan" :key="idx" class="flex items-start gap-3">
+                                <v-icon size="18" color="success" class="mt-0.5 shrink-0">mdi-check-circle-outline</v-icon>
+                                <span class="leading-relaxed">{{ syarat }}</span>
+                            </li>
+                        </ul>
+                    </v-card>
+
+                    <!-- Kriteria Sampel Ditolak -->
+                    <v-card rounded="2xl" elevation="1" class="p-6 sm:p-8 border border-red-200/80 dark:border-red-950/50 bg-white dark:bg-slate-900 space-y-6">
+                        <div class="flex items-center gap-3 pb-4 border-b border-red-100 dark:border-slate-800">
+                            <div class="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-950 flex items-center justify-center text-red-600 dark:text-red-400">
+                                <v-icon size="24">mdi-alert-octagon</v-icon>
                             </div>
-                            <!-- Content -->
-                            <div class="pb-8">
-                                <!-- Added padding bottom -->
-                                <h3 class="mb-1 text-lg font-bold text-green-700">
-                                    {{ step.title }}
-                                </h3>
-                                <p class="text-sm text-gray-600">
-                                    {{ step.description }}
-                                </p>
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Kriteria Sampel Ditolak</h3>
+                                <span class="text-xs text-slate-500 dark:text-slate-400">Penyebab sampel tidak dapat diproses</span>
                             </div>
                         </div>
-                    </div>
+
+                        <ul class="space-y-3.5 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                            <li v-for="(tolak, idx) in sampleDitolak" :key="idx" class="flex items-start gap-3">
+                                <v-icon size="18" color="error" class="mt-0.5 shrink-0">mdi-close-circle-outline</v-icon>
+                                <span class="leading-relaxed">{{ tolak }}</span>
+                            </li>
+                        </ul>
+                    </v-card>
                 </div>
             </section>
 
-            <!-- About Us -->
-            <section id="about-us" class="bg-green-100 py-16">
-                <div class="mx-auto max-w-4xl p-4">
-                    <!-- Header -->
-                    <h1 class="mb-8 text-center text-4xl font-bold text-green-700">About Us</h1>
-
-                    <h2 class="mb-4 text-2xl font-bold text-green-700">Dinas Lingkungan Hidup Kabupaten Karanganyar</h2>
-
-                    <div class="space-y-4 font-normal text-gray-800">
-                        <p>
-                            Dinas Lingkungan Hidup Kabupaten Karanganyar adalah instansi pemerintah yang bertugas
-                            mengelola dan menjaga kelestarian
-                            lingkungan hidup di wilayah Kabupaten Karanganyar. Kami berkomitmen untuk menciptakan
-                            lingkungan yang bersih, sehat, dan
-                            berkelanjutan bagi seluruh masyarakat.
-                        </p>
-
-                        <p>
-                            Sejak didirikan pada tahun 2008, kami telah melaksanakan berbagai program pengelolaan
-                            lingkungan, termasuk pengelolaan
-                            sampah terpadu, penghijauan, konservasi sumber daya air, pemantauan kualitas udara, serta
-                            pendidikan dan kesadaran
-                            lingkungan untuk masyarakat.
-                        </p>
-
-                        <p>
-                            Visi kami adalah mewujudkan Kabupaten Karanganyar yang hijau, bersih, dan lestari melalui
-                            pengelolaan lingkungan yang
-                            berkelanjutan dan partisipatif. Kami mengajak seluruh lapisan masyarakat untuk berperan
-                            aktif dalam menjaga kelestarian
-                            lingkungan hidup demi masa depan yang lebih baik.
+            <!-- Alur Layanan Uji Sampel Section -->
+            <section id="alur" class="py-16 bg-slate-100/70 dark:bg-slate-900/60 border-y border-slate-200/80 dark:border-slate-800">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+                    <div class="text-center space-y-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                            Transparansi Proses
+                        </span>
+                        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-slate-100">
+                            Alur Pelayanan Uji Laboratorium
+                        </h2>
+                        <p class="text-sm text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+                            Tahapan baku pengujian sampel lingkungan hidup mulai dari permohonan hingga penerbitan Lembar Hasil Uji (LHU).
                         </p>
                     </div>
+
+                    <WorkflowTracker />
                 </div>
             </section>
-        </div>
-    </AppLayout>
+
+            <!-- Kontak & Form Section -->
+            <section id="kontak" class="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-10">
+                <div class="text-center space-y-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                        Layanan Informasi & Konsultasi
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100">
+                        Hubungi Laboratorium Lingkungan
+                    </h2>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Info Kantor -->
+                    <v-card rounded="2xl" elevation="1" class="p-6 border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-4">
+                        <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                            <v-icon color="primary">mdi-map-marker-radius</v-icon>
+                            Lokasi Kantor & Lab
+                        </h3>
+
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                            Jl. Lawu No. 204, Tegalasri, Bejen, Kec. Karanganyar, Kabupaten Karanganyar, Jawa Tengah 57716
+                        </p>
+
+                        <div class="space-y-2.5 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300">
+                            <div class="flex items-center gap-2">
+                                <v-icon size="16" color="primary">mdi-phone-outline</v-icon>
+                                <span>(0271) 495149</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <v-icon size="16" color="primary">mdi-email-outline</v-icon>
+                                <span>dlh@karanganyarkab.go.id</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <v-icon size="16" color="primary">mdi-clock-outline</v-icon>
+                                <span>Senin - Kamis: 08.00 - 16.30 WIB | Jumat: 08.00 - 15.00 WIB</span>
+                            </div>
+                        </div>
+                    </v-card>
+
+                    <!-- Google Maps Embed -->
+                    <v-card rounded="2xl" elevation="1" class="border border-slate-200/80 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900">
+                        <iframe
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3955.1601683843385!2d110.95587037570697!3d-7.599453192437656!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7a188319bc5cb5%3A0x5e3a9c5fea004c28!2sDinas%20Lingkungan%20Hidup!5e0!3m2!1sid!2sid!4v1681636149407!5m2!1sid!2sid"
+                            class="w-full h-full min-h-[240px] border-0"
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade"
+                        />
+                    </v-card>
+
+                    <!-- Form Pesan -->
+                    <v-card rounded="2xl" elevation="1" class="p-6 border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-4">
+                        <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                            <v-icon color="primary">mdi-message-text-outline</v-icon>
+                            Kirim Pertanyaan
+                        </h3>
+
+                        <form class="space-y-4" @submit.prevent="handleContactSubmit">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                                    Nama Lengkap <span class="text-emerald-600">*</span>
+                                </label>
+                                <input
+                                    v-model="contactForm.nama"
+                                    type="text"
+                                    placeholder="Masukkan nama Anda"
+                                    class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3.5 py-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-600 transition"
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                                    Alamat Email <span class="text-emerald-600">*</span>
+                                </label>
+                                <input
+                                    v-model="contactForm.email"
+                                    type="email"
+                                    placeholder="nama@email.com"
+                                    class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3.5 py-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-600 transition"
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                                    Pesan / Pertanyaan <span class="text-emerald-600">*</span>
+                                </label>
+                                <textarea
+                                    v-model="contactForm.pesan"
+                                    rows="3"
+                                    placeholder="Tuliskan pertanyaan atau kebutuhan konsultasi uji Anda"
+                                    class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3.5 py-2.5 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-600 transition resize-none"
+                                    required
+                                ></textarea>
+                            </div>
+
+                            <button
+                                type="submit"
+                                :disabled="isSubmittingContact"
+                                class="w-full mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white font-bold text-xs py-3 px-4 shadow-md transition disabled:opacity-50 cursor-pointer"
+                            >
+                                <v-icon size="16">mdi-send</v-icon>
+                                <span>{{ isSubmittingContact ? 'Mengirim...' : 'Kirim Pesan' }}</span>
+                            </button>
+
+                            <div v-if="contactSuccess" class="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-xs text-center font-semibold">
+                                ✓ Terima kasih, pesan Anda berhasil terkirim ke petugas DLH.
+                            </div>
+                        </form>
+                    </v-card>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="bg-emerald-950 text-white py-10 px-4 sm:px-6 lg:px-8 border-t border-emerald-900">
+                <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-emerald-200/80">
+                    <div class="flex items-center gap-3">
+                        <img src="/assets/assetsadmin/logodlh.png" alt="Logo DLH" class="w-8 h-8 object-contain" />
+                        <div>
+                            <span class="font-bold text-white uppercase">SiLaNyar Karanganyar</span>
+                            <p class="text-[11px] text-emerald-300">Dinas Lingkungan Hidup Kabupaten Karanganyar</p>
+                        </div>
+                    </div>
+                    <p class="text-center sm:text-right">
+                        &copy; 2026 Pemerintah Kabupaten Karanganyar. Hak Cipta Dilindungi.
+                    </p>
+                </div>
+            </footer>
+        </v-main>
+    </v-app>
 </template>

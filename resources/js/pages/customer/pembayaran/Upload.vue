@@ -1,111 +1,162 @@
 <script setup lang="ts">
 /* eslint-disable */
-import { Head, useForm, Link } from '@inertiajs/vue3'
-import CustomerLayout from '@/layouts/customer/CustomerLayout.vue' // Sesuaikan jika Anda menggunakan layout
+import { Head, useForm, Link } from '@inertiajs/vue3';
+import CustomerLayout from '@/layouts/customer/CustomerLayout.vue';
+import { ref } from 'vue';
 
 interface Pengajuan {
-    id: number
-    // Tambahkan properti lain dari pengajuan jika perlu ditampilkan
-    // contoh: kode_pengajuan: string;
+    id: number;
 }
 
 interface Pembayaran {
-    id: number // ID dari model Pembayaran
-    id_order: string
-    total_biaya: number
-    metode_pembayaran: 'transfer' | 'tunai' // Akan selalu 'transfer' di halaman ini berdasarkan controller
-    // Tambahkan properti lain dari pembayaran jika perlu ditampilkan
+    id: number;
+    id_order: string;
+    total_biaya: number;
+    metode_pembayaran: 'transfer' | 'tunai';
 }
 
 const props = defineProps<{
-    pengajuan: Pengajuan
-    pembayaran: Pembayaran // Dijamin ada dan metode = 'transfer' oleh controller
-    errors: Record<string, string> // Tipe untuk errors dari Inertia
-}>()
+    pengajuan: Pengajuan;
+    pembayaran: Pembayaran;
+    errors: Record<string, string>;
+}>();
 
 const form = useForm({
-    // metode_pembayaran dikirim ke controller 'process'
-    // dan harus 'transfer' untuk halaman ini.
     metode_pembayaran: 'transfer' as const,
     bukti_pembayaran: null as File | null,
-})
+});
+
+const previewUrl = ref<string | null>(null);
+
+function handleFile(e: Event) {
+    const file = (e.target as HTMLInputElement).files?.[0] || null;
+    form.bukti_pembayaran = file;
+    if (file && file.type.startsWith('image/')) {
+        previewUrl.value = URL.createObjectURL(file);
+    } else {
+        previewUrl.value = null;
+    }
+}
 
 function submit() {
-    form.post(route('customer.pembayaran.process', props.pengajuan.id), {
-        onError: () => {
-        },
-    })
+    form.post(route('customer.pembayaran.process', props.pengajuan.id));
+}
+
+function formatRupiah(val: number): string {
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        maximumFractionDigits: 0,
+    }).format(val);
 }
 </script>
 
 <template>
+    <Head title="Unggah Bukti Pembayaran" />
     <CustomerLayout>
-
-        <Head title="Upload Bukti Pembayaran" />
-        <div class="max-w-2xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-            <div class="bg-white shadow-xl rounded-lg overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-6">
-                    <h1 class="text-2xl font-bold text-white text-center">Upload Bukti Pembayaran</h1>
+        <div class="max-w-xl mx-auto space-y-6">
+            <!-- Header -->
+            <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+                <div>
+                    <span class="px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300">
+                        Konfirmasi Pembayaran
+                    </span>
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mt-1">
+                        Unggah Bukti Transfer
+                    </h1>
                 </div>
 
-                <div class="p-6 space-y-6">
-                    <div class="border-b pb-4">
-                        <h2 class="text-lg font-semibold text-gray-800 mb-2">Detail Tagihan</h2>
-                        <div class="space-y-1 text-sm text-gray-600">
-                            <p><strong>ID Order:</strong> #{{ props.pembayaran.id_order }}</p>
-                            <p><strong>Total Biaya:</strong> Rp{{ props.pembayaran.total_biaya.toLocaleString('id-ID')
-                                }}</p>
-                            <p><strong>Metode:</strong> {{ props.pembayaran.metode_pembayaran.toUpperCase() }}</p>
-                        </div>
-                    </div>
-
-                    <div class="p-4 bg-blue-50 border border-blue-200 rounded-md">
-                        <p class="text-sm text-blue-800 font-medium">Informasi Rekening Pembayaran:</p>
-                        <ul class="list-disc list-inside text-sm text-blue-700 mt-1 space-y-1">
-                            <li><strong>Bank Central Asia (BCA):</strong> 123-456-7890 a.n. SiLaNyar Lab</li>
-                            <li><strong>Bank Mandiri:</strong> 098-765-4321 a.n. SiLaNyar Lab</li>
-                        </ul>
-                        <p class="text-xs text-blue-600 mt-2">Pastikan Anda mentransfer sesuai dengan total biaya yang
-                            tertera.</p>
-                    </div>
-
-                    <form @submit.prevent="submit" class="space-y-6">
-                        <div>
-                            <label for="bukti_pembayaran" class="block text-sm font-medium text-gray-700 mb-1">
-                                File Bukti Pembayaran <span class="text-red-500">*</span>
-                            </label>
-                            <input type="file" id="bukti_pembayaran"
-                                @input="form.bukti_pembayaran = ($event.target as HTMLInputElement).files?.[0] || null"
-                                class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 file:mr-4 file:py-2 file:px-4 file:rounded-l-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-                                accept="image/jpeg,image/png,image/jpg" required />
-                            <p v-if="form.progress" class="text-xs text-gray-500 mt-1">
-                                Mengunggah: {{ form.progress.percentage }}%
-                            </p>
-                            <p v-if="props.errors.bukti_pembayaran" class="text-xs text-red-600 mt-1">
-                                {{ props.errors.bukti_pembayaran }}
-                            </p>
-                            <p v-if="props.errors.metode_pembayaran" class="text-xs text-red-600 mt-1">
-                                {{ props.errors.metode_pembayaran }}
-                            </p>
-                        </div>
-
-                        <div class="flex items-center justify-between pt-4 border-t">
-                            <Link :href="route('customer.pembayaran.show', props.pengajuan.id)"
-                                class="text-sm text-indigo-600 hover:text-indigo-800 hover:underline">
-                            &laquo; Kembali ke Detail
-                            </Link>
-                            <button type="submit" :disabled="form.processing"
-                                class="inline-flex justify-center py-2 px-6 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
-                                {{ form.processing ? 'Memproses...' : 'Unggah & Konfirmasi Pembayaran' }}
-                            </button>
-                        </div>
-                        <div v-if="props.errors.id_order"
-                            class="mt-2 text-xs text-red-600 p-3 bg-red-50 border border-red-200 rounded-md">
-                            {{ props.errors.id_order }}
-                        </div>
-                    </form>
-                </div>
+                <v-btn
+                    component="a"
+                    :href="route('customer.pembayaran.show', props.pengajuan.id)"
+                    variant="outlined"
+                    rounded="lg"
+                    size="small"
+                    prepend-icon="mdi-arrow-left"
+                    class="text-none font-semibold text-xs"
+                >
+                    Kembali
+                </v-btn>
             </div>
+
+            <!-- Card Tagihan & Rekening -->
+            <v-card variant="outlined" rounded="xl" class="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5">
+                <div class="grid grid-cols-2 gap-3 text-xs">
+                    <div class="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                        <span class="text-slate-400 dark:text-slate-500">Nomor Tagihan</span>
+                        <p class="text-sm font-bold text-slate-900 dark:text-slate-100 mt-0.5">#{{ props.pembayaran.id_order }}</p>
+                    </div>
+
+                    <div class="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                        <span class="text-slate-400 dark:text-slate-500">Metode</span>
+                        <p class="text-sm font-bold text-emerald-700 dark:text-emerald-400 mt-0.5 uppercase">
+                            {{ props.pembayaran.metode_pembayaran }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 flex items-center justify-between">
+                    <span class="text-xs font-semibold text-slate-600 dark:text-slate-400">Total Pembayaran Retribusi:</span>
+                    <span class="text-xl font-extrabold text-emerald-800 dark:text-emerald-300">
+                        {{ formatRupiah(props.pembayaran.total_biaya) }}
+                    </span>
+                </div>
+
+                <!-- Info Rekening Resmi -->
+                <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1">
+                    <p class="font-bold text-slate-900 dark:text-slate-100">Rekening Resmi Tujuan Transfer:</p>
+                    <p class="text-emerald-700 dark:text-emerald-400 font-extrabold text-sm">
+                        Bank Jateng: 3-001-12345-6
+                    </p>
+                    <p class="text-slate-500 dark:text-slate-400 text-[11px]">a.n. DINAS LINGKUNGAN HIDUP KAB. KARANGANYAR</p>
+                </div>
+
+                <!-- Form Upload -->
+                <form @submit.prevent="submit" class="space-y-4 pt-2">
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                            Pilih Foto / Berkas Bukti Transfer <span class="text-rose-500">*</span>
+                        </label>
+                        <input
+                            type="file"
+                            @change="handleFile"
+                            accept="image/jpeg,image/png,image/jpg,application/pdf"
+                            required
+                            class="w-full rounded-lg border px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 border-slate-300 dark:border-slate-700 file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-emerald-100 file:text-emerald-800 hover:file:bg-emerald-200 cursor-pointer"
+                        />
+                        <p v-if="props.errors.bukti_pembayaran" class="text-xs text-rose-600 mt-1 font-medium">
+                            {{ props.errors.bukti_pembayaran }}
+                        </p>
+                    </div>
+
+                    <div v-if="previewUrl" class="text-center p-2 border border-slate-200 dark:border-slate-700 rounded-lg">
+                        <img :src="previewUrl" alt="Pratinjau Bukti" class="max-h-48 mx-auto rounded shadow-sm" />
+                    </div>
+
+                    <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
+                        <v-btn
+                            component="a"
+                            :href="route('customer.pembayaran.show', props.pengajuan.id)"
+                            variant="text"
+                            size="small"
+                            class="text-none text-xs"
+                        >
+                            Batal
+                        </v-btn>
+
+                        <v-btn
+                            type="submit"
+                            color="primary"
+                            rounded="lg"
+                            prepend-icon="mdi-upload"
+                            :loading="form.processing"
+                            class="text-none font-semibold text-xs px-6"
+                        >
+                            Unggah & Konfirmasi
+                        </v-btn>
+                    </div>
+                </form>
+            </v-card>
         </div>
     </CustomerLayout>
 </template>

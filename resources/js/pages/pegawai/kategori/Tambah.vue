@@ -1,9 +1,6 @@
 <script setup lang="ts">
-/* eslint-disable */
-import { useForm, Head } from '@inertiajs/vue3';
-// import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import AdminLayout from '@/layouts/admin/AdminLayout.vue';
+import { useForm, Head, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 
 interface Parameter {
@@ -11,7 +8,7 @@ interface Parameter {
     kode_parameter: string;
     nama_parameter: string;
     satuan: string;
-    harga: '';
+    harga: string;
 }
 
 interface SubKategori {
@@ -30,8 +27,8 @@ const displayValue = ref('');
 const form = useForm({
     nama: '',
     harga: '',
-    subkategori: [],
-    parameter: props.parameter.map((param) => ({
+    subkategori: [] as number[],
+    parameter: (props.parameter || []).map((param) => ({
         id: param.id,
         checked: false,
         baku_mutu: '',
@@ -49,8 +46,7 @@ const formatCurrency = (value: string | number) => {
 
 const handleInput = (e: Event) => {
     const target = e.target as HTMLInputElement;
-    const formatted = formatCurrency(target.value);
-    displayValue.value = formatted;
+    displayValue.value = formatCurrency(target.value);
 };
 
 const formatOnBlur = () => {
@@ -64,90 +60,184 @@ const submit = () => {
     const filterParam = form.parameter.filter((s) => s.checked);
 
     if (form.subkategori.length === 0 && filterParam.length === 0) {
-        alert('Pilih minimal satu subkategori atau parameter!');
+        alert('Pilih minimal satu subkategori atau parameter baku mutu!');
         return;
     }
 
     form.parameter = filterParam;
-    form.post('/pegawai/kategori/store', {});
+    form.post('/pegawai/kategori/store', {
+        onSuccess: () => {
+            router.visit('/pegawai/kategori');
+        },
+    });
 };
 </script>
 
 <template>
+    <Head title="Tambah Kategori Sampel" />
 
-    <Head title="Tambah Kategori" />
-    <div class="h-screen w-full bg-white lg:grid lg:grid-cols-3">
-        <!-- Left Side - Logo Section -->
-        <div
-            class="hidden h-screen flex-col bg-customDarkGreen lg:col-span-1 lg:flex lg:items-center lg:justify-center">
-            <img src="/assets/assetsadmin/logodlh.png" alt="Logo DLH" class="mx-auto h-48 w-auto object-contain" />
-            <div class="mt-6 text-center text-white">
-                <h2 class="mb-2 border-b border-white pb-2 text-2xl font-bold">SiLanYar</h2>
-                <p class="text-sm">Sistem Laboratoruim Karanganyar</p>
-            </div>
-        </div>
-
-        <!-- Right Side - Form Section -->
-        <div class="flex h-screen items-start justify-center overflow-y-auto bg-white lg:col-span-2">
-            <form @submit.prevent="submit" class="mx-auto grid w-full max-w-xl gap-6 p-6 md:p-12">
-                <div class="grid gap-2 text-center">
-                    <h1 class="text-3xl font-bold">Tambah Kategori</h1>
+    <AdminLayout title="Tambah Kategori">
+        <div class="max-w-4xl mx-auto space-y-6">
+            <!-- Header Halaman & Breadcrumb Back -->
+            <div class="flex items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <button
+                            type="button"
+                            @click="router.visit('/pegawai/kategori')"
+                            class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition"
+                            title="Kembali ke daftar kategori"
+                        >
+                            <v-icon size="20">mdi-arrow-left</v-icon>
+                        </button>
+                        <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
+                            Tambah Kategori Sampel
+                        </h1>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 ml-8">
+                        Daftarkan kategori sampel baru beserta relasi sub-kategori dan parameter baku mutu
+                    </p>
                 </div>
+            </div>
 
-                <div class="grid gap-4">
-                    <!-- Nama Kategori -->
-                    <div class="grid gap-2">
-                        <Label for="nama">Nama Kategori</Label>
-                        <Input id="nama" v-model="form.nama" type="text" placeholder="Masukkan nama kategori"
-                            required />
-                        <span v-if="form.errors.nama" class="text-sm text-red-600">
-                            {{ form.errors.nama }}
-                        </span>
-                    </div>
-
-                    <!-- Harga -->
-                    <div class="grid gap-2">
-                        <Label for="harga">Harga</Label>
-                        <input id="harga" v-model="displayValue" @input="handleInput" @blur="formatOnBlur" type="text"
-                            placeholder="Harga" required class="w-full rounded border px-3 py-2" />
-                        <div v-if="form.errors.harga" class="text-sm text-red-500">
-                            {{ form.errors.harga }}
-                        </div>
-                    </div>
-
-                    <!-- Subkategori -->
-                    <div class="grid gap-2">
-                        <Label>Subkategori</Label>
-                        <div v-for="sub in props.subkategori" :key="sub.id" class="mb-2 flex items-center gap-2">
-                            <input type="checkbox" :value="sub.id" v-model="form.subkategori" :id="'sub-' + sub.id"
-                                :disabled="isParameterSelected" />
-                            <label :for="'sub-' + sub.id" class="text-sm font-semibold">{{ sub.nama }}</label>
-                        </div>
-                        <div class="text-sm text-red-500">{{ form.errors.subkategori }}</div>
-                    </div>
-
-                    <!-- Parameter dan Baku Mutu -->
-                    <div class="grid gap-2">
-                        <Label>Parameter dan Baku Mutu</Label>
-                        <div v-for="(param, index) in form.parameter" :key="param.id"
-                            class="mb-2 flex items-center gap-2">
-                            <input type="checkbox" v-model="param.checked" :id="'param-' + param.id"
-                                :disabled="isSubkategoriSelected" />
-                            <label :for="'param-' + param.id" class="text-sm font-semibold">
-                                {{ props.parameter[index].nama_parameter }}
+            <!-- Form Card Kontainer Modern -->
+            <v-card rounded="2xl" elevation="1" class="p-6 sm:p-8 border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900">
+                <form @submit.prevent="submit" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Nama Kategori -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                                Nama Kategori <span class="text-emerald-600">*</span>
                             </label>
-                            <input v-model="param.baku_mutu" type="text" class="w-48 rounded border px-3 py-2"
-                                :disabled="!param.checked || isSubkategoriSelected" placeholder="Baku Mutu" />
-                            <div class="text-sm text-red-500">
-                                {{ param.checked ? (form.errors as any)[`parameter.${index}.baku_mutu`] : '' }}
+                            <input
+                                v-model="form.nama"
+                                type="text"
+                                placeholder="Contoh: Air Limbah Industri"
+                                class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-600 transition"
+                                required
+                            />
+                            <div v-if="form.errors.nama" class="mt-1.5 text-xs text-red-500 font-medium">
+                                {{ form.errors.nama }}
+                            </div>
+                        </div>
+
+                        <!-- Tarif / Harga -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                                Tarif Dasar Retribusi <span class="text-emerald-600">*</span>
+                            </label>
+                            <input
+                                :value="displayValue"
+                                @input="handleInput"
+                                @blur="formatOnBlur"
+                                type="text"
+                                placeholder="Rp 0"
+                                class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-xs text-slate-900 dark:text-slate-100 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-600 transition"
+                                required
+                            />
+                            <div v-if="form.errors.harga" class="mt-1.5 text-xs text-red-500 font-medium">
+                                {{ form.errors.harga }}
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <button type="submit"
-                    class="mb-8 w-full rounded bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700">Simpan</button>
-            </form>
+                    <!-- Sub Kategori Checkbox Group -->
+                    <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                            Pilih Sub Kategori
+                        </label>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mb-3">
+                            Pilih jika kategori ini memiliki turunan sub-kategori spesifik
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                            <label
+                                v-for="sub in props.subkategori"
+                                :key="sub.id"
+                                :class="[
+                                    isParameterSelected ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
+                                    form.subkategori.includes(sub.id)
+                                        ? 'bg-emerald-50 dark:bg-emerald-950/70 border-emerald-300 dark:border-emerald-700 text-emerald-900 dark:text-emerald-200'
+                                        : 'bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'
+                                ]"
+                                class="flex items-center gap-2.5 p-3 rounded-xl border text-xs font-medium transition"
+                            >
+                                <input
+                                    type="checkbox"
+                                    :value="sub.id"
+                                    v-model="form.subkategori"
+                                    :disabled="isParameterSelected"
+                                    class="rounded text-emerald-600 focus:ring-emerald-500"
+                                />
+                                <span>{{ sub.nama }}</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Parameter Baku Mutu Group -->
+                    <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                            Parameter Uji & Standar Baku Mutu
+                        </label>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mb-3">
+                            Centang parameter yang masuk dalam kategori ini dan tentukan nilai ambang baku mutunya
+                        </p>
+                        <div class="space-y-2.5 max-h-96 overflow-y-auto pr-1">
+                            <div
+                                v-for="(param, index) in form.parameter"
+                                :key="param.id"
+                                :class="[
+                                    isSubkategoriSelected ? 'opacity-50 cursor-not-allowed' : '',
+                                    param.checked
+                                        ? 'bg-emerald-50/70 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-800'
+                                        : 'bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700'
+                                ]"
+                                class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl border transition"
+                            >
+                                <label :for="'param-' + param.id" class="flex items-center gap-2.5 cursor-pointer text-xs font-medium text-slate-800 dark:text-slate-200">
+                                    <input
+                                        type="checkbox"
+                                        v-model="param.checked"
+                                        :id="'param-' + param.id"
+                                        :disabled="isSubkategoriSelected"
+                                        class="rounded text-emerald-600 focus:ring-emerald-500"
+                                    />
+                                    <span>{{ props.parameter[index]?.nama_parameter }}</span>
+                                    <span class="text-[10px] text-slate-400">({{ props.parameter[index]?.satuan || '-' }})</span>
+                                </label>
+
+                                <div class="flex items-center gap-2">
+                                    <input
+                                        v-model="param.baku_mutu"
+                                        type="text"
+                                        placeholder="Nilai Baku Mutu"
+                                        :disabled="!param.checked || isSubkategoriSelected"
+                                        class="w-full sm:w-48 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 disabled:bg-slate-100 dark:disabled:bg-slate-800/50 disabled:cursor-not-allowed"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tombol Aksi Simpan & Batal -->
+                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <button
+                            type="button"
+                            @click="router.visit('/pegawai/kategori')"
+                            class="px-4 py-2.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition"
+                        >
+                            Batal
+                        </button>
+                        <button
+                            type="submit"
+                            :disabled="form.processing"
+                            class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white font-bold text-xs py-2.5 px-6 shadow-sm transition disabled:opacity-50 cursor-pointer"
+                        >
+                            <v-icon size="16">mdi-content-save-check-outline</v-icon>
+                            <span>{{ form.processing ? 'Menyimpan...' : 'Simpan Kategori' }}</span>
+                        </button>
+                    </div>
+                </form>
+            </v-card>
         </div>
-    </div>
+    </AdminLayout>
 </template>

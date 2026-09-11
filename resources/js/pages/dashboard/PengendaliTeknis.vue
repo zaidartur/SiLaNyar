@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import AdminLayout from '@/layouts/admin/AdminLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
+import AppShell from '@/layouts/AppShell.vue';
+import StatKpiCard from '@/components/ui/StatKpiCard.vue';
+import WorkflowTracker from '@/components/ui/WorkflowTracker.vue';
 
 defineProps<{
     statistik: {
@@ -15,78 +17,127 @@ defineProps<{
 
 <template>
     <Head title="Dashboard Pengendali Teknis" />
-    <AdminLayout>
-        <div class="bg-[#D9D9D9] min-h-screen w-full mx-auto p-4 sm:p-6 lg:p-8 rounded-xl space-y-8">
-            <div class="bg-white p-6 rounded-xl shadow-md flex items-center justify-between">
+
+    <AppShell>
+        <div class="space-y-6 max-w-7xl mx-auto">
+            <!-- Header Section -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-slate-200/80 dark:border-slate-800">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-800">Dashboard Pengendali Teknis</h1>
-                    <p class="text-gray-500 text-sm mt-1">
-                        Kendali mutu permohonan, verifikasi jadwal PPCU, evaluasi kesesuaian contoh uji, dan penyusunan draf Lhus.
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300">
+                            Pengendali Teknis
+                        </span>
+                        <span class="text-xs text-slate-400 dark:text-slate-500">
+                            Kendali Mutu & Evaluasi Teknis
+                        </span>
+                    </div>
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mt-1">
+                        Monitoring & Disposisi Teknis Laboratorium
+                    </h1>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                        Kendali mutu permohonan, penugasan PPCU, evaluasi kesesuaian contoh uji, dan penyusunan draf Lhus.
                     </p>
                 </div>
-                <div class="flex gap-2">
-                    <Link href="/pegawai/pengambilan" class="bg-customDarkGreen text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-800 transition">
-                        Kelola Pengambilan (PPCU)
-                    </Link>
-                    <Link href="/pegawai/hasiluji" class="bg-green-700 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-800 transition">
+
+                <div class="flex items-center gap-2 self-start sm:self-auto">
+                    <v-btn
+                        component="a"
+                        href="/pegawai/pengambilan"
+                        color="primary"
+                        variant="elevated"
+                        elevation="1"
+                        rounded="lg"
+                        prepend-icon="mdi-truck-delivery-outline"
+                        class="text-none font-semibold text-xs"
+                    >
+                        Jadwal PPCU
+                    </v-btn>
+                    <v-btn
+                        component="a"
+                        href="/pegawai/hasiluji"
+                        variant="outlined"
+                        color="primary"
+                        rounded="lg"
+                        prepend-icon="mdi-file-document-edit-outline"
+                        class="text-none font-semibold text-xs"
+                    >
                         Draf Lhus
-                    </Link>
+                    </v-btn>
                 </div>
             </div>
 
-            <!-- Kartu Statistik -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4">
-                    <div class="w-14 h-14 bg-green-100 text-green-700 rounded-xl flex items-center justify-center font-bold text-2xl">
-                        📋
-                    </div>
-                    <div>
-                        <p class="text-sm font-semibold text-gray-500">Pengajuan Masuk</p>
-                        <h3 class="text-3xl font-extrabold text-customDarkGreen">{{ statistik.pengajuan }}</h3>
-                    </div>
-                </div>
+            <!-- KPI Cards Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <StatKpiCard
+                    label="Permohonan Masuk"
+                    :value="statistik.pengajuan"
+                    icon="mdi-clipboard-text-outline"
+                    color="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400"
+                    description="Kajian kelayakan teknis awal"
+                />
 
-                <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4">
-                    <div class="w-14 h-14 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center font-bold text-2xl">
-                        🚚
-                    </div>
-                    <div>
-                        <p class="text-sm font-semibold text-gray-500">Jadwal PPCU</p>
-                        <h3 class="text-3xl font-extrabold text-blue-800">{{ statistik.jadwal }}</h3>
-                    </div>
-                </div>
+                <StatKpiCard
+                    label="Penugasan PPCU"
+                    :value="statistik.jadwal"
+                    icon="mdi-map-marker-path"
+                    color="bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400"
+                    description="Jadwal sampling contoh uji lapangan"
+                />
 
-                <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4">
-                    <div class="w-14 h-14 bg-yellow-100 text-yellow-700 rounded-xl flex items-center justify-center font-bold text-2xl">
-                        🧪
-                    </div>
-                    <div>
-                        <p class="text-sm font-semibold text-gray-500">Proses Pengujian</p>
-                        <h3 class="text-3xl font-extrabold text-yellow-800">{{ statistik.pengujian }}</h3>
-                    </div>
-                </div>
+                <StatKpiCard
+                    label="Pengujian Lab"
+                    :value="statistik.pengujian"
+                    icon="mdi-flask-outline"
+                    color="bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-400"
+                    description="Dalam proses analisis laboratorium"
+                />
 
-                <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4">
-                    <div class="w-14 h-14 bg-purple-100 text-purple-700 rounded-xl flex items-center justify-center font-bold text-2xl">
-                        📄
-                    </div>
-                    <div>
-                        <p class="text-sm font-semibold text-gray-500">Hasil Uji / Lhus</p>
-                        <h3 class="text-3xl font-extrabold text-purple-800">{{ statistik.hasil_uji }}</h3>
-                    </div>
-                </div>
+                <StatKpiCard
+                    label="Draf Lhus / Hasil"
+                    :value="statistik.hasil_uji"
+                    icon="mdi-file-certificate-outline"
+                    color="bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-400"
+                    description="Lembar hasil uji sementara tersusun"
+                />
             </div>
 
-            <!-- Info Alur Kerja DLH -->
-            <div class="bg-white p-6 rounded-xl shadow-md">
-                <h3 class="text-lg font-bold text-gray-800 mb-3">Tanggung Jawab Operasional Pengendali Teknis</h3>
-                <ul class="list-disc list-inside space-y-2 text-sm text-gray-600">
-                    <li>Menerima disposisi permohonan pengambilan contoh uji dan menyusun jadwal tugas PPCU.</li>
-                    <li>Melakukan verifikasi kesesuaian contoh uji di loket laboratorium (sampel mandiri dievaluasi Sesuai/Tidak Sesuai; sampel petugas PPCU otomatis memenuhi syarat).</li>
-                    <li>Mengalokasikan contoh uji yang sesuai kepada Penyelia untuk diteruskan ke Analis.</li>
-                    <li>Menyusun draf Lembar Hasil Uji Sementara (Lhus) sebelum diteruskan untuk verifikasi Kepala Lab.</li>
-                </ul>
+            <!-- Workflow Tracker -->
+            <WorkflowTracker :current-step-index="2" />
+
+            <!-- Tanggung Jawab Operasional -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-sm space-y-4">
+                <div class="border-b border-slate-100 dark:border-slate-800 pb-3">
+                    <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                        <v-icon color="primary" size="20">mdi-shield-check-outline</v-icon>
+                        Tanggung Jawab Operasional Pengendali Teknis
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        Standar Operasional Prosedur Pengujian DLH Kabupaten Karanganyar
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-slate-600 dark:text-slate-300">
+                    <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1">
+                        <span class="font-bold text-slate-800 dark:text-slate-200 block">1. Disposisi Jadwal PPCU</span>
+                        Menerima permohonan sampling dan menetapkan jadwal tugas petugas pengambil contoh uji ke titik lokasi pemohon.
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1">
+                        <span class="font-bold text-slate-800 dark:text-slate-200 block">2. Evaluasi Sampel di Loket</span>
+                        Memverifikasi kesesuaian contoh uji di loket laboratorium (sampel mandiri dievaluasi Sesuai atau Tidak Sesuai; sampel PPCU otomatis terjamin).
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1">
+                        <span class="font-bold text-slate-800 dark:text-slate-200 block">3. Alokasi Pengujian ke Penyelia</span>
+                        Mengalokasikan contoh uji yang telah memenuhi kriteria kepada Penyelia untuk diteruskan kepada analis yang kompeten.
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1">
+                        <span class="font-bold text-slate-800 dark:text-slate-200 block">4. Penyusunan Draf Lhus</span>
+                        Menyusun draf Lembar Hasil Uji Sementara (Lhus) berdasarkan rekapan hasil uji sebelum diverifikasi Kepala Laboratorium.
+                    </div>
+                </div>
             </div>
         </div>
-    </AdminLayout>
+    </AppShell>
 </template>

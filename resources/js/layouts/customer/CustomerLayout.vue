@@ -1,18 +1,20 @@
 <script setup lang="ts">
-import AppSidebarCustomer from '@/components/AppSidebarCustomer.vue';
+import AppShell from '@/layouts/AppShell.vue';
 import type { BreadcrumbItemType } from '@/types';
 
 interface Props {
+    title?: string;
     breadcrumbs?: BreadcrumbItemType[];
 }
 
 withDefaults(defineProps<Props>(), {
+    title: undefined,
     breadcrumbs: () => [],
 });
 </script>
 
 <template>
-    <AppSidebarCustomer :breadcrumbs="breadcrumbs || []">
+    <AppShell :title="title">
         <slot />
-    </AppSidebarCustomer>
+    </AppShell>
 </template>

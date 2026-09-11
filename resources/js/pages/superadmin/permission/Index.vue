@@ -1,95 +1,130 @@
 <script setup lang="ts">
-
-import AdminLayout from '@/layouts/admin/AdminLayout.vue'
-import { Head } from '@inertiajs/vue3'
-import { ref, computed } from 'vue'
+import AdminLayout from '@/layouts/admin/AdminLayout.vue';
+import { Head } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
 
 interface Permission {
-  id: number
-  name: string
+    id: number;
+    name: string;
 }
 
-const { permission } = defineProps<{
-  permission: Permission[]
-}>()
+const props = defineProps<{
+    permission: Permission[];
+}>();
 
-// Search & Pagination
-const search = ref('')
-const currentPage = ref(1)
-const pageSize = 10
+const search = ref('');
+const currentPage = ref(1);
+const pageSize = 12;
 
 const filteredPermission = computed(() => {
-  if (!search.value) return permission
-  return permission.filter((item: Permission) =>
-    item.name.toLowerCase().includes(search.value.toLowerCase())
-  )
-})
-
-const paginatedPermission = computed(() => {
-  const start = (currentPage.value - 1) * pageSize
-  return filteredPermission.value.slice(start, start + pageSize)
-})
+    if (!search.value) return props.permission || [];
+    return (props.permission || []).filter((item: Permission) =>
+        item.name.toLowerCase().includes(search.value.toLowerCase())
+    );
+});
 
 const totalPages = computed(() =>
-  Math.ceil(filteredPermission.value.length / pageSize)
-)
+    Math.max(1, Math.ceil(filteredPermission.value.length / pageSize))
+);
 
-function goToPage(page: number) {
-  if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page
-  }
-}
+const paginatedPermission = computed(() => {
+    const start = (currentPage.value - 1) * pageSize;
+    return filteredPermission.value.slice(start, start + pageSize);
+});
 </script>
 
 <template>
+    <Head title="Daftar Hak Akses Sistem (Permissions)" />
 
-  <Head title="Permission" />
-  <AdminLayout>
-    <div class="flex flex-col items-center justify-center min-h-[60vh] p-6">
-      <div class="w-full max-w-md">
-        <div class="flex flex-col items-center mb-6">
-          <h1 class="text-2xl font-bold mb-2">Daftar Permission</h1>
-          <input v-model="search" type="text" placeholder="Cari permission..."
-            class="rounded border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-200 w-full" />
-        </div>
+    <AdminLayout title="Daftar Hak Akses">
+        <div class="space-y-6">
+            <!-- Header Halaman & Aksi -->
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2.5">
+                        <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
+                            Hak Akses Sistem (Permissions)
+                        </h1>
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                            {{ filteredPermission.length }} Izin
+                        </span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                        Daftar permission granular bawaan sistem otorisasi aplikasi SiLaNyar
+                    </p>
+                </div>
 
-        <div class="overflow-x-auto rounded-lg shadow">
-          <table class="min-w-full bg-white border border-gray-200 text-center">
-            <thead>
-              <tr class="bg-customDarkGreen">
-                <th class="w-16 p-3 border-b border-gray-200 text-center text-white font-semibold tracking-wide">No</th>
-                <th class="p-3 border-b border-gray-200 text-center text-white font-semibold tracking-wide">Nama</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(perm, index) in paginatedPermission" :key="perm.id"
-                :class="index % 2 === 0 ? 'bg-gray-50' : 'bg-white'" class="hover:bg-green-50 transition">
-                <td class="p-3 border-b border-gray-200 text-center text-gray-700">{{ (currentPage - 1) * pageSize +
-                  index + 1 }}</td>
-                <td class="p-3 border-b border-gray-200 text-center text-gray-700">{{ perm.name }}</td>
-              </tr>
-              <tr v-if="paginatedPermission.length === 0">
-                <td colspan="2" class="text-center text-gray-400 py-8">Tidak ada data permission.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+                <div class="relative w-full sm:w-64">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                        <v-icon size="16">mdi-magnify</v-icon>
+                    </span>
+                    <input
+                        v-model="search"
+                        type="text"
+                        placeholder="Cari hak akses..."
+                        class="w-full pl-8 pr-3 py-2 rounded-xl text-xs border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                    />
+                </div>
+            </div>
 
-        <!-- Pagination -->
-        <div class="flex justify-center items-center gap-2 mt-8">
-          <button class="px-3 py-1 rounded border text-sm"
-            :class="currentPage === 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-100'"
-            :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">
-            Prev
-          </button>
-          <span class="text-sm">Halaman {{ currentPage }} dari {{ totalPages }}</span>
-          <button class="px-3 py-1 rounded border text-sm"
-            :class="currentPage === totalPages ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-100'"
-            :disabled="currentPage === totalPages" @click="goToPage(currentPage + 1)">
-            Next
-          </button>
+            <!-- Tabel Data Permissions Modern -->
+            <v-card rounded="2xl" elevation="1" class="border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-emerald-900 text-white dark:bg-emerald-950 dark:text-emerald-200 border-b border-emerald-800 dark:border-emerald-900 text-xs font-bold uppercase tracking-wider">
+                                <th class="w-20 py-3.5 px-5">No</th>
+                                <th class="py-3.5 px-5">Nama Permission / Kunci Izin</th>
+                                <th class="py-3.5 px-5">Deskripsi Singkat</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800/80 text-xs">
+                            <tr
+                                v-for="(perm, index) in paginatedPermission"
+                                :key="perm.id"
+                                class="transition-colors hover:bg-emerald-50/50 dark:hover:bg-slate-800/60"
+                            >
+                                <td class="py-3.5 px-5 font-mono text-slate-400">
+                                    {{ (currentPage - 1) * pageSize + index + 1 }}
+                                </td>
+                                <td class="py-3.5 px-5">
+                                    <span class="font-mono font-bold text-xs px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                                        {{ perm.name }}
+                                    </span>
+                                </td>
+                                <td class="py-3.5 px-5 text-slate-600 dark:text-slate-400">
+                                    Izin akses untuk modul {{ perm.name.replace(/^(lihat|tambah|edit|hapus)\s+/i, '') }}
+                                </td>
+                            </tr>
+
+                            <tr v-if="paginatedPermission.length === 0">
+                                <td colspan="3" class="text-center py-12 text-slate-400 dark:text-slate-500">
+                                    <v-icon size="36" class="mb-2 text-slate-300 dark:text-slate-600">mdi-key-remove</v-icon>
+                                    <p class="font-medium text-xs">Tidak ada data permission ditemukan.</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination Footer -->
+                <div class="p-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <span class="text-xs text-slate-500 dark:text-slate-400">
+                        Menampilkan halaman <strong>{{ currentPage }}</strong> dari <strong>{{ totalPages }}</strong> (Total {{ filteredPermission.length }} izin)
+                    </span>
+
+                    <v-pagination
+                        v-model="currentPage"
+                        :length="totalPages"
+                        :total-visible="5"
+                        density="compact"
+                        rounded="lg"
+                        color="primary"
+                        active-color="primary"
+                        class="text-xs"
+                    />
+                </div>
+            </v-card>
         </div>
-      </div>
-    </div>
-  </AdminLayout>
+    </AdminLayout>
 </template>

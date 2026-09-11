@@ -8,7 +8,7 @@ interface JenisCairan {
     id: number;
     nama: string;
     batas_minimum: number;
-    batas_maksimum: number;
+    batas_maksimum: number | null;
 }
 interface Parameter {
     id: number;
@@ -31,11 +31,11 @@ interface Instansi {
     nama: string;
 }
 
-const { props } = usePage();
-const instansiList = props.instansi as Instansi[];
-const jenisCairan = props.jenis_cairan as JenisCairan[];
-const kategori = props.kategori as Kategori[];
-const semuaParameter = props.parameter as Parameter[];
+const page = usePage();
+const instansiList = (page.props.instansi as Instansi[]) || [];
+const jenisCairan = (page.props.jenis_cairan as JenisCairan[]) || [];
+const kategori = (page.props.kategori as Kategori[]) || [];
+const semuaParameter = (page.props.parameter as Parameter[]) || [];
 
 const step = ref(1);
 const pengajuanBerhasil = ref(false);
@@ -52,10 +52,8 @@ const form = useForm({
     keterangan: '',
 });
 
-// Add validation state
 const validationErrors = ref<Record<string, string>>({});
 
-// Computed properties for dynamic validation
 const selectedJenisCairan = computed(() => jenisCairan.find((j) => j.id === form.id_jenis_cairan));
 
 const volumePlaceholder = computed(() => {
@@ -74,7 +72,6 @@ const isVolumeValid = computed(() => {
     );
 });
 
-// Validation functions
 function validateStep1() {
     const errors: Record<string, string> = {};
 
@@ -112,7 +109,7 @@ function validateStep1() {
             errors.waktu_pengambilan = 'Waktu pengambilan harus diisi';
         } else {
             const today = new Date();
-            today.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
+            today.setHours(0, 0, 0, 0);
             const selectedDate = new Date(form.waktu_pengambilan);
 
             if (selectedDate < today) {
@@ -140,90 +137,61 @@ function validateStep2() {
     return Object.keys(errors).length === 0;
 }
 
-// Clear specific validation error
 function clearError(field: string) {
     if (validationErrors.value[field]) {
         delete validationErrors.value[field];
     }
 }
 
-// Watch for changes to clear errors
-watch(
-    () => form.id_jenis_cairan,
-    () => {
-        clearError('id_jenis_cairan');
-        if (form.volume_sampel && selectedJenisCairan.value) {
-            clearError('volume_sampel');
-        }
-    },
-);
+watch(() => form.id_jenis_cairan, () => {
+    clearError('id_jenis_cairan');
+    if (form.volume_sampel && selectedJenisCairan.value) {
+        clearError('volume_sampel');
+    }
+});
 
-watch(
-    () => form.volume_sampel,
-    () => {
-        if (form.volume_sampel && isVolumeValid.value) {
-            clearError('volume_sampel');
-        }
-    },
-);
+watch(() => form.volume_sampel, () => {
+    if (form.volume_sampel && isVolumeValid.value) {
+        clearError('volume_sampel');
+    }
+});
 
-watch(
-    () => form.id_instansi,
-    () => clearError('id_instansi'),
-);
-watch(
-    () => form.metode_pengambilan,
-    () => {
-        clearError('metode_pengambilan');
-        clearError('lokasi');
-        clearError('waktu_pengambilan');
-        clearError('keterangan');
-    },
-);
-watch(
-    () => form.lokasi,
-    () => clearError('lokasi'),
-);
-watch(
-    () => form.waktu_pengambilan,
-    () => {
-        if (form.waktu_pengambilan) {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const selectedDate = new Date(form.waktu_pengambilan);
+watch(() => form.id_instansi, () => clearError('id_instansi'));
+watch(() => form.metode_pengambilan, (val) => {
+    clearError('metode_pengambilan');
+    clearError('lokasi');
+    clearError('waktu_pengambilan');
+    clearError('keterangan');
+    if (val === 'diantar') {
+        form.lokasi = 'Jl. Lawu No.204, Tegalasri, Bejen, Kec. Karanganyar, Kabupaten Karanganyar, Jawa Tengah 57716 (DLH Kabupaten Karanganyar)';
+    } else {
+        form.lokasi = '';
+    }
+    form.parameter = [];
+    form.id_kategori = null;
+});
 
-            if (selectedDate >= today) {
-                clearError('waktu_pengambilan');
-            }
+watch(() => form.lokasi, () => clearError('lokasi'));
+watch(() => form.waktu_pengambilan, () => {
+    if (form.waktu_pengambilan) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const selectedDate = new Date(form.waktu_pengambilan);
+        if (selectedDate >= today) {
+            clearError('waktu_pengambilan');
         }
-    },
-);
-watch(
-    () => form.id_kategori,
-    () => clearError('id_kategori'),
-);
-watch(
-    () => form.parameter,
-    () => clearError('parameter'),
-);
-watch(
-    () => form.keterangan,
-    () => clearError('keterangan'),
-);
-
-// Otomatis lokasi jika "diantar"
-watch(
-    () => form.metode_pengambilan,
-    (val) => {
-        if (val === 'diantar') {
-            form.lokasi = 'Jl. Lawu No.204, Tegalasri, Bejen, Kec. Karanganyar, Kabupaten Karanganyar, Jawa Tengah 57716 (DLH Kabupaten Karanganyar)';
-        } else {
-            form.lokasi = '';
-        }
-        form.parameter = [];
-        form.id_kategori = null;
-    },
-);
+    }
+});
+watch(() => form.id_kategori, (kategoriId) => {
+    clearError('id_kategori');
+    const kat = kategori.find((k) => k.id === kategoriId);
+    if (!kat) return;
+    const allowedParamIds =
+        kat.subkategori.length > 0 ? kat.subkategori.flatMap((s) => s.parameter.map((p) => p.id)) : kat.parameter.map((p) => p.id);
+    form.parameter = [...new Set(allowedParamIds)];
+});
+watch(() => form.parameter, () => clearError('parameter'));
+watch(() => form.keterangan, () => clearError('keterangan'));
 
 function parameterIsInKategori(id: number): boolean {
     const kat = kategori.find((k) => k.id === form.id_kategori);
@@ -233,17 +201,6 @@ function parameterIsInKategori(id: number): boolean {
     return allowedParamIds.includes(id);
 }
 
-watch(
-    () => form.id_kategori,
-    (kategoriId) => {
-        const kat = kategori.find((k) => k.id === kategoriId);
-        if (!kat) return;
-        const allowedParamIds =
-            kat.subkategori.length > 0 ? kat.subkategori.flatMap((s) => s.parameter.map((p) => p.id)) : kat.parameter.map((p) => p.id);
-        form.parameter = [...new Set(allowedParamIds)];
-    },
-);
-
 function nextStep() {
     if (step.value === 1 && validateStep1()) {
         step.value = 2;
@@ -251,20 +208,22 @@ function nextStep() {
         step.value = 3;
     }
 }
+
 function prevStep() {
     if (step.value > 1) step.value -= 1;
 }
+
 function submit() {
     form.post(route('customer.pengajuan.store'), {
         onSuccess: () => {
             pengajuanBerhasil.value = true;
-            step.value = 3;
         },
         onError: (errors) => {
             console.error(errors);
         },
     });
 }
+
 function getNamaJenisCairan() {
     return jenisCairan.find((j) => j.id === form.id_jenis_cairan)?.nama || '-';
 }
@@ -274,501 +233,556 @@ function getNamaInstansi() {
 function getNamaKategori() {
     return kategori.find((k) => k.id === form.id_kategori)?.nama || '-';
 }
-// function getNamaParameter() {
-//     return semuaParameter.filter(p => form.parameter.includes(p.id)).map(p => p.nama_parameter)
-// }
+
+function formatRupiah(val: number): string {
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        maximumFractionDigits: 0,
+    }).format(val);
+}
 </script>
 
 <template>
-
     <Head title="Pengajuan Sampel" />
     <CustomerLayout>
-        <!-- Pesan Error -->
-        <div v-if="props.errors.Status" class="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
-            <div class="flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" viewBox="0 0 20 20"
-                    fill="currentColor">
-                    <path fill-rule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                        clip-rule="evenodd" />
-                </svg>
-                <span class="font-semibold text-red-700">Error!</span>
-            </div>
-            <p class="mt-2 text-red-600">{{ props.errors.Status }}</p>
-        </div>
-
-        <!-- Stepper 4 langkah -->
-        <div>
-            <h1 class="mb-2 text-2xl font-bold text-customDarkGreen">Pengajuan Sampel</h1>
-            <p class="mb-6 inline-block w-fit border-b-2 border-green-700 text-gray-600">Ikuti langkah-langkah berikut
-                untuk mengajukan sampel.</p>
-        </div>
-        <div class="mb-5 flex p-6">
-            <ol class="mb-8 flex w-full items-center justify-center">
-                <!-- Step 1 -->
-                <li class="flex w-full items-center after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:content-['']"
-                    :class="[
-                        step > 1 ? 'text-customDarkGreen after:border-customLightGreen' : 'text-gray-400 after:border-gray-100'
-                    ]">
-                    <div :class="[
-                        'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
-                        step === 1 ? 'bg-customDarkGreen text-white' : step > 1 ? 'bg-customDarkGreen text-white' : 'bg-gray-100 text-gray-400',
-                    ]">
-                        <span class="text-2xl font-bold">1</span>
-                    </div>
-                    <span class="mt-2 text-center text-xs font-semibold">Detail Sample</span>
-                </li>
-                <!-- Step 2 -->
-                <li class="flex w-full items-center after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:content-['']"
-                    :class="[
-                        step > 2 ? 'text-customDarkGreen after:border-customLightGreen' : 'text-gray-400 after:border-gray-100'
-                    ]">
-                    <div :class="[
-                        'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
-                        step === 2 ? 'bg-customDarkGreen text-white' : step > 2 ? 'bg-customDarkGreen text-white' : 'bg-gray-100 text-gray-400',
-                    ]">
-                        <span class="text-2xl font-bold">2</span>
-                    </div>
-                    <span class="mt-2 text-center text-xs font-semibold">Parameter Pengujian</span>
-                </li>
-                <!-- Step 3 -->
-                <li class="flex w-full items-center after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:content-['']"
-                    :class="[
-                        step > 3 ? 'text-customDarkGreen after:border-customLightGreen' : 'text-gray-400 after:border-gray-100'
-                    ]">
-                    <div :class="[
-                        'flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
-                        step === 3 ? 'bg-customDarkGreen text-white' : step > 3 ? 'bg-blue-100 text-customDarkGreen' : 'bg-gray-100 text-gray-400',
-                    ]">
-                        <span class="text-2xl font-bold">3</span>
-                    </div>
-                    <span class="mt-2 text-center text-xs font-semibold">Periksa & Serahkan</span>
-                </li>
-            </ol>
-        </div>
-
-        <!-- Step 1: Jenis Cairan, Volume, Instansi, Metode Pengambilan -->
-        <form v-if="step === 1" @submit.prevent="nextStep" class="space-y-4">
-            <div class="rounded-lg border border-gray-300 bg-gray-100 p-6 shadow-sm">
-                <h3 class="mb-2 flex items-center gap-2 text-lg font-bold text-customDarkGreen">
-                    <svg width="33" height="30" viewBox="0 0 33 30" fill="none" xmlns="http://www.w3.org/2000/svg"
-                        xmlns:xlink="http://www.w3.org/1999/xlink">
-                        <rect width="33" height="30" fill="url(#pattern0_1392_980)" />
-                        <defs>
-                            <pattern id="pattern0_1392_980" patternContentUnits="objectBoundingBox" width="1"
-                                height="1">
-                                <use xlink:href="#image0_1392_980"
-                                    transform="matrix(0.00909091 0 0 0.01 0.0454545 0)" />
-                            </pattern>
-                            <image id="image0_1392_980" width="100" height="100" preserveAspectRatio="none"
-                                xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAAE0UlEQVR4nO2dXWhcRRiGj1dSUO8Keq13hbM2W7ZkIYlNmuRkz3f2zF5sS7G9shYRf6r1BwuJbWkikuJugmiKWoPWv607YxCSemFF2ysNRUEsFfW24GUFqVU7MqcpxM0mu9vdOd/snO+FF/YiOXvmfebnm9mLcRwSiUQikUgkEolEIpFICVCwEGwBwU7a6GAh2OJ0k7xF704Q4fcgmLTRPmc/FivFTU63CDibxQ4NdEMR4YzTDfJFOAqc3cAODHSbsxsBZ+CYLK9S3AwivPK/nlQN5UNv7bTCfjWsARP+nqsU73WMlHTu8EX4eW1Pys70S3e8xwpnZ/vrjZSzqu2OacqJ8Mnalx2cH0EP0e2wB98dWbuecPaEY5JUGeiL8M/VLzlWCeSDR7ehB+h22KpN3idB7Si5FiwErmNqieuLUGams+jhuZqceTUbtdHIUrheids/N4QemqvZA3ND5pXC9Urc0Y98mZpIowfmanbq5bQc+cA3pxSuW+LyUKantqOH5cbk9OR2Q0rh9UrcWXtKXLdJZ2cG8EthqBaeqn2JoXlPuhP4AbkIVuV9bR5qG4BY4ubl1mP2lbhuC6WwKvNrS2G/WkhpB+KL8Ijuc6KBGKq0gZOD2s+7VFZWANnxjv4d/uCptdMMAVknhOH3x7QDGT49RkCa7oGcaT122Xp0W/QdNEJamBZ6S33agPSW+7TDsGoNAbXj/9DXU0ZP9ESnCQTEkFHSW67zmwaNkOZCyH2al+njmY7B6DmekbkzeQLS7tSVOtL+Aq+eoZ4V1+iwbg2BVfY+9mV6MtPWyIgbhtVAQB3PnMlHa0pqvIWj/YmbFZWa+jDe2WogsGLV07PlvmgvsR4ItYdRfxNXNZVoIHDLnEW77R2nhqNfKJXV55HTuVg2fQRE4AdMQAR+qARE4AdJQAwIDwgIfmBAQPBDAgKCHwwQkO7wnqXd8vDyAW3PT9bGULTn3Yu75NLVKfmdLMljPzxOQPBhTMplWY6sCwqNENE6DJ1QCIhovGZ88ccra2CshjJ+8TECgjFNLdfx19em5SNfPkxAbIQBNGWxNmHs7XhHoDVE1FszpjaE8c1femBYByQQBfnmb8/L6UtPa5umzl+flge+2qetDdYACVZg3AquVSgmwLAGSCAK8o1fX1gTYLNQTIFhBZBgHRjNQjEJhhVAXvz20Q3DjKD8dLDu/+5Z2iXPXm28gO8/p2cBt3aEvP7Lcw2hnLh00OiRYQ0QuA0opsKwBgi0AGXm50MNp6nzMU9TVgKBFZcvP9sQiokjw1og0AYUbBjWAoHbgGICDKuBgGCy1CSUC9dPGAHDeiDQBBSTYCQCCGwAxTQYiQECgsnXLj9jPIxEAYFVUEyFkTggIFi0W99/zkwYiQQChpuACHwIBETgB09ABH7YBETgB0xABH6oBETgB0lADAgPCAh+YEBA8EMCAoIfDBAQ/DAgQUcnh7EbCl1in7OXtAMBEe7Dbih0iXOc7dUOZLRauM8X4T/YjQXTzdnfsd0j4nP2NnqDhdn2OZtz4lL+s/zdNt91C+3DuFisFO9y4pS36N3jc/ZeIq5ZFU2CEOG/IMJ51WEdLAULwQPRpZKclbCv1QYsc1ZSl0t6nN2PBoJEIpFIJBKJRCKRSCSS03n9B+yy/yvpNyiBAAAAAElFTkSuQmCC" />
-                        </defs>
-                    </svg>
-                    Informasi Dasar Sample
-                </h3>
-                <label class="mb-2 block font-semibold text-gray-600">Jenis Cairan</label>
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-                    <div v-for="jenis in jenisCairan" :key="jenis.id" @click="form.id_jenis_cairan = jenis.id" :class="[
-                            'cursor-pointer rounded-2xl border p-4 transition-all',
-                            form.id_jenis_cairan === jenis.id
-                                ? 'border-customDarkGreen bg-customDarkGreen text-white'
-                                : 'border-gray-300 bg-white text-customDarkGreen hover:bg-customLightGreen',
-                            validationErrors.id_jenis_cairan ? 'border-red-500' : '',
-                        ]">
-                        <div
-                            :class="['mb-1 text-2xl font-bold', form.id_jenis_cairan === jenis.id ? 'text-white' : 'text-customDarkGreen']">
-                            {{ jenis.nama }}
-                        </div>
-                        <div :class="form.id_jenis_cairan === jenis.id ? 'text-white' : 'text-gray-500'"
-                            class="text-xs">
-                            Batas Minimum: {{ jenis.batas_minimum }}
-                        </div>
-                        <div :class="form.id_jenis_cairan === jenis.id ? 'text-white' : 'text-gray-500'"
-                            class="text-xs">
-                            Batas Maksimum: {{ jenis.batas_maksimum ?? '-' }}
-                        </div>
-                        <div v-if="form.id_jenis_cairan === jenis.id" class="mt-2 text-xs font-semibold text-blue-400">
-                            Dipilih</div>
-                    </div>
-                </div>
-                <div v-if="validationErrors.id_jenis_cairan" class="mt-1 text-sm text-red-600">
-                    {{ validationErrors.id_jenis_cairan }}
-                </div>
-                <!-- Hidden select for validation fallback -->
-                <select v-model="form.id_jenis_cairan" class="hidden" required>
-                    <option value="">Pilih Jenis Cairan</option>
-                    <option v-for="jenis in jenisCairan" :key="jenis.id" :value="jenis.id">{{ jenis.nama }}</option>
-                </select>
-            </div>
-            <div class="rounded-lg border border-gray-300 bg-gray-100 p-6 shadow-sm">
-                <div class="grid grid-cols-1 gap-4">
-                    <h3 class="flex items-center gap-2 text-lg font-bold text-customDarkGreen">
-                        <svg width="35" height="26" viewBox="0 0 35 26" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            xmlns:xlink="http://www.w3.org/1999/xlink">
-                            <rect width="35" height="26" fill="url(#pattern0_1393_1239)" />
-                            <defs>
-                                <pattern id="pattern0_1393_1239" patternContentUnits="objectBoundingBox" width="1"
-                                    height="1">
-                                    <use xlink:href="#image0_1393_1239"
-                                        transform="matrix(0.00742857 0 0 0.01 0.128571 0)" />
-                                </pattern>
-                                <image id="image0_1393_1239" width="100" height="100" preserveAspectRatio="none"
-                                    xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB8klEQVR4nO2dsU0DARAEv9G9LkxMSOAGEJRABS9BLXRi9MFLhJbxaweYkT4De9i9JQHEsoiIiIj8Zeb14XL00/4afxVjISz2Qk5vT5fzx/Pdnu31XMgN7KFtIa6f73d7ttezkBuwEBjjQlhYCIxxISwsBMa4EBYWAmNcCAsLgTEuhIWFwBgXwsJCYIwLYWEhMIa0EH98uVgIjSEu5D//PHmIhSBkSqAyQMmUQGWAkimBygAlUwKVAUqmBCoDlEwJVAYomRKoDFAyJVAZoGRKoDJAyZRAZYCSKYHKACVTApUBSqYEKgOUTAlUBiiZEqgMUDIlUBmgZEqgMkDJlEBlgJIpgcoAJVMClQFKpgQqA5RMCVQGbZm8nB73jzvq2d6DnAFKJhbCLeR8x1/U+/7+LuTGQtY7HsT2WMgPF7JaCOtb1mohFkI4SpRMXIiF0I4SJRMXYiG0o0TJxIVYCO0oUTJxIRZCO0qUTFyIhdCOEiUTF2IhtKNEycSFWAjtKFEycSEWQjtKlExciIXQjhIlExdiIbSjRMnEhVgI7ShRMnEhFkI7SpRMXIihdCOEiUTFyIhtKNEycSFWAjtKFEycSEWQjtKlExciIXQjhIlEx8L6hy4B/Z064p/a7J9w5HNtIXPQc20hrQxQMrEQERERWX45X3mFX7Fsubh8AAAAAElFTkSuQmCC" />
-                            </defs>
-                        </svg>
-                        Informasi Volume dan Pengambilan
-                    </h3>
-                    <!-- Volume -->
-                    <div>
-                        <label class="mb-1 block font-semibold">Volume/Berat Sampel</label>
-                        <div class="relative">
-                            <!-- SVG Icon -->
-                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                <svg width="21" height="21" viewBox="0 0 21 21" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                                    <rect width="21" height="21" fill="url(#pattern0_1393_1242)" />
-                                    <defs />
-                                    <pattern id="pattern0_1393_1242" patternContentUnits="objectBoundingBox" width="1"
-                                        height="1">
-                                        <use xlink:href="#image0_1393_1242" transform="scale(0.01)" />
-                                    </pattern>
-                                    <image id="image0_1393_1242" width="100" height="100" preserveAspectRatio="none"
-                                        xlink:href="data:image/png;base64,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" />
-                                </svg>
-                            </span>
-                            <input type="number" step="0.1" min="0" v-model.number="form.volume_sampel" :class="[
-                                    'w-full rounded border px-3 py-2 pl-10',
-                                    validationErrors.volume_sampel ? 'border-red-500' : 'border-gray-300',
-                                    !selectedJenisCairan ? 'cursor-not-allowed bg-gray-100' : '',
-                                ]" :placeholder="volumePlaceholder" :disabled="!selectedJenisCairan" required />
-                        </div>
-                        <div v-if="validationErrors.volume_sampel" class="mt-1 text-sm text-red-600">
-                            {{ validationErrors.volume_sampel }}
-                        </div>
-                        <div v-else-if="selectedJenisCairan" class="mt-1 text-xs text-gray-500">
-                            Minimum: {{ selectedJenisCairan.batas_minimum }} ml
-                            <span v-if="selectedJenisCairan.batas_maksimum"> | Maksimum: {{
-                                selectedJenisCairan.batas_maksimum }} ml </span>
-                        </div>
-                    </div>
-                    <!-- Instansi -->
-                    <div>
-                        <label class="mb-1 block font-semibold">Instansi</label>
-                        <select v-model="form.id_instansi"
-                            :class="['w-full rounded border px-3 py-2', validationErrors.id_instansi ? 'border-red-500' : 'border-gray-300']"
-                            required>
-                            <option value="">Pilih Instansi</option>
-                            <option v-for="ins in instansiList" :key="ins.id" :value="ins.id">{{ ins.nama }}</option>
-                        </select>
-                        <div v-if="validationErrors.id_instansi" class="mt-1 text-sm text-red-600">
-                            {{ validationErrors.id_instansi }}
-                        </div>
-                    </div>
-                    <!-- Metode Pengambilan -->
-                    <div>
-                        <label class="mb-1 block font-semibold">Metode Pengambilan</label>
-                        <div class="flex gap-2">
-                            <button type="button" :class="[
-                                    'flex-1 rounded border px-3 py-2 font-semibold transition',
-                                    form.metode_pengambilan === 'diantar'
-                                        ? 'border-customdarkbg-customDarkGreen bg-customDarkGreen text-white'
-                                        : 'border-gray-300 bg-white text-customDarkGreen hover:bg-customLightGreen',
-                                    validationErrors.metode_pengambilan ? 'border-red-500' : '',
-                                ]" @click="form.metode_pengambilan = 'diantar'">
-                                Diantar
-                            </button>
-                            <button type="button" :class="[
-                                    'flex-1 rounded border px-3 py-2 font-semibold transition',
-                                    form.metode_pengambilan === 'diambil'
-                                        ? 'border-customDarkGreen bg-customDarkGreen text-white'
-                                        : 'border-gray-300 bg-white text-customDarkGreen hover:bg-customLightGreen',
-                                    validationErrors.metode_pengambilan ? 'border-red-500' : '',
-                                ]" @click="form.metode_pengambilan = 'diambil'">
-                                Diambil
-                            </button>
-                        </div>
-                        <div v-if="validationErrors.metode_pengambilan" class="mt-1 text-sm text-red-600">
-                            {{ validationErrors.metode_pengambilan }}
-                        </div>
-                    </div>
-                    <!-- Lokasi Pengambilan (jika diambil) -->
-                    <div v-if="form.metode_pengambilan === 'diambil'" class="md:col-span-2 lg:col-span-1">
-                        <label class="mb-1 block font-semibold">Lokasi Pengambilan</label>
-                        <input type="text" v-model="form.lokasi"
-                            :class="['w-full rounded border px-3 py-2', validationErrors.lokasi ? 'border-red-500' : 'border-gray-300']"
-                            placeholder="Masukkan lokasi pengambilan sampel" required />
-                        <div v-if="validationErrors.lokasi" class="mt-1 text-sm text-red-600">
-                            {{ validationErrors.lokasi }}
-                        </div>
-                    </div>
-
-                    <div v-if="form.metode_pengambilan === 'diantar'"
-                        class="mt-2 rounded-lg border border-orange-300 bg-yellow-50 p-3 text-orange-700">
-                        <div class="font-semibold">Perhatian untuk Pengantaran Sampel</div>
-                        <div>
-                            Karena Anda memilih metode <b>"Diantar"</b>, sampel harus menggunakan wadah sejenis gelas
-                            untuk
-                            memastikan akurasi hasil uji dan mencegah kontaminasi.
-                        </div>
-                    </div>
-
-                    <div v-if="form.metode_pengambilan === 'diantar'"
-                        class="rounded-lg border border-gray-300 bg-white p-3">
-                        <div class="font-semibold mb-1">Persyaratan Wadah</div>
-                        <ul class="list-disc pl-5 text-sm text-gray-800">
-                            <li>Wadah harus dari bahan kaca/gelas</li>
-                            <li>Bersih dan steril (jika memungkinkan)</li>
-                            <li>Tutup rapat untuk mencegah kontaminasi</li>
-                            <li>Tidak retak atau rusak</li>
-                            <li>Kapasitas minimal sesuai volume sampel</li>
-                        </ul>
-                    </div>
-
-                    <!-- Waktu Pengambilan (jika diantar) -->
-                    <div v-if="form.metode_pengambilan === 'diantar'" class="md:col-span-2 lg:col-span-1">
-                        <label class="mb-1 block font-semibold">Jadwal Pengantaran</label>
-                        <input type="date" v-model="form.waktu_pengambilan"
-                            :class="['w-full rounded border px-3 py-2', validationErrors.waktu_pengambilan ? 'border-red-500' : 'border-gray-300']"
-                            :min="new Date().toISOString().split('T')[0]" required />
-                        <div v-if="validationErrors.waktu_pengambilan" class="mt-1 text-sm text-red-600">
-                            {{ validationErrors.waktu_pengambilan }}
-                        </div>
-                        <div v-else class="mt-1 text-xs text-gray-500">
-                            Pilih tanggal mulai dari hari ini ({{
-                            new Date().toLocaleDateString('id-ID', {
-                            weekday: 'long',
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            })
-                            }})
-                        </div>
-                    </div>
-                    <!-- Keterangan (jika diantar) -->
-                    <div v-if="form.metode_pengambilan === 'diantar'" class="md:col-span-2 lg:col-span-1">
-                        <label class="mb-1 block font-semibold">Keterangan</label>
-                        <textarea v-model="form.keterangan"
-                            :class="['w-full rounded border px-3 py-2', validationErrors.keterangan ? 'border-red-500' : 'border-gray-300']"
-                            placeholder="Masukkan keterangan tambahan (opsional)" rows="3"></textarea>
-                        <div v-if="validationErrors.keterangan" class="mt-1 text-sm text-red-600">
-                            {{ validationErrors.keterangan }}
-                        </div>
-                        <div class="mt-1 text-xs text-gray-500">Keterangan tambahan mengenai pengambilan sampel
-                            (opsional)</div>
-                    </div>
-                </div>
-            </div>
-            <button type="submit" class="rounded bg-blue-600 px-4 py-2 text-white">Lanjut</button>
-        </form>
-
-        <!-- Step 2: Kategori & Parameter -->
-        <form v-else-if="step === 2" @submit.prevent="nextStep" class="space-y-6">
-            <div class="space-y-4 rounded-lg border border-gray-300 bg-gray-100 p-6 shadow-sm">
-                <!-- Kategori -->
+        <div class="max-w-4xl mx-auto space-y-6">
+            <!-- Header Halaman -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-slate-200 dark:border-slate-800">
                 <div>
-                    <label class="mb-1 flex items-center gap-2 text-xl font-semibold text-customDarkGreen">
-                        <!-- SVG Icon -->
-                        <svg width="33" height="30" viewBox="0 0 33 30" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            xmlns:xlink="http://www.w3.org/1999/xlink">
-                            <rect width="33" height="30" fill="url(#pattern0_1392_980)" />
-                            <defs />
-                            <pattern id="pattern0_1392_980" patternContentUnits="objectBoundingBox" width="1"
-                                height="1">
-                                <use xlink:href="#image0_1392_980"
-                                    transform="matrix(0.00909091 0 0 0.01 0.0454545 0)" />
-                            </pattern>
-                            <image id="image0_1392_980" width="100" height="100" preserveAspectRatio="none"
-                                xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAAE0UlEQVR4nO2dXWhcRRiGj1dSUO8Keq13hbM2W7ZkIYlNmuRkz3f2zF5sS7G9shYRf6r1BwuJbWkikuJugmiKWoPWv607YxCSemFF2ysNRUEsFfW24GUFqVU7MqcpxM0mu9vdOd/snO+FF/YiOXvmfebnm9mLcRwSiUQikUgkEolEIpFICVCwEGwBwU7a6GAh2OJ0k7xF704Q4fcgmLTRPmc/FivFTU63CDibxQ4NdEMR4YzTDfJFOAqc3cAODHSbsxsBZ+CYLK9S3AwivPK/nlQN5UNv7bTCfjWsARP+nqsU73WMlHTu8EX4eW1Pys70S3e8xwpnZ/vrjZSzqu2OacqJ8Mnalx2cH0EP0e2wB98dWbuecPaEY5JUGeiL8M/VLzlWCeSDR7ehB+h22KpN3idB7Si5FiwErmNqieuLUGams+jhuZqceTUbtdHIUrheids/N4QemqvZA3ND5pXC9Urc0Y98mZpIowfmanbq5bQc+cA3pxSuW+LyUKantqOH5cbk9OR2Q0rh9UrcWXtKXLdJZ2cG8EthqBaeqn2JoXlPuhP4AbkIVuV9bR5qG4BY4ubl1mP2lbhuC6WwKvNrS2G/WkhpB+KL8Ijuc6KBGKq0gZOD2s+7VFZWANnxjv4d/uCptdMMAVknhOH3x7QDGT49RkCa7oGcaT122Xp0W/QdNEJamBZ6S33agPSW+7TDsGoNAbXj/9DXU0ZP9ESnCQTEkFHSW67zmwaNkOZCyH2al+njmY7B6DmekbkzeQLS7tSVOtL+Aq+eoZ4V1+iwbg2BVfY+9mV6MtPWyIgbhtVAQB3PnMlHa0pqvIWj/YmbFZWa+jDe2WogsGLV07PlvmgvsR4ItYdRfxNXNZVoIHDLnEW77R2nhqNfKJXV55HTuVg2fQRE4AdMQAR+qARE4AdJQAwIDwgIfmBAQPBDAgKCHwwQkO7wnqXd8vDyAW3PT9bGULTn3Yu75NLVKfmdLMljPzxOQPBhTMplWY6sCwqNENE6DJ1QCIhovGZ88ccra2CshjJ+8TECgjFNLdfx19em5SNfPkxAbIQBNGWxNmHs7XhHoDVE1FszpjaE8c1femBYByQQBfnmb8/L6UtPa5umzl+flge+2qetDdYACVZg3AquVSgmwLAGSCAK8o1fX1gTYLNQTIFhBZBgHRjNQjEJhhVAXvz20Q3DjKD8dLDu/+5Z2iXPXm28gO8/p2cBt3aEvP7Lcw2hnLh00OiRYQ0QuA0opsKwBgi0AGXm50MNp6nzMU9TVgKBFZcvP9sQiokjw1og0AYUbBjWAoHbgGICDKuBgGCy1CSUC9dPGAHDeiDQBBSTYCQCCGwAxTQYiQECgsnXLj9jPIxEAYFVUEyFkTggIFi0W99/zkwYiQQChpuACHwIBETgB09ABH7YBETgB0xABH6oBETgB0lADAgPCAh+YEBA8EMCAoIfDBAQ/DAgQUcnh7EbCl1in7OXtAMBEe7Dbih0iXOc7dUOZLRauM8X4T/YjQXTzdnfsd0j4nP2NnqDhdn2OZtz4lL+s/zdNt91C+3DuFisFO9y4pS36N3jc/ZeIq5ZFU2CEOG/IMJ51WEdLAULwQPRpZKclbCv1QYsc1ZSl0t6nN2PBoJEIpFIJBKJRCKRSCSS03n9B+yy/yvpNyiBAAAAAElFTkSuQmCC" />
-                        </svg>
-                        Pilih Kategori Pengujian
-                    </label>
-                    <select v-model="form.id_kategori"
-                        :class="['w-full rounded border px-3 py-2', validationErrors.id_kategori ? 'border-red-500' : 'border-gray-300']"
-                        required>
-                        <option value="">Pilih Kategori</option>
-                        <option v-for="kat in kategori" :key="kat.id" :value="kat.id">{{ kat.nama }}</option>
-                    </select>
-                    <div v-if="validationErrors.id_kategori" class="mt-1 text-sm text-red-600">
-                        {{ validationErrors.id_kategori }}
-                    </div>
-                </div>
-                <!-- Parameter -->
-                <div>
-                    <label class="mb-1 block text-xl font-semibold text-customDarkGreen">Pilih Parameter</label>
-                    <div :class="[
-                            'grid grid-cols-1 gap-2 rounded border p-3 text-sm sm:grid-cols-2',
-                            validationErrors.parameter ? 'border-red-500 bg-red-50' : 'border-gray-200',
-                        ]">
-                        <div v-for="param in semuaParameter" :key="param.id"
-                            class="flex items-center rounded p-2 transition hover:bg-blue-50">
-                            <input type="checkbox" :value="param.id" v-model="form.parameter"
-                                :disabled="form.id_kategori ? !parameterIsInKategori(param.id) : false" class="mr-2" />
-                            <span :class="{
-                                    'text-gray-400': form.id_kategori && !parameterIsInKategori(param.id),
-                                }">
-                                {{ param.nama_parameter }}
-                                <span v-if="form.id_kategori && !parameterIsInKategori(param.id)"> (tidak termasuk
-                                    kategori) </span>
-                            </span>
-                        </div>
-                    </div>
-                    <div v-if="validationErrors.parameter" class="mt-1 text-sm text-red-600">
-                        {{ validationErrors.parameter }}
-                    </div>
-                </div>
-            </div>
-            <!-- Ringkasan Pengujian dan Harga -->
-            <div>
-                <div
-                    class="flex items-center gap-2 rounded-t-lg bg-green-700 px-4 py-2 text-base font-semibold text-white">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M7.5 20C8.32843 20 9 19.3284 9 18.5C9 17.6716 8.32843 17 7.5 17C6.67157 17 6 17.6716 6 18.5C6 19.3284 6.67157 20 7.5 20Z"
-                            fill="white" />
-                        <path
-                            d="M16.5 20C17.3284 20 18 19.3284 18 18.5C18 17.6716 17.3284 17 16.5 17C15.6716 17 15 17.6716 15 18.5C15 19.3284 15.6716 20 16.5 20Z"
-                            fill="white" />
-                        <path d="M3 5H5L5.6 8M5.6 8L7 15H17L19 8H5.6Z" fill="white" />
-                        <path d="M3 5H5L5.6 8M5.6 8L7 15H17L19 8H5.6Z" stroke="white" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    Ringkasan Pengujian
-                </div>
-                <table
-                    class="w-full border-separate border-spacing-0 overflow-hidden rounded-b-lg border border-green-700">
-                    <thead>
-                        <tr>
-                            <th
-                                class="w-1/3 border-b border-green-700 bg-green-100 px-4 py-3 text-center font-semibold">
-                                Nama Parameter</th>
-                            <th
-                                class="w-1/3 border-b border-green-700 bg-green-100 px-4 py-3 text-center font-semibold">
-                                Harga</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="param in semuaParameter.filter((p) => form.parameter.includes(p.id))" :key="param.id"
-                            class="transition hover:bg-green-50">
-                            <td class="border-green-2000 border-b px-4 py-3 text-left">
-                                {{ param.nama_parameter }}
-                            </td>
-                            <td class="border-b border-green-200 px-4 py-3 text-right">Rp {{
-                                param.harga?.toLocaleString('id-ID') || '0' }}</td>
-                        </tr>
-                        <tr v-if="form.parameter.length === 0">
-                            <td colspan="2" class="border-b border-green-200 py-4 text-center text-gray-400">Belum ada
-                                parameter dipilih</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div
-                    class="mt-2 flex flex-col rounded-lg border border-gray-300 bg-gray-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-                    <span class="text-sm text-gray-600">Jumlah Parameter:<br /><b>{{ form.parameter.length }}
-                            item</b></span>
-                    <span class="mt-2 text-lg font-semibold text-gray-700 sm:mt-0">
-                        Biaya:<br />
-                        <span class="text-2xl font-bold text-green-700">
-                            Rp
-                            {{
-                            semuaParameter
-                            .filter((p) => form.parameter.includes(p.id))
-                            .reduce((sum, p) => sum + (p.harga || 0), 0)
-                            .toLocaleString('id-ID')
-                            }}
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300">
+                            Pendaftaran Sampel
                         </span>
-                    </span>
+                    </div>
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mt-1">
+                        Formulir Pengajuan Sampel Laboratorium
+                    </h1>
+                    <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-0.5">
+                        Lengkapi informasi sampel, metode pengambilan, dan parameter uji lingkungan yang dibutuhkan.
+                    </p>
                 </div>
             </div>
-            <div class="flex gap-2">
-                <button type="button" @click="prevStep" class="rounded bg-gray-300 px-4 py-2">Kembali</button>
-                <button type="submit" class="rounded bg-blue-600 px-4 py-2 text-white">Lanjut</button>
-            </div>
-        </form>
 
-        <!-- Step 3: Periksa & Serahkan -->
-        <form v-else-if="step === 3" @submit.prevent="submit" class="space-y-4">
-            <div class="pt-4">
-                <h2 class="mb-4 flex items-center gap-2 text-lg font-bold text-customDarkGreen">
-                    <svg width="28" height="28" fill="none" viewBox="0 0 24 24">
-                        <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="#059669" />
-                    </svg>
-                    Periksa Data Pengajuan
-                </h2>
-                <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-                    <table class="mb-4 w-full">
-                        <tbody>
-                            <tr>
-                                <td class="w-1/3 py-2 pr-4 font-semibold text-gray-600">Jenis Cairan</td>
-                                <td class="py-2 text-gray-800">{{ getNamaJenisCairan() }}</td>
-                            </tr>
-                            <tr>
-                                <td class="py-2 pr-4 font-semibold text-gray-600">Volume/Berat Sampel</td>
-                                <td class="py-2 text-gray-800">{{ form.volume_sampel }}</td>
-                            </tr>
-                            <tr>
-                                <td class="py-2 pr-4 font-semibold text-gray-600">Instansi</td>
-                                <td class="py-2 text-gray-800">{{ getNamaInstansi() }}</td>
-                            </tr>
-                            <tr>
-                                <td class="py-2 pr-4 font-semibold text-gray-600">Metode Pengambilan</td>
-                                <td class="py-2 text-gray-800">{{ form.metode_pengambilan }}</td>
-                            </tr>
-                            <tr v-if="form.metode_pengambilan === 'diambil'">
-                                <td class="py-2 pr-4 font-semibold text-gray-600">Lokasi Pengambilan</td>
-                                <td class="py-2 text-gray-800">{{ form.lokasi }}</td>
-                            </tr>
-                            <tr v-if="form.metode_pengambilan === 'diantar'">
-                                <td class="py-2 pr-4 font-semibold text-gray-600">Waktu Pengambilan</td>
-                                <td class="py-2 text-gray-800">{{ form.waktu_pengambilan }}</td>
-                            </tr>
-                            <tr>
-                                <td class="py-2 pr-4 font-semibold text-gray-600">Kategori</td>
-                                <td class="py-2 text-gray-800">{{ getNamaKategori() }}</td>
-                            </tr>
-                            <tr>
-                                <td class="py-2 pr-4 align-top font-semibold text-gray-600">Parameter</td>
-                                <td class="py-2 text-gray-800">
-                                    <ul class="ml-5 list-disc">
-                                        <li v-for="param in semuaParameter.filter((p) => form.parameter.includes(p.id))"
-                                            :key="param.id">
-                                            {{ param.nama_parameter }}
-                                            <span class="ml-2 text-gray-500">Rp {{ param.harga?.toLocaleString('id-ID')
-                                                || '0' }}</span>
-                                        </li>
-                                    </ul>
-                                    <div v-if="form.parameter.length === 0" class="text-gray-400">Belum ada parameter
-                                        dipilih</div>
-                                </td>
-                            </tr>
-                            <tr v-if="form.keterangan">
-                                <td class="py-2 pr-4 font-semibold text-gray-600">Keterangan</td>
-                                <td class="py-2 text-gray-800">{{ form.keterangan }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <!-- Pesan Error Flash -->
+            <v-alert
+                v-if="page.props.errors && Object.keys(page.props.errors).length > 0"
+                type="error"
+                variant="tonal"
+                rounded="lg"
+                class="mb-4"
+            >
+                <div class="font-semibold text-sm">Terdapat kesalahan pengisian formulir:</div>
+                <ul class="list-disc pl-5 text-xs mt-1">
+                    <li v-for="(err, key) in page.props.errors" :key="key">{{ err }}</li>
+                </ul>
+            </v-alert>
+
+            <!-- Stepper Progres Langkah Modern -->
+            <div class="grid grid-cols-3 gap-2 sm:gap-4">
+                <div
+                    class="flex items-center gap-3 p-3 rounded-xl border transition-all"
+                    :class="[
+                        step === 1
+                            ? 'border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 font-bold shadow-sm'
+                            : step > 1
+                                ? 'border-emerald-200 dark:border-emerald-900 bg-slate-50 dark:bg-slate-900 text-emerald-700 dark:text-emerald-400'
+                                : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-slate-400 dark:text-slate-500'
+                    ]"
+                >
                     <div
-                        class="flex flex-col rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-                        <span class="text-sm text-gray-600">Jumlah Parameter: <b>{{ form.parameter.length }}
-                                item</b></span>
-                        <span class="mt-2 text-lg font-semibold text-gray-700 sm:mt-0">
-                            Total Biaya:
-                            <span class="ml-2 text-2xl font-bold text-green-700">
-                                Rp
+                        class="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-extrabold shrink-0"
+                        :class="[
+                            step > 1
+                                ? 'bg-emerald-600 text-white'
+                                : step === 1
+                                    ? 'bg-emerald-700 text-white'
+                                    : 'bg-slate-200 dark:bg-slate-800 text-slate-500'
+                        ]"
+                    >
+                        <v-icon v-if="step > 1" icon="mdi-check" size="16" />
+                        <span v-else>1</span>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-xs uppercase tracking-wider font-semibold opacity-80">Langkah 1</p>
+                        <p class="text-xs sm:text-sm truncate">Detail Sampel</p>
+                    </div>
+                </div>
+
+                <div
+                    class="flex items-center gap-3 p-3 rounded-xl border transition-all"
+                    :class="[
+                        step === 2
+                            ? 'border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 font-bold shadow-sm'
+                            : step > 2
+                                ? 'border-emerald-200 dark:border-emerald-900 bg-slate-50 dark:bg-slate-900 text-emerald-700 dark:text-emerald-400'
+                                : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-slate-400 dark:text-slate-500'
+                    ]"
+                >
+                    <div
+                        class="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-extrabold shrink-0"
+                        :class="[
+                            step > 2
+                                ? 'bg-emerald-600 text-white'
+                                : step === 2
+                                    ? 'bg-emerald-700 text-white'
+                                    : 'bg-slate-200 dark:bg-slate-800 text-slate-500'
+                        ]"
+                    >
+                        <v-icon v-if="step > 2" icon="mdi-check" size="16" />
+                        <span v-else>2</span>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-xs uppercase tracking-wider font-semibold opacity-80">Langkah 2</p>
+                        <p class="text-xs sm:text-sm truncate">Parameter Uji</p>
+                    </div>
+                </div>
+
+                <div
+                    class="flex items-center gap-3 p-3 rounded-xl border transition-all"
+                    :class="[
+                        step === 3
+                            ? 'border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 font-bold shadow-sm'
+                            : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-slate-400 dark:text-slate-500'
+                    ]"
+                >
+                    <div
+                        class="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-extrabold shrink-0"
+                        :class="[
+                            step === 3
+                                ? 'bg-emerald-700 text-white'
+                                : 'bg-slate-200 dark:bg-slate-800 text-slate-500'
+                        ]"
+                    >
+                        <span>3</span>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-xs uppercase tracking-wider font-semibold opacity-80">Langkah 3</p>
+                        <p class="text-xs sm:text-sm truncate">Review & Kirim</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 1: Informasi Dasar Sampel -->
+            <form v-if="step === 1" @submit.prevent="nextStep" class="space-y-6">
+                <v-card variant="outlined" rounded="xl" class="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+                    <div class="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800 text-slate-900 dark:text-slate-100">
+                        <v-icon icon="mdi-flask-outline" color="primary" />
+                        <h2 class="text-base font-bold">1. Pilihan Jenis Sampel / Cairan</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                        <div
+                            v-for="jenis in jenisCairan"
+                            :key="jenis.id"
+                            @click="form.id_jenis_cairan = jenis.id"
+                            class="cursor-pointer rounded-xl border p-4 transition-all"
+                            :class="[
+                                form.id_jenis_cairan === jenis.id
+                                    ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-100 shadow-sm ring-2 ring-emerald-500'
+                                    : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 text-slate-800 dark:text-slate-200 hover:border-emerald-400'
+                            ]"
+                        >
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="font-bold text-base">{{ jenis.nama }}</span>
+                                <v-icon v-if="form.id_jenis_cairan === jenis.id" icon="mdi-check-circle" color="primary" size="20" />
+                            </div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400 space-y-0.5">
+                                <div>Batas Min: <span class="font-semibold text-slate-700 dark:text-slate-300">{{ jenis.batas_minimum }} ml</span></div>
+                                <div>Batas Maks: <span class="font-semibold text-slate-700 dark:text-slate-300">{{ jenis.batas_maksimum ?? 'Tidak terbatas' }}</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <p v-if="validationErrors.id_jenis_cairan" class="text-xs text-rose-600 dark:text-rose-400 font-medium mt-2">
+                        {{ validationErrors.id_jenis_cairan }}
+                    </p>
+                </v-card>
+
+                <v-card variant="outlined" rounded="xl" class="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+                    <div class="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800 text-slate-900 dark:text-slate-100">
+                        <v-icon icon="mdi-office-building-cog-outline" color="primary" />
+                        <h2 class="text-base font-bold">2. Parameter Volume, Instansi, & Pengambilan</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Volume Sampel -->
+                        <div>
+                            <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                                Volume Sampel (ml) <span class="text-rose-500">*</span>
+                            </label>
+                            <input
+                                type="number"
+                                step="0.1"
+                                min="0"
+                                v-model.number="form.volume_sampel"
+                                :disabled="!selectedJenisCairan"
+                                :placeholder="volumePlaceholder"
+                                class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50"
+                                :class="[validationErrors.volume_sampel ? 'border-rose-500' : 'border-slate-300 dark:border-slate-700']"
+                            />
+                            <p v-if="validationErrors.volume_sampel" class="text-xs text-rose-600 dark:text-rose-400 mt-1 font-medium">
+                                {{ validationErrors.volume_sampel }}
+                            </p>
+                            <p v-else-if="selectedJenisCairan" class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                Batas: {{ selectedJenisCairan.batas_minimum }} ml {{ selectedJenisCairan.batas_maksimum ? '- ' + selectedJenisCairan.batas_maksimum + ' ml' : '' }}
+                            </p>
+                        </div>
+
+                        <!-- Pilihan Instansi -->
+                        <div>
+                            <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                                Instansi Terdaftar <span class="text-rose-500">*</span>
+                            </label>
+                            <select
+                                v-model="form.id_instansi"
+                                class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                :class="[validationErrors.id_instansi ? 'border-rose-500' : 'border-slate-300 dark:border-slate-700']"
+                            >
+                                <option value="">-- Pilih Instansi --</option>
+                                <option v-for="ins in instansiList" :key="ins.id" :value="ins.id">{{ ins.nama }}</option>
+                            </select>
+                            <p v-if="validationErrors.id_instansi" class="text-xs text-rose-600 dark:text-rose-400 mt-1 font-medium">
+                                {{ validationErrors.id_instansi }}
+                            </p>
+                        </div>
+
+                        <!-- Metode Pengambilan -->
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs font-semibold mb-2 text-slate-700 dark:text-slate-300">
+                                Metode Pengantaran / Pengambilan Sampel <span class="text-rose-500">*</span>
+                            </label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div
+                                    @click="form.metode_pengambilan = 'diantar'"
+                                    class="cursor-pointer rounded-xl border p-3.5 transition-all flex items-center gap-3"
+                                    :class="[
+                                        form.metode_pengambilan === 'diantar'
+                                            ? 'border-emerald-600 bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-100 ring-2 ring-emerald-500 font-semibold'
+                                            : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-850 text-slate-700 dark:text-slate-300 hover:border-emerald-400'
+                                    ]"
+                                >
+                                    <v-icon icon="mdi-truck-delivery-outline" color="primary" />
+                                    <div>
+                                        <p class="text-sm font-bold">Diantar oleh Pemohon</p>
+                                        <p class="text-xs opacity-75">Anda membawa langsung sampel ke Laboratorium DLH</p>
+                                    </div>
+                                </div>
+
+                                <div
+                                    @click="form.metode_pengambilan = 'diambil'"
+                                    class="cursor-pointer rounded-xl border p-3.5 transition-all flex items-center gap-3"
+                                    :class="[
+                                        form.metode_pengambilan === 'diambil'
+                                            ? 'border-emerald-600 bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-100 ring-2 ring-emerald-500 font-semibold'
+                                            : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-850 text-slate-700 dark:text-slate-300 hover:border-emerald-400'
+                                    ]"
+                                >
+                                    <v-icon icon="mdi-car-pickup" color="primary" />
+                                    <div>
+                                        <p class="text-sm font-bold">Diambil oleh Petugas PPCU</p>
+                                        <p class="text-xs opacity-75">Tim petugas pengambil sampel DLH datang ke lokasi Anda</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <p v-if="validationErrors.metode_pengambilan" class="text-xs text-rose-600 dark:text-rose-400 mt-1 font-medium">
+                                {{ validationErrors.metode_pengambilan }}
+                            </p>
+                        </div>
+
+                        <!-- Lokasi Penjemputan jika diambil -->
+                        <div v-if="form.metode_pengambilan === 'diambil'" class="sm:col-span-2">
+                            <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                                Alamat Lokasi Pengambilan Sampel <span class="text-rose-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                v-model="form.lokasi"
+                                placeholder="Masukkan alamat lengkap lokasi pengambilan sampel"
+                                class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                :class="[validationErrors.lokasi ? 'border-rose-500' : 'border-slate-300 dark:border-slate-700']"
+                            />
+                            <p v-if="validationErrors.lokasi" class="text-xs text-rose-600 dark:text-rose-400 mt-1 font-medium">
+                                {{ validationErrors.lokasi }}
+                            </p>
+                        </div>
+
+                        <!-- Jadwal & Syarat Pengantaran jika diantar -->
+                        <div v-if="form.metode_pengambilan === 'diantar'" class="sm:col-span-2 space-y-3">
+                            <v-alert
+                                type="info"
+                                variant="tonal"
+                                rounded="lg"
+                                density="compact"
+                                class="text-xs"
+                            >
+                                <span class="font-bold">Persyaratan Wadah Sampel Diantar:</span>
+                                Wajib menggunakan wadah kaca/gelas bersih steril bertutup rapat guna mencegah kontaminasi dan menjamin validitas hasil pengujian.
+                            </v-alert>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                                        Rencana Tanggal Pengantaran <span class="text-rose-500">*</span>
+                                    </label>
+                                    <input
+                                        type="date"
+                                        v-model="form.waktu_pengambilan"
+                                        :min="new Date().toISOString().split('T')[0]"
+                                        class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                        :class="[validationErrors.waktu_pengambilan ? 'border-rose-500' : 'border-slate-300 dark:border-slate-700']"
+                                    />
+                                    <p v-if="validationErrors.waktu_pengambilan" class="text-xs text-rose-600 dark:text-rose-400 mt-1 font-medium">
+                                        {{ validationErrors.waktu_pengambilan }}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                                        Lokasi Penerimaan Laboratorium
+                                    </label>
+                                    <input
+                                        type="text"
+                                        :value="form.lokasi"
+                                        readonly
+                                        class="w-full rounded-lg border px-3 py-2 text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-700"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                                    Catatan / Keterangan Tambahan (Opsional)
+                                </label>
+                                <textarea
+                                    v-model="form.keterangan"
+                                    rows="2"
+                                    placeholder="Informasi kondisi sampel, waktu pengambilan di titik sumber, dll."
+                                    class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 border-slate-300 dark:border-slate-700"
+                                ></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </v-card>
+
+                <div class="flex justify-end">
+                    <v-btn
+                        type="submit"
+                        color="primary"
+                        rounded="lg"
+                        append-icon="mdi-arrow-right"
+                        class="px-6 font-semibold"
+                    >
+                        Lanjut ke Parameter Uji
+                    </v-btn>
+                </div>
+            </form>
+
+            <!-- Step 2: Kategori & Parameter Pengujian -->
+            <form v-else-if="step === 2" @submit.prevent="nextStep" class="space-y-6">
+                <v-card variant="outlined" rounded="xl" class="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+                    <div class="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800 text-slate-900 dark:text-slate-100">
+                        <v-icon icon="mdi-tag-outline" color="primary" />
+                        <h2 class="text-base font-bold">1. Pilih Kategori Baku Mutu</h2>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                            Kategori Sampel Lingkungan <span class="text-rose-500">*</span>
+                        </label>
+                        <select
+                            v-model="form.id_kategori"
+                            class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                            :class="[validationErrors.id_kategori ? 'border-rose-500' : 'border-slate-300 dark:border-slate-700']"
+                        >
+                            <option :value="null">-- Pilih Kategori --</option>
+                            <option v-for="kat in kategori" :key="kat.id" :value="kat.id">{{ kat.nama }}</option>
+                        </select>
+                        <p v-if="validationErrors.id_kategori" class="text-xs text-rose-600 dark:text-rose-400 mt-1 font-medium">
+                            {{ validationErrors.id_kategori }}
+                        </p>
+                    </div>
+                </v-card>
+
+                <v-card variant="outlined" rounded="xl" class="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+                    <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 dark:border-slate-800 text-slate-900 dark:text-slate-100">
+                        <div class="flex items-center gap-2">
+                            <v-icon icon="mdi-checkbox-marked-circle-outline" color="primary" />
+                            <h2 class="text-base font-bold">2. Parameter Uji yang Diinginkan</h2>
+                        </div>
+                        <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+                            {{ form.parameter.length }} parameter terpilih
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 max-h-[380px] overflow-y-auto p-1">
+                        <label
+                            v-for="param in semuaParameter"
+                            :key="param.id"
+                            class="flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all text-xs"
+                            :class="[
+                                form.parameter.includes(param.id)
+                                    ? 'border-emerald-600 bg-emerald-50/60 dark:bg-emerald-950/30 text-emerald-950 dark:text-emerald-100 font-medium ring-1 ring-emerald-500'
+                                    : 'border-slate-200 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-800/40 text-slate-700 dark:text-slate-300 hover:border-emerald-300'
+                            ]"
+                        >
+                            <input
+                                type="checkbox"
+                                :value="param.id"
+                                v-model="form.parameter"
+                                :disabled="form.id_kategori ? !parameterIsInKategori(param.id) : false"
+                                class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 mt-0.5"
+                            />
+                            <div class="flex-1 min-w-0">
+                                <p class="truncate font-semibold">{{ param.nama_parameter }}</p>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                    {{ formatRupiah(param.harga || 0) }}
+                                </p>
+                            </div>
+                        </label>
+                    </div>
+                    <p v-if="validationErrors.parameter" class="text-xs text-rose-600 dark:text-rose-400 mt-2 font-medium">
+                        {{ validationErrors.parameter }}
+                    </p>
+                </v-card>
+
+                <!-- Ringkasan Biaya Estimasi -->
+                <v-card variant="outlined" rounded="xl" class="border-emerald-200 dark:border-emerald-900 bg-emerald-50/40 dark:bg-emerald-950/20 p-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div>
+                            <span class="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400">Estimasi Total Retribusi</span>
+                            <p class="text-xs text-slate-600 dark:text-slate-400">Total dihitung dari akumulasi tarif parameter yang dipilih</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-2xl font-black text-emerald-800 dark:text-emerald-300">
                                 {{
-                                semuaParameter
-                                .filter((p) => form.parameter.includes(p.id))
-                                .reduce((sum, p) => sum + (p.harga || 0), 0)
-                                .toLocaleString('id-ID')
+                                    formatRupiah(
+                                        semuaParameter
+                                            .filter((p) => form.parameter.includes(p.id))
+                                            .reduce((sum, p) => sum + (p.harga || 0), 0)
+                                    )
                                 }}
                             </span>
-                        </span>
+                        </div>
                     </div>
+                </v-card>
+
+                <div class="flex items-center justify-between">
+                    <v-btn
+                        variant="outlined"
+                        rounded="lg"
+                        prepend-icon="mdi-arrow-left"
+                        @click="prevStep"
+                        class="px-5 font-semibold"
+                    >
+                        Kembali
+                    </v-btn>
+                    <v-btn
+                        type="submit"
+                        color="primary"
+                        rounded="lg"
+                        append-icon="mdi-arrow-right"
+                        class="px-6 font-semibold"
+                    >
+                        Review Data Pengajuan
+                    </v-btn>
                 </div>
-            </div>
-            <div class="flex gap-2">
-                <button type="button" @click="prevStep" class="rounded bg-gray-300 px-4 py-2">Kembali</button>
-                <button type="submit" class="rounded bg-blue-600 px-4 py-2 text-white">Kirim Pengajuan</button>
-            </div>
-        </form>
+            </form>
+
+            <!-- Step 3: Periksa & Serahkan -->
+            <form v-else-if="step === 3" @submit.prevent="submit" class="space-y-6">
+                <v-card variant="outlined" rounded="xl" class="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-4">
+                    <div class="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800 text-slate-900 dark:text-slate-100">
+                        <v-icon icon="mdi-clipboard-check-outline" color="primary" />
+                        <h2 class="text-base font-bold">Ringkasan Data Pengajuan Sampel</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                        <div class="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                            <span class="text-slate-400 dark:text-slate-500 uppercase tracking-wider font-semibold">Jenis Cairan</span>
+                            <p class="text-sm font-bold text-slate-900 dark:text-slate-100 mt-0.5">{{ getNamaJenisCairan() }}</p>
+                        </div>
+                        <div class="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                            <span class="text-slate-400 dark:text-slate-500 uppercase tracking-wider font-semibold">Volume Sampel</span>
+                            <p class="text-sm font-bold text-slate-900 dark:text-slate-100 mt-0.5">{{ form.volume_sampel }} ml</p>
+                        </div>
+                        <div class="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                            <span class="text-slate-400 dark:text-slate-500 uppercase tracking-wider font-semibold">Instansi Pemohon</span>
+                            <p class="text-sm font-bold text-slate-900 dark:text-slate-100 mt-0.5">{{ getNamaInstansi() }}</p>
+                        </div>
+                        <div class="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                            <span class="text-slate-400 dark:text-slate-500 uppercase tracking-wider font-semibold">Metode Pengambilan</span>
+                            <p class="text-sm font-bold text-slate-900 dark:text-slate-100 mt-0.5 capitalize">{{ form.metode_pengambilan }}</p>
+                        </div>
+                        <div class="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 sm:col-span-2">
+                            <span class="text-slate-400 dark:text-slate-500 uppercase tracking-wider font-semibold">Lokasi Sampel</span>
+                            <p class="text-sm font-medium text-slate-900 dark:text-slate-100 mt-0.5">{{ form.lokasi || '-' }}</p>
+                        </div>
+                        <div v-if="form.waktu_pengambilan" class="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                            <span class="text-slate-400 dark:text-slate-500 uppercase tracking-wider font-semibold">Jadwal Pengantaran</span>
+                            <p class="text-sm font-bold text-slate-900 dark:text-slate-100 mt-0.5">{{ form.waktu_pengambilan }}</p>
+                        </div>
+                        <div class="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                            <span class="text-slate-400 dark:text-slate-500 uppercase tracking-wider font-semibold">Kategori Baku Mutu</span>
+                            <p class="text-sm font-bold text-slate-900 dark:text-slate-100 mt-0.5">{{ getNamaKategori() }}</p>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-100 dark:border-slate-800">
+                        <p class="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">Daftar Parameter yang Akan Diuji ({{ form.parameter.length }} item):</p>
+                        <div class="divide-y divide-slate-100 dark:divide-slate-800 border border-slate-200 dark:border-slate-800 rounded-lg max-h-48 overflow-y-auto">
+                            <div
+                                v-for="param in semuaParameter.filter((p) => form.parameter.includes(p.id))"
+                                :key="param.id"
+                                class="flex items-center justify-between px-3 py-2 text-xs"
+                            >
+                                <span class="font-medium text-slate-800 dark:text-slate-200">{{ param.nama_parameter }}</span>
+                                <span class="text-slate-500 dark:text-slate-400 font-semibold">{{ formatRupiah(param.harga || 0) }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900">
+                        <div>
+                            <span class="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400">Total Biaya Retribusi</span>
+                            <p class="text-xs text-slate-600 dark:text-slate-400">Dapat dibayar via transfer atau tunai setelah diverifikasi</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-2xl font-black text-emerald-800 dark:text-emerald-300">
+                                {{
+                                    formatRupiah(
+                                        semuaParameter
+                                            .filter((p) => form.parameter.includes(p.id))
+                                            .reduce((sum, p) => sum + (p.harga || 0), 0)
+                                    )
+                                }}
+                            </span>
+                        </div>
+                    </div>
+                </v-card>
+
+                <div class="flex items-center justify-between">
+                    <v-btn
+                        variant="outlined"
+                        rounded="lg"
+                        prepend-icon="mdi-arrow-left"
+                        @click="prevStep"
+                        :disabled="form.processing"
+                        class="px-5 font-semibold"
+                    >
+                        Kembali
+                    </v-btn>
+                    <v-btn
+                        type="submit"
+                        color="primary"
+                        rounded="lg"
+                        prepend-icon="mdi-send-check"
+                        :loading="form.processing"
+                        class="px-6 font-semibold"
+                    >
+                        Kirim Pengajuan Sekarang
+                    </v-btn>
+                </div>
+            </form>
+        </div>
     </CustomerLayout>
 </template>

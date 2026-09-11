@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import AdminLayout from '@/layouts/admin/AdminLayout.vue';
 import { useForm, usePage, Head } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
@@ -18,13 +19,13 @@ interface Pengajuan {
 }
 
 const { props } = usePage();
-const form_pengajuan = props.form_pengajuan as Pengajuan[];
-const user = props.user as User[];
+const form_pengajuan = (props.form_pengajuan as Pengajuan[]) || [];
+const userList = (props.user as User[]) || [];
 
 const form = useForm({
     id_form_pengajuan: '',
     id_user: '',
-    waktu_pengambilan: null,
+    waktu_pengambilan: null as string | null,
     keterangan: '',
 });
 
@@ -39,86 +40,133 @@ const submit = () => {
 </script>
 
 <template>
-    <Head title="Tambah Jadwal" />
-    <div class="h-screen w-full bg-white lg:grid lg:grid-cols-3">
-        <!-- Left Side - Logo Section -->
-        <div
-            class="hidden h-screen flex-col bg-customDarkGreen lg:col-span-1 lg:flex lg:items-center lg:justify-center">
-            <img src="/assets/assetsadmin/logodlh.png" alt="Logo DLH" class="mx-auto h-48 w-auto object-contain" />
-            <div class="mt-6 text-center text-white">
-                <h2 class="mb-2 border-b border-white pb-2 text-2xl font-bold">SiLanYar</h2>
-                <p class="text-sm">Sistem Laboratorium Karanganyar</p>
-            </div>
-        </div>
-
-        <!-- Right Side - Form Section -->
-        <div class="flex h-screen items-start justify-center overflow-y-auto bg-white lg:col-span-2">
-            <form @submit.prevent="submit" class="mx-auto grid w-full max-w-xl gap-6 p-6 md:p-12">
-                <div class="grid gap-2 text-center">
-                    <h1 class="text-3xl font-bold">Tambah Jadwal Pengambilan</h1>
+    <Head title="Tambah Jadwal Pengambilan Sampel" />
+    <AdminLayout>
+        <div class="max-w-3xl mx-auto space-y-6">
+            <!-- Header Section -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+                <div>
+                    <span class="px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300">
+                        Agenda PPCU
+                    </span>
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mt-1">
+                        Tambah Jadwal Pengambilan Sampel
+                    </h1>
                 </div>
 
-                <div class="grid gap-4">
-                    <!-- Kode Form Pengajuan -->
-                    <div class="grid gap-2">
-                        <label for="id_form_pengajuan" class="font-semibold">Kode Form Pengajuan</label>
-                        <select id="id_form_pengajuan" v-model="form.id_form_pengajuan" required
-                            class="w-full rounded border px-3 py-2">
-                            <option value="">Pilih Kode Form Pengajuan</option>
-                            <option v-for="fp in form_pengajuan" :key="fp.id" :value="fp.id">{{ fp.kode_pengajuan }} -
-                                {{ fp.instansi.nama }}</option>
+                <v-btn
+                    component="a"
+                    href="/pegawai/pengambilan"
+                    variant="outlined"
+                    rounded="lg"
+                    size="small"
+                    prepend-icon="mdi-arrow-left"
+                    class="text-none font-semibold text-xs"
+                >
+                    Kembali
+                </v-btn>
+            </div>
+
+            <!-- Form Card -->
+            <v-card variant="outlined" rounded="xl" class="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+                <form @submit.prevent="submit" class="space-y-5">
+                    <!-- Form Pengajuan -->
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                            Pilih Pengajuan Sampel <span class="text-rose-500">*</span>
+                        </label>
+                        <select
+                            v-model="form.id_form_pengajuan"
+                            required
+                            class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                            :class="[form.errors.id_form_pengajuan ? 'border-rose-500' : 'border-slate-300 dark:border-slate-700']"
+                        >
+                            <option value="" disabled>-- Pilih Pengajuan Masuk --</option>
+                            <option v-for="item in form_pengajuan" :key="item.id" :value="item.id">
+                                {{ item.kode_pengajuan }} - {{ item.instansi?.nama }}
+                            </option>
                         </select>
-                        <span v-if="form.errors.id_form_pengajuan" class="text-sm text-red-600">
+                        <p v-if="form.errors.id_form_pengajuan" class="text-xs text-rose-600 mt-1 font-medium">
                             {{ form.errors.id_form_pengajuan }}
-                        </span>
-                        <div v-if="form_pengajuan.length === 0"
-                            class="rounded border border-yellow-200 bg-yellow-50 p-2 text-sm text-yellow-600">
-                            Tidak ada form pengajuan yang tersedia. Hanya pengajuan dengan metode <b>"diambil"</b> dan
-                            status <b>"diterima"</b> yang bisa dijadwalkan. Jika status pengujian masih
-                            <b>proses_validasi</b>, jadwal tidak dapat dibuat.
-                        </div>
+                        </p>
                     </div>
 
-                    <!-- Nama Teknisi -->
-                    <div class="grid gap-2">
-                        <label for="id_user" class="font-semibold">Nama Teknisi</label>
-                        <select id="id_user" v-model="form.id_user" required class="w-full rounded border px-3 py-2">
-                            <option value="">Pilih Teknisi</option>
-                            <option v-for="u in user" :key="u.id" :value="u.id">
+                    <!-- Petugas PPCU / Pengambil -->
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                            Petugas Pengambil Sampel (PPCU) <span class="text-rose-500">*</span>
+                        </label>
+                        <select
+                            v-model="form.id_user"
+                            required
+                            class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                            :class="[form.errors.id_user ? 'border-rose-500' : 'border-slate-300 dark:border-slate-700']"
+                        >
+                            <option value="" disabled>-- Pilih Petugas PPCU --</option>
+                            <option v-for="u in userList" :key="u.id" :value="u.id">
                                 {{ u.nama }}
                             </option>
                         </select>
-                        <span v-if="form.errors.id_user" class="text-sm text-red-600">
+                        <p v-if="form.errors.id_user" class="text-xs text-rose-600 mt-1 font-medium">
                             {{ form.errors.id_user }}
-                        </span>
+                        </p>
                     </div>
 
                     <!-- Waktu Pengambilan -->
-                    <div class="grid gap-2">
-                        <label for="waktu_pengambilan" class="font-semibold">Waktu Pengambilan</label>
-                        <input id="waktu_pengambilan" type="date" v-model="form.waktu_pengambilan" :min="todayDate"
-                            required class="w-full rounded border px-3 py-2" />
-                        <span v-if="form.errors.waktu_pengambilan" class="text-sm text-red-600">
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                            Jadwal Tanggal & Waktu Pengambilan <span class="text-rose-500">*</span>
+                        </label>
+                        <input
+                            type="date"
+                            v-model="form.waktu_pengambilan"
+                            :min="todayDate"
+                            required
+                            class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                            :class="[form.errors.waktu_pengambilan ? 'border-rose-500' : 'border-slate-300 dark:border-slate-700']"
+                        />
+                        <p v-if="form.errors.waktu_pengambilan" class="text-xs text-rose-600 mt-1 font-medium">
                             {{ form.errors.waktu_pengambilan }}
-                        </span>
-                        <span class="text-xs text-gray-500"> Minimal tanggal hari ini ({{ todayDate }}) </span>
+                        </p>
                     </div>
 
                     <!-- Keterangan -->
-                    <div class="grid gap-2">
-                        <label for="keterangan" class="font-semibold">Keterangan <span
-                                class="text-xs text-gray-400">(Opsional)</span></label>
-                        <textarea id="keterangan" v-model="form.keterangan" class="w-full rounded border px-3 py-2"
-                            rows="3"></textarea>
-                        <span v-if="form.errors.keterangan" class="text-sm text-red-600">
-                            {{ form.errors.keterangan }}
-                        </span>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                            Catatan / Keterangan Penugasan (Opsional)
+                        </label>
+                        <textarea
+                            v-model="form.keterangan"
+                            rows="3"
+                            placeholder="Catatan koordinasi titik pengambilan sampel..."
+                            class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 border-slate-300 dark:border-slate-700"
+                        ></textarea>
                     </div>
-                </div>
 
-                <button type="submit"
-                    class="mb-8 w-full rounded bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700">Simpan</button>
-            </form>
+                    <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
+                        <v-btn
+                            component="a"
+                            href="/pegawai/pengambilan"
+                            variant="text"
+                            size="small"
+                            class="text-none text-xs"
+                        >
+                            Batal
+                        </v-btn>
+
+                        <v-btn
+                            type="submit"
+                            color="primary"
+                            rounded="lg"
+                            prepend-icon="mdi-calendar-check"
+                            :loading="form.processing"
+                            class="text-none font-semibold text-xs px-6"
+                        >
+                            Jadwalkan Pengambilan
+                        </v-btn>
+                    </div>
+                </form>
+            </v-card>
         </div>
-    </div>
+    </AdminLayout>
 </template>

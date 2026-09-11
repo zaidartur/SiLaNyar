@@ -1,125 +1,220 @@
 <script setup lang="ts">
-import AdminLayout from '@/layouts/admin/AdminLayout.vue'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { router, Head } from '@inertiajs/vue3'
-import { ref } from 'vue'
+import AdminLayout from '@/layouts/admin/AdminLayout.vue';
+import { router, Head, Link } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
 
 interface Permission {
-  id: number
-  name: string
+    id: number;
+    name: string;
 }
 
 interface Role {
-  id: number
-  name: string
-  permissions: Permission[]
+    id: number;
+    name: string;
+    permissions: Permission[];
 }
 
-defineProps<{
-  role: Role[]
-}>()
+const props = defineProps<{
+    role: Role[];
+}>();
 
-const showDeleteModal = ref(false)
-const deletingRole = ref<Role | null>(null)
+const search = ref('');
 
-const openDeleteModal = (role: Role) => {
-  deletingRole.value = role
-  showDeleteModal.value = true
-}
+const filteredRoles = computed(() => {
+    if (!search.value) return props.role || [];
+    const q = search.value.toLowerCase();
+    return (props.role || []).filter((r) =>
+        r.name.toLowerCase().includes(q) ||
+        r.permissions.some((p) => p.name.toLowerCase().includes(q))
+    );
+});
+
+const showDeleteModal = ref(false);
+const deletingRole = ref<Role | null>(null);
+const isDeleting = ref(false);
+
+const openDeleteModal = (r: Role) => {
+    deletingRole.value = r;
+    showDeleteModal.value = true;
+};
 
 const closeDeleteModal = () => {
-  showDeleteModal.value = false
-  deletingRole.value = null
-}
+    showDeleteModal.value = false;
+    deletingRole.value = null;
+};
 
 const handleDelete = () => {
-  if (!deletingRole.value) return
-  router.delete(`/superadmin/role/${deletingRole.value.id}`, {
-    onSuccess: () => closeDeleteModal()
-  })
-}
+    if (!deletingRole.value) return;
+    isDeleting.value = true;
+
+    router.delete(`/superadmin/role/${deletingRole.value.id}`, {
+        onSuccess: () => {
+            isDeleting.value = false;
+            closeDeleteModal();
+        },
+        onError: () => {
+            isDeleting.value = false;
+        },
+    });
+};
+
+const formatRoleName = (name: string) => {
+    return name
+        .split('_')
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ');
+};
 </script>
 
 <template>
+    <Head title="Manajemen Peran & Hak Akses" />
 
-  <Head title="Role" />
-  <AdminLayout>
-    <div class="p-6 max-w-3xl mx-auto">
-      <div class="flex justify-between items-center mb-6 rounded-lg bg-white p-6 shadow-sm">
-        <h1 class="text-2xl font-bold text-gray-800">Daftar Role</h1>
-        <a href="/superadmin/role/create"
-          class="flex items-center gap-2 bg-customDarkGreen hover:bg-green-800 text-white px-4 py-2 rounded-lg shadow transition">
-          <span class="text-xl font-bold">+</span> Tambah Role
-        </a>
-      </div>
-      <div>
-        <div v-if="role.length === 0" class="text-center text-gray-500 py-10">
-          Belum ada role yang terdaftar.
-        </div>
-        <div v-for="r in role" :key="r.id"
-          class="border border-gray-200 bg-white rounded-xl mb-6 shadow-md hover:shadow-lg transition-shadow p-6">
-          <div class="flex justify-between items-center mb-2">
-            <div>
-              <h2 class="text-lg font-semibold text-gray-800">{{ r.name }}</h2>
-              <div class="flex flex-wrap gap-2 mt-2">
-                <template v-if="r.permissions.length === 0">
-                  <span class="text-xs text-gray-400 italic">Tidak ada permission</span>
-                </template>
-                <template v-else>
-                  <span v-for="p in r.permissions" :key="p.id"
-                    class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-medium">
-                    {{ p.name }}
-                  </span>
-                </template>
-              </div>
+    <AdminLayout title="Manajemen Peran">
+        <div class="space-y-6">
+            <!-- Header Halaman & Aksi -->
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2.5">
+                        <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
+                            Manajemen Peran (Roles)
+                        </h1>
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                            {{ filteredRoles.length }} Peran
+                        </span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                        Definisi kelompok otoritas pengguna dan hak akses izin sistem laboratorium
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-2.5">
+                    <div class="relative w-full sm:w-60">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            <v-icon size="16">mdi-magnify</v-icon>
+                        </span>
+                        <input
+                            v-model="search"
+                            type="text"
+                            placeholder="Cari peran/izin..."
+                            class="w-full pl-8 pr-3 py-2 rounded-xl text-xs border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                        />
+                    </div>
+
+                    <Link
+                        href="/superadmin/role/create"
+                        class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white text-xs font-bold px-4 py-2.5 shadow-sm transition"
+                    >
+                        <v-icon size="16">mdi-plus-circle-outline</v-icon>
+                        <span>Tambah Peran</span>
+                    </Link>
+                </div>
             </div>
-            <div class="flex gap-2">
-              <a :href="`/superadmin/role/edit/${r.id}`"
-                class="px-3 py-1 rounded bg-yellow-100 text-yellow-700 hover:bg-yellow-200 font-semibold text-sm transition">
-                Edit
-              </a>
-              <button @click="openDeleteModal(r)"
-                class="px-3 py-1 rounded bg-red-100 text-red-700 hover:bg-red-200 font-semibold text-sm transition">
-                Hapus
-              </button>
+
+            <!-- Grid Kartu Peran Modern -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <v-card
+                    v-for="r in filteredRoles"
+                    :key="r.id"
+                    rounded="2xl"
+                    elevation="1"
+                    class="p-6 border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col justify-between space-y-4"
+                >
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-800 dark:text-emerald-300">
+                                    <v-icon size="20">mdi-shield-account</v-icon>
+                                </div>
+                                <div>
+                                    <h2 class="text-base font-bold text-slate-900 dark:text-slate-100">
+                                        {{ formatRoleName(r.name) }}
+                                    </h2>
+                                    <span class="font-mono text-[10px] text-slate-400 font-medium">slug: {{ r.name }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Daftar Izin (Permissions) -->
+                        <div class="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+                            <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                                Hak Akses ({{ r.permissions.length }})
+                            </span>
+                            <div v-if="r.permissions.length > 0" class="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto pr-1">
+                                <span
+                                    v-for="p in r.permissions"
+                                    :key="p.id"
+                                    class="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 text-[10px] font-medium border border-emerald-200 dark:border-emerald-800"
+                                >
+                                    {{ p.name }}
+                                </span>
+                            </div>
+                            <span v-else class="text-xs text-slate-400 italic block">
+                                Tidak ada izin spesifik
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Tombol Aksi Edit & Hapus -->
+                    <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+                        <Link
+                            :href="`/superadmin/role/edit/${r.id}`"
+                            class="px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:hover:bg-amber-900/60 dark:text-amber-300 text-xs font-semibold transition"
+                        >
+                            Ubah Peran
+                        </Link>
+                        <button
+                            type="button"
+                            @click="openDeleteModal(r)"
+                            class="px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 dark:bg-red-950/50 dark:hover:bg-red-900/60 dark:text-red-300 text-xs font-semibold transition cursor-pointer"
+                        >
+                            Hapus
+                        </button>
+                    </div>
+                </v-card>
+
+                <div v-if="filteredRoles.length === 0" class="col-span-full text-center py-12 text-slate-400 dark:text-slate-500">
+                    <v-icon size="36" class="mb-2 text-slate-300 dark:text-slate-600">mdi-shield-search</v-icon>
+                    <p class="font-medium text-xs">Belum ada peran yang terdaftar atau sesuai pencarian.</p>
+                </div>
             </div>
-          </div>
+
+            <!-- Modal Konfirmasi Hapus -->
+            <v-dialog v-model="showDeleteModal" max-width="440" persistent>
+                <v-card rounded="2xl" class="p-6 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-center space-y-4">
+                    <div class="w-14 h-14 mx-auto rounded-full bg-red-100 dark:bg-red-950 flex items-center justify-center text-red-600 dark:text-red-400">
+                        <v-icon size="32">mdi-alert-octagon-outline</v-icon>
+                    </div>
+
+                    <div class="space-y-1">
+                        <h3 class="text-base font-bold text-slate-900 dark:text-slate-100">
+                            Konfirmasi Hapus Peran
+                        </h3>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">
+                            Apakah Anda yakin ingin menghapus peran
+                            <strong class="text-slate-900 dark:text-slate-100">{{ deletingRole?.name }}</strong>?
+                            Pengguna dengan peran ini akan kehilangan hak akses terkait.
+                        </p>
+                    </div>
+
+                    <div class="flex items-center justify-center gap-3 pt-2">
+                        <button
+                            type="button"
+                            @click="closeDeleteModal"
+                            class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition"
+                        >
+                            Batal
+                        </button>
+                        <button
+                            type="button"
+                            :disabled="isDeleting"
+                            @click="handleDelete"
+                            class="px-4 py-2 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-700 active:bg-red-800 text-white shadow-sm transition disabled:opacity-50"
+                        >
+                            {{ isDeleting ? 'Menghapus...' : 'Ya, Hapus' }}
+                        </button>
+                    </div>
+                </v-card>
+            </v-dialog>
         </div>
-      </div>
-      <!-- Modal Delete -->
-      <Dialog :open="showDeleteModal" @update:open="closeDeleteModal">
-        <DialogContent
-          class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-lg shadow-xl p-6">
-          <DialogHeader>
-            <DialogTitle class="text-center text-xl font-bold text-gray-400">
-              <div class="flex flex-col items-center">
-                <svg width="64" height="64" viewBox="0 0 94 94" fill="none">
-                  <path
-                    d="M53.4152 15.4982C52.7777 14.3582 51.8477 13.4088 50.721 12.748C49.5943 12.0871 48.3118 11.7388 47.0056 11.7388C45.6994 11.7388 44.4169 12.0871 43.2902 12.748C42.1635 13.4088 41.2335 14.3582 40.596 15.4982L12.6721 65.4474C12.0475 66.5647 11.7257 67.8257 11.7387 69.1057C11.7516 70.3856 12.0989 71.6399 12.7461 72.7442C13.3932 73.8485 14.3178 74.7645 15.4281 75.4014C16.5384 76.0383 17.7959 76.3739 19.0758 76.3749H74.9118C76.1923 76.3749 77.4505 76.04 78.5616 75.4036C79.6727 74.7671 80.5981 73.8512 81.246 72.7467C81.8938 71.6422 82.2416 70.3875 82.2549 69.1071C82.2681 67.8267 81.9463 66.5651 81.3215 65.4474L53.4152 15.4982ZM51.406 60.2187C51.406 61.3873 50.9417 62.5081 50.1154 63.3344C49.2891 64.1607 48.1683 64.6249 46.9997 64.6249C45.8311 64.6249 44.7104 64.1607 43.884 63.3344C43.0577 62.5081 42.5935 61.3873 42.5935 60.2187C42.5935 59.0501 43.0577 57.9293 43.884 57.103C44.7104 56.2767 45.8311 55.8124 46.9997 55.8124C48.1683 55.8124 49.2891 56.2767 50.1154 57.103C50.9417 57.9293 51.406 59.0501 51.406 60.2187ZM44.0622 46.9999V32.3124C44.0622 31.5334 44.3717 30.7862 44.9226 30.2353C45.4735 29.6844 46.2206 29.3749 46.9997 29.3749C47.7788 29.3749 48.526 29.6844 49.0768 30.2353C49.6277 30.7862 49.9372 31.5334 49.9372 32.3124V46.9999C49.9372 47.779 49.6277 48.5262 49.0768 49.0771C48.526 49.628 47.7788 49.9374 46.9997 49.9374C46.2206 49.9374 45.4735 49.628 44.9226 49.0771C44.3717 48.5262 44.0622 47.779 44.0622 46.9999Z"
-                    fill="#E94235" />
-                </svg>
-              </div>
-            </DialogTitle>
-          </DialogHeader>
-          <div class="text-center">
-            <p class="font-bold text-gray-900">
-              HAPUS ROLE
-            </p>
-            <p class="text-gray-600">
-              Apakah Anda yakin ingin menghapus role
-              <span class="font-bold">{{ deletingRole?.name }}</span>?
-            </p>
-          </div>
-          <div class="mt-6 flex justify-center gap-4">
-            <button @click="closeDeleteModal" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300">
-              Batal
-            </button>
-            <button @click="handleDelete" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-              Hapus
-            </button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
-  </AdminLayout>
+    </AdminLayout>
 </template>

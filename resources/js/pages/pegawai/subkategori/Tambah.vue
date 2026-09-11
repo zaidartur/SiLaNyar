@@ -1,7 +1,8 @@
 <script setup lang="ts">
 /* eslint-disable */
-import { useForm } from '@inertiajs/vue3';
-// import { ref } from 'vue'
+import AdminLayout from '@/layouts/admin/AdminLayout.vue';
+import { Head, useForm } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 interface Parameter {
     id: number;
@@ -24,11 +25,14 @@ const form = useForm({
     })),
 });
 
+const errorMessage = ref('');
+
 const submit = () => {
+    errorMessage.value = '';
     const filterParam = form.parameter.filter((p) => p.checked);
 
     if (filterParam.length === 0) {
-        alert('Pilih minimal satu parameter!');
+        errorMessage.value = 'Silakan pilih minimal satu parameter untuk sub-kategori ini.';
         return;
     }
 
@@ -38,62 +42,130 @@ const submit = () => {
 </script>
 
 <template>
-    <div class="h-screen w-full bg-white lg:grid lg:grid-cols-3">
-        <!-- Left Side - Logo Section -->
-        <div class="hidden h-screen flex-col bg-customDarkGreen lg:col-span-1 lg:flex lg:items-center lg:justify-center">
-            <img src="/assets/assetsadmin/logodlh.png" alt="Logo DLH" class="mx-auto h-48 w-auto object-contain" />
-            <div class="mt-6 text-center text-white">
-                <h2 class="mb-2 border-b border-white pb-2 text-2xl font-bold">SiLanYar</h2>
-                <p class="text-sm">Sistem Laboratoruim Karanganyar</p>
-            </div>
-        </div>
-
-        <!-- Right Side - Form Section -->
-        <div class="flex h-screen items-start justify-center overflow-y-auto bg-white p-12 lg:col-span-2">
-            <form @submit.prevent="submit" class="mx-auto grid w-full max-w-xl gap-6 p-6 md:p-12">
-                <div class="grid gap-2 text-center">
-                    <h1 class="text-3xl font-bold">Tambah Sub Kategori</h1>
+    <Head title="Tambah Sub-Kategori Sampel" />
+    <AdminLayout>
+        <div class="max-w-4xl mx-auto space-y-6">
+            <!-- Header Section -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+                <div>
+                    <span class="px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300">
+                        Klasifikasi Baku Mutu
+                    </span>
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mt-1">
+                        Tambah Sub-Kategori Baru
+                    </h1>
                 </div>
-                <div class="grid gap-4">
-                    <!-- Nama Sub Kategori -->
-                    <div class="grid gap-2">
-                        <label for="nama" class="font-semibold">Nama Sub Kategori</label>
+
+                <v-btn
+                    component="a"
+                    href="/pegawai/subkategori"
+                    variant="outlined"
+                    rounded="lg"
+                    size="small"
+                    prepend-icon="mdi-arrow-left"
+                    class="text-none font-semibold text-xs"
+                >
+                    Kembali
+                </v-btn>
+            </div>
+
+            <!-- Form Card -->
+            <v-card variant="outlined" rounded="xl" class="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+                <form @submit.prevent="submit" class="space-y-5">
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                            Nama Sub-Kategori <span class="text-rose-500">*</span>
+                        </label>
                         <input
-                            id="nama"
-                            v-model="form.nama"
                             type="text"
-                            placeholder="Masukkan nama subkategori"
-                            class="w-full rounded border px-3 py-2"
+                            v-model="form.nama"
+                            placeholder="Contoh: Air Limbah Domestik, Air Badan Air Kelas II"
                             required
+                            class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 border-slate-300 dark:border-slate-700"
                         />
-                        <span v-if="form.errors.nama" class="text-sm text-red-600">
+                        <p v-if="form.errors.nama" class="text-xs text-rose-600 mt-1 font-medium">
                             {{ form.errors.nama }}
-                        </span>
+                        </p>
                     </div>
 
-                    <!-- Parameter dan Baku Mutu -->
-                    <div class="grid gap-2">
-                        <label class="font-semibold">Parameter dan Baku Mutu</label>
-                        <div v-for="(param, index) in form.parameter" :key="param.id" class="mb-2 flex items-center gap-2">
-                            <input type="checkbox" v-model="param.checked" :id="'param-' + param.id" />
-                            <label :for="'param-' + param.id" class="text-sm font-semibold">
-                                {{ props.parameter[index].nama_parameter }}
-                            </label>
-                            <input
-                                v-model="param.baku_mutu"
-                                type="text"
-                                class="w-48 rounded border px-3 py-2"
-                                :disabled="!param.checked"
-                                placeholder="Baku Mutu"
-                            />
-                            <div class="text-sm text-red-500">
-                                {{ param.checked ? (form.errors as any)[`parameter.${index}.baku_mutu`] : '' }}
-                            </div>
+                    <!-- Parameter List & Baku Mutu -->
+                    <div>
+                        <label class="block text-xs font-semibold mb-2 text-slate-700 dark:text-slate-300">
+                            Parameter yang Berlaku & Nilai Baku Mutu Acuan <span class="text-rose-500">*</span>
+                        </label>
+
+                        <v-alert v-if="errorMessage" type="error" variant="tonal" rounded="lg" density="compact" class="text-xs mb-3">
+                            {{ errorMessage }}
+                        </v-alert>
+
+                        <div class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+                            <table class="w-full text-xs">
+                                <thead>
+                                    <tr class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold">
+                                        <th class="px-4 py-2.5 text-center w-12">Pilih</th>
+                                        <th class="px-4 py-2.5 text-left">Nama Parameter</th>
+                                        <th class="px-4 py-2.5 text-center">Satuan</th>
+                                        <th class="px-4 py-2.5 text-left">Standar Baku Mutu</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                                    <tr
+                                        v-for="(param, idx) in props.parameter"
+                                        :key="param.id"
+                                        class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40"
+                                    >
+                                        <td class="px-4 py-2.5 text-center">
+                                            <input
+                                                type="checkbox"
+                                                v-model="form.parameter[idx].checked"
+                                                class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                                            />
+                                        </td>
+                                        <td class="px-4 py-2.5 font-medium text-slate-900 dark:text-slate-100">
+                                            {{ param.nama_parameter }}
+                                        </td>
+                                        <td class="px-4 py-2.5 text-center text-slate-500">
+                                            {{ param.satuan || '-' }}
+                                        </td>
+                                        <td class="px-4 py-2.5">
+                                            <input
+                                                type="text"
+                                                v-model="form.parameter[idx].baku_mutu"
+                                                :disabled="!form.parameter[idx].checked"
+                                                placeholder="Contoh: 6 - 9, maks 50 mg/L"
+                                                class="w-full rounded border px-2.5 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500 border-slate-200 dark:border-slate-700 disabled:opacity-40"
+                                            />
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                </div>
-                <button type="submit" class="mb-8 w-full rounded bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700">Simpan</button>
-            </form>
+
+                    <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
+                        <v-btn
+                            component="a"
+                            href="/pegawai/subkategori"
+                            variant="text"
+                            size="small"
+                            class="text-none text-xs"
+                        >
+                            Batal
+                        </v-btn>
+
+                        <v-btn
+                            type="submit"
+                            color="primary"
+                            rounded="lg"
+                            prepend-icon="mdi-content-save"
+                            :loading="form.processing"
+                            class="text-none font-semibold text-xs px-6"
+                        >
+                            Simpan Sub-Kategori
+                        </v-btn>
+                    </div>
+                </form>
+            </v-card>
         </div>
-    </div>
+    </AdminLayout>
 </template>

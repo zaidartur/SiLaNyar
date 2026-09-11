@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useForm } from '@inertiajs/vue3';
+import AdminLayout from '@/layouts/admin/AdminLayout.vue';
+import { Head, useForm } from '@inertiajs/vue3';
 import { computed, watch } from 'vue';
 
 interface User {
@@ -52,19 +51,19 @@ const todayDate = computed(() => {
     return today.toISOString().split('T')[0];
 });
 
-const selectedPengajuan = computed(() => props.form_pengajuan.find((f) => f.id === form.id_form_pengajuan));
-
-const idKategori = computed(() => selectedPengajuan.value?.kategori.id ?? null);
-
-const isFormValid = computed(() => {
-    return form.id_form_pengajuan && form.id_user && form.tanggal_mulai && form.tanggal_selesai && form.jam_mulai && form.jam_selesai;
-});
+const selectedPengajuan = computed(() =>
+    props.form_pengajuan.find((f) => f.id === form.id_form_pengajuan)
+);
 
 watch(
     () => form.id_form_pengajuan,
     () => {
-        form.id_kategori = idKategori.value;
-    },
+        if (selectedPengajuan.value) {
+            form.id_kategori = selectedPengajuan.value.kategori.id;
+        } else {
+            form.id_kategori = null;
+        }
+    }
 );
 
 const submit = () => {
@@ -73,110 +72,178 @@ const submit = () => {
 </script>
 
 <template>
-    <div class="h-screen w-full bg-white lg:grid lg:grid-cols-3">
-        <!-- Left Side - Logo Section -->
-        <div
-            class="hidden h-screen flex-col bg-customDarkGreen lg:col-span-1 lg:flex lg:items-center lg:justify-center">
-            <img src="/assets/assetsadmin/logodlh.png" alt="Logo DLH" class="mx-auto h-48 w-auto object-contain" />
-            <div class="mt-6 text-center text-white">
-                <h2 class="mb-2 border-b border-white pb-2 text-2xl font-bold">SiLanYar</h2>
-                <p class="text-sm">Sistem Laboratoruim Karanganyar</p>
-            </div>
-        </div>
-
-        <!-- Right Side - Form Section -->
-        <div class="flex h-screen items-start justify-center overflow-y-auto bg-white lg:col-span-2">
-            <form @submit.prevent="submit" class="mx-auto grid w-full max-w-xl gap-6 p-6 md:p-12">
-                <div class="grid gap-2 text-center">
-                    <h1 class="text-3xl font-bold">Tambah Jadwal Pengujian</h1>
+    <Head title="Tambah Jadwal Pengujian Sampel" />
+    <AdminLayout>
+        <div class="max-w-3xl mx-auto space-y-6">
+            <!-- Header Section -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+                <div>
+                    <span class="px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300">
+                        Penugasan Laboratorium
+                    </span>
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mt-1">
+                        Tambah Jadwal Pengujian Sampel
+                    </h1>
                 </div>
 
-                <div class="grid gap-4">
+                <v-btn
+                    component="a"
+                    href="/pegawai/pengujian"
+                    variant="outlined"
+                    rounded="lg"
+                    size="small"
+                    prepend-icon="mdi-arrow-left"
+                    class="text-none font-semibold text-xs"
+                >
+                    Kembali
+                </v-btn>
+            </div>
+
+            <!-- Form Card -->
+            <v-card variant="outlined" rounded="xl" class="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+                <form @submit.prevent="submit" class="space-y-5">
                     <!-- Form Pengajuan -->
-                    <div class="grid gap-2">
-                        <Label for="id_form_pengajuan">Pilih Form Pengajuan</Label>
-                        <select v-model="form.id_form_pengajuan" id="id_form_pengajuan"
-                            class="mt-1 w-full rounded border px-3 py-2">
-                            <option :value="null" disabled>Pilih Pengajuan</option>
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                            Pilih Pengajuan Sampel <span class="text-rose-500">*</span>
+                        </label>
+                        <select
+                            v-model="form.id_form_pengajuan"
+                            required
+                            class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                            :class="[form.errors.id_form_pengajuan ? 'border-rose-500' : 'border-slate-300 dark:border-slate-700']"
+                        >
+                            <option :value="null" disabled>-- Pilih Pengajuan Masuk --</option>
                             <option
                                 v-for="item in form_pengajuan.filter(f => !f.jadwal || f.jadwal.status === 'diterima')"
-                                :key="item.id" :value="item.id">
-                                {{ item.kode_pengajuan }} - {{ item.instansi.nama }}
+                                :key="item.id"
+                                :value="item.id"
+                            >
+                                {{ item.kode_pengajuan }} - {{ item.instansi?.nama }} ({{ item.kategori?.nama }})
                             </option>
                         </select>
-                        <span v-if="form.errors.id_form_pengajuan" class="text-sm text-red-600">
+                        <p v-if="form.errors.id_form_pengajuan" class="text-xs text-rose-600 mt-1 font-medium">
                             {{ form.errors.id_form_pengajuan }}
-                        </span>
+                        </p>
                     </div>
 
-                    <!-- Teknisi -->
-                    <div class="grid gap-2">
-                        <Label for="id_user">Pilih Teknisi</Label>
-                        <select v-model="form.id_user" id="id_user" class="mt-1 w-full rounded border px-3 py-2">
-                            <option :value="null" disabled>Pilih Teknisi</option>
+                    <!-- Teknisi Penguji -->
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                            Pilih Teknisi Analis Laboratorium <span class="text-rose-500">*</span>
+                        </label>
+                        <select
+                            v-model="form.id_user"
+                            required
+                            class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                            :class="[form.errors.id_user ? 'border-rose-500' : 'border-slate-300 dark:border-slate-700']"
+                        >
+                            <option :value="null" disabled>-- Pilih Teknisi --</option>
                             <option v-for="u in user" :key="u.id" :value="u.id">
                                 {{ u.nama }}
                             </option>
                         </select>
-                        <span v-if="form.errors.id_user" class="text-sm text-red-600">
+                        <p v-if="form.errors.id_user" class="text-xs text-rose-600 mt-1 font-medium">
                             {{ form.errors.id_user }}
-                        </span>
+                        </p>
                     </div>
 
-                    <!-- Tanggal Mulai & Selesai -->
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="grid gap-2">
-                            <Label for="tanggal_mulai">Tanggal Mulai</Label>
-                            <Input type="date" id="tanggal_mulai" v-model="form.tanggal_mulai" :min="todayDate"
-                                required />
-                            <span v-if="form.errors.tanggal_mulai" class="text-sm text-red-600">
+                    <!-- Tanggal Mulai & Tanggal Selesai -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                                Tanggal Mulai Pengujian <span class="text-rose-500">*</span>
+                            </label>
+                            <input
+                                type="date"
+                                v-model="form.tanggal_mulai"
+                                :min="todayDate"
+                                required
+                                class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                :class="[form.errors.tanggal_mulai ? 'border-rose-500' : 'border-slate-300 dark:border-slate-700']"
+                            />
+                            <p v-if="form.errors.tanggal_mulai" class="text-xs text-rose-600 mt-1 font-medium">
                                 {{ form.errors.tanggal_mulai }}
-                            </span>
-                            <span class="text-xs text-gray-500">Minimal hari ini</span>
+                            </p>
                         </div>
-                        <div class="grid gap-2">
-                            <Label for="tanggal_selesai">Tanggal Selesai</Label>
-                            <Input type="date" id="tanggal_selesai" v-model="form.tanggal_selesai"
-                                :min="form.tanggal_mulai || todayDate" required />
-                            <span v-if="form.errors.tanggal_selesai" class="text-sm text-red-600">
+
+                        <div>
+                            <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                                Tanggal Selesai Pengujian <span class="text-rose-500">*</span>
+                            </label>
+                            <input
+                                type="date"
+                                v-model="form.tanggal_selesai"
+                                :min="form.tanggal_mulai || todayDate"
+                                required
+                                class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                :class="[form.errors.tanggal_selesai ? 'border-rose-500' : 'border-slate-300 dark:border-slate-700']"
+                            />
+                            <p v-if="form.errors.tanggal_selesai" class="text-xs text-rose-600 mt-1 font-medium">
                                 {{ form.errors.tanggal_selesai }}
-                            </span>
-                            <span class="text-xs text-gray-500">Harus setelah atau sama dengan tanggal mulai</span>
+                            </p>
                         </div>
                     </div>
 
-                    <!-- Jam Mulai & Selesai -->
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="grid gap-2">
-                            <Label for="jam_mulai">Jam Mulai</Label>
-                            <Input type="time" id="jam_mulai" v-model="form.jam_mulai" required />
-                            <span v-if="form.errors.jam_mulai" class="text-sm text-red-600">
+                    <!-- Jam Mulai & Jam Selesai -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                                Jam Mulai Pengujian <span class="text-rose-500">*</span>
+                            </label>
+                            <input
+                                type="time"
+                                v-model="form.jam_mulai"
+                                required
+                                class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                :class="[form.errors.jam_mulai ? 'border-rose-500' : 'border-slate-300 dark:border-slate-700']"
+                            />
+                            <p v-if="form.errors.jam_mulai" class="text-xs text-rose-600 mt-1 font-medium">
                                 {{ form.errors.jam_mulai }}
-                            </span>
+                            </p>
                         </div>
-                        <div class="grid gap-2">
-                            <Label for="jam_selesai">Jam Selesai</Label>
-                            <Input type="time" id="jam_selesai" v-model="form.jam_selesai" required />
-                            <span v-if="form.errors.jam_selesai" class="text-sm text-red-600">
+
+                        <div>
+                            <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                                Jam Selesai Pengujian <span class="text-rose-500">*</span>
+                            </label>
+                            <input
+                                type="time"
+                                v-model="form.jam_selesai"
+                                required
+                                class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                :class="[form.errors.jam_selesai ? 'border-rose-500' : 'border-slate-300 dark:border-slate-700']"
+                            />
+                            <p v-if="form.errors.jam_selesai" class="text-xs text-rose-600 mt-1 font-medium">
                                 {{ form.errors.jam_selesai }}
-                            </span>
-                            <span class="text-xs text-gray-500">Harus setelah jam mulai</span>
+                            </p>
                         </div>
                     </div>
 
-                    <!-- Peringatan Weekend -->
-                    <div class="rounded border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-700">
-                        <strong>Catatan:</strong> Pengujian hanya akan dijadwalkan pada hari kerja (Senin-Jumat).
-                        Weekend akan dilewati secara
-                        otomatis.
-                    </div>
-                </div>
+                    <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
+                        <v-btn
+                            component="a"
+                            href="/pegawai/pengujian"
+                            variant="text"
+                            size="small"
+                            class="text-none text-xs"
+                        >
+                            Batal
+                        </v-btn>
 
-                <button type="submit" :disabled="form.processing || !isFormValid"
-                    class="mb-8 w-full rounded bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400">
-                    Simpan Jadwal Pengujian
-                </button>
-            </form>
+                        <v-btn
+                            type="submit"
+                            color="primary"
+                            rounded="lg"
+                            prepend-icon="mdi-calendar-check"
+                            :loading="form.processing"
+                            class="text-none font-semibold text-xs px-6"
+                        >
+                            Simpan Jadwal Pengujian
+                        </v-btn>
+                    </div>
+                </form>
+            </v-card>
         </div>
-    </div>
+    </AdminLayout>
 </template>

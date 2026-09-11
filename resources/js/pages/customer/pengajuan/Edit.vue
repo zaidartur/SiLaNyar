@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /* eslint-disable */
 import CustomerLayout from '@/layouts/customer/CustomerLayout.vue';
-import { useForm, usePage } from '@inertiajs/vue3';
+import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
 
 interface Parameter {
@@ -32,6 +32,7 @@ interface Instansi {
 interface JenisCairan {
     id: number;
     nama: string;
+    batas_minimum?: number;
 }
 
 interface Pengajuan {
@@ -72,22 +73,20 @@ const form = useForm({
     waktu_pengambilan: pengajuan.waktu_pengambilan,
     id_kategori: pengajuan.kategori?.id ?? null,
     parameter: pengajuan.parameter.map((p) => p.id),
-    keterangan: pengajuan.keterangan,
+    keterangan: pengajuan.keterangan || '',
 });
 
-// Add validation state
 const validationErrors = ref<Record<string, string>>({});
 
 function validateVolumeSampel() {
-    const jenis = jenisCairanList.find(j => j.id === form.id_jenis_cairan);
+    const jenis = jenisCairanList.find((j) => j.id === form.id_jenis_cairan);
     if (!jenis) {
         validationErrors.value.volume_sampel = 'Pilih jenis cairan terlebih dahulu';
         return false;
     }
-    // Pastikan properti batas_minimum ada di data jenis cairan
     const min = (jenis as any).batas_minimum ?? 0;
     if (form.volume_sampel < min) {
-        validationErrors.value.volume_sampel = `Volume minimal untuk jenis cairan ini adalah ${min}`;
+        validationErrors.value.volume_sampel = `Volume minimal untuk jenis cairan ini adalah ${min} ml`;
         return false;
     } else {
         delete validationErrors.value.volume_sampel;
@@ -95,7 +94,6 @@ function validateVolumeSampel() {
     }
 }
 
-// Validation function for waktu_pengambilan
 function validateWaktuPengambilan() {
     if (form.metode_pengambilan === 'diantar' && form.waktu_pengambilan) {
         const today = new Date();
@@ -113,7 +111,6 @@ function validateWaktuPengambilan() {
     return true;
 }
 
-// Watch untuk volume_sampel dan id_jenis_cairan
 watch(
     [() => form.volume_sampel, () => form.id_jenis_cairan],
     () => {
@@ -121,12 +118,11 @@ watch(
     }
 );
 
-// Watch for changes to validate waktu_pengambilan
 watch(
     () => form.waktu_pengambilan,
     () => {
         validateWaktuPengambilan();
-    },
+    }
 );
 
 watch(
@@ -135,18 +131,20 @@ watch(
         const kat = kategoriList.find((k) => k.id === kategoriId);
         if (!kat) return;
 
-        const allowed = kat.subkategori.length ? kat.subkategori.flatMap((s) => s.parameter.map((p) => p.id)) : kat.parameter.map((p) => p.id);
+        const allowed = kat.subkategori.length
+            ? kat.subkategori.flatMap((s) => s.parameter.map((p) => p.id))
+            : kat.parameter.map((p) => p.id);
 
         form.parameter = [...new Set(allowed)];
-    },
+    }
 );
-
-// Remove the watch for metode_pengambilan since it's no longer editable
 
 const parameterIsInKategori = (id: number): boolean => {
     const kat = kategoriList.find((k) => k.id === form.id_kategori);
     if (!kat) return true;
-    const allowedIds = kat.subkategori.length ? kat.subkategori.flatMap((s) => s.parameter.map((p) => p.id)) : kat.parameter.map((p) => p.id);
+    const allowedIds = kat.subkategori.length
+        ? kat.subkategori.flatMap((s) => s.parameter.map((p) => p.id))
+        : kat.parameter.map((p) => p.id);
     return allowedIds.includes(id);
 };
 
@@ -156,153 +154,214 @@ function submit() {
     }
     form.put(route('customer.pengajuan.update', pengajuan.id));
 }
-
-// function verifikasi(status: 'diterima' | 'ditolak') {
-//     router.put(route('customer.pengajuan.verifikasi', pengajuan.id), {
-//         status_pengajuan: status
-//     }, {
-//         onSuccess: () => {
-//             verifikasiSelesai.value = true
-//         }
-//     })
-// }
 </script>
 
 <template>
+    <Head title="Edit Pengajuan Sampel" />
     <CustomerLayout>
-        <div class="max-w-2xl mx-auto bg-white rounded-lg shadow p-8 space-y-6">
-            <h1 class="text-2xl font-bold mb-4 text-gray-800">Edit Pengajuan</h1>
-
-            <form @submit.prevent="submit" class="space-y-5">
-                <!-- Instansi -->
+        <div class="max-w-3xl mx-auto space-y-6">
+            <!-- Header Section -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
                 <div>
-                    <label class="block mb-1 font-medium text-gray-700">Instansi</label>
-                    <select v-model="form.id_instansi"
-                        class="w-full text-base px-3 py-2 rounded border-gray-300 bg-gray-100" disabled>
-                        <option v-for="ins in instansiList" :key="ins.id" :value="ins.id">
-                            {{ ins.nama }}
-                        </option>
-                    </select>
-                    <div class="mt-1 text-xs text-gray-500">Instansi tidak dapat diubah</div>
-                </div>
-
-                <!-- Jenis Cairan (Editable) -->
-                <div>
-                    <label class="mb-1 block font-medium text-gray-700">Jenis Cairan</label>
-                    <select v-model="form.id_jenis_cairan" class="w-full rounded border-gray-300 px-3 py-2 text-base"
-                        required>
-                        <option value="">Pilih Jenis Cairan</option>
-                        <option v-for="jenis in jenisCairanList" :key="jenis.id" :value="jenis.id">{{ jenis.nama }}
-                        </option>
-                    </select>
-                </div>
-
-                <!-- Volume (Editable) -->
-                <div>
-                    <label class="mb-1 block font-medium text-gray-700">Volume Sampel</label>
-                    <input type="number" step="0.1" min="0" v-model="form.volume_sampel"
-                        class="w-full rounded border-gray-300 px-3 py-2 text-base" required />
-                    <div v-if="validationErrors.volume_sampel" class="mt-1 text-sm text-red-600">
-                        {{ validationErrors.volume_sampel }}
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300">
+                            Perubahan Data
+                        </span>
+                        <span class="text-xs text-slate-500 dark:text-slate-400">
+                            #{{ pengajuan.id }}
+                        </span>
                     </div>
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mt-1">
+                        Edit Pengajuan Sampel
+                    </h1>
                 </div>
 
-                <!-- Metode Pengambilan (Disabled) -->
-                <div>
-                    <label class="block mb-1 font-medium text-gray-700">Metode Pengambilan</label>
-                    <select v-model="form.metode_pengambilan"
-                        class="w-full text-base px-3 py-2 rounded border-gray-300 bg-gray-100" disabled>
-                        <option value="diantar">Diantar</option>
-                        <option value="diambil">Diambil</option>
-                    </select>
-                    <div class="mt-1 text-xs text-gray-500">Metode pengambilan tidak dapat diubah</div>
-                </div>
+                <v-btn
+                    component="a"
+                    :href="route('customer.dashboard')"
+                    variant="outlined"
+                    rounded="lg"
+                    prepend-icon="mdi-arrow-left"
+                    class="text-none font-semibold text-xs self-start sm:self-auto"
+                >
+                    Batal & Kembali
+                </v-btn>
+            </div>
 
-                <!-- Lokasi (Disabled for both methods) -->
-                <div>
-                    <label class="mb-1 block font-medium text-gray-700">Lokasi</label>
-                    <input type="text" v-model="form.lokasi"
-                        class="w-full rounded border-gray-300 bg-gray-100 px-3 py-2 text-base" disabled />
-                    <div class="mt-1 text-xs text-gray-500">Lokasi tidak dapat diubah</div>
-                </div>
-
-                <!-- Waktu (Editable for diantar method) -->
-                <div v-if="form.metode_pengambilan === 'diantar'">
-                    <label class="mb-1 block font-medium text-gray-700">Jadwal Pengantaran</label>
-                    <input type="date" v-model="form.waktu_pengambilan" :class="[
-                            'w-full rounded border px-3 py-2 text-base',
-                            validationErrors.waktu_pengambilan ? 'border-red-500' : 'border-gray-300',
-                        ]" :min="new Date().toISOString().split('T')[0]" required />
-                    <div v-if="validationErrors.waktu_pengambilan" class="mt-1 text-sm text-red-600">
-                        {{ validationErrors.waktu_pengambilan }}
+            <!-- Form Card -->
+            <v-card variant="outlined" rounded="xl" class="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+                <form @submit.prevent="submit" class="space-y-5">
+                    <!-- Instansi (Read-only) -->
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                            Instansi Terdaftar
+                        </label>
+                        <select
+                            v-model="form.id_instansi"
+                            disabled
+                            class="w-full rounded-lg border px-3 py-2 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 cursor-not-allowed"
+                        >
+                            <option v-for="ins in instansiList" :key="ins.id" :value="ins.id">
+                                {{ ins.nama }}
+                            </option>
+                        </select>
+                        <p class="text-[11px] text-slate-400 mt-1">Instansi pemohon tidak dapat diubah</p>
                     </div>
-                    <div v-else class="mt-1 text-xs text-gray-500">
-                        Pilih tanggal mulai dari hari ini ({{
-                        new Date().toLocaleDateString('id-ID', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        })
-                        }})
-                    </div>
-                </div>
 
-                <!-- Kategori (Editable) -->
-                <div>
-                    <label for="kategori" class="mb-1 block font-medium text-gray-700">Kategori</label>
-                    <select v-model="form.id_kategori" class="w-full rounded border-gray-300 px-3 py-2 text-base"
-                        id="kategori" required>
-                        <option :value="null" disabled>Pilih kategori</option>
-                        <option v-for="kat in kategoriList" :key="kat.id" :value="kat.id">
-                            {{ kat.nama }}
-                        </option>
-                    </select>
-                </div>
+                    <!-- Jenis Cairan & Volume Sampel -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                                Jenis Sampel / Cairan <span class="text-rose-500">*</span>
+                            </label>
+                            <select
+                                v-model="form.id_jenis_cairan"
+                                required
+                                class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 border-slate-300 dark:border-slate-700"
+                            >
+                                <option value="">-- Pilih Jenis Cairan --</option>
+                                <option v-for="jenis in jenisCairanList" :key="jenis.id" :value="jenis.id">
+                                    {{ jenis.nama }}
+                                </option>
+                            </select>
+                        </div>
 
-                <!-- Parameter (Auto-updated based on kategori) -->
-                <div>
-                    <label class="mb-1 block font-medium text-gray-700">Parameter</label>
-                    <div class="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
-                        <div v-for="param in parameterList" :key="param.id" class="flex items-center">
-                            <input type="checkbox" :value="param.id" v-model="form.parameter"
-                                :disabled="form.id_kategori ? !parameterIsInKategori(param.id) : false"
-                                class="rounded border-gray-300 px-3 py-2 text-base" />
-                            <span class="ml-2" :class="{
-                                    'text-gray-400': form.id_kategori && !parameterIsInKategori(param.id),
-                                }">
-                                {{ param.nama_parameter }}
-                            </span>
+                        <div>
+                            <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                                Volume Sampel (ml) <span class="text-rose-500">*</span>
+                            </label>
+                            <input
+                                type="number"
+                                step="0.1"
+                                min="0"
+                                v-model.number="form.volume_sampel"
+                                required
+                                class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                :class="[validationErrors.volume_sampel ? 'border-rose-500' : 'border-slate-300 dark:border-slate-700']"
+                            />
+                            <p v-if="validationErrors.volume_sampel" class="text-xs text-rose-600 dark:text-rose-400 mt-1 font-medium">
+                                {{ validationErrors.volume_sampel }}
+                            </p>
                         </div>
                     </div>
-                    <!-- Total Biaya -->
-                    <div class="mt-2 text-right font-semibold text-gray-700">
-                        Total Biaya: Rp
-                        {{
-                        parameterList
-                        .filter((p) => form.parameter.includes(p.id))
-                        .reduce((sum, p) => sum + (p.harga || 0), 0)
-                        .toLocaleString('id-ID')
-                        }}
+
+                    <!-- Metode Pengambilan & Lokasi (Read-only info) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                                Metode Pengambilan
+                            </label>
+                            <input
+                                type="text"
+                                :value="form.metode_pengambilan === 'diantar' ? 'Diantar oleh Pemohon' : 'Diambil Petugas PPCU'"
+                                disabled
+                                class="w-full rounded-lg border px-3 py-2 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 cursor-not-allowed"
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                                Lokasi Sampel
+                            </label>
+                            <input
+                                type="text"
+                                :value="form.lokasi || '-'"
+                                disabled
+                                class="w-full rounded-lg border px-3 py-2 text-sm bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 cursor-not-allowed"
+                            />
+                        </div>
                     </div>
-                </div>
 
-                <!-- Keterangan (Disabled) -->
-                <div v-if="form.metode_pengambilan === 'diantar'">
-                    <label class="mb-1 block font-medium text-gray-700">Keterangan</label>
-                    <textarea v-model="form.keterangan" class="w-full rounded border-gray-300 bg-gray-100 p-3"
-                        rows="3"></textarea>
-                </div>
+                    <!-- Jadwal Pengantaran jika diantar -->
+                    <div v-if="form.metode_pengambilan === 'diantar'">
+                        <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                            Jadwal Tanggal Pengantaran <span class="text-rose-500">*</span>
+                        </label>
+                        <input
+                            type="date"
+                            v-model="form.waktu_pengambilan"
+                            :min="new Date().toISOString().split('T')[0]"
+                            class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                            :class="[validationErrors.waktu_pengambilan ? 'border-rose-500' : 'border-slate-300 dark:border-slate-700']"
+                            required
+                        />
+                        <p v-if="validationErrors.waktu_pengambilan" class="text-xs text-rose-600 dark:text-rose-400 mt-1 font-medium">
+                            {{ validationErrors.waktu_pengambilan }}
+                        </p>
+                    </div>
 
-                <!-- Submit -->
-                <div class="flex justify-end">
-                    <button type="submit"
-                        class="rounded bg-blue-600 px-4 py-2 font-semibold text-white transition hover:bg-blue-700"
-                        :disabled="form.processing || Object.keys(validationErrors).length > 0">
-                        Simpan Perubahan
-                    </button>
-                </div>
-            </form>
+                    <!-- Kategori Baku Mutu -->
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                            Kategori Baku Mutu <span class="text-rose-500">*</span>
+                        </label>
+                        <select
+                            v-model="form.id_kategori"
+                            required
+                            class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 border-slate-300 dark:border-slate-700"
+                        >
+                            <option :value="null">-- Pilih Kategori --</option>
+                            <option v-for="kat in kategoriList" :key="kat.id" :value="kat.id">
+                                {{ kat.nama }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Parameter List Checkboxes -->
+                    <div>
+                        <label class="block text-xs font-semibold mb-2 text-slate-700 dark:text-slate-300">
+                            Pilihan Parameter Analisis
+                        </label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 border border-slate-200 dark:border-slate-800 rounded-xl p-3 max-h-56 overflow-y-auto">
+                            <label
+                                v-for="param in parameterList"
+                                :key="param.id"
+                                class="flex items-center gap-2 p-2 rounded-lg cursor-pointer text-xs"
+                                :class="[
+                                    form.parameter.includes(param.id)
+                                        ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-100 font-semibold'
+                                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                ]"
+                            >
+                                <input
+                                    type="checkbox"
+                                    :value="param.id"
+                                    v-model="form.parameter"
+                                    :disabled="form.id_kategori ? !parameterIsInKategori(param.id) : false"
+                                    class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                                />
+                                <span class="truncate">{{ param.nama_parameter }}</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Catatan Tambahan -->
+                    <div>
+                        <label class="block text-xs font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                            Keterangan Tambahan
+                        </label>
+                        <textarea
+                            v-model="form.keterangan"
+                            rows="2"
+                            placeholder="Catatan tambahan bila ada..."
+                            class="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 border-slate-300 dark:border-slate-700"
+                        ></textarea>
+                    </div>
+
+                    <div class="flex justify-end pt-2">
+                        <v-btn
+                            type="submit"
+                            color="primary"
+                            rounded="lg"
+                            prepend-icon="mdi-content-save-outline"
+                            :loading="form.processing"
+                            class="px-6 font-semibold"
+                        >
+                            Simpan Perubahan
+                        </v-btn>
+                    </div>
+                </form>
+            </v-card>
         </div>
     </CustomerLayout>
 </template>

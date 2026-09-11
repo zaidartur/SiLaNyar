@@ -11,6 +11,8 @@ use Inertia\Inertia;
 Route::get('sso/login', [SSOController::class, 'redirect'])->name('sso.login');
 Route::get('sso/callback', [SSOController::class, 'callback'])->name('sso.callback');
 Route::get('sso/logout', [SSOController::class, 'logout'])->name('sso.logout');
+Route::match(['get', 'post'], 'logout', [SSOController::class, 'logout'])->name('logout');
+Route::get('customer/sso/logout', [SSOController::class, 'logout']);
 Route::get('sso/session', [SSOController::class, 'session_exists'])->name('sso.session');
 
 Route::prefix('pegawai')->middleware('auth:web')->group(function () {

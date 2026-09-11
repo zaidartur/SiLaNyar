@@ -1,61 +1,72 @@
 <script setup lang="ts">
 import CustomerLayout from '@/layouts/customer/CustomerLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { computed, ref } from 'vue';
 
 const props = defineProps<{
-    jadwalAmbilTerbaru: any[];
+    jadwal: any[];
 }>();
 
 const selectedFilter = ref('all');
-
-const filteredJadwal = computed(() => {
-    if (selectedFilter.value === 'all') return props.jadwalAmbilTerbaru;
-    return props.jadwalAmbilTerbaru.filter(
-        item => item.status === selectedFilter.value
-    );
-});
 
 const formatTanggal = (tanggalStr: string) => {
     if (!tanggalStr) return '-';
     const date = new Date(tanggalStr);
     return date.toLocaleDateString('id-ID', {
         day: '2-digit',
-        month: '2-digit',
+        month: 'short',
         year: 'numeric',
     });
 };
-// const formatWaktu = (tanggalStr: string) => {
-//     if (!tanggalStr) return '-'
-//     const date = new Date(tanggalStr)
-//     return date.toLocaleTimeString('id-ID', {
-//         hour: '2-digit',
-//         minute: '2-digit'
-//     })
-// }
+
+const filteredJadwal = computed(() => {
+    if (selectedFilter.value === 'all') return props.jadwal || [];
+    return (props.jadwal || []).filter((item: any) => item.status === selectedFilter.value);
+});
 </script>
 
 <template>
+    <Head title="Jadwal Penjemputan Sampel" />
 
-    <Head title="Jadwal Penjemputan" />
-    <CustomerLayout>
-        <div class="mx-auto max-w-6xl p-4">
-            <!-- Navigasi Antar/Jemput -->
-            <div class="mb-4 flex gap-2">
-                <Link href="/customer/jadwal/pengantaran" class="rounded-lg px-4 py-2 font-semibold"
-                    :class="['bg-gray-100 text-customDarkGreen', 'hover:bg-gray-200']">
-                Pengantaran
+    <CustomerLayout title="Jadwal Penjemputan">
+        <div class="space-y-6">
+            <!-- Navigasi Tab Pengantaran / Penjemputan -->
+            <div class="inline-flex p-1 rounded-2xl bg-slate-200/70 dark:bg-slate-800 border border-slate-300/60 dark:border-slate-700">
+                <Link
+                    href="/customer/jadwal/pengantaran"
+                    class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 transition"
+                >
+                    Pengantaran Mandiri
                 </Link>
-                <Link href="/customer/jadwal/penjemputan" class="rounded-lg px-4 py-2 font-semibold"
-                    :class="['bg-customDarkGreen text-white', 'hover:bg-green-800']">
-                Penjemputan
+                <Link
+                    href="/customer/jadwal/penjemputan"
+                    class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-700 text-white shadow-sm transition"
+                >
+                    Penjemputan oleh Petugas
                 </Link>
             </div>
-            <!-- Header -->
-            <div class="mb-4 flex items-center justify-between">
-                <h1 class="text-2xl font-bold">Jadwal Penjemputan</h1>
-                <div class="mb-4 flex items-center justify-between">
-                    <select v-model="selectedFilter" class="rounded-md border px-4 py-2 text-sm">
+
+            <!-- Header Halaman & Filter -->
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2.5">
+                        <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
+                            Jadwal Penjemputan Sampel
+                        </h1>
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                            {{ filteredJadwal.length }} Data
+                        </span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                        Informasi jadwal kedatangan tim laboratorium DLH ke lokasi instansi Anda
+                    </p>
+                </div>
+
+                <div class="w-48">
+                    <select
+                        v-model="selectedFilter"
+                        class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                    >
                         <option value="all">Semua Status</option>
                         <option value="diproses">Diproses</option>
                         <option value="diterima">Diterima</option>
@@ -63,56 +74,73 @@ const formatTanggal = (tanggalStr: string) => {
                 </div>
             </div>
 
-            <!-- Table Jadwal Penjemputan -->
-            <div class="overflow-x-auto">
-                <table class="min-w-full overflow-hidden rounded-xl border bg-white shadow">
-                    <thead>
-                        <tr class="bg-customDarkGreen text-white">
-                            <th class="px-6 py-3 text-left text-xs font-medium uppercase text-white">ID Penjemputan</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium uppercase text-white">Kode Pengajuan</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium uppercase text-white">Nama Instansi</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium uppercase text-white">Nama Pemohon</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium uppercase text-white">Metode Pengambilan
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium uppercase text-white">Waktu Penjemputan
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium uppercase text-white">Keterangan</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium uppercase text-white">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium uppercase text-white">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        <tr v-if="!filteredJadwal.length">
-                            <td colspan="9" class="py-4 text-center text-gray-400">Tidak ada data penjemputan.</td>
-                        </tr>
-                        <tr v-for="(item, index) in filteredJadwal" :key="item.id || index">
-                            <td class="px-6 py-4">{{ item.kode_pengambilan }}</td>
-                            <td class="px-6 py-4">{{ item.form_pengajuan?.kode_pengajuan }}</td>
-                            <td class="px-6 py-4">{{ item.form_pengajuan?.instansi?.nama }}</td>
-                            <td class="px-6 py-4">{{ item.form_pengajuan?.instansi?.user?.nama }}</td>
-                            <td class="px-6 py-4">{{ item.form_pengajuan?.metode_pengambilan }}</td>
-                            <td class="px-6 py-4">{{ formatTanggal(item.waktu_pengambilan) }}</td>
-                            <td class="px-6 py-4">{{ item.keterangan }}</td>
-                            <td class="px-6 py-4">
-                                <span :class="[
-                                    'rounded px-2 py-1 text-xs font-semibold',
-                                    item.status === 'diterima' ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white',
-                                ]">
-                                    {{ item.status }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="flex gap-2">
-                                    <Link :href="route('customer.jadwal.detail', { id: item.id, from: 'penjemputan' })"
-                                        class="text-blue-500">
-                                    <span>👁️</span>
+            <!-- Tabel Data Penjemputan Modern -->
+            <v-card rounded="2xl" elevation="1" class="border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-emerald-900 text-white dark:bg-emerald-950 dark:text-emerald-200 border-b border-emerald-800 dark:border-emerald-900 text-xs font-bold uppercase tracking-wider">
+                                <th class="py-3.5 px-5">Kode Penjemputan</th>
+                                <th class="py-3.5 px-5">Kode Pengajuan</th>
+                                <th class="py-3.5 px-5">Waktu Jadwal</th>
+                                <th class="py-3.5 px-5">Status</th>
+                                <th class="py-3.5 px-5">Keterangan</th>
+                                <th class="py-3.5 px-5 text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800/80 text-xs">
+                            <tr
+                                v-for="(item, index) in filteredJadwal"
+                                :key="item.id || index"
+                                class="transition-colors hover:bg-emerald-50/50 dark:hover:bg-slate-800/60"
+                            >
+                                <td class="py-3.5 px-5 whitespace-nowrap">
+                                    <span class="font-mono font-bold text-xs px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                                        {{ item.kode_pengambilan || `JEM-${item.id}` }}
+                                    </span>
+                                </td>
+                                <td class="py-3.5 px-5 font-mono text-slate-800 dark:text-slate-200 whitespace-nowrap">
+                                    {{ item.form_pengajuan?.kode_pengajuan }}
+                                </td>
+                                <td class="py-3.5 px-5 text-slate-700 dark:text-slate-300 font-medium whitespace-nowrap">
+                                    {{ formatTanggal(item.waktu_pengambilan) }}
+                                </td>
+                                <td class="py-3.5 px-5 whitespace-nowrap">
+                                    <span
+                                        :class="[
+                                            'inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold border',
+                                            item.status === 'diterima'
+                                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800'
+                                                : 'bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border-amber-300 dark:border-amber-800'
+                                        ]"
+                                    >
+                                        {{ item.status === 'diterima' ? 'Diterima' : 'Diproses' }}
+                                    </span>
+                                </td>
+                                <td class="py-3.5 px-5 text-slate-600 dark:text-slate-400">
+                                    {{ item.keterangan || '-' }}
+                                </td>
+                                <td class="py-3.5 px-5 text-right whitespace-nowrap">
+                                    <Link
+                                        :href="`/customer/jadwal/${item.id}`"
+                                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:hover:bg-emerald-900/60 dark:text-emerald-300 text-xs font-semibold transition"
+                                    >
+                                        <v-icon size="14">mdi-eye-outline</v-icon>
+                                        <span>Detail</span>
                                     </Link>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                                </td>
+                            </tr>
+
+                            <tr v-if="filteredJadwal.length === 0">
+                                <td colspan="6" class="text-center py-12 text-slate-400 dark:text-slate-500">
+                                    <v-icon size="36" class="mb-2 text-slate-300 dark:text-slate-600">mdi-truck-delivery-outline</v-icon>
+                                    <p class="font-medium text-xs">Tidak ada data jadwal penjemputan.</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </v-card>
         </div>
     </CustomerLayout>
 </template>

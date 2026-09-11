@@ -1,66 +1,98 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue';
-import { Head } from '@inertiajs/vue3'
-import { defineProps } from 'vue';
+import { Head } from '@inertiajs/vue3';
 
-const { subkategori } = defineProps({
+defineProps<{
     subkategori: {
-        type: Object,
-        required: true,
-    },
-});
+        id: number;
+        nama: string;
+        parameter: {
+            id: number;
+            kode_parameter: string;
+            nama_parameter: string;
+            satuan: string;
+            pivot: {
+                baku_mutu: string;
+            };
+        }[];
+    };
+}>();
 </script>
 
 <template>
-
-    <Head title="Detail SubKategori" />
+    <Head title="Detail Sub-Kategori Sampel" />
     <AdminLayout>
-        <div class="container mx-auto p-6">
-            <div class="mb-6 flex items-center gap-4">
-                <h1 class="text-3xl font-extrabold text-customDarkGreen">Detail SubKategori</h1>
+        <div class="max-w-4xl mx-auto space-y-6">
+            <!-- Header Section -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+                <div>
+                    <span class="px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300">
+                        Klasifikasi Baku Mutu
+                    </span>
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mt-1">
+                        Detail Sub-Kategori: {{ subkategori.nama }}
+                    </h1>
+                </div>
+
+                <v-btn
+                    component="a"
+                    href="/pegawai/subkategori"
+                    variant="outlined"
+                    rounded="lg"
+                    size="small"
+                    prepend-icon="mdi-arrow-left"
+                    class="text-none font-semibold text-xs"
+                >
+                    Kembali
+                </v-btn>
             </div>
-            <div v-if="subkategori">
-                <div class="mb-8 rounded-xl border border-green-200 bg-white p-6 shadow-lg">
-                    <h2 class="mb-4 text-2xl font-bold text-green-700 flex items-center gap-2">
-                        {{ subkategori.nama }}
-                    </h2>
-                    <h3 class="mb-3 text-lg font-semibold text-gray-700">Daftar Parameter</h3>
-                    <div class="overflow-x-auto rounded-lg border border-gray-200">
-                        <table class="min-w-full bg-white">
-                            <thead>
-                                <tr class="bg-green-100 text-green-800">
-                                    <th class="border-b px-6 py-3 text-left text-sm font-bold">Kode Parameter</th>
-                                    <th class="border-b px-6 py-3 text-left text-sm font-bold">Nama Parameter</th>
-                                    <th class="border-b px-6 py-3 text-left text-sm font-bold">Satuan</th>
-                                    <th class="border-b px-6 py-3 text-left text-sm font-bold">Baku Mutu</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="param in subkategori.parameter" :key="param.id"
-                                    class="hover:bg-green-50 transition">
-                                    <td class="border-b px-6 py-3">{{ param.kode_parameter }}</td>
-                                    <td class="border-b px-6 py-3">{{ param.nama_parameter }}</td>
-                                    <td class="border-b px-6 py-3">{{ param.satuan }}</td>
-                                    <td class="border-b px-6 py-3">
-                                        <span
-                                            class="inline-block rounded bg-green-200 px-2 py-1 text-xs font-semibold text-green-800">
-                                            {{ param.pivot.baku_mutu }}
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr v-if="!subkategori.parameter || subkategori.parameter.length === 0">
-                                    <td colspan="4" class="text-center text-gray-400 py-6">Tidak ada parameter.</td>
-                                </tr>
-                            </tbody>
-                        </table>
+
+            <!-- Card Informasi Parameter -->
+            <v-card variant="outlined" rounded="xl" class="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-900 dark:text-slate-100">{{ subkategori.nama }}</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Daftar parameter uji dan acuan baku mutu yang ditetapkan</p>
                     </div>
+                    <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+                        {{ subkategori.parameter?.length || 0 }} parameter
+                    </span>
                 </div>
-            </div>
-            <div v-else>
-                <div class="rounded bg-red-100 text-red-700 p-4 text-center font-semibold">
-                    Data subkategori tidak ditemukan.
+
+                <div class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+                    <table class="w-full text-xs">
+                        <thead>
+                            <tr class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold">
+                                <th class="px-4 py-2.5 text-left w-32">Kode Parameter</th>
+                                <th class="px-4 py-2.5 text-left">Nama Parameter</th>
+                                <th class="px-4 py-2.5 text-center w-28">Satuan</th>
+                                <th class="px-4 py-2.5 text-left w-48">Nilai Baku Mutu Acuan</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                            <tr
+                                v-for="param in subkategori.parameter"
+                                :key="param.id"
+                                class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40"
+                            >
+                                <td class="px-4 py-2.5 font-mono text-slate-500">{{ param.kode_parameter }}</td>
+                                <td class="px-4 py-2.5 font-semibold text-slate-900 dark:text-slate-100">{{ param.nama_parameter }}</td>
+                                <td class="px-4 py-2.5 text-center text-slate-500">{{ param.satuan || '-' }}</td>
+                                <td class="px-4 py-2.5">
+                                    <v-chip size="x-small" variant="tonal" color="primary" class="font-bold">
+                                        {{ param.pivot?.baku_mutu || '-' }}
+                                    </v-chip>
+                                </td>
+                            </tr>
+                            <tr v-if="!subkategori.parameter || subkategori.parameter.length === 0">
+                                <td colspan="4" class="px-4 py-6 text-center text-slate-400">
+                                    Belum ada parameter yang didaftarkan pada sub-kategori ini.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-            </div>
+            </v-card>
         </div>
     </AdminLayout>
 </template>
