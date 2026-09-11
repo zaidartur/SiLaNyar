@@ -17,6 +17,16 @@ const { openLogoutDialog } = useLogoutConfirm();
 const page = usePage();
 
 const user = computed(() => (page.props as any).auth?.user || {});
+const roles = computed<any[]>(() => user.value?.roles || []);
+
+const isCustomer = computed(() => {
+    const hasCustomerRole = roles.value.some((r: any) => {
+        const name = (typeof r === 'string' ? r : r.name || '').toLowerCase();
+        return name === 'pelanggan' || name === 'customer';
+    });
+    const isCustomerPath = (page.url || '').startsWith('/customer');
+    return hasCustomerRole || isCustomerPath;
+});
 
 const userInitials = computed(() => {
     const name = user.value?.nama || 'User';
@@ -29,8 +39,8 @@ const userInitials = computed(() => {
 });
 
 const formattedRole = computed(() => {
-    const roles = user.value?.roles || [];
-    const roleName = roles[0]?.name || 'Pegawai';
+    const rolesList = roles.value;
+    const roleName = rolesList[0]?.name || (isCustomer.value ? 'Pelanggan' : 'Pegawai');
     return roleName
         .split('_')
         .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -100,27 +110,27 @@ const formattedRole = computed(() => {
                     <v-list density="compact" nav class="py-1">
                         <v-list-item
                             prepend-icon="mdi-clipboard-clock-outline"
-                            title="Pengajuan Sampel Masuk"
-                            subtitle="Menunggu verifikasi kelengkapan berkas teknis"
-                            href="/pegawai/pengajuan"
+                            :title="isCustomer ? 'Status Pengajuan Sampel' : 'Pengajuan Sampel Masuk'"
+                            :subtitle="isCustomer ? 'Pantau verifikasi berkas permohonan pengujian' : 'Menunggu verifikasi kelengkapan berkas teknis'"
                             rounded="lg"
-                            class="my-1 text-slate-700 dark:text-slate-200"
+                            class="my-1 text-slate-700 dark:text-slate-200 cursor-pointer"
+                            @click.prevent="router.visit(isCustomer ? '/customer/pengajuan' : '/pegawai/pengajuan')"
                         />
                         <v-list-item
                             prepend-icon="mdi-truck-check-outline"
-                            title="Sampel Tiba di Loket"
-                            subtitle="Petugas PPCU menyelesaikan serah terima contoh uji"
-                            href="/pegawai/pengambilan"
+                            :title="isCustomer ? 'Jadwal Penjemputan / PPCU' : 'Sampel Tiba di Loket'"
+                            :subtitle="isCustomer ? 'Cek jadwal dan progres penjemputan sampel' : 'Petugas PPCU menyelesaikan serah terima contoh uji'"
                             rounded="lg"
-                            class="my-1 text-slate-700 dark:text-slate-200"
+                            class="my-1 text-slate-700 dark:text-slate-200 cursor-pointer"
+                            @click.prevent="router.visit(isCustomer ? '/customer/jadwal/penjemputan' : '/pegawai/pengambilan')"
                         />
                         <v-list-item
-                            prepend-icon="mdi-cash-check"
-                            title="Pembayaran Retribusi"
-                            subtitle="Setoran retribusi laboratorium siap diverifikasi"
-                            href="/pegawai/pembayaran"
+                            prepend-icon="mdi-certificate-outline"
+                            :title="isCustomer ? 'Hasil Uji Lab (LHU)' : 'Pembayaran Retribusi'"
+                            :subtitle="isCustomer ? 'Unduh LHU yang telah terbit dan tersertifikasi' : 'Setoran retribusi laboratorium siap diverifikasi'"
                             rounded="lg"
-                            class="my-1 text-slate-700 dark:text-slate-200"
+                            class="my-1 text-slate-700 dark:text-slate-200 cursor-pointer"
+                            @click.prevent="router.visit(isCustomer ? '/customer/hasiluji' : '/pegawai/pembayaran')"
                         />
                     </v-list>
                 </v-card>
@@ -179,7 +189,7 @@ const formattedRole = computed(() => {
                             title="Profil Saya"
                             rounded="lg"
                             class="text-slate-700 dark:text-slate-200 text-xs cursor-pointer"
-                            @click.prevent="router.visit(formattedRole === 'Pelanggan' ? '/customer/profile/show' : '/pegawai/profile/show')"
+                            @click.prevent="router.visit(isCustomer ? '/customer/profile/show' : '/pegawai/profile/show')"
                         />
                         <v-divider class="my-1" />
                         <v-list-item

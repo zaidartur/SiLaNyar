@@ -113,6 +113,46 @@ export const ADMIN_SIDEBAR_ITEMS: NavigationItem[] = [
     },
 ];
 
+export const CUSTOMER_SIDEBAR_ITEMS: NavigationItem[] = [
+    {
+        title: 'Beranda',
+        href: '/customer/dashboard',
+        icon: 'mdi-view-dashboard-outline',
+    },
+    {
+        title: 'Pengajuan Sampel',
+        href: '/customer/pengajuan',
+        icon: 'mdi-file-document-edit-outline',
+    },
+    {
+        title: 'Jadwal Layanan',
+        href: '#',
+        icon: 'mdi-calendar-clock-outline',
+        children: [
+            {
+                title: 'Penjemputan Sampel (PPCU)',
+                href: '/customer/jadwal/penjemputan',
+                icon: 'mdi-truck-delivery-outline',
+            },
+            {
+                title: 'Pengantaran Mandiri',
+                href: '/customer/jadwal/pengantaran',
+                icon: 'mdi-map-marker-path',
+            },
+        ],
+    },
+    {
+        title: 'Hasil Uji Lab (LHU)',
+        href: '/customer/hasiluji',
+        icon: 'mdi-file-certificate-outline',
+    },
+    {
+        title: 'Profil & Instansi',
+        href: '/customer/profile/show',
+        icon: 'mdi-office-building-cog-outline',
+    },
+];
+
 export const PPCU_BOTTOM_NAV_ITEMS: BottomNavItem[] = [
     {
         label: 'Tugas Hari Ini',

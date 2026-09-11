@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { router, usePage } from '@inertiajs/vue3';
-import { ADMIN_SIDEBAR_ITEMS } from '@/constants/navigation.constants';
+import { ADMIN_SIDEBAR_ITEMS, CUSTOMER_SIDEBAR_ITEMS } from '@/constants/navigation.constants';
 import { useMobileNav } from '@/composables/useMobileNav';
 import { useLogoutConfirm } from '@/composables/useLogoutConfirm';
 import type { NavigationItem } from '@/types/navigation.types';
@@ -17,6 +17,24 @@ const emit = defineEmits<{
 const { isMobile } = useMobileNav();
 const { openLogoutDialog } = useLogoutConfirm();
 const page = usePage();
+
+const user = computed(() => (page.props as any).auth?.user || {});
+const roles = computed<any[]>(() => user.value?.roles || []);
+
+// Deteksi apakah pengguna yang sedang aktif adalah customer/pelanggan
+const isCustomer = computed(() => {
+    const hasCustomerRole = roles.value.some((r: any) => {
+        const name = (typeof r === 'string' ? r : r.name || '').toLowerCase();
+        return name === 'pelanggan' || name === 'customer';
+    });
+    const isCustomerPath = (page.url || '').startsWith('/customer');
+    return hasCustomerRole || isCustomerPath;
+});
+
+// Pilih dataset sidebar sesuai peran pengguna (Pegawai vs Pelanggan)
+const currentSidebarItems = computed<NavigationItem[]>(() => {
+    return isCustomer.value ? CUSTOMER_SIDEBAR_ITEMS : ADMIN_SIDEBAR_ITEMS;
+});
 
 const permissions = computed<string[]>(() => (page.props as any).auth?.permissions || []);
 
@@ -50,7 +68,7 @@ const isGroupActive = (item: NavigationItem): boolean => {
 // Sinkronisasi otomatis agar menu utama terbuka (dropdown) saat submenu aktif
 const syncActiveSubmenu = () => {
     const path = (page.url || '').split('?')[0];
-    ADMIN_SIDEBAR_ITEMS.forEach((item) => {
+    currentSidebarItems.value.forEach((item) => {
         if (item.children && item.children.length > 0) {
             const hasActiveChild = item.children.some((child) => {
                 if (!child.href || child.href === '#') return false;
@@ -113,7 +131,7 @@ const navigateTo = (href?: string) => {
             nav
             class="px-3 py-4 space-y-1"
         >
-            <template v-for="item in ADMIN_SIDEBAR_ITEMS.filter(filterItem)" :key="item.title">
+            <template v-for="item in currentSidebarItems.filter(filterItem)" :key="item.title">
                 <!-- Menu Grup Bersarang (Sub-menu) -->
                 <v-list-group v-if="item.children && item.children.length > 0" :value="item.title">
                     <template #activator="{ props: groupProps }">
