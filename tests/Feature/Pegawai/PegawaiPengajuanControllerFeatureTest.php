@@ -128,6 +128,21 @@ class PegawaiPengajuanControllerFeatureTest extends TestCase
             );
     }
 
+    public function test_show_menampilkan_detail_pengajuan_via_detail_url()
+    {
+        $response = $this->actingAs($this->pegawai)
+            ->get("/pegawai/pengajuan/{$this->pengajuanDiantar->id}/detail");
+
+        $response->assertStatus(200)
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('pegawai/pengajuan/Detail')
+                ->has('pengajuan', fn (Assert $pengajuan) => $pengajuan
+                    ->where('id', $this->pengajuanDiantar->id)
+                    ->etc()
+                )
+            );
+    }
+
     public function test_edit_menampilkan_form_edit_pengajuan()
     {
         $response = $this->actingAs($this->pegawai)

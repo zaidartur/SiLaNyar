@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/admin/AdminLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 interface User {
     id: number;
@@ -45,11 +46,15 @@ interface Pengajuan {
 const props = defineProps<{
     pengajuan: Pengajuan;
 }>();
+
+const page = usePage();
+const permissions = computed<string[]>(() => (page.props as any).auth?.permissions || []);
+const can = (permission: string): boolean => permissions.value.includes(permission);
 </script>
 
 <template>
     <Head title="Detail Pengajuan Sampel Masuk" />
-    <AdminLayout>
+    <AdminLayout title="Detail Pengajuan Sampel">
         <div class="max-w-4xl mx-auto space-y-6">
             <!-- Header Section -->
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
@@ -69,25 +74,24 @@ const props = defineProps<{
 
                 <div class="flex items-center gap-2">
                     <v-btn
-                        component="a"
-                        :href="route('pegawai.pengajuan.edit', props.pengajuan.id)"
+                        v-if="can('edit pengajuan')"
                         color="primary"
                         rounded="lg"
                         size="small"
                         prepend-icon="mdi-pencil-outline"
                         class="text-none font-semibold text-xs"
+                        @click.prevent="router.visit(`/pegawai/pengajuan/${props.pengajuan.id}/edit`)"
                     >
                         Edit Pengajuan
                     </v-btn>
 
                     <v-btn
-                        component="a"
-                        href="/pegawai/pengajuan"
                         variant="outlined"
                         rounded="lg"
                         size="small"
                         prepend-icon="mdi-arrow-left"
                         class="text-none font-semibold text-xs"
+                        @click.prevent="router.visit('/pegawai/pengajuan')"
                     >
                         Kembali
                     </v-btn>
